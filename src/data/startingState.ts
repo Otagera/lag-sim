@@ -1,0 +1,43 @@
+import type { GameState } from '../state/types'
+
+export const STARTING_STATE: GameState = {
+  week: 1,
+  stats: {
+    igr: 12.8,
+    cashReserve: 45,
+    expenditure: 11.2,
+    infrastructureScore: 42,
+    publicTrust: 54,
+    politicalCapital: 100,
+    federalRelationship: 5,
+    securityIndex: 61,
+    corruptionPressure: 28,
+    youthTension: 35,
+  },
+  factions: {
+    businessCommunity: 55,
+    informalEconomy: 50,
+    partyGodfathers: 65,
+    federalGovt: 48,
+    civilSocietyMedia: 44,
+    lgChairmen: 58,
+  },
+  constituencyApproval: {
+    lagosIsland: 60,
+    victoriaIsland: 62,
+    lekki: 55,
+    surulere: 51,
+    oshodi: 47,
+    alimosho: 38,
+    periphery: 35,
+    makoko: 30,
+  },
+  activeEvent: null,
+  eventQueue: [],
+  pendingDelayed: [],
+  resolvedEvents: [],
+  godfatherMessages: [],
+  godfatherRefusalCount: 0,
+  isGameOver: false,
+  mode: 'simple',
+}

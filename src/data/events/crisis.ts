@@ -1,0 +1,157 @@
+import type { EventCard } from '../../state/types'
+
+export const crisisEvents: EventCard[] = [
+  {
+    id: 'powerOutage',
+    title: 'Citywide Power Outage',
+    body: `A major failure in the city's power grid has caused widespread outages, affecting homes, businesses, and critical infrastructure. The public is frustrated and demanding action.`,
+    severity: 'high',
+    category: 'crisis',
+    week: 3,
+    triggerCondition: (state) => state.stats.infrastructureScore < 40,
+    choices: [
+      {
+        id: 'investInGrid',
+        label: 'Invest in Grid Maintenance',
+        description:
+          'Allocate funds to maintain and upgrade the power grid, improving reliability.',
+        immediate: { expenditure: -5, infrastructureScore: +10 },
+        factionImpact: { federalGovt: +5, businessCommunity: +3 },
+        politicalCapitalCost: 20,
+      },
+      {
+        id: 'doNothing',
+        label: 'Do Nothing',
+        description:
+          'Ignore the issue for now, but risk worsening conditions and public dissatisfaction.',
+        immediate: { publicTrust: -10, securityIndex: -5 },
+        factionImpact: { civilSocietyMedia: -5, lgChairmen: -3 },
+      },
+    ],
+  },
+  {
+    id: 'makoko-demolition-order',
+    title: 'Makoko Demolition Order',
+    body: `A federal court has upheld an old demolition order for Makoko waterfront settlement. An estimated 85,000 residents. International NGOs are already preparing statements. Your party wants the land for a real estate play.`,
+    severity: 'critical',
+    category: 'crisis',
+    choices: [
+      {
+        id: 'execute-order',
+        label: 'Execute the Order',
+        description:
+          'Godfather +12, Business +8. Informal Economy -20, Civil Society -25, Trust -15. International backlash.',
+        immediate: { publicTrust: -15 },
+        factionImpact: {
+          partyGodfathers: 12,
+          businessCommunity: 8,
+          informalEconomy: -20,
+          civilSocietyMedia: -25,
+        },
+        constituencyImpact: { makoko: -30 },
+      },
+      {
+        id: 'suspend-resettlement',
+        label: 'Suspend & Resettle',
+        description:
+          'Buys 12 weeks. Costs Political Capital. Godfather -10. Civil Society +12, Trust +8. Resettlement will cost ₦12bn.',
+        immediate: { publicTrust: 8 },
+        factionImpact: { partyGodfathers: -10, civilSocietyMedia: 12 },
+        politicalCapitalCost: 30,
+        delayed: {
+          weekOffset: 12,
+          delta: { cashReserve: -12 },
+          eventText: `Your resettlement plan for Makoko is due. The ₦12bn cost is now on the table.`,
+        },
+      },
+      {
+        id: 'defy-court',
+        label: 'Defy in Court',
+        description:
+          'Trust +15, Civil Society +18. Godfather -18, Federal -10, Party -15. High risk, high reward.',
+        immediate: { publicTrust: 15 },
+        factionImpact: { civilSocietyMedia: 18, partyGodfathers: -18, federalGovt: -10 },
+      },
+    ],
+  },
+  {
+    id: 'building-collapse-lekki',
+    title: 'Building Collapse — Lekki',
+    body: `A 7-storey building under construction in Lekki has collapsed. 23 confirmed dead, 40 missing. The building had a Lagos State Building Control Agency (LASBCA) approval stamp. Someone was paid to approve it.`,
+    severity: 'critical',
+    category: 'crisis',
+    choices: [
+      {
+        id: 'lasbca-audit',
+        label: 'Immediate LASBCA Audit',
+        description:
+          'Suspend approvals. Trust +10, Civil Society +12. Business -15 (projects stalled). Audit reveals 40+ compromised buildings — bigger crisis ahead.',
+        immediate: { publicTrust: 10 },
+        factionImpact: { businessCommunity: -15, civilSocietyMedia: 12 },
+        delayed: {
+          weekOffset: 6,
+          delta: { publicTrust: -8, infrastructureScore: -5 },
+          factionImpact: { civilSocietyMedia: -5 },
+          eventText: `The LASBCA audit has uncovered 40+ buildings with compromised approvals. A wave of enforcement actions has begun.`,
+        },
+      },
+      {
+        id: 'scapegoat-official',
+        label: 'Scapegoat One Official',
+        description:
+          'Trust +3 short-term. Civil Society -8, Corruption Pressure +5. Investigation shows it goes higher (wk 8).',
+        immediate: { publicTrust: 3, corruptionPressure: 5 },
+        factionImpact: { civilSocietyMedia: -8 },
+        delayed: {
+          weekOffset: 8,
+          delta: { publicTrust: -10, corruptionPressure: 5 },
+          factionImpact: { civilSocietyMedia: -10 },
+          eventText: `The investigation into the Lekki building collapse has traced the bribes higher — much higher. The scapegoat story has fallen apart.`,
+        },
+      },
+      {
+        id: 'public-inquiry',
+        label: 'Full Public Inquiry',
+        description:
+          'Trust +8, Civil Society +15. Costs Political Capital. Godfather -10 (one of his is exposed). Takes 8 weeks.',
+        immediate: { publicTrust: 8 },
+        factionImpact: { civilSocietyMedia: 15, partyGodfathers: -10 },
+        politicalCapitalCost: 20,
+      },
+    ],
+  },
+  {
+    id: 'tanker-explosion-berger',
+    title: 'Tanker Explosion — Lagos-Ibadan Expressway',
+    body: `A fuel tanker has exploded at the Berger interchange. 14 dead, 30 vehicles destroyed. The road is closed. Federal expressway — technically FERMA's jurisdiction — but it is in your city and your people are dying.`,
+    severity: 'critical',
+    category: 'crisis',
+    choices: [
+      {
+        id: 'deploy-state-emergency',
+        label: 'Deploy State Emergency Response',
+        description:
+          'Act now. Trust +12, Civil Society +10. Federal -4 (jurisdictional overstep). Costs ₦800m emergency spend.',
+        immediate: { publicTrust: 12, cashReserve: -0.8 },
+        factionImpact: { civilSocietyMedia: 10, federalGovt: -4 },
+      },
+      {
+        id: 'defer-to-ferma',
+        label: 'Defer to FERMA',
+        description:
+          'Correct jurisdictional answer. Trust -8 (looks like passing the buck). Federal +4.',
+        immediate: { publicTrust: -8 },
+        factionImpact: { federalGovt: 4 },
+      },
+      {
+        id: 'joint-press-conference',
+        label: 'Joint Press Conference',
+        description:
+          'Share credit and blame with federal minister. Costs Political Capital. Trust +5, Federal +6, Civil Society +4.',
+        immediate: { publicTrust: 5 },
+        factionImpact: { federalGovt: 6, civilSocietyMedia: 4 },
+        politicalCapitalCost: 20,
+      },
+    ],
+  },
+]
