@@ -15,7 +15,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">
       <header className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Lagos Governor Sim</h1>
+        <h1 className="text-2xl font-bold">City Sim</h1>
         {!isGameOver && (
           <button
             type="button"

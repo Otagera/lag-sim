@@ -1,6 +1,7 @@
 import type { GameState } from '../state/types'
 import { weeklyTick } from './budgetEngine'
 import { drawNextEvent, firePendingDelayed } from './eventEngine'
+import { drawGodfatherAsk, shouldDrawGodfather } from './godfatherEngine'
 import { applyDelta } from './statEngine'
 
 export function tick(state: GameState): GameState {
@@ -25,11 +26,19 @@ export function tick(state: GameState): GameState {
   // 5. Check game over conditions
   next = checkGameOver(next)
 
-  // 6. Draw/trigger next event card(s)
-  if (!next.isGameOver && !next.activeEvent) {
-    const event = drawNextEvent(next)
-    if (event) {
-      next = { ...next, activeEvent: event }
+  // 6. Draw/trigger next event card(s) and godfather messages
+  if (!next.isGameOver) {
+    if (!next.activeEvent) {
+      const event = drawNextEvent(next)
+      if (event) {
+        next = { ...next, activeEvent: event }
+      }
+    }
+    if (shouldDrawGodfather(next)) {
+      const message = drawGodfatherAsk(next)
+      if (message) {
+        next = { ...next, activeGodfatherMessage: message }
+      }
     }
   }
 
