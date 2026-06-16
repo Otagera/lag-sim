@@ -1,6 +1,6 @@
 import { useGameStore } from './state/gameStore'
 import { BudgetPanel } from './ui/BudgetPanel'
-import { Dashboard } from './ui/Dashboard'
+import { Dashboard, TERMS } from './ui/Dashboard'
 import { EventCard } from './ui/EventCard'
 import { FactionPanel } from './ui/FactionPanel'
 import { GodfatherInbox } from './ui/GodfatherInbox'
@@ -11,16 +11,23 @@ function App() {
   const tick = useGameStore((s) => s.tick)
   const isGameOver = useGameStore((s) => s.isGameOver)
   const gameOverReason = useGameStore((s) => s.gameOverReason)
+  const week = useGameStore((s) => s.week)
+
+  const year = Math.ceil(week / 52)
+  const termLabel = TERMS[Math.min(year - 1, TERMS.length - 1)]
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4">
-      <header className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">City Sim</h1>
+    <div className="h-screen bg-gray-900 text-white flex flex-col overflow-hidden">
+      <header className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-800">
+        <div>
+          <h1 className="text-sm font-bold">Lagos Governor Sim</h1>
+          <p className="text-[10px] text-gray-500">{termLabel}</p>
+        </div>
         {!isGameOver && (
           <button
             type="button"
             onClick={tick}
-            className="rounded bg-blue-600 hover:bg-blue-500 px-4 py-2 text-sm font-medium transition-colors"
+            className="rounded bg-blue-600 hover:bg-blue-500 px-3 py-1 text-xs font-medium transition-colors"
           >
             Next Week
           </button>
@@ -28,19 +35,19 @@ function App() {
       </header>
 
       {isGameOver && (
-        <div className="mb-6 rounded-lg bg-red-900/50 border border-red-700 p-4 text-center">
-          <h2 className="text-xl font-bold text-red-400">Game Over</h2>
-          <p className="text-red-200 mt-1">{gameOverReason}</p>
+        <div className="shrink-0 mx-3 mt-2 rounded-lg bg-red-900/50 border border-red-700 p-2 text-center">
+          <h2 className="text-sm font-bold text-red-400">Game Over</h2>
+          <p className="text-xs text-red-200 mt-0.5">{gameOverReason}</p>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 space-y-4">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-2 p-2 overflow-hidden">
+        <div className="lg:col-span-2 space-y-2 overflow-y-auto min-h-0">
           <Dashboard />
           <EventCard />
           <TimelinePanel />
         </div>
-        <div className="space-y-4">
+        <div className="space-y-2 overflow-y-auto min-h-0">
           <FactionPanel />
           <BudgetPanel />
           <PollPanel />

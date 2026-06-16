@@ -9,9 +9,9 @@ beforeEach(() => {
 })
 
 describe('Dashboard', () => {
-  it('renders week number', () => {
+  it('renders week in week/year format', () => {
     render(<Dashboard />)
-    expect(screen.getByText('1')).toBeInTheDocument()
+    expect(screen.getByText('Wk 1, Yr 1')).toBeInTheDocument()
   })
 
   it('renders cash reserve', () => {
@@ -29,9 +29,9 @@ describe('Dashboard', () => {
     expect(screen.getByText('100/200')).toBeInTheDocument()
   })
 
-  it('updates when store changes', () => {
-    useGameStore.setState({ week: 15 })
+  it('shows year 2 for week 53', () => {
+    useGameStore.setState({ week: 53 })
     render(<Dashboard />)
-    expect(screen.getByText('15')).toBeInTheDocument()
+    expect(screen.getByText('Wk 1, Yr 2')).toBeInTheDocument()
   })
 })

@@ -11,22 +11,22 @@ beforeEach(() => {
 describe('FactionPanel', () => {
   it('renders faction labels', () => {
     render(<FactionPanel />)
-    expect(screen.getByText('Party Godfathers')).toBeInTheDocument()
-    expect(screen.getByText('Business Community')).toBeInTheDocument()
+    expect(screen.getByText('Business')).toBeInTheDocument()
+    expect(screen.getByText('Godfathers')).toBeInTheDocument()
     expect(screen.getByText('LG Chairmen')).toBeInTheDocument()
-    expect(screen.getByText('Civil Society & Media')).toBeInTheDocument()
+    expect(screen.getByText('Civil Soc.')).toBeInTheDocument()
   })
 
-  it('renders starting faction values', () => {
+  it('renders starting faction values without + prefix', () => {
     render(<FactionPanel />)
-    expect(screen.getByText('+55')).toBeInTheDocument()
-    expect(screen.getByText('+65')).toBeInTheDocument()
-    expect(screen.getByText('+58')).toBeInTheDocument()
+    expect(screen.getByText('55')).toBeInTheDocument()
+    expect(screen.getByText('65')).toBeInTheDocument()
+    expect(screen.getByText('58')).toBeInTheDocument()
   })
 
   it('updates when store changes', () => {
     useGameStore.setState({ factions: { ...STARTING_STATE.factions, businessCommunity: 20 } })
     render(<FactionPanel />)
-    expect(screen.getByText('+20')).toBeInTheDocument()
+    expect(screen.getByText('20')).toBeInTheDocument()
   })
 })
