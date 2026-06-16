@@ -37,6 +37,7 @@ export const STARTING_STATE: GameState = {
   pendingDelayed: [],
   resolvedEvents: [],
   eventsResolvedThisWeek: 0,
+  consecutiveBankruptWeeks: 0,
   eventCooldowns: {},
   timeline: [],
   godfatherMessages: [],

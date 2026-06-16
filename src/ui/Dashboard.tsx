@@ -27,6 +27,8 @@ export function Dashboard() {
   const cashReserve = useGameStore((s) => s.stats.cashReserve)
   const publicTrust = useGameStore((s) => s.stats.publicTrust)
   const politicalCapital = useGameStore((s) => s.stats.politicalCapital)
+  const stats = useGameStore((s) => s.stats)
+  const mode = useGameStore((s) => s.mode)
 
   const year = Math.ceil(week / 52)
   const weekOfYear = ((week - 1) % 52) + 1
@@ -38,6 +40,21 @@ export function Dashboard() {
       <StatCard label="Cash" value={cashReserve} format={naira} />
       <StatCard label="Trust" value={publicTrust} format={(v) => `${v}%`} />
       <StatCard label="Pol. Cap" value={politicalCapital} format={(v) => `${v}/200`} />
+      {mode === 'detailed' && (
+        <>
+          <StatCard label="IGR" value={stats.igr} format={naira} />
+          <StatCard label="Expenditure" value={stats.expenditure} format={naira} />
+          <StatCard
+            label="Infrastructure"
+            value={stats.infrastructureScore}
+            format={(v) => `${v}/100`}
+          />
+          <StatCard label="Security" value={stats.securityIndex} format={(v) => `${v}/100`} />
+          <StatCard label="Youth Tension" value={stats.youthTension} format={(v) => `${v}/100`} />
+          <StatCard label="Federal Rel." value={stats.federalRelationship} format={(v) => `${v}`} />
+          <StatCard label="Corruption" value={stats.corruptionPressure} format={(v) => `${v}%`} />
+        </>
+      )}
     </div>
   )
 }

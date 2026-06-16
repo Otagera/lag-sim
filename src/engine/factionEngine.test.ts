@@ -56,8 +56,36 @@ describe('applyFactionDeltaState', () => {
 })
 
 describe('drift', () => {
-  it('returns empty delta for now', () => {
-    const result = drift()
-    expect(result).toEqual({})
+  it('returns -2 for factions above 50', () => {
+    const factions = { ...STARTING_STATE.factions, businessCommunity: 70, informalEconomy: 80 }
+    const result = drift(factions)
+    expect(result.businessCommunity).toBe(-2)
+    expect(result.informalEconomy).toBe(-2)
+  })
+
+  it('returns +2 for factions below 50', () => {
+    const factions = { ...STARTING_STATE.factions, federalGovt: 30, lgChairmen: 20 }
+    const result = drift(factions)
+    expect(result.federalGovt).toBe(2)
+    expect(result.lgChairmen).toBe(2)
+  })
+
+  it('does not drift partyGodfathers', () => {
+    const factions = { ...STARTING_STATE.factions, partyGodfathers: 80 }
+    const result = drift(factions)
+    expect(result.partyGodfathers).toBeUndefined()
+  })
+
+  it('returns no delta for factions at exactly 50', () => {
+    const factions = { ...STARTING_STATE.factions, businessCommunity: 50, federalGovt: 50 }
+    const result = drift(factions)
+    expect(result.businessCommunity).toBeUndefined()
+    expect(result.federalGovt).toBeUndefined()
+  })
+
+  it('does not mutate the input factions object', () => {
+    const original = { ...STARTING_STATE.factions }
+    drift(STARTING_STATE.factions)
+    expect(STARTING_STATE.factions).toEqual(original)
   })
 })

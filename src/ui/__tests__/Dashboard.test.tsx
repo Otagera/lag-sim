@@ -9,6 +9,10 @@ beforeEach(() => {
 })
 
 describe('Dashboard', () => {
+  beforeEach(() => {
+    useGameStore.setState({ mode: 'simple' })
+  })
+
   it('renders week in week/year format', () => {
     render(<Dashboard />)
     expect(screen.getByText('Wk 1, Yr 1')).toBeInTheDocument()
@@ -33,5 +37,14 @@ describe('Dashboard', () => {
     useGameStore.setState({ week: 53 })
     render(<Dashboard />)
     expect(screen.getByText('Wk 1, Yr 2')).toBeInTheDocument()
+  })
+
+  it('shows additional stats in detailed mode', () => {
+    useGameStore.setState({ mode: 'detailed' })
+    render(<Dashboard />)
+    expect(screen.getByText('IGR')).toBeInTheDocument()
+    expect(screen.getByText('Infrastructure')).toBeInTheDocument()
+    expect(screen.getByText('Corruption')).toBeInTheDocument()
+    expect(screen.getByText('Youth Tension')).toBeInTheDocument()
   })
 })

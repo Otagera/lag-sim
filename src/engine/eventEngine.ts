@@ -9,7 +9,7 @@ import { applyConstituencyImpact } from './constituencyEngine'
 import { applyFactionDelta } from './factionEngine'
 import { applyDelta } from './statEngine'
 
-const ALL_EVENTS: EventCard[] = [
+export const ALL_EVENTS: EventCard[] = [
   ...transportEvents,
   ...infrastructureEvents,
   ...politicalEvents,
@@ -23,7 +23,32 @@ function isEventAvailable(state: GameState, event: EventCard): boolean {
   if (event.id in state.eventCooldowns) {
     if (state.week < state.eventCooldowns[event.id]) return false
   }
+  if (event.week !== undefined && state.week < event.week) return false
   return true
+}
+
+const SEVERITY_WEIGHT: Record<EventCard['severity'], number> = {
+  low: 3,
+  medium: 2,
+  high: 1,
+  critical: 1,
+}
+
+function getEventWeight(event: EventCard): number {
+  return event.weight ?? SEVERITY_WEIGHT[event.severity]
+}
+
+function weightedSelect(pool: EventCard[]): EventCard | null {
+  const weights = pool.map(getEventWeight)
+  const total = weights.reduce((sum, w) => sum + w, 0)
+  if (total <= 0) return null
+
+  let roll = Math.random() * total
+  for (let i = 0; i < pool.length; i++) {
+    roll -= weights[i]
+    if (roll <= 0) return pool[i]
+  }
+  return pool[pool.length - 1]
 }
 
 export function drawNextEvent(state: GameState): EventCard | null {
@@ -38,7 +63,7 @@ export function drawNextEvent(state: GameState): EventCard | null {
   const pool = available.filter((e) => !e.triggerCondition)
   if (pool.length === 0) return null
 
-  return pool[Math.floor(Math.random() * pool.length)]
+  return weightedSelect(pool)
 }
 
 export function resolveEvent(state: GameState, event: EventCard, choiceId: string): GameState {

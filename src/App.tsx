@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react'
+import { STARTING_STATE } from './data/startingState'
 import { useGameStore } from './state/gameStore'
+import { clearSave, hasSavedGame, loadGame } from './state/persistence'
 import { BudgetPanel } from './ui/BudgetPanel'
 import { Dashboard, TERMS } from './ui/Dashboard'
 import { EventCard } from './ui/EventCard'
@@ -12,6 +15,29 @@ function App() {
   const isGameOver = useGameStore((s) => s.isGameOver)
   const gameOverReason = useGameStore((s) => s.gameOverReason)
   const week = useGameStore((s) => s.week)
+  const mode = useGameStore((s) => s.mode)
+  const setMode = useGameStore((s) => s.setMode)
+  const [showLoadPrompt, setShowLoadPrompt] = useState(false)
+
+  useEffect(() => {
+    if (hasSavedGame()) {
+      setShowLoadPrompt(true)
+    }
+  }, [])
+
+  function handleResume() {
+    const saved = loadGame()
+    if (saved) {
+      useGameStore.setState({ ...saved })
+    }
+    setShowLoadPrompt(false)
+  }
+
+  function handleNewGame() {
+    clearSave()
+    useGameStore.setState({ ...STARTING_STATE })
+    setShowLoadPrompt(false)
+  }
 
   const year = Math.ceil(week / 52)
   const termLabel = TERMS[Math.min(year - 1, TERMS.length - 1)]
@@ -23,16 +49,49 @@ function App() {
           <h1 className="text-sm font-bold">Lagos Governor Sim</h1>
           <p className="text-[10px] text-gray-500">{termLabel}</p>
         </div>
-        {!isGameOver && (
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={tick}
-            className="rounded bg-blue-600 hover:bg-blue-500 px-3 py-1 text-xs font-medium transition-colors"
+            onClick={() => setMode(mode === 'simple' ? 'detailed' : 'simple')}
+            className="rounded bg-gray-700 hover:bg-gray-600 px-2 py-1 text-[10px] font-medium transition-colors"
           >
-            Next Week
+            {mode === 'simple' ? 'Detailed' : 'Simple'}
           </button>
-        )}
+          {!isGameOver && (
+            <button
+              type="button"
+              onClick={tick}
+              className="rounded bg-blue-600 hover:bg-blue-500 px-3 py-1 text-xs font-medium transition-colors"
+            >
+              Next Week
+            </button>
+          )}
+        </div>
       </header>
+
+      {showLoadPrompt && (
+        <div className="shrink-0 mx-3 mt-2 rounded-lg bg-blue-900/50 border border-blue-700 p-3 text-center">
+          <p className="text-xs text-blue-200 mb-2">
+            A saved game was found. Resume where you left off?
+          </p>
+          <div className="flex justify-center gap-2">
+            <button
+              type="button"
+              onClick={handleResume}
+              className="rounded bg-blue-600 hover:bg-blue-500 px-3 py-1 text-xs font-medium"
+            >
+              Resume
+            </button>
+            <button
+              type="button"
+              onClick={handleNewGame}
+              className="rounded bg-gray-700 hover:bg-gray-600 px-3 py-1 text-xs font-medium"
+            >
+              New Game
+            </button>
+          </div>
+        </div>
+      )}
 
       {isGameOver && (
         <div className="shrink-0 mx-3 mt-2 rounded-lg bg-red-900/50 border border-red-700 p-2 text-center">

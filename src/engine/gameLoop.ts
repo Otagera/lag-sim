@@ -1,6 +1,7 @@
 import type { GameState } from '../state/types'
 import { weeklyTick } from './budgetEngine'
 import { drawNextEvent, firePendingDelayed } from './eventEngine'
+import { applyFactionDeltaState, drift } from './factionEngine'
 import { drawGodfatherAsk, shouldDrawGodfather } from './godfatherEngine'
 import { applyDelta } from './statEngine'
 
@@ -17,7 +18,10 @@ export function tick(state: GameState): GameState {
   next = applyDelta(next, budgetDelta)
 
   // 3. Run factionEngine.drift
-  // (stub — drift logic TBD)
+  const driftDelta = drift(next.factions)
+  if (Object.keys(driftDelta).length > 0) {
+    next = applyFactionDeltaState(next, driftDelta)
+  }
 
   // 4. Fire any pendingDelayed events that are due
   const { state: afterDelayed } = firePendingDelayed(next)
@@ -51,44 +55,56 @@ export function tick(state: GameState): GameState {
 function checkGameOver(state: GameState): GameState {
   if (state.isGameOver) return state
 
-  // Bankruptcy: cashReserve < 0 for 3 consecutive weeks
-  // (tracking not yet implemented — placeholder)
+  const next = { ...state }
+
+  if (next.stats.cashReserve < 0) {
+    next.consecutiveBankruptWeeks++
+    if (next.consecutiveBankruptWeeks >= 3) {
+      return {
+        ...next,
+        isGameOver: true,
+        gameOverReason: 'Bankruptcy: Lagos State is insolvent. Civil servants cannot be paid.',
+      }
+    }
+  } else {
+    next.consecutiveBankruptWeeks = 0
+  }
 
   // Federal Takeover: federalRelationship < -40 AND infrastructureScore < 25
-  if (state.stats.federalRelationship < -40 && state.stats.infrastructureScore < 25) {
+  if (next.stats.federalRelationship < -40 && next.stats.infrastructureScore < 25) {
     return {
-      ...state,
+      ...next,
       isGameOver: true,
       gameOverReason: 'Federal Government has taken over Lagos State administration.',
     }
   }
 
   // Mass Uprising: publicTrust < 15 AND youthTension > 85
-  if (state.stats.publicTrust < 15 && state.stats.youthTension > 85) {
+  if (next.stats.publicTrust < 15 && next.stats.youthTension > 85) {
     return {
-      ...state,
+      ...next,
       isGameOver: true,
       gameOverReason: 'Mass uprising has overwhelmed the state government.',
     }
   }
 
   // Party Removal: partyGodfathers < 10 AND week > 52
-  if (state.factions.partyGodfathers < 10 && state.week > 52) {
+  if (next.factions.partyGodfathers < 10 && next.week > 52) {
     return {
-      ...state,
+      ...next,
       isGameOver: true,
       gameOverReason: 'The party has removed you from office.',
     }
   }
 
   // Term End: week > 208
-  if (state.week > 208) {
+  if (next.week > 208) {
     return {
-      ...state,
+      ...next,
       isGameOver: true,
       gameOverReason: 'Your term has ended. Check your final scorecard.',
     }
   }
 
-  return state
+  return next
 }

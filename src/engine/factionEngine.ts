@@ -1,4 +1,15 @@
-import type { FactionDelta, FactionState, GameState } from '../state/types'
+import type { FactionDelta, FactionKey, FactionState, GameState } from '../state/types'
+
+const DRIFT_FACTOR = 2
+const NEUTRAL = 50
+
+const DRIFTING_FACTIONS: FactionKey[] = [
+  'businessCommunity',
+  'informalEconomy',
+  'federalGovt',
+  'civilSocietyMedia',
+  'lgChairmen',
+]
 
 export function applyFactionDelta(factions: FactionState, delta: FactionDelta): FactionState {
   const updated = { ...factions }
@@ -14,6 +25,15 @@ export function applyFactionDeltaState(state: GameState, delta: FactionDelta): G
   return { ...state, factions: applyFactionDelta(state.factions, delta) }
 }
 
-export function drift(): FactionDelta {
-  return {}
+export function drift(factions: FactionState): FactionDelta {
+  const delta: FactionDelta = {}
+  for (const key of DRIFTING_FACTIONS) {
+    const current = factions[key]
+    if (current > NEUTRAL) {
+      delta[key] = -DRIFT_FACTOR
+    } else if (current < NEUTRAL) {
+      delta[key] = DRIFT_FACTOR
+    }
+  }
+  return delta
 }

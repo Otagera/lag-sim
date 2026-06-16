@@ -9,6 +9,10 @@ beforeEach(() => {
 })
 
 describe('BudgetPanel', () => {
+  beforeEach(() => {
+    useGameStore.setState({ mode: 'simple' })
+  })
+
   it('renders IGR and expenditure', () => {
     render(<BudgetPanel />)
     expect(screen.getByText('₦12.80bn')).toBeInTheDocument()
@@ -36,5 +40,14 @@ describe('BudgetPanel', () => {
     const net = screen.getByText(/₦-6\.50bn/)
     expect(net).toBeInTheDocument()
     expect(net.className).toContain('text-red-400')
+  })
+
+  it('shows detailed income/expenditure items in detailed mode', () => {
+    useGameStore.setState({ mode: 'detailed' })
+    render(<BudgetPanel />)
+    expect(screen.getByText('PAYE Tax Collection')).toBeInTheDocument()
+    expect(screen.getByText('Civil Servant Salaries')).toBeInTheDocument()
+    expect(screen.getByText(/Total Income/)).toBeInTheDocument()
+    expect(screen.getByText(/Total Expenditure/)).toBeInTheDocument()
   })
 })

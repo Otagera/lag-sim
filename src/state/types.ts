@@ -65,6 +65,7 @@ export type EventCard = {
   choices: Choice[]
   isRecurring?: boolean
   cooldownWeeks?: number
+  weight?: number
   severity: 'low' | 'medium' | 'high' | 'critical'
   category: 'transport' | 'infrastructure' | 'political' | 'crisis' | 'economy' | 'social'
 }
@@ -107,6 +108,7 @@ export type GameState = {
   pendingDelayed: PendingEvent[]
   resolvedEvents: string[]
   eventsResolvedThisWeek: number
+  consecutiveBankruptWeeks: number
   eventCooldowns: Record<string, number>
   timeline: TimelineEntry[]
   godfatherMessages: GodfatherMessage[]
