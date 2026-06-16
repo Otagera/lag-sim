@@ -8,6 +8,7 @@ import { EventCard } from './ui/EventCard'
 import { FactionPanel } from './ui/FactionPanel'
 import { GodfatherInbox } from './ui/GodfatherInbox'
 import { PollPanel } from './ui/PollPanel'
+import { Scorecard } from './ui/Scorecard'
 import { TimelinePanel } from './ui/TimelinePanel'
 
 function App() {
@@ -93,26 +94,34 @@ function App() {
         </div>
       )}
 
-      {isGameOver && (
-        <div className="shrink-0 mx-3 mt-2 rounded-lg bg-red-900/50 border border-red-700 p-2 text-center">
-          <h2 className="text-sm font-bold text-red-400">Game Over</h2>
-          <p className="text-xs text-red-200 mt-0.5">{gameOverReason}</p>
+      {isGameOver && gameOverReason?.includes('term has ended') ? (
+        <div className="mx-3 mt-2 space-y-2 overflow-y-auto min-h-0 pb-2">
+          <Scorecard />
         </div>
-      )}
+      ) : (
+        <>
+          {isGameOver && (
+            <div className="shrink-0 mx-3 mt-2 rounded-lg bg-red-900/50 border border-red-700 p-2 text-center">
+              <h2 className="text-sm font-bold text-red-400">Game Over</h2>
+              <p className="text-xs text-red-200 mt-0.5">{gameOverReason}</p>
+            </div>
+          )}
 
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-2 p-2 overflow-hidden">
-        <div className="lg:col-span-2 space-y-2 overflow-y-auto min-h-0">
-          <Dashboard />
-          <EventCard />
-          <TimelinePanel />
-        </div>
-        <div className="space-y-2 overflow-y-auto min-h-0">
-          <FactionPanel />
-          <BudgetPanel />
-          <PollPanel />
-          <GodfatherInbox />
-        </div>
-      </div>
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-2 p-2 overflow-hidden">
+            <div className="lg:col-span-2 space-y-2 overflow-y-auto min-h-0">
+              <Dashboard />
+              <EventCard />
+              <TimelinePanel />
+            </div>
+            <div className="space-y-2 overflow-y-auto min-h-0">
+              <FactionPanel />
+              <BudgetPanel />
+              <PollPanel />
+              <GodfatherInbox />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

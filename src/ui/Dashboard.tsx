@@ -38,21 +38,41 @@ export function Dashboard() {
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
       <StatCard label="Week" value={week} format={(_v) => `Wk ${weekOfYear}, Yr ${year}`} />
       <StatCard label="Cash" value={cashReserve} format={naira} />
-      <StatCard label="Trust" value={publicTrust} format={(v) => `${v}%`} />
+      <StatCard label="Trust" value={publicTrust} format={(v) => `${v.toFixed(0)}%`} />
       <StatCard label="Pol. Cap" value={politicalCapital} format={(v) => `${v}/200`} />
       {mode === 'detailed' && (
         <>
-          <StatCard label="IGR" value={stats.igr} format={naira} />
-          <StatCard label="Expenditure" value={stats.expenditure} format={naira} />
+          <StatCard label="IGR" value={stats.igr} format={(v) => `₦${v.toFixed(1)}bn`} />
+          <StatCard
+            label="Expenditure"
+            value={stats.expenditure}
+            format={(v) => `₦${v.toFixed(1)}bn`}
+          />
           <StatCard
             label="Infrastructure"
             value={stats.infrastructureScore}
-            format={(v) => `${v}/100`}
+            format={(v) => `${v.toFixed(1)}/100`}
           />
-          <StatCard label="Security" value={stats.securityIndex} format={(v) => `${v}/100`} />
-          <StatCard label="Youth Tension" value={stats.youthTension} format={(v) => `${v}/100`} />
-          <StatCard label="Federal Rel." value={stats.federalRelationship} format={(v) => `${v}`} />
-          <StatCard label="Corruption" value={stats.corruptionPressure} format={(v) => `${v}%`} />
+          <StatCard
+            label="Security"
+            value={stats.securityIndex}
+            format={(v) => `${v.toFixed(1)}/100`}
+          />
+          <StatCard
+            label="Youth Tension"
+            value={stats.youthTension}
+            format={(v) => `${v.toFixed(1)}/100`}
+          />
+          <StatCard
+            label="Federal Rel."
+            value={stats.federalRelationship}
+            format={(v) => v.toFixed(1)}
+          />
+          <StatCard
+            label="Corruption"
+            value={stats.corruptionPressure}
+            format={(v) => `${v.toFixed(1)}%`}
+          />
         </>
       )}
     </div>
