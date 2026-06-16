@@ -64,6 +64,7 @@ export type EventCard = {
   body: string
   choices: Choice[]
   isRecurring?: boolean
+  cooldownWeeks?: number
   severity: 'low' | 'medium' | 'high' | 'critical'
   category: 'transport' | 'infrastructure' | 'political' | 'crisis' | 'economy' | 'social'
 }
@@ -73,6 +74,13 @@ export type PendingEvent = {
   firesOnWeek: number
   consequence: DelayedConsequence
   sourceEventTitle: string
+}
+
+export type TimelineEntry = {
+  week: number
+  type: 'event' | 'delayed-consequence' | 'godfather' | 'milestone'
+  title: string
+  description: string
 }
 
 export type GodfatherMessage = {
@@ -87,7 +95,6 @@ export type GodfatherAsk = {
   description: string
   onAccept: StatDelta & { factionImpact?: FactionDelta }
   onRefuse: StatDelta & { factionImpact?: FactionDelta }
-  refusalCount: number
 }
 
 export type GameState = {
@@ -99,8 +106,14 @@ export type GameState = {
   eventQueue: EventCard[]
   pendingDelayed: PendingEvent[]
   resolvedEvents: string[]
+  eventsResolvedThisWeek: number
+  eventCooldowns: Record<string, number>
+  timeline: TimelineEntry[]
   godfatherMessages: GodfatherMessage[]
   godfatherRefusalCount: number
+  activeGodfatherMessage: GodfatherMessage | null
+  usedGodfatherAskIds: string[]
+  lastGodfatherWeek: number
   isGameOver: boolean
   gameOverReason?: string
   mode: 'simple' | 'detailed'
