@@ -2,6 +2,7 @@ import { crisisEvents } from '../data/events/crisis'
 import { economyEvents } from '../data/events/economy'
 import { infrastructureEvents } from '../data/events/infrastructure'
 import { politicalEvents } from '../data/events/political'
+import { routineEvents } from '../data/events/routine'
 import { socialEvents } from '../data/events/social'
 import { transportEvents } from '../data/events/transport'
 import type { EventCard, GameState, PendingEvent, TimelineEntry } from '../state/types'
@@ -16,6 +17,7 @@ export const ALL_EVENTS: EventCard[] = [
   ...crisisEvents,
   ...economyEvents,
   ...socialEvents,
+  ...routineEvents,
 ]
 
 function isEventAvailable(state: GameState, event: EventCard): boolean {
