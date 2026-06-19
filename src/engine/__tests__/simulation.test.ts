@@ -24,7 +24,7 @@ const BOUNDS: Record<StatKey, { min: number; max: number }> = {
   landUseChargeEnforcement: { min: 1.0, max: 3.0 },
   grantsCompliance: { min: 0, max: 1.0 },
   civilServiceReformScore: { min: 0, max: 100 },
-  baseOverheads: { min: 0, max: Infinity },
+  baseOverheads: { min: -Infinity, max: Infinity },
   subventionCutRate: { min: 0, max: 0.4 },
   capitalEfficiency: { min: 0, max: 1.0 },
 }

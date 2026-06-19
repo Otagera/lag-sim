@@ -21,13 +21,13 @@ const BTN: Record<ArchetypeKey, string> = {
 }
 
 type Props = {
-  onSelect: () => void
+  onSelect: (key: ArchetypeKey) => void
 }
 
 export function ArchetypeSelectionScreen({ onSelect }: Props) {
   function handleSelect(key: ArchetypeKey) {
     useGameStore.setState(getArchetypeState(key))
-    onSelect()
+    onSelect(key)
   }
 
   return (

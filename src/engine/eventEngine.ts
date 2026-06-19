@@ -80,6 +80,7 @@ export function drawNextEvent(state: GameState): EventCard | null {
     (e) =>
       e.triggerCondition?.(state) &&
       !e.npcArchetype &&
+      !(e.requiresInitiativeSlot && state.activeInitiative) &&
       (e.category !== 'election' || state.inCampaignMode),
   )
   if (triggered) return triggered
@@ -95,6 +96,7 @@ export function drawNextEvent(state: GameState): EventCard | null {
     (e) => !e.triggerCondition
       && e.category !== 'riot'
       && !e.npcArchetype
+      && !(e.requiresInitiativeSlot && state.activeInitiative)
       && (e.category !== 'election' || state.inCampaignMode),
   )
   if (pool.length === 0) return null
@@ -132,6 +134,10 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
 
   if (choice.setFlags) {
     next = { ...next, stateFlags: { ...next.stateFlags, ...choice.setFlags } }
+  }
+
+  if (choice.launchInitiative) {
+    next = { ...next, activeInitiative: choice.launchInitiative }
   }
 
   if (choice.npcImpact) {
@@ -245,7 +251,7 @@ export function firePendingDelayed(state: GameState): {
     // If the delayed consequence chains to a follow-up event, enqueue it
     if (pending.consequence.followUpEventId) {
       const followUp = ALL_EVENTS.find((e) => e.id === pending.consequence.followUpEventId)
-      if (followUp) {
+      if (followUp && isEventAvailable(next, followUp)) {
         next = { ...next, eventQueue: [...(next.eventQueue || []), followUp] }
       }
     }

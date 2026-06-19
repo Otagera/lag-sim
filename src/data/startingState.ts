@@ -69,6 +69,7 @@ export const STARTING_STATE: GameState = {
   highCorruptionWeeks: 0,
   grantFreezeDuration: 0,
   riotModeActive: false,
+  activeInitiative: null,
   isGameOver: false,
   mode: 'simple',
   deputy: null,

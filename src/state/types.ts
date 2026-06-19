@@ -142,6 +142,13 @@ export type Choice = {
   corruptionTrigger?: boolean
   setFlags?: Record<string, boolean>
   npcImpact?: Partial<Record<NPCArchetypeKey, number>>
+  launchInitiative?: {
+    id: string
+    name: string
+    weeksRemaining: number
+    totalWeeks: number
+    completionEventId: string
+  }
 }
 
 export type EventCard = {
@@ -159,6 +166,7 @@ export type EventCard = {
   season?: 'wet' | 'dry'
   npcArchetype?: NPCArchetypeKey
   npcTier?: 'ally' | 'neutral' | 'hostile'
+  requiresInitiativeSlot?: boolean
 }
 
 export type PendingEvent = {
@@ -235,6 +243,14 @@ export type GodfatherAsk = {
   onRefuse: StatDelta & { factionImpact?: FactionDelta }
 }
 
+export type InitiativeState = {
+  id: string
+  name: string
+  weeksRemaining: number
+  totalWeeks: number
+  completionEventId: string
+}
+
 export type GameState = {
   week: number
   stateFlags: Record<string, boolean>
@@ -266,6 +282,7 @@ export type GameState = {
   highCorruptionWeeks: number
   grantFreezeDuration: number
   riotModeActive: boolean
+  activeInitiative: InitiativeState | null
   isGameOver: boolean
   gameOverReason?: string
   mode: 'simple' | 'detailed'

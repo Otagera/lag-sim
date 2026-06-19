@@ -3,7 +3,7 @@ import { NPC_ARCHETYPES } from '../data/npcs'
 import { NPC_DECK_BY_ARCHETYPE } from '../data/events/npcDecks'
 import { calculateHiddenDrag } from './dragEngine'
 import { calculateVoteShare } from './electionEngine'
-import { drawNextEvent, firePendingDelayed } from './eventEngine'
+import { ALL_EVENTS, drawNextEvent, firePendingDelayed } from './eventEngine'
 import { calculateWeeklyExpenditure } from './expenditureEngine'
 import { applyFactionDeltaState, drift } from './factionEngine'
 import { applyFashemuPhaseTransition, drawGodfatherAsk, shouldDrawGodfather } from './godfatherEngine'
@@ -197,6 +197,9 @@ export function tick(state: GameState): GameState {
   next = tickNPCPressure(next)
   next = checkNPCEscalation(next)
 
+  // Initiative tick
+  next = tickInitiative(next)
+
   // Fashemu phase transitions
   next = applyFashemuPhaseTransition(next)
 
@@ -373,6 +376,22 @@ function resolveLGAElection(state: GameState): GameState {
   }
 
   return next
+}
+
+function tickInitiative(state: GameState): GameState {
+  const initiative = state.activeInitiative
+  if (!initiative) return state
+  const weeksRemaining = initiative.weeksRemaining - 1
+  if (weeksRemaining <= 0) {
+    const completionEvent = ALL_EVENTS.find((e) => e.id === initiative.completionEventId)
+    if (!completionEvent) return { ...state, activeInitiative: null }
+    return {
+      ...state,
+      activeInitiative: null,
+      eventQueue: [...state.eventQueue, completionEvent],
+    }
+  }
+  return { ...state, activeInitiative: { ...initiative, weeksRemaining } }
 }
 
 function checkGameOver(state: GameState): GameState {

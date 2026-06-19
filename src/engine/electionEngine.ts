@@ -60,8 +60,10 @@ function fashemuGroundModifier(state: GameState): number {
 
 function npcPenalty(state: GameState): number {
   let penalty = 0
-  if (state.activeNPCs.neo.isActive && state.activeNPCs.neo.relationship < -30) penalty -= 3
-  if (state.activeNPCs.dayo.isActive && state.activeNPCs.dayo.relationship < -30) penalty -= 3
+  const npcs = Object.values(state.activeNPCs)
+  for (const npc of npcs) {
+    if (npc.isActive && npc.relationship < -30) penalty -= 3
+  }
   return penalty
 }
 

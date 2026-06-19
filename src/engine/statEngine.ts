@@ -18,7 +18,7 @@ const BOUNDS: Partial<Record<StatKey, { min: number; max: number }>> = {
   landUseChargeEnforcement: { min: 0, max: 3 },
   grantsCompliance: { min: 0, max: 1 },
   civilServiceReformScore: { min: 0, max: 100 },
-  baseOverheads: { min: 0, max: Infinity },
+
   subventionCutRate: { min: 0, max: 0.4 },
   capitalEfficiency: { min: 0, max: 1 },
 }

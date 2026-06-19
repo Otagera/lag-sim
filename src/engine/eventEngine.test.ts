@@ -545,3 +545,53 @@ describe('firePendingDelayed', () => {
     ALL_EVENTS.pop()
   })
 })
+
+describe('initiative integration', () => {
+  beforeEach(() => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
+  })
+
+  it('sets activeInitiative from choice.launchInitiative', () => {
+    const event: EventCard = {
+      id: 'initiative-test-event',
+      title: 'Launch Test',
+      body: 'Test body',
+      severity: 'high',
+      category: 'economy',
+      choices: [
+        {
+          id: 'launch',
+          label: 'Launch',
+          description: 'Launch initiative',
+          immediate: {},
+          factionImpact: {},
+          launchInitiative: {
+            id: 'test-init',
+            name: 'Test Initiative',
+            weeksRemaining: 5,
+            totalWeeks: 5,
+            completionEventId: 'test-completion',
+          },
+        },
+      ],
+    }
+    const result = resolveEvent(state, event, 'launch')
+    expect(result.activeInitiative).not.toBeNull()
+    expect(result.activeInitiative!.id).toBe('test-init')
+    expect(result.activeInitiative!.weeksRemaining).toBe(5)
+  })
+
+  it('requiresInitiativeSlot events are not drawn when slot is occupied', () => {
+    state.activeInitiative = {
+      id: 'occupying-init',
+      name: 'Occupying',
+      weeksRemaining: 3,
+      totalWeeks: 3,
+      completionEventId: 'test-completion',
+    }
+    const result = drawNextEvent(state)
+    if (result) {
+      expect(result.requiresInitiativeSlot).toBeFalsy()
+    }
+  })
+})

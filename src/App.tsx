@@ -3,6 +3,7 @@ import { STARTING_STATE } from './data/startingState'
 import { useGameStore } from './state/gameStore'
 import { clearSave, hasSavedGame, loadGame } from './state/persistence'
 import { ArchetypeSelectionScreen } from './ui/ArchetypeSelectionScreen'
+import { HandoverNotesModal, hasSeenHandover } from './ui/HandoverNotesModal'
 import { BudgetPanel } from './ui/BudgetPanel'
 import { Dashboard, TERMS } from './ui/Dashboard'
 import { DeputySelectionScreen } from './ui/DeputySelectionScreen'
@@ -27,6 +28,8 @@ function App() {
   const [showWelcome, setShowWelcome] = useState(false)
   const [showArchetypeSelect, setShowArchetypeSelect] = useState(false)
   const [showDeputySelect, setShowDeputySelect] = useState(false)
+  const [showHandover, setShowHandover] = useState(false)
+  const [selectedArchetype, setSelectedArchetype] = useState<'technocrat' | 'loyalist' | 'outsider'>('technocrat')
 
   useEffect(() => {
     if (hasSavedGame()) {
@@ -97,14 +100,26 @@ function App() {
       )}
       {showArchetypeSelect && !showWelcome && (
         <ArchetypeSelectionScreen
-          onSelect={() => {
+          onSelect={(key) => {
+            setSelectedArchetype(key)
             setShowArchetypeSelect(false)
             setShowDeputySelect(true)
           }}
         />
       )}
       {showDeputySelect && !showArchetypeSelect && !showWelcome && (
-        <DeputySelectionScreen onSelect={() => setShowDeputySelect(false)} />
+        <DeputySelectionScreen
+          onSelect={() => {
+            setShowDeputySelect(false)
+            if (!hasSeenHandover()) setShowHandover(true)
+          }}
+        />
+      )}
+      {showHandover && !showDeputySelect && (
+        <HandoverNotesModal
+          archetypeKey={selectedArchetype}
+          onClose={() => setShowHandover(false)}
+        />
       )}
       <header className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-800">
         <div>

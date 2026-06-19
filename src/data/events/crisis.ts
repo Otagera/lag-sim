@@ -161,6 +161,7 @@ export const crisisEvents: EventCard[] = [
     title: 'Makoko Resettlement — Implementation',
     body: `The ₦12bn resettlement plan for Makoko waterfront is due. 85,000 people need new homes. The land earmarked for resettlement is in the periphery — 30km from the city centre, with no road or power infrastructure. Party godfathers want the prime Makoko land for luxury development. The international community is watching.`,
     severity: 'critical',
+    triggerCondition: (state) => state.resolvedEvents.includes('makoko-demolition-order'),
     category: 'crisis',
     choices: [
       {

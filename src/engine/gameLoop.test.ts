@@ -187,3 +187,52 @@ describe('emergency bridge loan', () => {
     expect(result.timeline.some((e) => e.title === 'Credit Exhausted')).toBe(true)
   })
 })
+
+describe('tickInitiative', () => {
+  beforeEach(() => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('does nothing when no active initiative', () => {
+    const state = clone(STARTING_STATE)
+    const result = tick(state)
+    expect(result.activeInitiative).toBeNull()
+  })
+
+  it('decrements weeksRemaining each tick', () => {
+    const state = {
+      ...clone(STARTING_STATE),
+      activeInitiative: {
+        id: 'test-initiative',
+        name: 'Test Initiative',
+        weeksRemaining: 10,
+        totalWeeks: 10,
+        completionEventId: 'test-completion',
+      },
+    }
+    const result = tick(state)
+    expect(result.activeInitiative).not.toBeNull()
+    expect(result.activeInitiative!.weeksRemaining).toBe(9)
+  })
+
+  it('fires completion event and clears slot when timer expires', () => {
+    const state = {
+      ...clone(STARTING_STATE),
+      activeInitiative: {
+        id: 'paye-enforcement',
+        name: 'PAYE Enforcement Drive',
+        weeksRemaining: 1,
+        totalWeeks: 10,
+        completionEventId: 'paye-enforcement-result',
+      },
+    }
+    const result = tick(state)
+    expect(result.activeInitiative).toBeNull()
+    expect(result.eventQueue).toHaveLength(1)
+    expect(result.eventQueue[0].id).toBe('paye-enforcement-result')
+  })
+})
