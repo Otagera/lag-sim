@@ -89,8 +89,18 @@ export function tick(state: GameState): GameState {
     const streak = next.highCorruptionWeeks + 1
     next = { ...next, highCorruptionWeeks: streak }
     if (streak >= 3 && next.grantFreezeDuration === 0) {
+      const freezeCount = next.grantFreezeCount + 1
+      const freezeMessages = [
+        'Sustained extreme corruption has triggered suspension of international grants for 8 weeks.',
+        'International donors have extended the grant suspension. Corruption indicators remain at crisis levels.',
+        'Third consecutive grant suspension. International credit agencies have flagged Lagos for a rating review.',
+      ]
+      const description = freezeMessages[Math.min(freezeCount - 1, freezeMessages.length - 1)]
       next = {
         ...next,
+        grantFreezeCount: freezeCount,
+        // After 3 freezes, grantsCompliance is permanently locked to 0 for the term
+        ...(freezeCount >= 3 ? { stats: { ...next.stats, grantsCompliance: 0 } } : {}),
         grantFreezeDuration: 8,
         timeline: [
           ...next.timeline,
@@ -98,8 +108,7 @@ export function tick(state: GameState): GameState {
             week: next.week,
             type: 'delayed-consequence' as const,
             title: 'International Funding Freeze',
-            description:
-              'Sustained extreme corruption has triggered suspension of international grants for 8 weeks.',
+            description,
           },
         ],
       }
@@ -385,6 +394,10 @@ function tickInitiative(state: GameState): GameState {
   if (weeksRemaining <= 0) {
     const completionEvent = ALL_EVENTS.find((e) => e.id === initiative.completionEventId)
     if (!completionEvent) return { ...state, activeInitiative: null }
+    // Guard: don't re-enqueue a completion event that already resolved
+    const alreadyResolved = state.resolvedEvents.includes(completionEvent.id)
+    const alreadyQueued = state.eventQueue.some((e) => e.id === completionEvent.id)
+    if (alreadyResolved || alreadyQueued) return { ...state, activeInitiative: null }
     return {
       ...state,
       activeInitiative: null,
@@ -447,37 +460,43 @@ function checkGameOver(state: GameState): GameState {
     }
   }
 
-  if (next.factions.partyGodfathers < 10 && next.week > 52) {
-    if (next.impeachmentStage === 0) {
-      next = {
+  // Impeachment arc — check game-over paths first regardless of current godfather level
+  if (next.impeachmentStage >= 1) {
+    const defied = next.timeline.some(
+      (e) => e.title === 'Removal Resolution: First Reading' && e.description === 'Defy the Assembly',
+    )
+    const conceded = next.stateFlags['conceded-to-assembly'] === true
+    if (defied || conceded) {
+      return {
         ...next,
-        impeachmentStage: 1,
-        eventQueue: [...next.eventQueue, removalResolutionEvent],
-      }
-    } else if (next.impeachmentStage === 1) {
-      const resolved = next.resolvedEvents.includes('removal-resolution-first-reading')
-      if (resolved) {
-        const defied = next.timeline.some(
-          (e) =>
-            e.title === 'Removal Resolution: First Reading' &&
-            e.description === 'Defy the Assembly',
-        )
-        if (defied) {
-          return {
-            ...next,
-            impeachmentStage: 2,
-            isGameOver: true,
-            gameOverReason: 'The Lagos State House of Assembly voted to remove you from office.',
-          }
-        }
-        next = { ...next, impeachmentStage: 0 }
+        impeachmentStage: 2,
+        isGameOver: true,
+        gameOverReason: 'The Lagos State House of Assembly voted to remove you from office.',
       }
     }
-  } else if (next.factions.partyGodfathers >= 10 && next.impeachmentStage === 1) {
+  }
+
+  if (next.factions.partyGodfathers < 10 && next.week > 52) {
+    if (next.impeachmentStage === 0) {
+      // Only queue stage 1 if not already in the event queue
+      const alreadyQueued = next.eventQueue.some((e) => e.id === 'removal-resolution-reading')
+      if (!alreadyQueued) {
+        next = {
+          ...next,
+          impeachmentStage: 1,
+          eventQueue: [...next.eventQueue, removalResolutionEvent],
+        }
+      }
+    }
+    // impeachmentStage stays at 1 while partyGodfathers < 10 — no reset to 0 until recovery
+  } else if (next.factions.partyGodfathers >= 20 && next.impeachmentStage === 1) {
+    // Godfathers recovered above 20 — cancel the arc and allow future triggering
     next = {
       ...next,
       impeachmentStage: 0,
-      eventQueue: next.eventQueue.filter((e) => e.id !== 'removal-resolution-first-reading'),
+      eventQueue: next.eventQueue.filter(
+        (e) => !['removal-resolution-reading', 'removal-resolution-committee', 'removal-resolution-floor-vote'].includes(e.id),
+      ),
     }
   }
 

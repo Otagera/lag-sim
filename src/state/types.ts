@@ -160,6 +160,7 @@ export type EventCard = {
   choices: Choice[]
   isRecurring?: boolean
   cooldownWeeks?: number
+  maxTotalFirings?: number
   weight?: number
   severity: 'low' | 'medium' | 'high' | 'critical'
   category: 'transport' | 'infrastructure' | 'political' | 'crisis' | 'economy' | 'social' | 'election' | 'riot'
@@ -280,6 +281,7 @@ export type GameState = {
   impeachmentStage: number
   emergencyLoansTaken: number
   highCorruptionWeeks: number
+  grantFreezeCount: number
   grantFreezeDuration: number
   riotModeActive: boolean
   activeInitiative: InitiativeState | null

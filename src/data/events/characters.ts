@@ -11,8 +11,9 @@ function insiderSlot(state: GameState) {
   return findNPCSlot(state, 'insider')
 }
 
+// Stage 1 of the 3-stage impeachment arc — queued by checkGameOver when partyGodfathers < 10
 export const removalResolutionEvent: EventCard = {
-  id: 'removal-resolution-first-reading',
+  id: 'removal-resolution-reading',
   title: 'Removal Resolution: First Reading',
   body: `The Lagos State House of Assembly has introduced a resolution for your removal from office. The Speaker has ruled it admissible. You have 72 hours to mount a defence.`,
   severity: 'critical',
@@ -21,34 +22,97 @@ export const removalResolutionEvent: EventCard = {
     {
       id: 'fight',
       label: 'Fight It',
-      description: 'Rally allies and challenge the resolution head-on. Costly but clean.',
-      immediate: { politicalCapital: -30 },
-      factionImpact: { partyGodfathers: 5, civilSocietyMedia: 8 },
+      description: 'Challenge the resolution head-on. Sends the matter to a House committee. Costly but survivable.',
+      immediate: { politicalCapital: -20 },
+      factionImpact: { partyGodfathers: 3, civilSocietyMedia: 5 },
+      followUpEventId: 'removal-resolution-committee',
     },
     {
       id: 'negotiate',
       label: 'Negotiate',
-      description: 'Promise concessions to enough members to kill it quietly.',
-      immediate: { politicalCapital: -20 },
-      factionImpact: { partyGodfathers: 8, lgChairmen: -5 },
+      description: 'Promise concessions to enough members to kill it before committee. Political capital and cash — but no further escalation this arc.',
+      immediate: { politicalCapital: -10, cashReserve: -5 },
+      factionImpact: { partyGodfathers: 10, lgChairmen: -5 },
       delayed: {
         weekOffset: 4,
-        delta: { politicalCapital: -15 },
-        factionImpact: { civilSocietyMedia: -10 },
-        eventText: 'The concessions promised during the removal vote come due.',
+        delta: { politicalCapital: -10 },
+        factionImpact: { civilSocietyMedia: -8 },
+        eventText: 'The concessions promised during the removal vote have come due. Assembly members are collecting.',
       },
     },
     {
       id: 'defy',
       label: 'Defy the Assembly',
-      description: 'Refuse to engage. The Assembly proceeds to a full vote.',
+      description: 'Refuse to engage. The Assembly proceeds directly to a full floor vote. This path ends your administration.',
       immediate: {},
       factionImpact: { partyGodfathers: -15, civilSocietyMedia: -10 },
     },
   ],
 }
 
+// Stage 2 — queued via followUpEventId from the "Fight It" choice
+export const removalResolutionCommitteeEvent: EventCard = {
+  id: 'removal-resolution-committee',
+  title: 'Removal Resolution: Committee Stage',
+  body: `The House Impeachment Committee has convened in Ikeja. Three commissioners have been summoned. Financial records from the past two years are on the table. The committee chair is allied with a godfather faction. This is the real fight.`,
+  severity: 'critical',
+  category: 'political',
+  choices: [
+    {
+      id: 'full-disclosure',
+      label: 'Full Disclosure',
+      description: 'Release all requested records publicly. Civil Society rallies to your defence. Corruption pressure falls. The committee motion dies in committee.',
+      immediate: { corruptionPressure: -5, politicalCapital: -15 },
+      factionImpact: { civilSocietyMedia: 10, partyGodfathers: -5 },
+    },
+    {
+      id: 'stonewall',
+      label: 'Stonewall',
+      description: 'Delay, obfuscate, and drag it out. Buys time but sends the matter to the floor.',
+      immediate: { politicalCapital: -5 },
+      factionImpact: { civilSocietyMedia: -12 },
+      followUpEventId: 'removal-resolution-floor-vote',
+    },
+    {
+      id: 'bribe-chair',
+      label: 'Neutralise the Committee Chair',
+      description: 'A private arrangement. Expensive and dirty. The motion dies without ever reaching the floor.',
+      immediate: { cashReserve: -8, corruptionPressure: 5 },
+      factionImpact: { partyGodfathers: 5, civilSocietyMedia: -5 },
+    },
+  ],
+}
+
+// Stage 3 — queued via followUpEventId from the "Stonewall" choice
+export const removalResolutionFloorVoteEvent: EventCard = {
+  id: 'removal-resolution-floor-vote',
+  title: 'Removal Resolution: Floor Vote',
+  body: `The full House of Assembly convenes at midnight. Forty members are needed to remove you. The whipping operation has been running for days. Your fate in the next two hours will define Lagos political history.`,
+  severity: 'critical',
+  category: 'political',
+  choices: [
+    {
+      id: 'mobilise-allies',
+      label: 'Mobilise Every Ally',
+      description: 'Spend everything — political capital, cash, favours. If your faction scores are strong enough, you survive.',
+      immediate: { politicalCapital: -30 },
+      factionImpact: { lgChairmen: 5, partyGodfathers: 5 },
+    },
+    {
+      id: 'accept-outcome',
+      label: 'Accept the Outcome',
+      description: 'Concede with dignity. Your term ends here.',
+      immediate: {},
+      factionImpact: {},
+      setFlags: { 'conceded-to-assembly': true },
+    },
+  ],
+}
+
 export const characterEvents: EventCard[] = [
+  // Impeachment arc stage 2 and 3 — must be in ALL_EVENTS so followUpEventId lookup works
+  removalResolutionCommitteeEvent,
+  removalResolutionFloorVoteEvent,
   // --- Journalist archetype events ---
   {
     id: 'neo-laha-inquiry',
@@ -350,6 +414,9 @@ export const characterEvents: EventCard[] = [
     body: `The Surulere drainage project has mysteriously stalled. Contractor says there is a problem with the site survey approval — a single form lost in LASBCA. Your investigator reports that the party insider's aide was seen at the LASBCA office the day before the form disappeared.`,
     severity: 'medium',
     category: 'political',
+    isRecurring: true,
+    cooldownWeeks: 12,
+    maxTotalFirings: 3,
     triggerCondition: (state) => insiderSlot(state)?.isActive ?? false,
     choices: [
       {

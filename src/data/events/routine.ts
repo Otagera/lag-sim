@@ -9,6 +9,7 @@ export const routineEvents: EventCard[] = [
     category: 'economy',
     isRecurring: true,
     cooldownWeeks: 8,
+    maxTotalFirings: 8,
     choices: [
       {
         id: 'prioritise-infrastructure',
@@ -41,6 +42,7 @@ export const routineEvents: EventCard[] = [
     category: 'political',
     isRecurring: true,
     cooldownWeeks: 10,
+    maxTotalFirings: 6,
     choices: [
       {
         id: 'highlight-successes',
@@ -73,6 +75,7 @@ export const routineEvents: EventCard[] = [
     category: 'economy',
     isRecurring: true,
     cooldownWeeks: 12,
+    maxTotalFirings: 5,
     choices: [
       {
         id: 'approve-digital',
@@ -105,6 +108,7 @@ export const routineEvents: EventCard[] = [
     category: 'crisis',
     isRecurring: true,
     cooldownWeeks: 10,
+    maxTotalFirings: 6,
     choices: [
       {
         id: 'fund-neighbourhood',
@@ -137,6 +141,7 @@ export const routineEvents: EventCard[] = [
     category: 'infrastructure',
     isRecurring: true,
     cooldownWeeks: 10,
+    maxTotalFirings: 5,
     choices: [
       {
         id: 'approve-full-maintenance',
@@ -169,6 +174,7 @@ export const routineEvents: EventCard[] = [
     category: 'social',
     isRecurring: true,
     cooldownWeeks: 10,
+    maxTotalFirings: 5,
     choices: [
       {
         id: 'attend-personally',
@@ -201,6 +207,7 @@ export const routineEvents: EventCard[] = [
     category: 'political',
     isRecurring: true,
     cooldownWeeks: 8,
+    maxTotalFirings: 6,
     choices: [
       {
         id: 'visit-with-fanfare',
@@ -235,6 +242,7 @@ export const routineEvents: EventCard[] = [
     category: 'infrastructure',
     isRecurring: true,
     cooldownWeeks: 12,
+    maxTotalFirings: 6,
     choices: [
       {
         id: 'strict-enforcement',

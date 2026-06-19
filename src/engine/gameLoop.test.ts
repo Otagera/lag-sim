@@ -69,16 +69,16 @@ describe('impeachment flow', () => {
     const result = tick(state)
     expect(result.impeachmentStage).toBe(1)
     expect(result.isGameOver).toBe(false)
-    expect(result.eventQueue.some((e) => e.id === 'removal-resolution-first-reading')).toBe(true)
+    expect(result.eventQueue.some((e) => e.id === 'removal-resolution-reading')).toBe(true)
   })
 
-  it('resets impeachmentStage if partyGodfathers recovers above 10', () => {
+  it('resets impeachmentStage if partyGodfathers recovers to 20 or above', () => {
     const state = {
       ...clone(STARTING_STATE),
       week: 53,
       impeachmentStage: 1,
-      eventQueue: [{ id: 'removal-resolution-first-reading', week: 53, title: '', body: '', severity: 'critical' as const, category: 'political' as const, choices: [] }],
-      factions: { ...STARTING_STATE.factions, partyGodfathers: 15 },
+      eventQueue: [{ id: 'removal-resolution-reading', week: 53, title: '', body: '', severity: 'critical' as const, category: 'political' as const, choices: [] }],
+      factions: { ...STARTING_STATE.factions, partyGodfathers: 25 },
     }
     const result = tick(state)
     expect(result.impeachmentStage).toBe(0)

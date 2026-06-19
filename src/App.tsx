@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { STARTING_STATE } from './data/startingState'
 import { useGameStore } from './state/gameStore'
 import { clearSave, hasSavedGame, loadGame } from './state/persistence'
+import { SAVE_VERSION } from './version'
 import { ArchetypeSelectionScreen } from './ui/ArchetypeSelectionScreen'
 import { HandoverNotesModal, hasSeenHandover } from './ui/HandoverNotesModal'
 import { BudgetPanel } from './ui/BudgetPanel'
@@ -61,6 +62,7 @@ function App() {
   function handleExport() {
     const state = useGameStore.getState()
     const exportData = {
+      version: SAVE_VERSION,
       exportedAt: new Date().toISOString(),
       week: state.week,
       stats: state.stats,

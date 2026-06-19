@@ -41,7 +41,7 @@ A browser-based governance simulation game set in Lagos, Nigeria. The player is 
       political.ts        — also contains Fashemu arc events, deputy events, LGA/primary events
       crisis.ts
       economy.ts
-      characters.ts       — NEO, Dayo, SMJ events + removalResolutionEvent
+      characters.ts       — NEO, Dayo, SMJ events + 3-stage removal arc (removal-resolution-reading → committee → floor-vote)
       election.ts         — 3 mandatory campaign event cards
       llm_generated.ts    — LLM-authored event cards (optional)
   /utils
@@ -153,7 +153,7 @@ type Loan = {
 }
 ```
 
-**EventCard:** no `oneTime` field. Recurring = `isRecurring: true`. One-shot = omit or `isRecurring: false`. `eventQueue: EventCard[]` — push the actual card object, not an id reference.
+**EventCard:** no `oneTime` field. Recurring = `isRecurring: true`. One-shot = omit or `isRecurring: false`. `eventQueue: EventCard[]` — push the actual card object, not an id reference. `maxTotalFirings?: number` — recurring event retires after firing this many times total (counted via `resolvedEvents.filter(id === event.id).length`). Cooldown still applies between firings.
 
 ---
 
@@ -190,7 +190,7 @@ All live in `GameState` (types.ts). Defaults in `startingState.ts`. Persistence 
 | Bankruptcy | `cashReserve < 0` for 3 consecutive weeks | First negative week auto-triggers ₦10bn emergency bridge loan at 35%+ APR |
 | Federal Takeover | `federalRelationship < -40` AND `infrastructureScore < 25` | |
 | Mass Uprising | `publicTrust < 15` AND `youthTension > 85` | |
-| Party Removal | `partyGodfathers < 10` AND week > 52 | Two-stage: first queues "Removal Resolution" event. Defy = instant removal. Fight/Negotiate = survives. Recovery above 10 cancels it. |
+| Party Removal | `partyGodfathers < 10` AND week > 52 | Three-stage arc: (1) `removal-resolution-reading` queued (`impeachmentStage = 1`). "Fight It" → chains to committee stage via `followUpEventId`. "Stonewall" in committee → chains to floor vote. "Accept the Outcome" (floor vote) or "Defy the Assembly" (reading) = game over. Recovery to **≥ 20** (not just > 10) cancels arc and clears queue. Stage stays at 1 until recovery or game over — does not re-trigger. |
 | Term End | `week > 208` | Triggers election result + LegacyScreen |
 
 ---
@@ -353,7 +353,7 @@ Work through these in order. Tick each off when shipped (tests green, build pass
   - Wired in: `eventEngine.ts` (weight bias + PC cost scaling), `gameLoop.ts` (FAAC variance, crunch penalty, election drift). 28 tests in `src/engine/__tests__/seasonEngine.test.ts`.
 
 - [x] **Adjacency-based crisis unlocks** — extreme stat combinations trigger cascades, implemented in `gameLoop.ts`:
-  - **International Funding Freeze**: `corruptionPressure > 75` for 3 consecutive weeks sets `grantFreezeDuration = 8`; `revenueEngine.ts` returns `grants = 0` while active; `highCorruptionWeeks` counter resets if pressure drops below 75.
+  - **International Funding Freeze**: `corruptionPressure > 75` for 3 consecutive weeks sets `grantFreezeDuration = 8`; `revenueEngine.ts` returns `grants = 0` while active; `highCorruptionWeeks` counter resets if pressure drops below 75. `grantFreezeCount` tracks total lifetime freezes — message varies by count; at count ≥ 3, `grantsCompliance` is permanently zeroed.
   - **Riot Mode**: `youthTension > 70` sets `riotModeActive = true`; `drawNextEvent` in `eventEngine.ts` serves only `category: 'riot'` events from `src/data/events/riot.ts` (3 events: curfew, security surge, youth parley) until tension returns to ≤ 70. 15 tests in `src/engine/__tests__/cascades.test.ts`.
 
 - [x] **Governor archetypes (variable starts)** — `src/data/archetypes.ts` defines 3 archetypes via `getArchetypeState(key)` (merges onto `STARTING_STATE`); `ArchetypeSelectionScreen.tsx` shows before `DeputySelectionScreen` in the new-game flow (App.tsx); `STARTING_STATE` itself is unchanged (used as test baseline). Three archetypes:
@@ -383,6 +383,10 @@ Work through these in order. Tick each off when shipped (tests green, build pass
 - [ ] **Commissioner appointment screen** — no UI to browse candidates. Currently only fires via event card. Add a cabinet panel (simple mode: just names; detailed mode: competence/loyalty bars).
 
 - [ ] **NPC relationship display** — no panel showing NEO/Dayo/SMJ status or relationship scores. Add to FactionPanel or a new NPCPanel.
+
+- [ ] **Fast-forward / speed-run mode** — developers need to test week 100+ scenarios without clicking through 100 event cards. Options to explore: (a) a "skip N weeks" dev button in App.tsx (gated by `import.meta.env.DEV`) that calls `tick()` in a loop with `Math.random` seeded, suppressing event draws; (b) a `simulateWeeks(state, n)` pure function in gameLoop.ts usable in test scripts; (c) a URL param `?devmode=fast` that auto-resolves every drawn event using choice index 0. The key constraint: fast-forward must still run through all engine steps (revenue, drag, debt) so the resulting state is game-valid, not synthetic.
+
+- [ ] **Save versioning migration layer** — `persistence.ts` already embeds `version: SAVE_VERSION` (currently `2`) in localStorage and exports. When `SAVE_VERSION` increments, `loadGame` should detect mismatches and either migrate the old save or warn the user. Currently it silently uses `{ ...STARTING_STATE, ...rest }` merge which handles additive changes but not field renames or removals. Add a `migrateV1toV2(raw)` pattern for breaking changes.
 
 ---
 

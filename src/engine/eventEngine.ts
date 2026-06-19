@@ -32,11 +32,16 @@ export const ALL_EVENTS: EventCard[] = [
 ]
 
 function isEventAvailable(state: GameState, event: EventCard): boolean {
-  if (state.resolvedEvents.includes(event.id)) return false
   if (event.id in state.eventCooldowns) {
     if (state.week < state.eventCooldowns[event.id]) return false
   }
   if (event.week !== undefined && state.week < event.week) return false
+  if (event.maxTotalFirings !== undefined) {
+    const count = state.resolvedEvents.filter((id) => id === event.id).length
+    if (count >= event.maxTotalFirings) return false
+    return true
+  }
+  if (state.resolvedEvents.includes(event.id)) return false
   return true
 }
 

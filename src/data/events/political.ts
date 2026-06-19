@@ -706,4 +706,38 @@ export const politicalEvents: EventCard[] = [
       },
     ],
   },
+  {
+    id: 'party-summit-offer',
+    title: 'Party Summit Olive Branch',
+    body: 'The APC Lagos Chapter has called a closed-door summit. Your handlers say the godfathers are willing to reset the relationship — but they want concessions. Showing up is itself a signal of willingness to deal.',
+    severity: 'high',
+    category: 'political',
+    isRecurring: true,
+    cooldownWeeks: 20,
+    triggerCondition: (state) =>
+      state.factions.partyGodfathers < 25 && state.week > 52 && state.impeachmentStage === 0,
+    choices: [
+      {
+        id: 'attend-make-concessions',
+        label: 'Attend and Concede Ground',
+        description: 'Godfathers +20, Political Capital -15.',
+        immediate: { politicalCapital: -15 },
+        factionImpact: { partyGodfathers: 20 },
+      },
+      {
+        id: 'attend-hold-line',
+        label: 'Attend but Hold Your Line',
+        description: 'Godfathers +8. Less costly but less effective.',
+        immediate: { politicalCapital: -5 },
+        factionImpact: { partyGodfathers: 8, civilSocietyMedia: 4 },
+      },
+      {
+        id: 'boycott-summit',
+        label: 'Boycott the Summit',
+        description: 'Godfathers -10. Civil Society +5.',
+        immediate: {},
+        factionImpact: { partyGodfathers: -10, civilSocietyMedia: 5 },
+      },
+    ],
+  },
 ]

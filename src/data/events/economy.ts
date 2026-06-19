@@ -358,4 +358,37 @@ export const economyEvents: EventCard[] = [
       },
     ],
   },
+  {
+    id: 'capital-flight-warning',
+    title: 'Business Confidence Warning',
+    body: 'The Lagos Chamber of Commerce has published a red-flag report. Three multinationals have quietly frozen expansion plans. The business climate survey shows Lagos slipping behind Abuja and Port Harcourt on investment attractiveness.',
+    severity: 'high',
+    category: 'economy',
+    isRecurring: true,
+    cooldownWeeks: 16,
+    triggerCondition: (state) => state.stats.corruptionPressure >= 70,
+    choices: [
+      {
+        id: 'anti-corruption-audit',
+        label: 'Commission Anti-Corruption Audit',
+        description: 'Corruption -8, Political Capital -10. Business Community +8, Godfathers -8.',
+        immediate: { corruptionPressure: -8, politicalCapital: -10 },
+        factionImpact: { businessCommunity: 8, partyGodfathers: -8 },
+      },
+      {
+        id: 'dispute-report',
+        label: 'Dispute the Report',
+        description: 'IGR -0.8bn. Business Community -8, Civil Society -5.',
+        immediate: { igr: -0.8 },
+        factionImpact: { businessCommunity: -8, civilSocietyMedia: -5 },
+      },
+      {
+        id: 'ignore-warning',
+        label: 'Ignore It',
+        description: 'IGR -1.5bn, Corruption +3. Business Community -12.',
+        immediate: { igr: -1.5, corruptionPressure: 3 },
+        factionImpact: { businessCommunity: -12 },
+      },
+    ],
+  },
 ]

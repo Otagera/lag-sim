@@ -67,6 +67,7 @@ export const STARTING_STATE: GameState = {
   impeachmentStage: 0,
   emergencyLoansTaken: 0,
   highCorruptionWeeks: 0,
+  grantFreezeCount: 0,
   grantFreezeDuration: 0,
   riotModeActive: false,
   activeInitiative: null,

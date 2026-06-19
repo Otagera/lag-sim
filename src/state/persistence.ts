@@ -1,10 +1,12 @@
 import { STARTING_STATE } from '../data/startingState'
 import { ALL_EVENTS } from '../engine/eventEngine'
+import { SAVE_VERSION } from '../version'
 import type { EventCard, GameState } from './types'
 
 const SAVE_KEY = 'lagos-governor-sim-save'
 
 type SerializableState = Omit<GameState, 'activeEvent' | 'eventQueue'> & {
+  version: number
   activeEventId: string | null
   eventQueueIds: string[]
 }
@@ -17,6 +19,7 @@ function toSerializable(state: GameState): SerializableState {
   const { activeEvent, eventQueue, ...rest } = state
   return {
     ...rest,
+    version: SAVE_VERSION,
     activeEventId: activeEvent?.id ?? null,
     eventQueueIds: eventQueue.map((e) => e.id),
   }
