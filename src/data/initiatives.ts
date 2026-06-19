@@ -24,4 +24,14 @@ export const INITIATIVE_DEFS: Record<string, { name: string; description: string
     description: 'Biometric verification to remove ghost workers from the state payroll.',
     totalWeeks: 14,
   },
+  'ghost-worker-biometric': {
+    name: 'Ghost Worker Biometric Audit',
+    description: 'Emergency biometric deployment across all MDAs to purge unverified payroll entries.',
+    totalWeeks: 12,
+  },
+  'ghost-worker-committee': {
+    name: 'Ghost Worker Committee Audit',
+    description: 'Legislative committee-led payroll investigation — subject to political constraints.',
+    totalWeeks: 8,
+  },
 }

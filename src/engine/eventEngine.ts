@@ -5,6 +5,7 @@ import { crisisEvents } from '../data/events/crisis'
 import { economyEvents } from '../data/events/economy'
 import { electionEvents } from '../data/events/election'
 import { infrastructureEvents } from '../data/events/infrastructure'
+import { phase4Events } from '../data/events/phase4'
 import { politicalEvents } from '../data/events/political'
 import { riotEvents } from '../data/events/riot'
 import { routineEvents } from '../data/events/routine'
@@ -17,6 +18,9 @@ import { getSeasonModifier } from './seasonEngine'
 import { applyDelta } from './statEngine'
 
 export const ALL_EVENTS: EventCard[] = [
+  // phase4Events first: gives their trigger-condition outcomes (e.g. populist shield)
+  // priority over other simultaneously-triggered events
+  ...phase4Events,
   ...transportEvents,
   ...infrastructureEvents,
   ...politicalEvents,

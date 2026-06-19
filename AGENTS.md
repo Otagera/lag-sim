@@ -44,6 +44,7 @@ A browser-based governance simulation game set in Lagos, Nigeria. The player is 
       economy.ts
       characters.ts       — NEO, Dayo, SMJ events + 3-stage removal arc (removal-resolution-reading → committee → floor-vote)
       election.ts         — 3 mandatory campaign event cards
+      phase4.ts           — Phase 4 "Political Realism" events (Cat 3 + Cat 4; Cat 2 + Cat 1 pending)
       llm_generated.ts    — LLM-authored event cards (optional)
   /utils
     calendar.ts           — weekToDate, formatGameDate, seasonOf (display layer only)
@@ -163,6 +164,10 @@ type Loan = {
 ```
 
 **EventCard:** no `oneTime` field. Recurring = `isRecurring: true`. One-shot = omit or `isRecurring: false`. `eventQueue: EventCard[]` — push the actual card object, not an id reference. `maxTotalFirings?: number` — recurring event retires after firing this many times total (counted via `resolvedEvents.filter(id === event.id).length`). Cooldown still applies between firings.
+
+**Queue-only events** (completion events, mid-initiative events): set `triggerCondition: () => false`. This prevents them from appearing in the random pool (`drawNextEvent` skips them) while still allowing them to fire when explicitly enqueued by `tickInitiative`, `firePendingDelayed`, or `followUpEventId`. Pattern used by all Phase 4 completion/stall events.
+
+**ALL_EVENTS ordering matters for trigger priority**: `phase4Events` is first in the array. When multiple events have a matching `triggerCondition` simultaneously, the first one in `ALL_EVENTS` wins (via `Array.find`). This gives `populist-shield-success` / `populist-shield-fail` priority over other triggered events when the `populist-shield-invoked` flag is set.
 
 **Choice:** `resentmentDelta?: number` — applied to `state.deputy.resentment` in `resolveEvent`. Use negative values on consequence choices that repair the deputy relationship.
 
@@ -430,6 +435,30 @@ Work through these in order. Tick each off when shipped (tests green, build pass
   - `loadGame()` now calls `migrate()` before `fromSerializable()`.
   - To add a future migration: add `if (version < 3) data = migrateV2toV3(data)` to the chain.
   - 9 new tests in `src/state/persistence.test.ts` covering `migrate()` unit tests + `loadGame()` integration (v1 round-trip, field defaults, version stamping).
+
+### Phase 4 — Political Realism (event cards + mechanics)
+
+- [x] **Cat 4: Ghost Worker Purge initiative** — `ghost-worker-crisis-alert` fires when `ghostWorkerRate > 0.14` and no prior purge. Two paths:
+  - **Biometric Audit** (₦8bn, 12 weeks): `ghost-worker-biometric` initiative → `ghost-worker-biometric-success` completion (ghostWorkerRate -0.06, civilServiceReformScore +25)
+  - **Committee Audit** (free, 8 weeks): `ghost-worker-committee` initiative → delayed consequence at week+4 enqueues `ghost-worker-committee-stall`. Paying ₦0.5M allowances lets full investigation proceed; refusing adds ghostWorkerRate +0.02 now. Completion via `ghost-worker-committee-success` (ghostWorkerRate -0.03, reformScore +10). Both paths set `ghost-purge-resolved: true`.
+  - 59 tests in `src/engine/__tests__/phase4CatFourAndThree.test.ts`.
+
+- [x] **Cat 4: Stomach Infrastructure events** — Two recurring event families from week 155 / campaign mode:
+  - `stomach-infrastructure-pressure` (cooldown 10 wks): distribute food/cash vs resist-and-build vs empowerment kits. Constituency impacts on alimosho/oshodi/periphery/makoko.
+  - `rally-funding-demand` (cooldown 12 wks, needs cashReserve > 5): fund from infra budget vs party discretionary account vs digital-only campaign.
+
+- [x] **Cat 3: G-18 Assembly Quorum Maneuver** — `assembly-quorum-maneuver` fires when `partyGodfathers < 22` AND week > 52 AND (hostile insider active OR partyGodfathers < 15). `isRecurring: true, cooldownWeeks: 18`. Three choices:
+  - **Invoke Populist Shield**: sets `populist-shield-invoked: true` flag, costs 15 PC. On next tick, one of two mutually exclusive trigger events fires:
+    - `populist-shield-success` (infra > 60 AND trust > 55): partyGodfathers +10, trust +8, PC +20
+    - `populist-shield-fail` (otherwise): partyGodfathers -12, trust -8, chains to `removal-resolution-reading`
+  - **Buy off rebels**: cash -1.5, PC -20, corruption +5, delayed warning at week+12
+  - **Concede to assembly**: chains directly to `removal-resolution-reading`
+
+- [x] **Cat 3: Neighboring Sanctuary Offer** — `neighboring-sanctuary-offer` fires when `impeachmentStage >= 1` AND `partyGodfathers < 18`. One-shot (stateFlags prevent re-fire). Accept = PC +80, trust -5, partyGodfathers -15, sets `sanctuary-accepted: true`. Refuse = trust +5, PC -10.
+
+- [ ] **Cat 2: Emergency Suspension system** — new state fields needed: `emergencySuspensionWeeks: number`, `administratorActIndex: number`. 5-act suspension arc with `sole-administrator-weekly` event replacing normal event draw. EFCC investigation chain: `efccInvestigationActive` flag.
+
+- [ ] **Cat 1: Judicial Litigation arc** — new state fields: `litigationActive: boolean`, `litigationTimer: number`, `offCycleElection: boolean`. Random event (any archetype) weeks 2-6. Three-event arc: petition → tribunal hearing → Supreme Court ruling.
 
 ---
 
