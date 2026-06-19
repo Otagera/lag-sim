@@ -346,10 +346,11 @@ Work through these in order. Tick each off when shipped (tests green, build pass
 
 - [x] **Event chains / state flags** — `stateFlags: Record<string, boolean>` on GameState; `setFlags?: Record<string, boolean>` on Choice; wired in `resolveEvent`. Four live chains: ghost purge aggressive → `union-court-injunction`; ghost purge quiet → `union-work-to-rule` (week ≥ 20); Fashemu's commissioner → `works-tender-scandal` (week ≥ 30); Makoko demolished → `makoko-land-grab-exposed`. Chain events live in `src/data/events/chains.ts`. 22 tests in `src/engine/__tests__/eventChains.test.ts`.
 
-- [ ] **Lagos Seasons (global modifier)** — at the start of each in-game year, roll a macro-modifier that shifts event weights and stat math:
-  - Rainy Season (weeks 5–17 of each year): flood/drainage events weight 3×, FAAC variance widens
-  - Federal Election Year (year 3): federalRelationship baseline drops, politicalCapital costs scale up
-  - Budget Crunch Quarter: FAAC reduced 20% for 4 weeks
+- [x] **Lagos Seasons (global modifier)** — `getSeasonModifier(week)` in `src/engine/seasonEngine.ts` returns a `SeasonModifier` each tick. Three overlapping conditions:
+  - **Wet season** (June–September, ~weeks 5–18 of year 1): `faacVarianceScale=1.5`, `floodEventWeightMultiplier=3.0`. `lekki-flooding-developer` tagged `season: 'wet'` to pick up the multiplier.
+  - **Federal Election Year** (weeks 1–52 and 157–208 — Nigerian 2027/2031 cycle): `politicalCapitalCostScale=1.2`, `federalRelationshipWeeklyDrift=-0.3/week`, `faacBasePenalty=0.1`.
+  - **Budget Crunch** (December–January, ~weeks 28–35): `faacBasePenalty=0.2` (overrides election-year 0.1).
+  - Wired in: `eventEngine.ts` (weight bias + PC cost scaling), `gameLoop.ts` (FAAC variance, crunch penalty, election drift). 28 tests in `src/engine/__tests__/seasonEngine.test.ts`.
 
 - [ ] **Adjacency-based crisis unlocks** — extreme stat combinations unlock cascades, not just individual event triggers:
   - `corruptionPressure > 75` for 3 consecutive weeks → "International Funding Freeze" (grants drop to 0 for 8 weeks)

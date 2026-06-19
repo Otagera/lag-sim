@@ -36,6 +36,7 @@ export const infrastructureEvents: EventCard[] = [
     body: `Three Lekki Phase 2 estates are underwater after a developer illegally blocked a primary drainage channel during construction. Residents are furious. The developer contributed ₦80m to your campaign.`,
     severity: 'medium',
     category: 'infrastructure',
+    season: 'wet',
     choices: [
       {
         id: 'full-enforcement-fine',

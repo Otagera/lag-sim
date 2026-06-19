@@ -11,6 +11,7 @@ import { transportEvents } from '../data/events/transport'
 import type { EventCard, GameState, PendingEvent, TimelineEntry } from '../state/types'
 import { applyConstituencyImpact } from './constituencyEngine'
 import { applyFactionDelta } from './factionEngine'
+import { getSeasonModifier } from './seasonEngine'
 import { applyDelta } from './statEngine'
 
 export const ALL_EVENTS: EventCard[] = [
@@ -42,12 +43,13 @@ const SEVERITY_WEIGHT: Record<EventCard['severity'], number> = {
   critical: 1,
 }
 
-function getEventWeight(event: EventCard): number {
-  return event.weight ?? SEVERITY_WEIGHT[event.severity]
+function getEventWeight(event: EventCard, floodMultiplier = 1): number {
+  const base = event.weight ?? SEVERITY_WEIGHT[event.severity]
+  return event.season === 'wet' ? base * floodMultiplier : base
 }
 
-function weightedSelect(pool: EventCard[]): EventCard | null {
-  const weights = pool.map(getEventWeight)
+function weightedSelect(pool: EventCard[], floodMultiplier = 1): EventCard | null {
+  const weights = pool.map((e) => getEventWeight(e, floodMultiplier))
   const total = weights.reduce((sum, w) => sum + w, 0)
   if (total <= 0) return null
 
@@ -76,7 +78,8 @@ export function drawNextEvent(state: GameState): EventCard | null {
   const pool = available.filter((e) => !e.triggerCondition)
   if (pool.length === 0) return null
 
-  return weightedSelect(pool)
+  const { floodEventWeightMultiplier } = getSeasonModifier(state.week)
+  return weightedSelect(pool, floodEventWeightMultiplier)
 }
 
 export function resolveEvent(state: GameState, event: EventCard, choiceId: string): GameState {
@@ -97,7 +100,9 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
   }
 
   if (choice.politicalCapitalCost) {
-    next = applyDelta(next, { politicalCapital: -choice.politicalCapitalCost })
+    const { politicalCapitalCostScale } = getSeasonModifier(state.week)
+    const scaledCost = Math.round(choice.politicalCapitalCost * politicalCapitalCostScale)
+    next = applyDelta(next, { politicalCapital: -scaledCost })
   }
 
   if (choice.corruptionTrigger) {

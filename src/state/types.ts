@@ -145,6 +145,7 @@ export type EventCard = {
   weight?: number
   severity: 'low' | 'medium' | 'high' | 'critical'
   category: 'transport' | 'infrastructure' | 'political' | 'crisis' | 'economy' | 'social' | 'election'
+  season?: 'wet' | 'dry'
 }
 
 export type PendingEvent = {

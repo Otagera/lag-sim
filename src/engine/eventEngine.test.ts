@@ -235,7 +235,8 @@ describe('resolveEvent', () => {
         },
       ],
     }
-    const result = resolveEvent(state, event, 'c1')
+    // Use a non-election-year week so politicalCapitalCostScale = 1.0
+    const result = resolveEvent(clone({ ...state, week: 100 }), event, 'c1')
     expect(result.stats.politicalCapital).toBe(80)
   })
 

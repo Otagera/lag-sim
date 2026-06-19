@@ -9,6 +9,7 @@ import { emergencyBridgeLoan } from './debtEngine'
 import { removalResolutionEvent } from '../data/events/characters'
 import { processProjects } from './projectEngine'
 import { calculateWeeklyRevenue } from './revenueEngine'
+import { getSeasonModifier } from './seasonEngine'
 import { applyDelta } from './statEngine'
 
 const CONSTITUENCY_TRUST_WEIGHTS: Partial<Record<string, number>> = {
@@ -47,10 +48,12 @@ export function tick(state: GameState): GameState {
   next.stats.expenditure = expenditure.total
   next.stats.capitalEfficiency = Math.max(0, Math.min(1, capitalEfficiency))
 
-  // Apply FAAC variance
-  next.stats.cashReserve += drag.faacVariance
-  next = { ...next, faacVarianceAccumulated: next.faacVarianceAccumulated + Math.abs(drag.faacVariance) }
-  if (Math.abs(drag.faacVariance) > 2) {
+  // Apply FAAC variance (scaled by season — wet season = wilder swings)
+  const mod = getSeasonModifier(next.week)
+  const scaledFaacVariance = drag.faacVariance * mod.faacVarianceScale
+  next.stats.cashReserve += scaledFaacVariance
+  next = { ...next, faacVarianceAccumulated: next.faacVarianceAccumulated + Math.abs(scaledFaacVariance) }
+  if (Math.abs(scaledFaacVariance) > 2) {
     next = {
       ...next,
       timeline: [
@@ -59,10 +62,21 @@ export function tick(state: GameState): GameState {
           week: next.week,
           type: 'delayed-consequence' as const,
           title: 'FAAC Volatility',
-          description: `Federal allocation ${drag.faacVariance > 0 ? 'surged' : 'fell'} by ₦${Math.abs(drag.faacVariance).toFixed(1)}bn this week.`,
+          description: `Federal allocation ${scaledFaacVariance > 0 ? 'surged' : 'fell'} by ₦${Math.abs(scaledFaacVariance).toFixed(1)}bn this week.${mod.isWetSeason ? ' (Rainy season amplification)' : ''}`,
         },
       ],
     }
+  }
+
+  // Budget crunch (Dec–Jan): Abuja withholds a fraction of FAAC
+  if (mod.faacBasePenalty > 0) {
+    const penalty = revenue.faac * mod.faacBasePenalty
+    next.stats.cashReserve -= penalty
+  }
+
+  // Federal election year: federalRelationship drifts down each week
+  if (mod.federalRelationshipWeeklyDrift !== 0) {
+    next = applyDelta(next, { federalRelationship: mod.federalRelationshipWeeklyDrift })
   }
 
   // Passive corruption rise
