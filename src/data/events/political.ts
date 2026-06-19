@@ -483,35 +483,6 @@ export const politicalEvents: EventCard[] = [
     ],
   },
   {
-    id: 'electionCampaign',
-    title: 'Election Campaign',
-    body: `The city is entering an election season, and political campaigns are heating up. Citizens are paying close attention to candidates' promises and actions.`,
-    severity: 'medium',
-    category: 'political',
-    week: 5,
-    triggerCondition: (state) => state.stats.publicTrust < 50,
-    choices: [
-      {
-        id: 'focusOnPromises',
-        label: 'Focus on Promises',
-        description:
-          'Highlight your campaign promises and plans for the city, aiming to gain public support.',
-        immediate: { publicTrust: +10, politicalCapital: -10 },
-        factionImpact: { civilSocietyMedia: +5, businessCommunity: +3 },
-        politicalCapitalCost: 15,
-      },
-      {
-        id: 'criticizeOpponents',
-        label: 'Criticize Opponents',
-        description:
-          'Launch a campaign against your opponents, but risk alienating some voters and factions.',
-        immediate: { publicTrust: -5, politicalCapital: +10 },
-        factionImpact: { civilSocietyMedia: -3, businessCommunity: -2 },
-        politicalCapitalCost: 10,
-      },
-    ],
-  },
-  {
     id: 'lasg-ghost-workers',
     title: 'LASG Ghost Workers — Payroll Audit',
     body: `An internal audit has found 3,200 ghost workers on the civil service payroll. Monthly drain: approximately ₦640m. The auditors are loyal to you, so this is not yet public. But it won't stay that way.`,

@@ -74,7 +74,9 @@ export function drawNextEvent(state: GameState): EventCard | null {
 
   const available = ALL_EVENTS.filter((e) => isEventAvailable(state, e))
 
-  const triggered = available.find((e) => e.triggerCondition?.(state))
+  const triggered = available.find(
+    (e) => e.triggerCondition?.(state) && (e.category !== 'election' || state.inCampaignMode),
+  )
   if (triggered) return triggered
 
   // Riot mode: normal pool suspended, only riot management events eligible
@@ -84,7 +86,11 @@ export function drawNextEvent(state: GameState): EventCard | null {
     return weightedSelect(riotPool)
   }
 
-  const pool = available.filter((e) => !e.triggerCondition && e.category !== 'riot')
+  const pool = available.filter(
+    (e) => !e.triggerCondition
+      && e.category !== 'riot'
+      && (e.category !== 'election' || state.inCampaignMode),
+  )
   if (pool.length === 0) return null
 
   const { floodEventWeightMultiplier } = getSeasonModifier(state.week)
