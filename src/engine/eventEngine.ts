@@ -57,6 +57,11 @@ export function drawNextEvent(state: GameState): EventCard | null {
   if (state.activeEvent) return null
   if (state.eventsResolvedThisWeek >= 2) return null
 
+  // Check event queue first (chain follow-ups take priority)
+  if (state.eventQueue.length > 0) {
+    return state.eventQueue[0]
+  }
+
   const available = ALL_EVENTS.filter((e) => isEventAvailable(state, e))
 
   const triggered = available.find((e) => e.triggerCondition?.(state))
@@ -104,6 +109,21 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     pendingDelayed = [...pendingDelayed, pending].sort((a, b) => a.firesOnWeek - b.firesOnWeek)
   }
 
+  // Manage event queue:
+  // 1. If this event came from the front of the queue, remove it
+  let eventQueue = [...next.eventQueue]
+  if (eventQueue.length > 0 && eventQueue[0].id === event.id) {
+    eventQueue = eventQueue.slice(1)
+  }
+
+  // 2. If the choice chains to a follow-up event, enqueue it
+  if (choice.followUpEventId) {
+    const followUp = ALL_EVENTS.find((e) => e.id === choice.followUpEventId)
+    if (followUp && isEventAvailable(next, followUp)) {
+      eventQueue = [...eventQueue, followUp]
+    }
+  }
+
   let resolvedEvents = [...next.resolvedEvents]
   const eventCooldowns = { ...next.eventCooldowns }
   if (event.isRecurring && event.cooldownWeeks) {
@@ -117,11 +137,14 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     type: 'event',
     title: event.title,
     description: choice.label,
+    statDelta: choice.immediate,
+    factionDelta: choice.factionImpact,
   }
 
   return {
     ...next,
     activeEvent: null,
+    eventQueue,
     pendingDelayed,
     resolvedEvents,
     eventCooldowns,
@@ -160,6 +183,15 @@ export function firePendingDelayed(state: GameState): {
     if (pending.consequence.constituencyImpact) {
       next = applyConstituencyImpact(next, pending.consequence.constituencyImpact)
     }
+
+    // If the delayed consequence chains to a follow-up event, enqueue it
+    if (pending.consequence.followUpEventId) {
+      const followUp = ALL_EVENTS.find((e) => e.id === pending.consequence.followUpEventId)
+      if (followUp) {
+        next = { ...next, eventQueue: [...(next.eventQueue || []), followUp] }
+      }
+    }
+
     next = {
       ...next,
       timeline: [
@@ -169,6 +201,8 @@ export function firePendingDelayed(state: GameState): {
           type: 'delayed-consequence',
           title: pending.sourceEventTitle,
           description: pending.consequence.eventText,
+          statDelta: pending.consequence.delta,
+          factionDelta: pending.consequence.factionImpact,
         } as TimelineEntry,
       ],
     }

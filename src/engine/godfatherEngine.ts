@@ -69,7 +69,9 @@ export function resolveGodfather(
     activeGodfatherMessage: null,
   }
 
-  if (!accepted) {
+  if (accepted) {
+    newState = { ...newState, godfatherComplianceCount: newState.godfatherComplianceCount + 1 }
+  } else {
     newState = {
       ...newState,
       godfatherRefusalCount: newState.godfatherRefusalCount + 1,

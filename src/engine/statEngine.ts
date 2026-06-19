@@ -10,6 +10,17 @@ const BOUNDS: Partial<Record<StatKey, { min: number; max: number }>> = {
   igr: { min: 0, max: Infinity },
   expenditure: { min: 0, max: Infinity },
   youthTension: { min: 0, max: 100 },
+  ghostWorkerRate: { min: 0.05, max: 0.2 },
+  contractorBacklog: { min: 0, max: Infinity },
+  debtStock: { min: 0, max: Infinity },
+  weeklyDebtRepayment: { min: 0, max: Infinity },
+  weeklyDebtInterest: { min: 0, max: Infinity },
+  landUseChargeEnforcement: { min: 0, max: 3 },
+  grantsCompliance: { min: 0, max: 1 },
+  civilServiceReformScore: { min: 0, max: 100 },
+  baseOverheads: { min: 0, max: Infinity },
+  subventionCutRate: { min: 0, max: 0.4 },
+  capitalEfficiency: { min: 0, max: 1 },
 }
 
 export function applyDelta(state: GameState, delta: StatDelta): GameState {

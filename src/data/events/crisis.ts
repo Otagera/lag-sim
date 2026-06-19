@@ -62,6 +62,7 @@ export const crisisEvents: EventCard[] = [
           weekOffset: 12,
           delta: { cashReserve: -12 },
           eventText: `Your resettlement plan for Makoko is due. The ₦12bn cost is now on the table.`,
+          followUpEventId: 'makoko-resettlement-choice',
         },
       },
       {
@@ -151,6 +152,52 @@ export const crisisEvents: EventCard[] = [
         immediate: { publicTrust: 5 },
         factionImpact: { federalGovt: 6, civilSocietyMedia: 4 },
         politicalCapitalCost: 20,
+      },
+    ],
+  },
+  {
+    id: 'makoko-resettlement-choice',
+    title: 'Makoko Resettlement — Implementation',
+    body: `The ₦12bn resettlement plan for Makoko waterfront is due. 85,000 people need new homes. The land earmarked for resettlement is in the periphery — 30km from the city centre, with no road or power infrastructure. Party godfathers want the prime Makoko land for luxury development. The international community is watching.`,
+    severity: 'critical',
+    category: 'crisis',
+    choices: [
+      {
+        id: 'build-new-estate',
+        label: 'Build New Housing Estate',
+        description:
+          'Construct a proper estate with roads, power, and water. InfrastructureScore +8, CashReserve -8, Trust +10, PublicTrust +5. Godfathers furious (they wanted the land).',
+        immediate: { cashReserve: -8, infrastructureScore: 8, publicTrust: 5 },
+        factionImpact: { partyGodfathers: -12, civilSocietyMedia: 15 },
+        constituencyImpact: { makoko: 20, periphery: 10 },
+        delayed: {
+          weekOffset: 16,
+          delta: { igr: 0.4 },
+          eventText: `The Makoko resettlement estate is complete. New economic activity in the periphery is generating ₦400m weekly in additional IGR.`,
+        },
+      },
+      {
+        id: 'cash-compensation',
+        label: 'Cash Compensation',
+        description:
+          'Pay each family ₦1.5m cash. CashReserve -12, Trust +4. BusinessCommunity +8 (prime waterfront freed). Civil Society angry at inadequate compensation.',
+        immediate: { cashReserve: -12, publicTrust: 4 },
+        factionImpact: { businessCommunity: 8, partyGodfathers: 10, civilSocietyMedia: -12 },
+        constituencyImpact: { makoko: -5 },
+      },
+      {
+        id: 'mixed-approach',
+        label: 'Mixed Approach',
+        description:
+          'Build basic housing, provide partial cash. CashReserve -4, InfrastructureScore +4, PoliticalCapital -15. Everyone moderately unhappy.',
+        immediate: { cashReserve: -4, infrastructureScore: 4, politicalCapital: -15 },
+        factionImpact: {},
+        constituencyImpact: { makoko: 8, periphery: 5 },
+        delayed: {
+          weekOffset: 12,
+          delta: { publicTrust: 4 },
+          eventText: `The phased Makoko resettlement is progressing. Not perfect, but no one is actively protesting.`,
+        },
       },
     ],
   },

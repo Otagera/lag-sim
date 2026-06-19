@@ -9,6 +9,17 @@ export type StatKey =
   | 'securityIndex'
   | 'corruptionPressure'
   | 'youthTension'
+  | 'ghostWorkerRate'
+  | 'contractorBacklog'
+  | 'debtStock'
+  | 'weeklyDebtRepayment'
+  | 'weeklyDebtInterest'
+  | 'landUseChargeEnforcement'
+  | 'grantsCompliance'
+  | 'civilServiceReformScore'
+  | 'baseOverheads'
+  | 'subventionCutRate'
+  | 'capitalEfficiency'
 
 export type StatDelta = Partial<Record<StatKey, number>>
 
@@ -36,12 +47,76 @@ export type ConstituencyKey =
 
 export type ConstituencyApproval = Record<ConstituencyKey, number>
 
+export type RevenueBreakdown = {
+  paye: number
+  mda: number
+  luc: number
+  other: number
+  faac: number
+  grants: number
+  total: number
+}
+
+export type ExpenditureBreakdown = {
+  personnel: number
+  debtInterest: number
+  debtRepayment: number
+  overheads: number
+  subventions: number
+  contractorPayment: number
+  total: number
+}
+
+export type HiddenDrag = {
+  procurementLeakage: number
+  ghostRegenRate: number
+  overheadCreep: number
+  faacVariance: number
+}
+
+export type ProjectStatus = 'active' | 'stalled' | 'completed' | 'abandoned'
+
+export type CapitalProject = {
+  id: string
+  name: string
+  location: ConstituencyKey
+  totalCost: number
+  weeklyDraw: number
+  totalSpent: number
+  effectiveProgress: number
+  contractorId: string
+  weeksRemaining: number
+  status: ProjectStatus
+  stalledReason?: 'backlog' | 'political' | 'flooding' | 'procurement_inquiry'
+}
+
+export type LoanSource = 'domestic_bank' | 'world_bank' | 'bond_issuance' | 'federal_govt'
+
+export type LoanTerms = {
+  annualRate: number
+  tenorYears: number
+  negotiationWeeks: number
+  conditions?: string[]
+}
+
+export type Loan = {
+  id: string
+  source: LoanSource
+  principal: number
+  outstanding: number
+  weeklyRepayment: number
+  weeklyInterest: number
+  disbursedOnWeek: number
+  conditions: string[]
+}
+
 export type DelayedConsequence = {
   weekOffset: number
   delta: StatDelta
   factionImpact?: FactionDelta
   eventText: string
   constituencyImpact?: Partial<ConstituencyApproval>
+  followUpEventId?: string
 }
 
 export type Choice = {
@@ -52,6 +127,7 @@ export type Choice = {
   factionImpact: FactionDelta
   constituencyImpact?: Partial<ConstituencyApproval>
   delayed?: DelayedConsequence
+  followUpEventId?: string
   politicalCapitalCost?: number
   corruptionTrigger?: boolean
 }
@@ -82,6 +158,8 @@ export type TimelineEntry = {
   type: 'event' | 'delayed-consequence' | 'godfather' | 'milestone'
   title: string
   description: string
+  statDelta?: StatDelta
+  factionDelta?: FactionDelta
 }
 
 export type GodfatherMessage = {
@@ -116,6 +194,13 @@ export type GameState = {
   activeGodfatherMessage: GodfatherMessage | null
   usedGodfatherAskIds: string[]
   lastGodfatherWeek: number
+  activeLoans: Loan[]
+  capitalProjects: CapitalProject[]
+  faacVarianceAccumulated: number
+  consecutiveDeficitWeeks: number
+  lastWeekRevenue?: RevenueBreakdown
+  lastWeekExpenditure?: ExpenditureBreakdown
+  godfatherComplianceCount: number
   isGameOver: boolean
   gameOverReason?: string
   mode: 'simple' | 'detailed'

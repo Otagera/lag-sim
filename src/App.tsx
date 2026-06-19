@@ -10,6 +10,7 @@ import { GodfatherInbox } from './ui/GodfatherInbox'
 import { PollPanel } from './ui/PollPanel'
 import { Scorecard } from './ui/Scorecard'
 import { TimelinePanel } from './ui/TimelinePanel'
+import { WelcomeModal, hasSeenIntro } from './ui/WelcomeModal'
 
 function App() {
   const tick = useGameStore((s) => s.tick)
@@ -19,10 +20,13 @@ function App() {
   const mode = useGameStore((s) => s.mode)
   const setMode = useGameStore((s) => s.setMode)
   const [showLoadPrompt, setShowLoadPrompt] = useState(false)
+  const [showWelcome, setShowWelcome] = useState(false)
 
   useEffect(() => {
     if (hasSavedGame()) {
       setShowLoadPrompt(true)
+    } else if (!hasSeenIntro()) {
+      setShowWelcome(true)
     }
   }, [])
 
@@ -38,6 +42,35 @@ function App() {
     clearSave()
     useGameStore.setState({ ...STARTING_STATE })
     setShowLoadPrompt(false)
+    if (!hasSeenIntro()) {
+      setShowWelcome(true)
+    }
+  }
+
+  function handleExport() {
+    const state = useGameStore.getState()
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      week: state.week,
+      stats: state.stats,
+      factions: state.factions,
+      constituencyApproval: state.constituencyApproval,
+      budget: {
+        lastWeekRevenue: state.lastWeekRevenue,
+        lastWeekExpenditure: state.lastWeekExpenditure,
+      },
+      loans: state.activeLoans,
+      pendingDelayed: state.pendingDelayed,
+      timeline: state.timeline,
+      resolvedEvents: state.resolvedEvents,
+    }
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `lagos-save-week${state.week}.json`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   const year = Math.ceil(week / 52)
@@ -45,12 +78,21 @@ function App() {
 
   return (
     <div className="h-screen bg-gray-900 text-white flex flex-col overflow-hidden">
+      {showWelcome && <WelcomeModal onStart={() => setShowWelcome(false)} />}
       <header className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-800">
         <div>
           <h1 className="text-sm font-bold">Lagos Governor Sim</h1>
           <p className="text-[10px] text-gray-500">{termLabel}</p>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleExport}
+            className="rounded bg-gray-700 hover:bg-gray-600 px-2 py-1 text-[10px] font-medium transition-colors"
+            title="Download current game state as JSON"
+          >
+            Export
+          </button>
           <button
             type="button"
             onClick={() => setMode(mode === 'simple' ? 'detailed' : 'simple')}

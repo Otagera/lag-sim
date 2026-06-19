@@ -88,6 +88,7 @@ export const infrastructureEvents: EventCard[] = [
           delta: { publicTrust: -18, corruptionPressure: 10 },
           factionImpact: { civilSocietyMedia: -15 },
           eventText: `The Eko Atlantic erosion report you suppressed has leaked. The backlash is severe.`,
+          followUpEventId: 'eko-atlantic-damage-control',
         },
       },
       {
@@ -170,6 +171,44 @@ export const infrastructureEvents: EventCard[] = [
         immediate: {},
         factionImpact: {},
         politicalCapitalCost: 20,
+      },
+    ],
+  },
+  {
+    id: 'eko-atlantic-damage-control',
+    title: 'Eko Atlantic Erosion — Cover-Up Exposed',
+    body: `The leaked report showing that Eko Atlantic's sea wall is accelerating erosion is the lead story everywhere. Civil society has called for your head. The British High Commission has quietly inquired about investor protection — the developers are connected to London. Your administration is on the defensive.`,
+    severity: 'high',
+    category: 'infrastructure',
+    choices: [
+      {
+        id: 'full-admission-reverse',
+        label: 'Full Admission & Reversal',
+        description:
+          'Admit the suppression was wrong, reverse course, demand developer contribution. PublicTrust +10, PoliticalCapital -20, CivilSociety +12, BusinessCommunity -8.',
+        immediate: { publicTrust: 10, politicalCapital: -20 },
+        factionImpact: { civilSocietyMedia: 12, businessCommunity: -8, partyGodfathers: -5 },
+        delayed: {
+          weekOffset: 8,
+          delta: { infrastructureScore: 8 },
+          eventText: `The Eko Atlantic course reversal is working. Independent engineers confirm the new coastal protection measures are holding.`,
+        },
+      },
+      {
+        id: 'blame-rogue-staff',
+        label: 'Blame Rogue Staff',
+        description:
+          'Blame a mid-level official for the suppression. PoliticalCapital -5, CorruptionPressure +5, CivilSociety -10. Partially contains the damage.',
+        immediate: { politicalCapital: -5, corruptionPressure: 5 },
+        factionImpact: { civilSocietyMedia: -10 },
+      },
+      {
+        id: 'ride-it-out',
+        label: 'Ride It Out',
+        description:
+          'Say nothing, let the cycle pass. PublicTrust -4 continues to decay. Spend nothing, save Political Capital.',
+        immediate: { publicTrust: -4 },
+        factionImpact: {},
       },
     ],
   },

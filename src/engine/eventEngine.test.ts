@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { STARTING_STATE } from '../data/startingState'
 import type { EventCard, GameState } from '../state/types'
-import { drawNextEvent, resolveEvent, firePendingDelayed } from './eventEngine'
+import { ALL_EVENTS, drawNextEvent, resolveEvent, firePendingDelayed } from './eventEngine'
 
 function clone(s: GameState): GameState {
   return JSON.parse(JSON.stringify(s))
@@ -85,6 +85,35 @@ describe('drawNextEvent', () => {
     spy.mockReturnValue(0.5)
     const event = drawNextEvent(state)
     expect(event).not.toBeNull()
+  })
+})
+
+describe('drawNextEvent with eventQueue', () => {
+  it('returns event from queue before checking pool', () => {
+    const queuedEvent: EventCard = {
+      id: 'queued-test',
+      title: 'Queued Event',
+      body: 'From queue',
+      severity: 'medium',
+      category: 'political',
+      choices: [{ id: 'c1', label: 'A', description: 'D', immediate: {}, factionImpact: {} }],
+    }
+    state.eventQueue = [queuedEvent]
+    const event = drawNextEvent(state)
+    expect(event).not.toBeNull()
+    expect(event!.id).toBe('queued-test')
+  })
+
+  it('returns pool event when queue is empty', () => {
+    state.eventQueue = []
+    const event = drawNextEvent(state)
+    expect(event).not.toBeNull()
+  })
+
+  it('returns null when activeEvent is present even with queue', () => {
+    state.eventQueue = [{ id: 'q', title: 'Q', body: '', severity: 'low', category: 'crisis', choices: [] }]
+    state.activeEvent = { id: 'active' } as EventCard
+    expect(drawNextEvent(state)).toBeNull()
   })
 })
 
@@ -310,6 +339,62 @@ describe('resolveEvent', () => {
     expect(result.timeline[0].description).toBe('Chosen Path')
   })
 
+  it('queues follow-up event from choice followUpEventId', () => {
+    const followUp: EventCard = {
+      id: 'follow-up-test',
+      title: 'Follow Up',
+      body: 'Follow-up body',
+      severity: 'low',
+      category: 'social',
+      choices: [{ id: 'c1', label: 'A', description: 'D', immediate: {}, factionImpact: {} }],
+    }
+    ALL_EVENTS.push(followUp)
+    const parentEvent: EventCard = {
+      id: 'parent-test',
+      title: 'Parent',
+      body: 'Parent body',
+      severity: 'medium',
+      category: 'political',
+      choices: [
+        {
+          id: 'c1',
+          label: 'Chain',
+          description: 'Chains to follow-up',
+          immediate: {},
+          factionImpact: {},
+          followUpEventId: 'follow-up-test',
+        },
+      ],
+    }
+    const result = resolveEvent(state, parentEvent, 'c1')
+    expect(result.eventQueue).toHaveLength(1)
+    expect(result.eventQueue[0].id).toBe('follow-up-test')
+    ALL_EVENTS.pop()
+  })
+
+  it('removes event from queue front when resolved event came from queue', () => {
+    const firstEvent: EventCard = {
+      id: 'first-queued',
+      title: 'First',
+      body: 'First in queue',
+      severity: 'low',
+      category: 'crisis',
+      choices: [{ id: 'c1', label: 'A', description: 'D', immediate: {}, factionImpact: {} }],
+    }
+    const secondEvent: EventCard = {
+      id: 'second-queued',
+      title: 'Second',
+      body: 'Second in queue',
+      severity: 'low',
+      category: 'crisis',
+      choices: [{ id: 'c1', label: 'A', description: 'D', immediate: {}, factionImpact: {} }],
+    }
+    state.eventQueue = [firstEvent, secondEvent]
+    const result = resolveEvent(state, firstEvent, 'c1')
+    expect(result.eventQueue).toHaveLength(1)
+    expect(result.eventQueue[0].id).toBe('second-queued')
+  })
+
   it('returns state unchanged when choiceId not found', () => {
     const event: EventCard = {
       id: 'test-event-11',
@@ -426,5 +511,35 @@ describe('firePendingDelayed', () => {
     const { state: result, fired } = firePendingDelayed(state)
     expect(fired).toHaveLength(0)
     expect(result).toBe(state) // same reference
+  })
+
+  it('queues follow-up event from delayed consequence followUpEventId', () => {
+    const followUp: EventCard = {
+      id: 'delayed-follow-up-test',
+      title: 'Delayed Follow-Up',
+      body: 'Follow-up from delayed',
+      severity: 'low',
+      category: 'crisis',
+      choices: [{ id: 'c1', label: 'A', description: 'D', immediate: {}, factionImpact: {} }],
+    }
+    ALL_EVENTS.push(followUp)
+    state.week = 10
+    state.pendingDelayed = [
+      {
+        id: 'delayed-with-chain',
+        firesOnWeek: 8,
+        sourceEventTitle: 'Chain Source',
+        consequence: {
+          weekOffset: 2,
+          delta: {},
+          eventText: 'Delayed fired',
+          followUpEventId: 'delayed-follow-up-test',
+        },
+      },
+    ]
+    const { state: result } = firePendingDelayed(state)
+    expect(result.eventQueue).toHaveLength(1)
+    expect(result.eventQueue[0].id).toBe('delayed-follow-up-test')
+    ALL_EVENTS.pop()
   })
 })
