@@ -11,6 +11,8 @@ type SerializableState = Omit<GameState, 'activeEvent' | 'eventQueue'> & {
   eventQueueIds: string[]
 }
 
+type RawSaveData = Record<string, unknown>
+
 function lookupEvent(id: string): EventCard | undefined {
   return ALL_EVENTS.find((e) => e.id === id)
 }
@@ -37,6 +39,39 @@ function fromSerializable(data: SerializableState): GameState {
   return { ...STARTING_STATE, ...rest, activeEvent, eventQueue }
 }
 
+// ── Migration chain ───────────────────────────────────────────────────────────
+
+function migrateV1toV2(raw: RawSaveData): RawSaveData {
+  // v1 had no `version` field. All new phase-2 fields (deputy, commissioners,
+  // activeNPCs, inCampaignMode, etc.) are handled by the STARTING_STATE merge
+  // in fromSerializable — no structural renames needed, purely additive.
+  return { ...raw, version: 2 }
+}
+
+/**
+ * Applies any needed migrations to bring a raw save up to SAVE_VERSION.
+ * Exported so persistence tests can verify migration logic in isolation.
+ */
+export function migrate(raw: RawSaveData): SerializableState {
+  const version = typeof raw.version === 'number' ? raw.version : 1
+
+  if (version > SAVE_VERSION) {
+    console.warn(
+      `[persistence] Save version ${version} is newer than game version ${SAVE_VERSION}. ` +
+        `Loading anyway — some features may not work correctly.`,
+    )
+    return raw as SerializableState
+  }
+
+  let data: RawSaveData = raw
+  if (version < 2) data = migrateV1toV2(data)
+  // Add future migrations here: if (version < 3) data = migrateV2toV3(data)
+
+  return data as SerializableState
+}
+
+// ── Public API ────────────────────────────────────────────────────────────────
+
 export function saveGame(state: GameState): void {
   try {
     const serializable = toSerializable(state)
@@ -50,9 +85,10 @@ export function loadGame(): GameState | null {
   try {
     const raw = localStorage.getItem(SAVE_KEY)
     if (!raw) return null
-    const data = JSON.parse(raw) as SerializableState
-    if (!data || typeof data.week !== 'number') return null
-    return fromSerializable(data)
+    const parsed = JSON.parse(raw) as RawSaveData
+    if (!parsed || typeof parsed.week !== 'number') return null
+    const migrated = migrate(parsed)
+    return fromSerializable(migrated)
   } catch (e) {
     console.warn('Failed to load saved game:', e)
     return null

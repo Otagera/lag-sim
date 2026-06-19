@@ -409,7 +409,7 @@ Work through these in order. Tick each off when shipped (tests green, build pass
 
 ### Tech Debt
 
-- [ ] **simulation.test.ts BOUNDS coverage** — `BOUNDS` in the test only covers 10 of 21 `StatKey` values. Change type to `Partial<Record<StatKey, ...>>` and add entries for `ghostWorkerRate`, `contractorBacklog`, `debtStock`, `weeklyDebtRepayment`, `weeklyDebtInterest`, `landUseChargeEnforcement`, `grantsCompliance`, `civilServiceReformScore`, `baseOverheads`, `subventionCutRate`, `capitalEfficiency`.
+- [x] **simulation.test.ts BOUNDS coverage** — `BOUNDS` in `simulation.test.ts` is `Record<StatKey, { min, max }>` (non-partial, enforces all 21 stat keys at compile time). All 21 StatKey values are present with correct bounds. The type being `Record` (not `Partial`) means TypeScript will error if a new StatKey is added without a corresponding BOUNDS entry — stronger than the original `Partial` suggestion.
 
 - [x] **Campaign mode UI** — `inCampaignMode` flag activates at week 195. `App.tsx` renders a purple banner ("ELECTION CAMPAIGN MODE — Week 195+ · Every decision counts") directly below the header when `inCampaignMode === true` and the game is not over.
 
@@ -423,7 +423,13 @@ Work through these in order. Tick each off when shipped (tests green, build pass
   - `fastForward(n, options)` action on the Zustand store wraps `simulateWeeks` and writes state.
   - `DevPanel` component (`src/ui/DevPanel.tsx`) renders only in `import.meta.env.DEV` (bottom-right corner, collapsible). Shows strategy/weeks/seed inputs, a "⏩ Skip N weeks" button, and a before/after diff of key stats + factions after each run.
 
-- [ ] **Save versioning migration layer** — `persistence.ts` already embeds `version: SAVE_VERSION` (currently `2`) in localStorage and exports. When `SAVE_VERSION` increments, `loadGame` should detect mismatches and either migrate the old save or warn the user. Currently it silently uses `{ ...STARTING_STATE, ...rest }` merge which handles additive changes but not field renames or removals. Add a `migrateV1toV2(raw)` pattern for breaking changes.
+- [x] **Save versioning migration layer** — `persistence.ts` exports `migrate(raw): SerializableState`. Chain pattern:
+  - `migrate()` reads `raw.version` (defaults to 1 if absent — that's how v1 saves are identified).
+  - If version < 2: calls `migrateV1toV2(raw)` which stamps `version: 2`. Missing phase-2 fields are handled downstream by the `{ ...STARTING_STATE, ...rest }` merge in `fromSerializable`.
+  - If version > SAVE_VERSION (save is newer than the game build): logs a console warning and loads anyway — don't lose a future save.
+  - `loadGame()` now calls `migrate()` before `fromSerializable()`.
+  - To add a future migration: add `if (version < 3) data = migrateV2toV3(data)` to the chain.
+  - 9 new tests in `src/state/persistence.test.ts` covering `migrate()` unit tests + `loadGame()` integration (v1 round-trip, field defaults, version stamping).
 
 ---
 
