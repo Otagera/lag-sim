@@ -29,15 +29,15 @@ describe('drawNextEvent', () => {
   })
 
   it('returns triggered event when trigger condition matches', () => {
-    const triggeredEvent = {
-      id: 'crisis-test',
-      title: 'Test Crisis',
-      body: 'Test body',
-      severity: 'high' as const,
-      category: 'crisis' as const,
-      triggerCondition: (s: GameState) => s.stats.publicTrust < 20,
-      choices: [],
-    }
+    // const triggeredEvent = {
+    //   id: 'crisis-test',
+    //   title: 'Test Crisis',
+    //   body: 'Test body',
+    //   severity: 'high' as const,
+    //   category: 'crisis' as const,
+    //   triggerCondition: (s: GameState) => s.stats.publicTrust < 20,
+    //   choices: [],
+    // }
     // Our code uses ALL_EVENTS which is a module-level constant built from imported files
     // We can't inject events directly, but we can test by observing behavior with real events
     // that have trigger conditions
@@ -68,17 +68,18 @@ describe('drawNextEvent', () => {
   })
 
   it('uses severity-based weighting (low=3, medium=2, high=1, critical=1)', () => {
-    const pool = [
-      { id: 'a', title: 'A', body: '', severity: 'low' as const, category: 'crisis' as const, choices: [] },
-      { id: 'b', title: 'B', body: '', severity: 'critical' as const, category: 'crisis' as const, choices: [] },
-    ]
+    // const pool = [
+    //   { id: 'a', title: 'A', body: '', severity: 'low' as const, category: 'crisis' as const, choices: [] },
+    //   { id: 'b', title: 'B', body: '', severity: 'critical' as const, category: 'crisis' as const, choices: [] },
+    // ]
     vi.restoreAllMocks()
     const spy = vi.spyOn(Math, 'random')
+    spy.mockReturnValueOnce(0.24)
+    // const a = { id: 'a', weight: undefined, severity: 'low', category: 'crisis', choices: [], title: 'A', body: '', triggerCondition: undefined }
+    // const b = { id: 'b', weight: undefined, severity: 'critical', category: 'crisis', choices: [], title: 'B', body: '', triggerCondition: undefined }
     // With weights low=3, critical=1, total=4, roll=0.24*4=0.96 => picks 'a' (weight 3)
     // roll=0.9*4=3.6 => picks 'b'
     spy.mockReturnValueOnce(0.24)
-    const a = { id: 'a', weight: undefined, severity: 'low', category: 'crisis', choices: [], title: 'A', body: '', triggerCondition: undefined }
-    const b = { id: 'b', weight: undefined, severity: 'critical', category: 'crisis', choices: [], title: 'B', body: '', triggerCondition: undefined }
     // We can't inject into ALL_EVENTS, so verify that the weight calculation works:
     // We can import the internal function or just test the get weight logic indirectly
     // For now, verify that drawNextEvent still returns an event at week 1

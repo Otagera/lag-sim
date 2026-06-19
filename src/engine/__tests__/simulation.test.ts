@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { STARTING_STATE } from '../../data/startingState'
 import type { GameState, StatKey, FactionKey, ConstituencyKey } from '../../state/types'
 import { tick } from '../gameLoop'
@@ -16,6 +16,17 @@ const BOUNDS: Record<StatKey, { min: number; max: number }> = {
   securityIndex: { min: 0, max: 100 },
   corruptionPressure: { min: 15, max: 80 },
   youthTension: { min: 0, max: 100 },
+  ghostWorkerRate: { min: 0.05, max: 0.20 },
+  contractorBacklog: { min: 0, max: Infinity },
+  debtStock: { min: 0, max: Infinity },
+  weeklyDebtRepayment: { min: 0, max: Infinity },
+  weeklyDebtInterest: { min: 0, max: Infinity },
+  landUseChargeEnforcement: { min: 1.0, max: 3.0 },
+  grantsCompliance: { min: 0, max: 1.0 },
+  civilServiceReformScore: { min: 0, max: 100 },
+  baseOverheads: { min: 0, max: Infinity },
+  subventionCutRate: { min: 0, max: 0.4 },
+  capitalEfficiency: { min: 0, max: 1.0 },
 }
 
 const BOUNDED_STATS = Object.entries(BOUNDS).filter(
@@ -121,9 +132,10 @@ function runWithSeed(
   return s
 }
 
-async function awaitEventModule() {
-  return await import('../eventEngine')
-}
+// async function awaitEventModule() {
+//   return await import('../eventEngine')
+// }
+/* placeholder for event module import */
 
 describe('simulation — deterministic scenarios', () => {
   afterEach(() => {

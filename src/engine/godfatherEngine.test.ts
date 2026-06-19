@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { STARTING_STATE } from '../data/startingState'
-import type { GameState, GodfatherAsk, GodfatherMessage } from '../state/types'
+import type { GameState, GodfatherMessage } from '../state/types'
 import { shouldDrawGodfather, drawGodfatherAsk, resolveGodfather } from './godfatherEngine'
 import { generalGodfatherPool, fashemuAsks } from '../data/godfatherAsks'
 

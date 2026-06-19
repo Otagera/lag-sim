@@ -139,7 +139,8 @@ export function applyFashemuPhaseTransition(state: GameState): GameState {
   if (state.fashemuPhase === 'dead') return state
 
   const refusals = state.godfatherRefusalCount
-  const rel = state.fashemuRelationship
+  // const rel = state.fashemuRelationship
+  void state.fashemuRelationship // available for phase transition logic
   const hasCoopedWithEFCC = state.resolvedEvents.includes('fashemu-efcc-contact') &&
     state.timeline.some(
       (e) => e.title === 'EFCC Contact: The Fashemu File' && e.description === 'Cooperate Quietly',

@@ -31,9 +31,10 @@ export function Dashboard() {
   const stats = useGameStore((s) => s.stats)
   const mode = useGameStore((s) => s.mode)
 
-  const year = Math.ceil(week / 52)
-  const weekOfYear = ((week - 1) % 52) + 1
-  const _termLabel = TERMS[Math.min(year - 1, TERMS.length - 1)]
+  // const year = Math.ceil(week / 52)
+  // const weekOfYear = ((week - 1) % 52) + 1
+  // const termLabel = TERMS[Math.min(year - 1, TERMS.length - 1)]
+  void 0 // placeholder for term/year display
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
