@@ -9,7 +9,69 @@ export type GodfatherAskTemplate = {
   onRefuse: GodfatherAsk['onRefuse']
 }
 
-export const godfatherAskPool: GodfatherAskTemplate[] = [
+// The 4 ordered asks from Chief B.O.A. Fashemu — fires in sequence
+export const fashemuAsks: GodfatherAskTemplate[] = [
+  {
+    id: 'fashemu-ask-1-contract',
+    type: 'contract',
+    text: `"Governor. I know we are still settling in, so I will be brief. Fashemu Engineering Limited has done significant work in this state. My team should be on the shortlist for the Agege-Ogba road tender. I am sure you will find the quality unimpeachable."`,
+    askDescription: 'Put Fashemu Engineering Ltd on the Agege-Ogba road tender shortlist',
+    onAccept: {
+      corruptionPressure: 4,
+      expenditure: 0.2,
+      factionImpact: { partyGodfathers: 8, civilSocietyMedia: -5 },
+    },
+    onRefuse: {
+      factionImpact: { partyGodfathers: -8, businessCommunity: 4 },
+    },
+  },
+  {
+    id: 'fashemu-ask-2-appointment',
+    type: 'appointment',
+    text: `"Commissioner for Works. I have given this serious thought. Engr. Sola Adesoji — he managed the Ojota interchange — is the right man. He understands infrastructure at scale and he understands how Lagos works."`,
+    askDescription: "Appoint Engr. Sola Adesoji (Fashemu's candidate) as Commissioner for Works",
+    onAccept: {
+      corruptionPressure: 5,
+      factionImpact: { partyGodfathers: 10, civilSocietyMedia: -8 },
+    },
+    onRefuse: {
+      politicalCapital: 8,
+      factionImpact: { partyGodfathers: -10, businessCommunity: 5 },
+    },
+  },
+  {
+    id: 'fashemu-ask-3-suppress',
+    type: 'suppress',
+    text: `"There is a LASBCA investigation. Ibeju-Lekki. A friend's development — setback issues, drainage. The building is sound and the approval was processed correctly. This investigation is the work of people with other agendas. A word from you would resolve it cleanly."`,
+    askDescription: 'Shut down the LASBCA investigation into the Ibeju-Lekki property development',
+    onAccept: {
+      corruptionPressure: 8,
+      factionImpact: { partyGodfathers: 7, civilSocietyMedia: -12, businessCommunity: -4 },
+    },
+    onRefuse: {
+      publicTrust: 6,
+      factionImpact: { partyGodfathers: -12, civilSocietyMedia: 8 },
+    },
+  },
+  {
+    id: 'fashemu-ask-4-money',
+    type: 'money',
+    text: `"The LGA elections are coming. Ground-level work — delegates, transport, logistics — all of this has a cost. I need ₦500 million from the Governor's discretionary account. Think of it as an investment in the party's local government alignment."`,
+    askDescription: "Release ₦500m from discretionary funds for LGA election 'logistics'",
+    onAccept: {
+      cashReserve: -0.5,
+      corruptionPressure: 5,
+      factionImpact: { partyGodfathers: 8, federalGovt: 3, civilSocietyMedia: -6 },
+    },
+    onRefuse: {
+      politicalCapital: 10,
+      factionImpact: { partyGodfathers: -14, federalGovt: -4, civilSocietyMedia: 5 },
+    },
+  },
+]
+
+// Secondary pool — minor asks between the main Fashemu arc
+export const generalGodfatherPool: GodfatherAskTemplate[] = [
   // --- contract ---
   {
     id: 'road-tender-agege',

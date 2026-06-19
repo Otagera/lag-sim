@@ -143,7 +143,7 @@ export type EventCard = {
   cooldownWeeks?: number
   weight?: number
   severity: 'low' | 'medium' | 'high' | 'critical'
-  category: 'transport' | 'infrastructure' | 'political' | 'crisis' | 'economy' | 'social'
+  category: 'transport' | 'infrastructure' | 'political' | 'crisis' | 'economy' | 'social' | 'election'
 }
 
 export type PendingEvent = {
@@ -161,6 +161,40 @@ export type TimelineEntry = {
   statDelta?: StatDelta
   factionDelta?: FactionDelta
 }
+
+// --- Phase 2 Types ---
+
+export type DeputyKey = 'technocrat' | 'politician' | 'loyalist'
+
+export type DeputyState = {
+  key: DeputyKey
+  resentment: number
+  revealed: boolean
+}
+
+export type NPCKey = 'neo' | 'dayo' | 'smj'
+
+export type NPCState = {
+  isActive: boolean
+  relationship: number
+  hasBeenInvited?: boolean
+  activeWeek?: number
+}
+
+export type CommissionerRole = 'works' | 'finance' | 'environment' | 'transport' | 'information'
+
+export type CommissionerState = {
+  name: string
+  competence: number
+  loyalty: number
+  isGodfatherChoice: boolean
+}
+
+export type PrimaryScenario = 'A' | 'B' | 'C'
+export type FashemuPhase = 'dormant' | 'active' | 'warning' | 'break' | 'reconciled' | 'dead'
+export type FashemuEndingPath = 'A' | 'B' | 'C' | 'D'
+
+// --- End Phase 2 Types ---
 
 export type GodfatherMessage = {
   id: string
@@ -204,4 +238,20 @@ export type GameState = {
   isGameOver: boolean
   gameOverReason?: string
   mode: 'simple' | 'detailed'
+  // Phase 2
+  deputy: DeputyState | null
+  fashemuRelationship: number
+  fashemuPhase: FashemuPhase
+  fashemuAskIndex: number
+  fashemuEndingPath: FashemuEndingPath | null
+  activeNPCs: Record<NPCKey, NPCState>
+  commissioners: Partial<Record<CommissionerRole, CommissionerState>>
+  lgaElectionResult: number | null
+  lgaElectionHeld: boolean
+  primaryWon: boolean | null
+  primaryScenario: PrimaryScenario | null
+  campaignDecisions: string[]
+  electionResult: number | null
+  reElected: boolean | null
+  inCampaignMode: boolean
 }

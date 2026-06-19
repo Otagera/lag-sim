@@ -19,16 +19,17 @@ describe('BudgetPanel', () => {
     expect(screen.getByText('₦11.20bn')).toBeInTheDocument()
   })
 
-  it('renders corruption drag', () => {
+  it('renders corruption leakage as informational note in detailed mode', () => {
+    useGameStore.setState({ mode: 'detailed' })
     render(<BudgetPanel />)
-    // 11.2 * (28/100) * 0.3 = 0.9408
-    expect(screen.getByText(/₦0\.94bn/)).toBeInTheDocument()
+    // Corruption leakage shown as percentage, not ₦ amount
+    expect(screen.getByText(/Corruption leakage ~28%/)).toBeInTheDocument()
   })
 
-  it('renders net (igr - expenditure - drag)', () => {
+  it('renders net (igr - expenditure)', () => {
     render(<BudgetPanel />)
-    // 12.8 - 11.2 - 0.9408 = 0.6592
-    expect(screen.getByText(/₦0\.66bn/)).toBeInTheDocument()
+    // 12.8 - 11.2 = 1.6
+    expect(screen.getByText(/₦1\.60bn/)).toBeInTheDocument()
   })
 
   it('shows negative net in red', () => {
@@ -36,8 +37,8 @@ describe('BudgetPanel', () => {
       stats: { ...STARTING_STATE.stats, igr: 5, expenditure: 10, corruptionPressure: 50 },
     })
     render(<BudgetPanel />)
-    // 5 - 10 - (10 * 0.5 * 0.3) = 5 - 10 - 1.5 = -6.5
-    const net = screen.getByText(/₦-6\.50bn/)
+    // net = 5 - 10 = -5
+    const net = screen.getByText(/₦-5\.00bn/)
     expect(net).toBeInTheDocument()
     expect(net.className).toContain('text-red-400')
   })

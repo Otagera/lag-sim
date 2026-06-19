@@ -13,9 +13,9 @@ describe('Dashboard', () => {
     useGameStore.setState({ mode: 'simple' })
   })
 
-  it('renders week in week/year format', () => {
+  it('renders date in calendar format', () => {
     render(<Dashboard />)
-    expect(screen.getByText('Wk 1, Yr 1')).toBeInTheDocument()
+    expect(screen.getByText('May 29, 2027')).toBeInTheDocument()
   })
 
   it('renders cash reserve', () => {
@@ -33,10 +33,11 @@ describe('Dashboard', () => {
     expect(screen.getByText('100/200')).toBeInTheDocument()
   })
 
-  it('shows year 2 for week 53', () => {
+  it('shows correct date for week 53', () => {
     useGameStore.setState({ week: 53 })
     render(<Dashboard />)
-    expect(screen.getByText('Wk 1, Yr 2')).toBeInTheDocument()
+    // Week 53 = May 29 2027 + 52*7 = 364 days = May 27, 2028
+    expect(screen.getByText('May 27, 2028')).toBeInTheDocument()
   })
 
   it('shows additional stats in detailed mode', () => {

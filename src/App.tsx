@@ -4,13 +4,15 @@ import { useGameStore } from './state/gameStore'
 import { clearSave, hasSavedGame, loadGame } from './state/persistence'
 import { BudgetPanel } from './ui/BudgetPanel'
 import { Dashboard, TERMS } from './ui/Dashboard'
+import { DeputySelectionScreen } from './ui/DeputySelectionScreen'
 import { EventCard } from './ui/EventCard'
 import { FactionPanel } from './ui/FactionPanel'
 import { GodfatherInbox } from './ui/GodfatherInbox'
+import { LegacyScreen } from './ui/LegacyScreen'
 import { PollPanel } from './ui/PollPanel'
-import { Scorecard } from './ui/Scorecard'
 import { TimelinePanel } from './ui/TimelinePanel'
 import { WelcomeModal, hasSeenIntro } from './ui/WelcomeModal'
+import { formatGameMonth } from './utils/calendar'
 
 function App() {
   const tick = useGameStore((s) => s.tick)
@@ -21,6 +23,8 @@ function App() {
   const setMode = useGameStore((s) => s.setMode)
   const [showLoadPrompt, setShowLoadPrompt] = useState(false)
   const [showWelcome, setShowWelcome] = useState(false)
+  const [showDeputySelect, setShowDeputySelect] = useState(false)
+  const deputy = useGameStore((s) => s.deputy)
 
   useEffect(() => {
     if (hasSavedGame()) {
@@ -44,6 +48,8 @@ function App() {
     setShowLoadPrompt(false)
     if (!hasSeenIntro()) {
       setShowWelcome(true)
+    } else {
+      setShowDeputySelect(true)
     }
   }
 
@@ -75,14 +81,25 @@ function App() {
 
   const year = Math.ceil(week / 52)
   const termLabel = TERMS[Math.min(year - 1, TERMS.length - 1)]
+  const monthLabel = formatGameMonth(week)
 
   return (
     <div className="h-screen bg-gray-900 text-white flex flex-col overflow-hidden">
-      {showWelcome && <WelcomeModal onStart={() => setShowWelcome(false)} />}
+      {showWelcome && (
+        <WelcomeModal
+          onStart={() => {
+            setShowWelcome(false)
+            if (!deputy) setShowDeputySelect(true)
+          }}
+        />
+      )}
+      {showDeputySelect && !showWelcome && (
+        <DeputySelectionScreen onSelect={() => setShowDeputySelect(false)} />
+      )}
       <header className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-800">
         <div>
           <h1 className="text-sm font-bold">Lagos Governor Sim</h1>
-          <p className="text-[10px] text-gray-500">{termLabel}</p>
+          <p className="text-[10px] text-gray-500">{termLabel} · {monthLabel}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -137,8 +154,8 @@ function App() {
       )}
 
       {isGameOver && gameOverReason?.includes('term has ended') ? (
-        <div className="mx-3 mt-2 space-y-2 overflow-y-auto min-h-0 pb-2">
-          <Scorecard />
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <LegacyScreen />
         </div>
       ) : (
         <>

@@ -1,3 +1,4 @@
+import { STARTING_STATE } from '../data/startingState'
 import { ALL_EVENTS } from '../engine/eventEngine'
 import type { EventCard, GameState } from './types'
 
@@ -29,7 +30,8 @@ function fromSerializable(data: SerializableState): GameState {
     .map((id) => lookupEvent(id))
     .filter((e): e is EventCard => e !== undefined)
 
-  return { ...rest, activeEvent, eventQueue }
+  // Merge with STARTING_STATE so missing fields from old saves get defaults
+  return { ...STARTING_STATE, ...rest, activeEvent, eventQueue }
 }
 
 export function saveGame(state: GameState): void {

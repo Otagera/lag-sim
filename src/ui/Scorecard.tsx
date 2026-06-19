@@ -1,6 +1,7 @@
 import { STARTING_STATE } from '../data/startingState'
 import { useGameStore } from '../state/gameStore'
 import type { ConstituencyKey, FactionKey } from '../state/types'
+import { formatGameDate } from '../utils/calendar'
 
 const FACTION_LABELS: Record<FactionKey, string> = {
   businessCommunity: 'Business Community',
@@ -69,7 +70,7 @@ export function Scorecard() {
       <div className="text-center">
         <h2 className="text-lg font-bold text-white">Term Scorecard</h2>
         <p className="text-gray-400 text-xs">
-          Week {week} | {totalEvents} decisions made
+          {formatGameDate(week)} | {totalEvents} decisions made
         </p>
       </div>
 

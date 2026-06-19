@@ -1,4 +1,5 @@
 import { useGameStore } from '../state/gameStore'
+import { formatGameDate } from '../utils/calendar'
 
 function StatCard({
   label,
@@ -36,7 +37,7 @@ export function Dashboard() {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-      <StatCard label="Week" value={week} format={(_v) => `Wk ${weekOfYear}, Yr ${year}`} />
+      <StatCard label="Date" value={week} format={(_v) => formatGameDate(week)} />
       <StatCard label="Cash" value={cashReserve} format={naira} />
       <StatCard label="Trust" value={publicTrust} format={(v) => `${v.toFixed(0)}%`} />
       <StatCard label="Pol. Cap" value={politicalCapital} format={(v) => `${v}/200`} />

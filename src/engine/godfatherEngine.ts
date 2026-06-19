@@ -1,34 +1,70 @@
-import { godfatherAskPool } from '../data/godfatherAsks'
-import type { GameState, GodfatherMessage, StatDelta } from '../state/types'
+import { fashemuAsks, generalGodfatherPool } from '../data/godfatherAsks'
+import type { FashemuPhase, GameState, GodfatherMessage, StatDelta } from '../state/types'
 import { applyFactionDelta } from './factionEngine'
 import { applyDelta } from './statEngine'
 
-function pickRandomAsk(state: GameState): (typeof godfatherAskPool)[number] | null {
-  const available = godfatherAskPool.filter((a) => !state.usedGodfatherAskIds.includes(a.id))
+const FASHEMU_WEEK_GATES = [8, 26, 52, 85] as const
+
+function isFashemuAskReady(state: GameState, askIndex: number): boolean {
+  if (askIndex >= fashemuAsks.length) return false
+  const weekGate = FASHEMU_WEEK_GATES[askIndex]
+  return state.week >= weekGate
+}
+
+function pickFashemuAsk(state: GameState): (typeof fashemuAsks)[number] | null {
+  if (state.fashemuAskIndex >= fashemuAsks.length) return null
+  if (!isFashemuAskReady(state, state.fashemuAskIndex)) return null
+  return fashemuAsks[state.fashemuAskIndex]
+}
+
+function pickGeneralAsk(state: GameState): (typeof generalGodfatherPool)[number] | null {
+  const available = generalGodfatherPool.filter(
+    (a) => !state.usedGodfatherAskIds.includes(a.id),
+  )
   if (available.length === 0) return null
   return available[Math.floor(Math.random() * available.length)]
 }
 
 export function shouldDrawGodfather(state: GameState): boolean {
   if (state.activeGodfatherMessage) return false
-  if (state.usedGodfatherAskIds.length >= godfatherAskPool.length) return false
+  if (state.fashemuPhase === 'dead') return false
   if (state.week < 3) return false
 
   const weeksSinceLast = state.week - state.lastGodfatherWeek
 
-  if (state.lastGodfatherWeek === 0) {
-    return weeksSinceLast >= 3 && Math.random() < 0.25
+  // Fashemu main arc takes priority — check if one is ready
+  if (state.fashemuAskIndex < fashemuAsks.length) {
+    if (isFashemuAskReady(state, state.fashemuAskIndex) && weeksSinceLast >= 3) return true
   }
 
+  // General pool secondary asks
+  if (state.usedGodfatherAskIds.length >= generalGodfatherPool.length) return false
   if (weeksSinceLast < 3) return false
   if (weeksSinceLast >= 8) return true
 
-  const chance = (weeksSinceLast - 2) * 0.15
+  const chance = (weeksSinceLast - 2) * 0.12
   return Math.random() < chance
 }
 
 export function drawGodfatherAsk(state: GameState): GodfatherMessage | null {
-  const template = pickRandomAsk(state)
+  // Fashemu main arc first
+  const fashemuTemplate = pickFashemuAsk(state)
+  if (fashemuTemplate) {
+    return {
+      id: fashemuTemplate.id,
+      week: state.week,
+      text: fashemuTemplate.text,
+      ask: {
+        type: fashemuTemplate.type,
+        description: fashemuTemplate.askDescription,
+        onAccept: fashemuTemplate.onAccept,
+        onRefuse: fashemuTemplate.onRefuse,
+      },
+    }
+  }
+
+  // General pool
+  const template = pickGeneralAsk(state)
   if (!template) return null
 
   return {
@@ -61,6 +97,8 @@ export function resolveGodfather(
     }
   }
 
+  const isFashemuAsk = fashemuAsks.some((a) => a.id === message.id)
+
   newState = {
     ...newState,
     godfatherMessages: [...newState.godfatherMessages, message],
@@ -71,15 +109,68 @@ export function resolveGodfather(
 
   if (accepted) {
     newState = { ...newState, godfatherComplianceCount: newState.godfatherComplianceCount + 1 }
+    if (isFashemuAsk) {
+      newState = {
+        ...newState,
+        fashemuAskIndex: newState.fashemuAskIndex + 1,
+        fashemuRelationship: Math.min(100, newState.fashemuRelationship + 15),
+        fashemuPhase: 'active',
+      }
+    }
   } else {
     newState = {
       ...newState,
       godfatherRefusalCount: newState.godfatherRefusalCount + 1,
     }
+    if (isFashemuAsk) {
+      newState = {
+        ...newState,
+        fashemuAskIndex: newState.fashemuAskIndex + 1,
+        fashemuRelationship: Math.max(0, newState.fashemuRelationship - 20),
+      }
+    }
     newState = applyEscalation(newState, newState.godfatherRefusalCount)
   }
 
   return newState
+}
+
+export function applyFashemuPhaseTransition(state: GameState): GameState {
+  if (state.fashemuPhase === 'dead') return state
+
+  const refusals = state.godfatherRefusalCount
+  const rel = state.fashemuRelationship
+  const hasCoopedWithEFCC = state.resolvedEvents.includes('fashemu-efcc-contact') &&
+    state.timeline.some(
+      (e) => e.title === 'EFCC Contact: The Fashemu File' && e.description === 'Cooperate Quietly',
+    )
+
+  let newPhase: FashemuPhase = state.fashemuPhase
+
+  if (state.resolvedEvents.includes('fashemu-death')) {
+    newPhase = 'dead'
+  } else if (hasCoopedWithEFCC) {
+    newPhase = 'reconciled'
+  } else if (refusals >= 4 && state.resolvedEvents.includes('fashemu-public-break')) {
+    // Check if player chose fight back or cooperate-efcc
+    const breakEntry = state.timeline.find((e) => e.title === 'The Boa Strikes: Public Confrontation')
+    if (breakEntry?.description === 'Open Back-Channel Talks') {
+      newPhase = 'reconciled'
+    } else {
+      newPhase = 'break'
+    }
+  } else if (refusals >= 3) {
+    newPhase = 'warning'
+  } else if (state.godfatherComplianceCount >= 2) {
+    newPhase = 'active'
+  } else if (state.fashemuAskIndex === 0) {
+    newPhase = 'dormant'
+  } else {
+    newPhase = 'active'
+  }
+
+  if (newPhase === state.fashemuPhase) return state
+  return { ...state, fashemuPhase: newPhase }
 }
 
 function applyEscalation(state: GameState, refusalCount: number): GameState {

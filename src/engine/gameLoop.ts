@@ -1,9 +1,10 @@
-import type { GameState } from '../state/types'
+import type { GameState, NPCKey, NPCState } from '../state/types'
 import { calculateHiddenDrag } from './dragEngine'
+import { calculateVoteShare } from './electionEngine'
 import { drawNextEvent, firePendingDelayed } from './eventEngine'
 import { calculateWeeklyExpenditure } from './expenditureEngine'
 import { applyFactionDeltaState, drift } from './factionEngine'
-import { drawGodfatherAsk, shouldDrawGodfather } from './godfatherEngine'
+import { applyFashemuPhaseTransition, drawGodfatherAsk, shouldDrawGodfather } from './godfatherEngine'
 import { processProjects } from './projectEngine'
 import { calculateWeeklyRevenue } from './revenueEngine'
 import { applyDelta } from './statEngine'
@@ -114,6 +115,22 @@ export function tick(state: GameState): GameState {
     next = applyDelta(next, { publicTrust: trustDelta })
   }
 
+  // Activate NPCs based on conditions
+  next = activateNPCs(next)
+
+  // Fashemu phase transitions
+  next = applyFashemuPhaseTransition(next)
+
+  // LGA election result calculation (mandatory week 86)
+  if (next.week === 86 && !next.lgaElectionHeld) {
+    next = resolveLGAElection(next)
+  }
+
+  // Enter campaign mode at week 195
+  if (next.week >= 195 && !next.inCampaignMode) {
+    next = { ...next, inCampaignMode: true }
+  }
+
   next = checkGameOver(next)
 
   if (!next.isGameOver) {
@@ -132,6 +149,90 @@ export function tick(state: GameState): GameState {
   }
 
   next = applyDelta(next, { infrastructureScore: -0.3 })
+
+  return next
+}
+
+function activateNPCs(state: GameState): GameState {
+  const npcs = { ...state.activeNPCs }
+  let changed = false
+
+  // NEO activates when corruptionPressure > 35 or procurement scandal resolved
+  if (!npcs.neo.isActive) {
+    if (
+      state.stats.corruptionPressure > 35 ||
+      state.resolvedEvents.includes('ibeju-lekki-property') ||
+      state.resolvedEvents.includes('building-approval-bury')
+    ) {
+      npcs.neo = { ...npcs.neo, isActive: true, activeWeek: state.week }
+      changed = true
+    }
+  }
+
+  // Dayo activates when youthTension > 55 or Makoko resolved badly
+  if (!npcs.dayo.isActive) {
+    if (
+      state.stats.youthTension > 55 ||
+      (state.resolvedEvents.includes('makoko-demolition-order') && state.stats.publicTrust < 45)
+    ) {
+      npcs.dayo = { ...npcs.dayo, isActive: true, activeWeek: state.week }
+      changed = true
+    }
+  }
+
+  // SMJ activates when partyGodfathers < 45 or Fashemu refused
+  if (!npcs.smj.isActive) {
+    if (state.factions.partyGodfathers < 45 || state.godfatherRefusalCount >= 2) {
+      npcs.smj = { ...npcs.smj, isActive: true, activeWeek: state.week }
+      changed = true
+    }
+  }
+
+  if (!changed) return state
+  return { ...state, activeNPCs: npcs as Record<NPCKey, NPCState> }
+}
+
+function resolveLGAElection(state: GameState): GameState {
+  // Calculate LGA result: base from lgChairmen faction score
+  const lgBase = (state.factions.lgChairmen / 100) * 20
+  const fashemuBonus = state.fashemuPhase === 'active' ? 4 : 0
+
+  // Check how election was run
+  const ranPartyMachine = state.resolvedEvents.includes('lga-election-buildup') &&
+    state.timeline.some((e) => e.title === 'LGA Elections: Campaign Begins' && e.description === 'Mobilise Party Machine')
+  const ranIndependent = state.resolvedEvents.includes('lga-election-buildup') &&
+    state.timeline.some((e) => e.title === 'LGA Elections: Campaign Begins' && e.description === 'Independent Mobilisation')
+
+  const campaignBonus = ranPartyMachine ? 3 : ranIndependent ? 2 : 0
+
+  const loyalLGAs = Math.round(Math.min(20, Math.max(0, lgBase + fashemuBonus + campaignBonus)))
+  const lgaElectionResult = (loyalLGAs / 20) * 100
+
+  let next: GameState = {
+    ...state,
+    lgaElectionResult,
+    lgaElectionHeld: true,
+    timeline: [
+      ...state.timeline,
+      {
+        week: state.week,
+        type: 'milestone',
+        title: 'LGA Election Results',
+        description: `${loyalLGAs}/20 LGAs returned party-aligned chairmen. Result: ${lgaElectionResult.toFixed(0)}%.`,
+      },
+    ],
+  }
+
+  // Permanent penalty if result is poor
+  if (lgaElectionResult < 40) {
+    next = {
+      ...next,
+      factions: {
+        ...next.factions,
+        lgChairmen: next.factions.lgChairmen - 8,
+      },
+    }
+  }
 
   return next
 }
@@ -174,13 +275,31 @@ function checkGameOver(state: GameState): GameState {
     return {
       ...next,
       isGameOver: true,
-      gameOverReason: 'The party has removed you from office.',
+      gameOverReason: 'The party has orchestrated your removal from office.',
     }
   }
 
   if (next.week > 208) {
+    const electionResult = calculateVoteShare(next)
+    const reElected = electionResult > 50
+
+    // Determine Fashemu ending path
+    let fashemuEndingPath = next.fashemuEndingPath
+    if (!fashemuEndingPath) {
+      const cooopedEFCC = next.timeline.some(
+        (e) => e.title === 'EFCC Contact: The Fashemu File' && e.description === 'Cooperate Quietly',
+      )
+      if (next.fashemuPhase === 'dead') fashemuEndingPath = 'D'
+      else if (cooopedEFCC) fashemuEndingPath = 'C'
+      else if (next.godfatherRefusalCount >= 4) fashemuEndingPath = 'B'
+      else if (next.godfatherComplianceCount >= 3) fashemuEndingPath = 'A'
+    }
+
     return {
       ...next,
+      electionResult,
+      reElected,
+      fashemuEndingPath,
       isGameOver: true,
       gameOverReason: 'Your term has ended. Check your final scorecard.',
     }

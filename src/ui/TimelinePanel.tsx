@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useGameStore } from '../state/gameStore'
 import type { FactionDelta, FactionKey, StatDelta, StatKey, TimelineEntry } from '../state/types'
+import { formatGameDate } from '../utils/calendar'
 
 const STAT_LABEL: Partial<Record<StatKey, string>> = {
   cashReserve: 'Cash',
@@ -134,7 +135,7 @@ export function TimelinePanel() {
               </div>
               <div className="pb-1 min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[9px] text-gray-600">Wk {entry.week}</span>
+                  <span className="text-[9px] text-gray-600">{formatGameDate(entry.week)}</span>
                   <span className={`text-[9px] font-semibold uppercase tracking-wide ${
                     entry.type === 'delayed-consequence' ? 'text-yellow-600' :
                     entry.type === 'godfather' ? 'text-purple-500' : 'text-blue-500'

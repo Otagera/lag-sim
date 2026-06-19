@@ -1,5 +1,7 @@
+import { characterEvents } from '../data/events/characters'
 import { crisisEvents } from '../data/events/crisis'
 import { economyEvents } from '../data/events/economy'
+import { electionEvents } from '../data/events/election'
 import { infrastructureEvents } from '../data/events/infrastructure'
 import { politicalEvents } from '../data/events/political'
 import { routineEvents } from '../data/events/routine'
@@ -18,6 +20,8 @@ export const ALL_EVENTS: EventCard[] = [
   ...economyEvents,
   ...socialEvents,
   ...routineEvents,
+  ...characterEvents,
+  ...electionEvents,
 ]
 
 function isEventAvailable(state: GameState, event: EventCard): boolean {
@@ -141,6 +145,12 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     factionDelta: choice.factionImpact,
   }
 
+  // Track campaign decisions for vote share calculation
+  const campaignDecisions =
+    event.category === 'election'
+      ? [...next.campaignDecisions, choice.id]
+      : next.campaignDecisions
+
   return {
     ...next,
     activeEvent: null,
@@ -150,6 +160,7 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     eventCooldowns,
     eventsResolvedThisWeek: next.eventsResolvedThisWeek + 1,
     timeline: [...next.timeline, timelineEntry],
+    campaignDecisions,
   }
 }
 

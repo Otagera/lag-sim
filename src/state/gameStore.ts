@@ -1,10 +1,13 @@
 import { create } from 'zustand'
 import { STARTING_STATE } from '../data/startingState'
+import { DEPUTY_PROFILES } from '../data/deputies'
 import { resolveEvent as resolveEventAction } from '../engine/eventEngine'
 import { tick as gameLoopTick } from '../engine/gameLoop'
 import { resolveGodfather } from '../engine/godfatherEngine'
+import { applyDelta } from '../engine/statEngine'
+import { applyFactionDelta } from '../engine/factionEngine'
 import { saveGame } from './persistence'
-import type { GameState } from './types'
+import type { DeputyKey, GameState } from './types'
 
 export interface GameStore extends GameState {
   tick: () => void
@@ -12,6 +15,7 @@ export interface GameStore extends GameState {
   refuseGodfather: () => void
   resolveEvent: (choiceId: string) => void
   setMode: (mode: 'simple' | 'detailed') => void
+  setDeputy: (key: DeputyKey) => void
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -36,6 +40,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
   setMode: (mode: 'simple' | 'detailed') => {
     set({ mode })
+  },
+  setDeputy: (key: DeputyKey) => {
+    const state = get()
+    const profile = DEPUTY_PROFILES[key]
+    let next: GameState = {
+      ...state,
+      deputy: { key, resentment: 0, revealed: false },
+    }
+    if (Object.keys(profile.factionBonuses).length > 0) {
+      next = { ...next, factions: applyFactionDelta(next.factions, profile.factionBonuses) }
+    }
+    if (Object.keys(profile.statBonuses).length > 0) {
+      next = applyDelta(next, profile.statBonuses)
+    }
+    set(next)
   },
 }))
 

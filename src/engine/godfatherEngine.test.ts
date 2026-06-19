@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { STARTING_STATE } from '../data/startingState'
 import type { GameState, GodfatherAsk, GodfatherMessage } from '../state/types'
 import { shouldDrawGodfather, drawGodfatherAsk, resolveGodfather } from './godfatherEngine'
-import { godfatherAskPool } from '../data/godfatherAsks'
+import { generalGodfatherPool, fashemuAsks } from '../data/godfatherAsks'
 
 function clone(s: GameState): GameState {
   return JSON.parse(JSON.stringify(s))
@@ -22,7 +22,9 @@ describe('shouldDrawGodfather', () => {
   })
 
   it('returns false when all asks have been used', () => {
-    state.usedGodfatherAskIds = godfatherAskPool.map((a) => a.id)
+    // Exhaust both Fashemu arc and general pool
+    state.fashemuAskIndex = fashemuAsks.length
+    state.usedGodfatherAskIds = generalGodfatherPool.map((a) => a.id)
     expect(shouldDrawGodfather(state)).toBe(false)
   })
 
@@ -65,13 +67,15 @@ describe('shouldDrawGodfather', () => {
   })
 
   it('uses escalating chance for weeks 3-7 after first draw', () => {
-    // weeksSinceLast = 3 → chance = (3-2)*0.15 = 0.15
+    // Exhaust Fashemu arc so general pool probabilistic logic kicks in
+    // weeksSinceLast = 3 → chance = (3-2)*0.12 = 0.12
     state.lastGodfatherWeek = 5
     state.week = 8
+    state.fashemuAskIndex = fashemuAsks.length // arc exhausted
     // weeksSinceLast = 3
-    vi.spyOn(Math, 'random').mockReturnValue(0.14)
+    vi.spyOn(Math, 'random').mockReturnValue(0.10)
     expect(shouldDrawGodfather(state)).toBe(true)
-    vi.spyOn(Math, 'random').mockReturnValue(0.16)
+    vi.spyOn(Math, 'random').mockReturnValue(0.14)
     expect(shouldDrawGodfather(state)).toBe(false)
   })
 })
@@ -90,7 +94,8 @@ describe('drawGodfatherAsk', () => {
   })
 
   it('returns null when all asks have been used', () => {
-    state.usedGodfatherAskIds = godfatherAskPool.map((a) => a.id)
+    state.fashemuAskIndex = fashemuAsks.length
+    state.usedGodfatherAskIds = generalGodfatherPool.map((a) => a.id)
     expect(drawGodfatherAsk(state)).toBeNull()
   })
 
