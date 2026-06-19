@@ -535,6 +535,14 @@ Keep these numbers in mind when writing event outcomes:
 
 ---
 
+## 🚧 Build Tooling — Vite 6 (Downgraded from Vite 8)
+
+Vite 8, vitest 4, and jsdom 29 were downgraded to Vite 6 / vitest 3 / jsdom 26 because Coolify's nixpacks build image resolves `NIXPACKS_NODE_VERSION=22` to Node 22.11.0, which is below Vite 8's minimum (22.12.0).
+
+Nixpacks only respects major version from `NIXPACKS_NODE_VERSION` / `.nvmrc`. The nixpkgs archive pinning workaround (`nixpacks.toml`) is unreliable — the `ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7` archive that should contain Node 22.14.0 doesn't actually have `nodejs_24` either.
+
+**To upgrade back:** change `NIXPACKS_NODE_VERSION` to `24` (or wait for nixpacks to update its 22.x archive past 22.12.0). Test build locally first, then revert package.json to latest versions.
+
 ## Questions for the Human (Before Major Decisions)
 
 If you are about to:
