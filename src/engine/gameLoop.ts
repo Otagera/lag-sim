@@ -5,6 +5,8 @@ import { drawNextEvent, firePendingDelayed } from './eventEngine'
 import { calculateWeeklyExpenditure } from './expenditureEngine'
 import { applyFactionDeltaState, drift } from './factionEngine'
 import { applyFashemuPhaseTransition, drawGodfatherAsk, shouldDrawGodfather } from './godfatherEngine'
+import { emergencyBridgeLoan } from './debtEngine'
+import { removalResolutionEvent } from '../data/events/characters'
 import { processProjects } from './projectEngine'
 import { calculateWeeklyRevenue } from './revenueEngine'
 import { applyDelta } from './statEngine'
@@ -240,9 +242,13 @@ function resolveLGAElection(state: GameState): GameState {
 function checkGameOver(state: GameState): GameState {
   if (state.isGameOver) return state
 
-  const next = { ...state }
+  let next = { ...state }
 
   if (next.stats.cashReserve < 0) {
+    if (next.consecutiveBankruptWeeks === 0) {
+      next = emergencyBridgeLoan(next)
+      if (next.stats.cashReserve >= 0) return next
+    }
     next.consecutiveBankruptWeeks++
     if (next.consecutiveBankruptWeeks >= 3) {
       return {
@@ -272,10 +278,36 @@ function checkGameOver(state: GameState): GameState {
   }
 
   if (next.factions.partyGodfathers < 10 && next.week > 52) {
-    return {
+    if (next.impeachmentStage === 0) {
+      next = {
+        ...next,
+        impeachmentStage: 1,
+        eventQueue: [...next.eventQueue, removalResolutionEvent],
+      }
+    } else if (next.impeachmentStage === 1) {
+      const resolved = next.resolvedEvents.includes('removal-resolution-first-reading')
+      if (resolved) {
+        const defied = next.timeline.some(
+          (e) =>
+            e.title === 'Removal Resolution: First Reading' &&
+            e.description === 'Defy the Assembly',
+        )
+        if (defied) {
+          return {
+            ...next,
+            impeachmentStage: 2,
+            isGameOver: true,
+            gameOverReason: 'The Lagos State House of Assembly voted to remove you from office.',
+          }
+        }
+        next = { ...next, impeachmentStage: 0 }
+      }
+    }
+  } else if (next.factions.partyGodfathers >= 10 && next.impeachmentStage === 1) {
+    next = {
       ...next,
-      isGameOver: true,
-      gameOverReason: 'The party has orchestrated your removal from office.',
+      impeachmentStage: 0,
+      eventQueue: next.eventQueue.filter((e) => e.id !== 'removal-resolution-first-reading'),
     }
   }
 
@@ -283,7 +315,6 @@ function checkGameOver(state: GameState): GameState {
     const electionResult = calculateVoteShare(next)
     const reElected = electionResult > 50
 
-    // Determine Fashemu ending path
     let fashemuEndingPath = next.fashemuEndingPath
     if (!fashemuEndingPath) {
       const cooopedEFCC = next.timeline.some(

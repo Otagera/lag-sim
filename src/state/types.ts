@@ -235,6 +235,8 @@ export type GameState = {
   lastWeekRevenue?: RevenueBreakdown
   lastWeekExpenditure?: ExpenditureBreakdown
   godfatherComplianceCount: number
+  impeachmentStage: number
+  emergencyLoansTaken: number
   isGameOver: boolean
   gameOverReason?: string
   mode: 'simple' | 'detailed'

@@ -2,12 +2,49 @@ import type { EventCard } from '../../state/types'
 
 // Events for named NPCs: NEO (Barr. Ngozi Eze-Okoro), Dayo (Comrade Dayo Afolabi), SMJ (Hon. Seun Majekodunmi)
 
+export const removalResolutionEvent: EventCard = {
+  id: 'removal-resolution-first-reading',
+  title: 'Removal Resolution: First Reading',
+  body: `The Lagos State House of Assembly has introduced a resolution for your removal from office. The Speaker has ruled it admissible. You have 72 hours to mount a defence.`,
+  severity: 'critical',
+  category: 'political',
+  choices: [
+    {
+      id: 'fight',
+      label: 'Fight It',
+      description: 'Rally allies and challenge the resolution head-on. Costly but clean.',
+      immediate: { politicalCapital: -30 },
+      factionImpact: { partyGodfathers: 5, civilSocietyMedia: 8 },
+    },
+    {
+      id: 'negotiate',
+      label: 'Negotiate',
+      description: 'Promise concessions to enough members to kill it quietly.',
+      immediate: { politicalCapital: -20 },
+      factionImpact: { partyGodfathers: 8, lgChairmen: -5 },
+      delayed: {
+        weekOffset: 4,
+        delta: { politicalCapital: -15 },
+        factionImpact: { civilSocietyMedia: -10 },
+        eventText: 'The concessions promised during the removal vote come due.',
+      },
+    },
+    {
+      id: 'defy',
+      label: 'Defy the Assembly',
+      description: 'Refuse to engage. The Assembly proceeds to a full vote.',
+      immediate: {},
+      factionImpact: { partyGodfathers: -15, civilSocietyMedia: -10 },
+    },
+  ],
+}
+
 export const characterEvents: EventCard[] = [
   // --- NEO: Barr. Ngozi Eze-Okoro ---
   {
-    id: 'neo-senate-inquiry',
-    title: 'NEO: Senate Committee Summons',
-    body: `Barr. Ngozi Eze-Okoro has convinced a Senate committee to summon the Lagos Commissioner for Finance over procurement irregularities. The inquiry is targeted, well-prepared, and timed for maximum media impact. NEO is making her move.`,
+    id: 'neo-laha-inquiry',
+    title: 'NEO: LAHA Committee Summons',
+    body: `Barr. Ngozi Eze-Okoro has convinced a faction within the Lagos State House of Assembly to summon the Commissioner for Finance over procurement irregularities. The House Committee on Public Accounts is leading the inquiry. It is targeted, well-prepared, and timed for maximum media impact. NEO is making her move.`,
     severity: 'high',
     category: 'political',
     triggerCondition: (state) =>
@@ -19,7 +56,7 @@ export const characterEvents: EventCard[] = [
         description:
           'Send Commissioner with full documentation. Transparency +8, Political Capital -12. NEO loses leverage.',
         immediate: { publicTrust: 8, politicalCapital: -12 },
-        factionImpact: { civilSocietyMedia: 10, partyGodfathers: -4 },
+        factionImpact: { civilSocietyMedia: 5, lgChairmen: -3 },
       },
       {
         id: 'send-lawyer',
@@ -39,9 +76,9 @@ export const characterEvents: EventCard[] = [
         id: 'ignore-committee',
         label: 'Ignore the Summons',
         description:
-          'Constitutional crisis risk. Trust -10. NEO gets exactly what she wants: a confrontation.',
+          'Risk a localized constitutional crisis. Trust -10. NEO gets exactly what she wants: a confrontation.',
         immediate: { publicTrust: -10, corruptionPressure: 5 },
-        factionImpact: { civilSocietyMedia: -15, federalGovt: -8 },
+        factionImpact: { partyGodfathers: -10, civilSocietyMedia: -15 },
       },
     ],
   },
@@ -392,4 +429,5 @@ export const characterEvents: EventCard[] = [
       },
     ],
   },
+  removalResolutionEvent,
 ]

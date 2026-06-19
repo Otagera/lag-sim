@@ -48,6 +48,47 @@ export function takeLoan(state: GameState, amount: number, source: LoanSource): 
   }
 }
 
+export function emergencyBridgeLoan(state: GameState): GameState {
+  const principal = 10
+  const annualRate = 0.35 + state.emergencyLoansTaken * 0.05
+  const weeklyRepayment = principal / (2 * 52)
+  const weeklyInterest = (principal * annualRate) / 52
+
+  loanIdCounter++
+  const loan: Loan = {
+    id: `emergency-loan-${loanIdCounter}`,
+    source: 'domestic_bank',
+    principal,
+    outstanding: principal,
+    weeklyRepayment,
+    weeklyInterest,
+    disbursedOnWeek: state.week,
+    conditions: ['emergency_terms'],
+  }
+
+  return {
+    ...state,
+    stats: {
+      ...state.stats,
+      cashReserve: state.stats.cashReserve + principal,
+      debtStock: state.stats.debtStock + principal,
+      weeklyDebtRepayment: state.stats.weeklyDebtRepayment + weeklyRepayment,
+      weeklyDebtInterest: state.stats.weeklyDebtInterest + weeklyInterest,
+    },
+    activeLoans: [...state.activeLoans, loan],
+    emergencyLoansTaken: state.emergencyLoansTaken + 1,
+    timeline: [
+      ...state.timeline,
+      {
+        week: state.week,
+        type: 'delayed-consequence' as const,
+        title: 'Emergency Bridge Loan',
+        description: `Domestic banks advanced ₦10bn at ${(annualRate * 100).toFixed(0)}% APR. Debt burden increases.`,
+      },
+    ],
+  }
+}
+
 export function WEEKLY_INTEREST_RATE(): number {
   return 0.04 / 52
 }

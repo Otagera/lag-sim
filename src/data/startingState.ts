@@ -63,6 +63,8 @@ export const STARTING_STATE: GameState = {
   lastWeekRevenue: undefined,
   lastWeekExpenditure: undefined,
   godfatherComplianceCount: 0,
+  impeachmentStage: 0,
+  emergencyLoansTaken: 0,
   isGameOver: false,
   mode: 'simple',
   deputy: null,
