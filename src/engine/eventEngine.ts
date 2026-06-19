@@ -1,5 +1,6 @@
 import { chainEvents } from '../data/events/chains'
 import { characterEvents } from '../data/events/characters'
+import { NPC_DECK_EVENTS } from '../data/events/npcDecks'
 import { crisisEvents } from '../data/events/crisis'
 import { economyEvents } from '../data/events/economy'
 import { electionEvents } from '../data/events/election'
@@ -27,6 +28,7 @@ export const ALL_EVENTS: EventCard[] = [
   ...electionEvents,
   ...chainEvents,
   ...riotEvents,
+  ...NPC_DECK_EVENTS,
 ]
 
 function isEventAvailable(state: GameState, event: EventCard): boolean {
@@ -126,6 +128,21 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
 
   if (choice.setFlags) {
     next = { ...next, stateFlags: { ...next.stateFlags, ...choice.setFlags } }
+  }
+
+  if (choice.npcImpact) {
+    const npcs = { ...next.activeNPCs }
+    for (const [archetypeKey, delta] of Object.entries(choice.npcImpact)) {
+      for (const slot of ['npc1', 'npc2', 'npc3'] as const) {
+        if (npcs[slot].archetypeKey === archetypeKey) {
+          npcs[slot] = {
+            ...npcs[slot],
+            relationship: Math.max(-100, Math.min(100, npcs[slot].relationship + delta)),
+          }
+        }
+      }
+    }
+    next = { ...next, activeNPCs: npcs }
   }
 
   let pendingDelayed = [...next.pendingDelayed]

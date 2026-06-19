@@ -9,6 +9,7 @@ import { DeputySelectionScreen } from './ui/DeputySelectionScreen'
 import { EventCard } from './ui/EventCard'
 import { FactionPanel } from './ui/FactionPanel'
 import { GodfatherInbox } from './ui/GodfatherInbox'
+import { NPCPanel } from './ui/NPCPanel'
 import { LegacyScreen } from './ui/LegacyScreen'
 import { PollPanel } from './ui/PollPanel'
 import { TimelinePanel } from './ui/TimelinePanel'
@@ -183,6 +184,7 @@ function App() {
             </div>
             <div className="space-y-2 overflow-y-auto min-h-0">
               <FactionPanel />
+              <NPCPanel />
               <BudgetPanel />
               <PollPanel />
               <GodfatherInbox />

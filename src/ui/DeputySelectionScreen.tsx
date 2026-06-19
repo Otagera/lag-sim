@@ -2,18 +2,36 @@ import { DEPUTY_PROFILES } from '../data/deputies'
 import { useGameStore } from '../state/gameStore'
 import type { DeputyKey } from '../state/types'
 
-const KEY_ORDER: DeputyKey[] = ['technocrat', 'politician', 'loyalist']
+const FALLBACK_KEYS: DeputyKey[] = ['technocrat', 'politician', 'loyalist']
 
 const BG_COLORS: Record<DeputyKey, string> = {
   technocrat: 'border-blue-600 bg-blue-900/20',
   politician: 'border-green-600 bg-green-900/20',
   loyalist: 'border-amber-600 bg-amber-900/20',
+  reformer: 'border-purple-600 bg-purple-900/20',
+  traditionalist: 'border-stone-500 bg-stone-900/20',
+  economist: 'border-cyan-600 bg-cyan-900/20',
+  'security-chief': 'border-red-600 bg-red-900/20',
 }
 
 const ACCENT: Record<DeputyKey, string> = {
   technocrat: 'text-blue-400',
   politician: 'text-green-400',
   loyalist: 'text-amber-400',
+  reformer: 'text-purple-400',
+  traditionalist: 'text-stone-400',
+  economist: 'text-cyan-400',
+  'security-chief': 'text-red-400',
+}
+
+const BTN_COLOR: Record<DeputyKey, string> = {
+  technocrat: 'bg-blue-700 hover:bg-blue-600',
+  politician: 'bg-green-700 hover:bg-green-600',
+  loyalist: 'bg-amber-700 hover:bg-amber-600',
+  reformer: 'bg-purple-700 hover:bg-purple-600',
+  traditionalist: 'bg-stone-700 hover:bg-stone-600',
+  economist: 'bg-cyan-700 hover:bg-cyan-600',
+  'security-chief': 'bg-red-700 hover:bg-red-600',
 }
 
 type Props = {
@@ -22,6 +40,8 @@ type Props = {
 
 export function DeputySelectionScreen({ onSelect }: Props) {
   const setDeputy = useGameStore((s) => s.setDeputy)
+  const offeredDeputies = useGameStore((s) => s.offeredDeputies)
+  const keys: DeputyKey[] = offeredDeputies?.length === 3 ? offeredDeputies : FALLBACK_KEYS
 
   function handleSelect(key: DeputyKey) {
     setDeputy(key)
@@ -40,7 +60,7 @@ export function DeputySelectionScreen({ onSelect }: Props) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {KEY_ORDER.map((key) => {
+          {keys.map((key) => {
             const profile = DEPUTY_PROFILES[key]
             return (
               <div
@@ -49,7 +69,7 @@ export function DeputySelectionScreen({ onSelect }: Props) {
               >
                 <div>
                   <div className={`text-xs font-semibold uppercase tracking-wide ${ACCENT[key]}`}>
-                    {key}
+                    {profile.shortName}
                   </div>
                   <h2 className="text-sm font-bold text-white mt-0.5">{profile.name}</h2>
                   <p className="text-[11px] text-gray-400 mt-0.5">{profile.title}</p>
@@ -75,9 +95,13 @@ export function DeputySelectionScreen({ onSelect }: Props) {
                     {Object.entries(profile.factionBonuses).map(([faction, delta]) => (
                       <span
                         key={faction}
-                        className="text-[10px] rounded px-1.5 py-0.5 bg-green-900/40 text-green-300"
+                        className={`text-[10px] rounded px-1.5 py-0.5 ${
+                          (delta ?? 0) >= 0
+                            ? 'bg-green-900/40 text-green-300'
+                            : 'bg-red-900/40 text-red-300'
+                        }`}
                       >
-                        {faction.replace(/([A-Z])/g, ' $1').trim()} {delta > 0 ? '+' : ''}
+                        {faction.replace(/([A-Z])/g, ' $1').trim()} {(delta ?? 0) > 0 ? '+' : ''}
                         {delta}
                       </span>
                     ))}
@@ -87,13 +111,7 @@ export function DeputySelectionScreen({ onSelect }: Props) {
                 <button
                   type="button"
                   onClick={() => handleSelect(key)}
-                  className={`w-full rounded-lg py-2 text-xs font-semibold text-white transition-colors ${
-                    key === 'technocrat'
-                      ? 'bg-blue-700 hover:bg-blue-600'
-                      : key === 'politician'
-                        ? 'bg-green-700 hover:bg-green-600'
-                        : 'bg-amber-700 hover:bg-amber-600'
-                  }`}
+                  className={`w-full rounded-lg py-2 text-xs font-semibold text-white transition-colors ${BTN_COLOR[key]}`}
                 >
                   Select {profile.shortName}
                 </button>

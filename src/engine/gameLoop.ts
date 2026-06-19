@@ -1,4 +1,6 @@
-import type { GameState, NPCKey, NPCState } from '../state/types'
+import type { GameState, NPCKey } from '../state/types'
+import { NPC_ARCHETYPES } from '../data/npcs'
+import { NPC_DECK_BY_ARCHETYPE } from '../data/events/npcDecks'
 import { calculateHiddenDrag } from './dragEngine'
 import { calculateVoteShare } from './electionEngine'
 import { drawNextEvent, firePendingDelayed } from './eventEngine'
@@ -190,8 +192,10 @@ export function tick(state: GameState): GameState {
     next = applyDelta(next, { publicTrust: trustDelta })
   }
 
-  // Activate NPCs based on conditions
+  // Activate NPCs based on conditions, tick pressure, and check escalation
   next = activateNPCs(next)
+  next = tickNPCPressure(next)
+  next = checkNPCEscalation(next)
 
   // Fashemu phase transitions
   next = applyFashemuPhaseTransition(next)
@@ -228,43 +232,102 @@ export function tick(state: GameState): GameState {
   return next
 }
 
+const NPC_SLOTS: NPCKey[] = ['npc1', 'npc2', 'npc3']
+
 function activateNPCs(state: GameState): GameState {
-  const npcs = { ...state.activeNPCs }
+  let next = state
   let changed = false
 
-  // NEO activates when corruptionPressure > 35 or procurement scandal resolved
-  if (!npcs.neo.isActive) {
-    if (
-      state.stats.corruptionPressure > 35 ||
-      state.resolvedEvents.includes('ibeju-lekki-property') ||
-      state.resolvedEvents.includes('building-approval-bury')
-    ) {
-      npcs.neo = { ...npcs.neo, isActive: true, activeWeek: state.week }
+  for (const slot of NPC_SLOTS) {
+    const npc = next.activeNPCs[slot]
+    if (npc.isActive) continue
+    const def = NPC_ARCHETYPES[npc.archetypeKey]
+    if (def && def.activationCondition(next)) {
+      next = {
+        ...next,
+        activeNPCs: {
+          ...next.activeNPCs,
+          [slot]: { ...npc, isActive: true, activeWeek: next.week },
+        },
+      }
       changed = true
     }
   }
 
-  // Dayo activates when youthTension > 55 or Makoko resolved badly
-  if (!npcs.dayo.isActive) {
-    if (
-      state.stats.youthTension > 55 ||
-      (state.resolvedEvents.includes('makoko-demolition-order') && state.stats.publicTrust < 45)
-    ) {
-      npcs.dayo = { ...npcs.dayo, isActive: true, activeWeek: state.week }
-      changed = true
+  return changed ? next : state
+}
+
+function tickNPCPressure(state: GameState): GameState {
+  let next = state
+  let changed = false
+
+  for (const slot of NPC_SLOTS) {
+    const npc = next.activeNPCs[slot]
+    if (!npc.isActive) continue
+    const def = NPC_ARCHETYPES[npc.archetypeKey]
+    if (!def) continue
+    const rate = def.baseWeeklyPressure(npc.relationship)
+    if (rate === 0) continue
+    next = {
+      ...next,
+      activeNPCs: {
+        ...next.activeNPCs,
+        [slot]: { ...next.activeNPCs[slot], pressure: Math.min(100, npc.pressure + rate) },
+      },
+    }
+    changed = true
+  }
+
+  return changed ? next : state
+}
+
+function checkNPCEscalation(state: GameState): GameState {
+  let next = state
+
+  for (const slot of NPC_SLOTS) {
+    const npc = next.activeNPCs[slot]
+    if (!npc.isActive || npc.pressure < 40) continue
+
+    const deckEvents = NPC_DECK_BY_ARCHETYPE[npc.archetypeKey] ?? []
+    const available = deckEvents.filter(
+      (e) =>
+        !next.resolvedEvents.includes(e.id) &&
+        !(e.id in next.eventCooldowns && next.week < next.eventCooldowns[e.id]) &&
+        !next.eventQueue.some((q) => q.id === e.id),
+    )
+    if (available.length === 0) continue
+
+    // Prefer tier-matched events; fall back to any available
+    const tier = npc.relationship < 30 ? 'hostile' : npc.relationship < 65 ? 'neutral' : 'ally'
+    const tiered = available.filter((e) => e.npcTier === tier)
+    const baseEvent = tiered.length > 0 ? tiered[0] : available[0]
+
+    // Substitute {NPC} placeholder with actual NPC name
+    const event = {
+      ...baseEvent,
+      title: baseEvent.title.replace(/\{NPC\}/g, npc.name),
+      body: baseEvent.body.replace(/\{NPC\}/g, npc.name),
+      choices: baseEvent.choices.map((c) => ({
+        ...c,
+        label: c.label.replace(/\{NPC\}/g, npc.name),
+        description: c.description.replace(/\{NPC\}/g, npc.name),
+        delayed: c.delayed
+          ? { ...c.delayed, eventText: c.delayed.eventText.replace(/\{NPC\}/g, npc.name) }
+          : undefined,
+      })),
+    }
+
+    next = {
+      ...next,
+      eventQueue: [...next.eventQueue, event],
+      activeNPCs: {
+        ...next.activeNPCs,
+        [slot]: { ...next.activeNPCs[slot], pressure: 0 },
+      },
     }
   }
 
-  // SMJ activates when partyGodfathers < 45 or Fashemu refused
-  if (!npcs.smj.isActive) {
-    if (state.factions.partyGodfathers < 45 || state.godfatherRefusalCount >= 2) {
-      npcs.smj = { ...npcs.smj, isActive: true, activeWeek: state.week }
-      changed = true
-    }
-  }
-
-  if (!changed) return state
-  return { ...state, activeNPCs: npcs as Record<NPCKey, NPCState> }
+  return next
 }
 
 function resolveLGAElection(state: GameState): GameState {

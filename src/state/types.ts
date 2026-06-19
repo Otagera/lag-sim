@@ -119,6 +119,16 @@ export type DelayedConsequence = {
   followUpEventId?: string
 }
 
+export type NPCArchetypeKey =
+  | 'journalist'
+  | 'youth-organiser'
+  | 'insider'
+  | 'union-leader'
+  | 'opposition-senator'
+  | 'diaspora-activist'
+  | 'oba-liaison'
+  | 'business-mogul'
+
 export type Choice = {
   id: string
   label: string
@@ -131,6 +141,7 @@ export type Choice = {
   politicalCapitalCost?: number
   corruptionTrigger?: boolean
   setFlags?: Record<string, boolean>
+  npcImpact?: Partial<Record<NPCArchetypeKey, number>>
 }
 
 export type EventCard = {
@@ -146,6 +157,8 @@ export type EventCard = {
   severity: 'low' | 'medium' | 'high' | 'critical'
   category: 'transport' | 'infrastructure' | 'political' | 'crisis' | 'economy' | 'social' | 'election' | 'riot'
   season?: 'wet' | 'dry'
+  npcArchetype?: NPCArchetypeKey
+  npcTier?: 'ally' | 'neutral' | 'hostile'
 }
 
 export type PendingEvent = {
@@ -166,7 +179,14 @@ export type TimelineEntry = {
 
 // --- Phase 2 Types ---
 
-export type DeputyKey = 'technocrat' | 'politician' | 'loyalist'
+export type DeputyKey =
+  | 'technocrat'
+  | 'politician'
+  | 'loyalist'
+  | 'reformer'
+  | 'traditionalist'
+  | 'economist'
+  | 'security-chief'
 
 export type DeputyState = {
   key: DeputyKey
@@ -174,11 +194,14 @@ export type DeputyState = {
   revealed: boolean
 }
 
-export type NPCKey = 'neo' | 'dayo' | 'smj'
+export type NPCKey = 'npc1' | 'npc2' | 'npc3'
 
 export type NPCState = {
   isActive: boolean
   relationship: number
+  pressure: number
+  archetypeKey: NPCArchetypeKey
+  name: string
   hasBeenInvited?: boolean
   activeWeek?: number
 }
@@ -262,4 +285,5 @@ export type GameState = {
   electionResult: number | null
   reElected: boolean | null
   inCampaignMode: boolean
+  offeredDeputies: DeputyKey[]
 }
