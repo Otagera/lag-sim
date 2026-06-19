@@ -155,6 +155,8 @@ type Loan = {
 
 **EventCard:** no `oneTime` field. Recurring = `isRecurring: true`. One-shot = omit or `isRecurring: false`. `eventQueue: EventCard[]` — push the actual card object, not an id reference. `maxTotalFirings?: number` — recurring event retires after firing this many times total (counted via `resolvedEvents.filter(id === event.id).length`). Cooldown still applies between firings.
 
+**Choice:** `resentmentDelta?: number` — applied to `state.deputy.resentment` in `resolveEvent`. Use negative values on consequence choices that repair the deputy relationship.
+
 ---
 
 ## Phase 2 State Fields
@@ -366,13 +368,18 @@ Work through these in order. Tick each off when shipped (tests green, build pass
 
 - [ ] **NPC active AI decks** — NEO, Dayo, SMJ currently fire reactive events. Each should pursue an independent goal via a weighted mini-deck that escalates pressure without player provocation.
 
-- [ ] **Deputy resentment arc** — `resentment` field exists on `DeputyState` but nothing increments it. Wire: specific event choices that override deputy's "recommendation" increment resentment +10. At resentment ≥ 60, fire type-specific consequence card (technocrat leaks to press, politician joins opposition, loyalist secret revealed).
+- [x] **Deputy resentment arc** — `tickDeputyResentment` in `gameLoop.ts` accumulates resentment per tick based on deputy type:
+  - technocrat: infra < 35 → +1/wk; politician: lgChairmen < 35 → +2/wk; loyalist: trust < 40 → +1/wk; reformer: corruption > 55 → +2/wk; traditionalist: refusals > 2 → +2/wk; economist: cash < 5 → +2/wk; security-chief: security < 40 → +1/wk.
+  - Three consequence events in `characters.ts`: `deputy-consequence-politician` (resentment ≥ 60), `deputy-consequence-loyalist` (week ≥ 130), `deputy-consequence-reformer` (godfatherComplianceCount ≥ 3).
+  - `resentmentDelta?: number` added to `Choice` type and wired in `resolveEvent` — negative values let consequence choices reset relationship.
+  - After consequence resolves: `deputy.revealed = true`, resentment resets to 0, accumulation stops.
+  - [ ] **Deputy resentment UI** — no visible bar showing deputy mood. Add to existing Deputy panel or Dashboard.
 
-- [ ] **Commissioner mechanical effects** — `competence`/`loyalty` scores are stored but unused by engines. Wire:
-  - Works commissioner `isGodfatherChoice: true` → `procurementLeakage +5%` in dragEngine
-  - Works commissioner high competence → project completion speed +10% in projectEngine
-  - Finance commissioner high competence → `grantsCompliance` starts 0.1 higher
-  - Information commissioner loyalty → modifier on civil society event weights
+- [x] **Commissioner mechanical effects** — all four wired:
+  - Works `isGodfatherChoice: true` → `procurementLeakage +5%` in `dragEngine.ts` and `projectEngine.ts`
+  - Works high competence (clean) → `effectiveProgressGain × (1 + competence/100 × 0.1)` in `projectEngine.ts`
+  - Finance competence → `grants += 0.8 × min(1, grantsCompliance + competence/100 × 0.15)` in `revenueEngine.ts`
+  - Information loyalty → `weight × (1 − loyalty/100 × 0.25)` for events with civilSocietyMedia < -3 in `eventEngine.ts`
 
 ### Tech Debt
 

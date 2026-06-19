@@ -142,6 +142,7 @@ export type Choice = {
   corruptionTrigger?: boolean
   setFlags?: Record<string, boolean>
   npcImpact?: Partial<Record<NPCArchetypeKey, number>>
+  resentmentDelta?: number
   launchInitiative?: {
     id: string
     name: string

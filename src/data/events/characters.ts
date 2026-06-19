@@ -516,4 +516,109 @@ export const characterEvents: EventCard[] = [
     ],
   },
   removalResolutionEvent,
+
+  // --- Deputy Consequence Events ---
+  // Fires when politician deputy resentment reaches 60
+  {
+    id: 'deputy-consequence-politician',
+    title: 'Deputy Obiora Makes Her Move',
+    body: `Word from the Party Secretariat: Hon. Amaka Obiora has been meeting with LGA Chairmen without your knowledge. She is testing the waters for a primary challenge. Your Chief of Staff says this must be handled before it goes public — quietly or not.`,
+    severity: 'high',
+    category: 'political',
+    triggerCondition: (state) =>
+      state.deputy?.key === 'politician' && (state.deputy.resentment >= 60),
+    choices: [
+      {
+        id: 'neutralise-obiora',
+        label: 'Bring Her Back Inside',
+        description: 'Give her a meaningful assignment and political concessions. Political Capital -25. She de-escalates.',
+        immediate: { politicalCapital: -25 },
+        factionImpact: { partyGodfathers: -5 },
+        resentmentDelta: -40,
+      },
+      {
+        id: 'confront-obiora',
+        label: 'Confront Her Directly',
+        description: 'A private confrontation. She backs down — for now. Trust -5.',
+        immediate: { politicalCapital: -15, publicTrust: -5 },
+        factionImpact: { lgChairmen: -5 },
+        resentmentDelta: -30,
+      },
+      {
+        id: 'ignore-obiora',
+        label: 'Ignore It',
+        description: 'Hope it blows over. Godfather network interprets her moves as your weakness.',
+        immediate: {},
+        factionImpact: { partyGodfathers: -10, lgChairmen: -8 },
+      },
+    ],
+  },
+
+  // Fires at week 130 when loyalist deputy is in office
+  {
+    id: 'deputy-consequence-loyalist',
+    title: 'The Adeyemi-Shaw File',
+    body: `A federal investigator has made quiet inquiries about Dr. Korede Adeyemi-Shaw's accounts from 2021–2023 — before he managed your campaign. The sums involved are significant. He insists the funds were "party logistics." He has asked to brief you privately before any official response.`,
+    severity: 'high',
+    category: 'political',
+    triggerCondition: (state) => state.deputy?.key === 'loyalist' && state.week >= 130,
+    choices: [
+      {
+        id: 'cover-adeyemi-shaw',
+        label: 'Cover For Him',
+        description: 'Use your office to quietly bury the inquiry. Corruption +12, Trust -8. He owes you everything.',
+        immediate: { corruptionPressure: 12, publicTrust: -8 },
+        factionImpact: { civilSocietyMedia: -10 },
+        corruptionTrigger: true,
+      },
+      {
+        id: 'sacrifice-adeyemi-shaw',
+        label: 'Cut Him Loose',
+        description: "Distance yourself publicly. Trust -15, Political Capital -20. You'll govern alone.",
+        immediate: { publicTrust: -15, politicalCapital: -20 },
+        factionImpact: { civilSocietyMedia: 5 },
+      },
+      {
+        id: 'investigate-adeyemi-shaw',
+        label: 'Order a Full Inquiry',
+        description: 'Face it head-on. Corruption -5, Trust +5 — but it will dominate the news for 8 weeks.',
+        immediate: { corruptionPressure: -5, publicTrust: 5, politicalCapital: -25 },
+        factionImpact: { civilSocietyMedia: 12, partyGodfathers: -8 },
+        delayed: {
+          weekOffset: 8,
+          delta: { publicTrust: 4 },
+          factionImpact: { civilSocietyMedia: 5 },
+          eventText: 'The Adeyemi-Shaw inquiry concluded with a caution. The cloud has lifted, but the story defined two months of your administration.',
+        },
+      },
+    ],
+  },
+
+  // Fires when reformer deputy has seen 3+ godfather compliance events
+  {
+    id: 'deputy-consequence-reformer',
+    title: "Deputy Fashola-Eze's Ultimatum",
+    body: `Dr. Kanyinsola Fashola-Eze has called a press conference. She will announce in 72 hours whether she remains Deputy Governor. Her statement cites "incompatible governance values." Three godfather concessions in a term is her line. You cannot stop the press conference — only decide what comes next.`,
+    severity: 'critical',
+    category: 'political',
+    triggerCondition: (state) =>
+      state.deputy?.key === 'reformer' && state.godfatherComplianceCount >= 3,
+    choices: [
+      {
+        id: 'accept-reformer-resignation',
+        label: 'Accept Her Resignation',
+        description: 'Civil Society -20, Trust -12. She leaves with her integrity — and her scrutiny — intact.',
+        immediate: { publicTrust: -12, corruptionPressure: -5 },
+        factionImpact: { civilSocietyMedia: -20, businessCommunity: 5, partyGodfathers: 8 },
+      },
+      {
+        id: 'beg-reformer-to-stay',
+        label: 'Beg Her to Stay',
+        description: 'Political Capital -30. She stays — but only if you make a public anti-corruption commitment.',
+        immediate: { politicalCapital: -30, corruptionPressure: -8 },
+        factionImpact: { civilSocietyMedia: 10, partyGodfathers: -5 },
+        resentmentDelta: -50,
+      },
+    ],
+  },
 ]

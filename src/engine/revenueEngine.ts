@@ -26,7 +26,9 @@ export function calculateWeeklyRevenue(state: GameState): RevenueBreakdown {
   else faacMultiplier = 0.7
   const faac = 8.7 * faacMultiplier
 
-  const grants = state.grantFreezeDuration > 0 ? 0 : 0.8 * grantsCompliance
+  const financeCommissioner = state.commissioners?.['finance']
+  const grantsBonus = financeCommissioner ? (financeCommissioner.competence / 100) * 0.15 : 0
+  const grants = state.grantFreezeDuration > 0 ? 0 : 0.8 * Math.min(1, grantsCompliance + grantsBonus)
 
   const total = paye + mda + luc + other + faac + grants
 

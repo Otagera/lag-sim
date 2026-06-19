@@ -52,13 +52,19 @@ const SEVERITY_WEIGHT: Record<EventCard['severity'], number> = {
   critical: 1,
 }
 
-function getEventWeight(event: EventCard, floodMultiplier = 1): number {
+function getEventWeight(event: EventCard, floodMultiplier = 1, mediaDampening = 0): number {
   const base = event.weight ?? SEVERITY_WEIGHT[event.severity]
-  return event.season === 'wet' ? base * floodMultiplier : base
+  let weight = event.season === 'wet' ? base * floodMultiplier : base
+  // Information commissioner loyalty reduces probability of hostile media/civil-society events
+  if (mediaDampening > 0) {
+    const mediaImpact = (event.factionImpact as Record<string, number> | undefined)?.civilSocietyMedia ?? 0
+    if (mediaImpact < -3) weight *= 1 - mediaDampening
+  }
+  return weight
 }
 
-function weightedSelect(pool: EventCard[], floodMultiplier = 1): EventCard | null {
-  const weights = pool.map((e) => getEventWeight(e, floodMultiplier))
+function weightedSelect(pool: EventCard[], floodMultiplier = 1, mediaDampening = 0): EventCard | null {
+  const weights = pool.map((e) => getEventWeight(e, floodMultiplier, mediaDampening))
   const total = weights.reduce((sum, w) => sum + w, 0)
   if (total <= 0) return null
 
@@ -107,7 +113,9 @@ export function drawNextEvent(state: GameState): EventCard | null {
   if (pool.length === 0) return null
 
   const { floodEventWeightMultiplier } = getSeasonModifier(state.week)
-  return weightedSelect(pool, floodEventWeightMultiplier)
+  const infoComm = state.commissioners?.['information']
+  const mediaDampening = infoComm ? (infoComm.loyalty / 100) * 0.25 : 0
+  return weightedSelect(pool, floodEventWeightMultiplier, mediaDampening)
 }
 
 export function resolveEvent(state: GameState, event: EventCard, choiceId: string): GameState {
@@ -139,6 +147,16 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
 
   if (choice.setFlags) {
     next = { ...next, stateFlags: { ...next.stateFlags, ...choice.setFlags } }
+  }
+
+  if (choice.resentmentDelta !== undefined && next.deputy) {
+    next = {
+      ...next,
+      deputy: {
+        ...next.deputy,
+        resentment: Math.max(0, Math.min(100, next.deputy.resentment + choice.resentmentDelta)),
+      },
+    }
   }
 
   if (choice.launchInitiative) {

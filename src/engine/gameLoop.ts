@@ -201,6 +201,9 @@ export function tick(state: GameState): GameState {
     next = applyDelta(next, { publicTrust: trustDelta })
   }
 
+  // Deputy resentment accumulation
+  next = tickDeputyResentment(next)
+
   // Activate NPCs based on conditions, tick pressure, and check escalation
   next = activateNPCs(next)
   next = tickNPCPressure(next)
@@ -405,6 +408,49 @@ function tickInitiative(state: GameState): GameState {
     }
   }
   return { ...state, activeInitiative: { ...initiative, weeksRemaining } }
+}
+
+function tickDeputyResentment(state: GameState): GameState {
+  const deputy = state.deputy
+  if (!deputy) return state
+
+  // Once the consequence event has resolved, mark revealed and stop accumulating
+  const consequenceId = `deputy-consequence-${deputy.key}`
+  if (state.resolvedEvents.includes(consequenceId)) {
+    if (!deputy.revealed) return { ...state, deputy: { ...deputy, revealed: true, resentment: 0 } }
+    return state
+  }
+
+  let delta = 0
+  switch (deputy.key) {
+    case 'technocrat':
+      if (state.stats.infrastructureScore < 35) delta = 1
+      break
+    case 'politician':
+      if (state.factions.lgChairmen < 35) delta = 2
+      break
+    case 'loyalist':
+      if (state.stats.publicTrust < 40) delta = 1
+      break
+    case 'reformer':
+      if (state.stats.corruptionPressure > 55) delta = 2
+      break
+    case 'traditionalist':
+      if (state.godfatherRefusalCount > 2) delta = 2
+      break
+    case 'economist':
+      if (state.stats.cashReserve < 5) delta = 2
+      break
+    case 'security-chief':
+      if (state.stats.securityIndex < 40) delta = 1
+      break
+  }
+
+  if (delta === 0) return state
+  return {
+    ...state,
+    deputy: { ...deputy, resentment: Math.min(100, deputy.resentment + delta) },
+  }
 }
 
 function checkGameOver(state: GameState): GameState {

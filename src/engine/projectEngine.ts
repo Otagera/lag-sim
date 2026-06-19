@@ -40,8 +40,13 @@ export function processProjects(state: GameState): GameState {
     const draw = Math.min(project.weeklyDraw, next.stats.cashReserve)
     next = applyDelta(next, { cashReserve: -draw })
 
-    const leakage = 0.15 + (next.stats.corruptionPressure / 100) * 0.25
-    const effectiveProgressGain = (draw / project.totalCost) * 100 * (1 - leakage)
+    const worksCommissioner = next.commissioners?.['works']
+    const godfatherLeakageBonus = worksCommissioner?.isGodfatherChoice ? 0.05 : 0
+    const leakage = 0.15 + (next.stats.corruptionPressure / 100) * 0.25 + godfatherLeakageBonus
+    const worksSpeedBonus = worksCommissioner && !worksCommissioner.isGodfatherChoice
+      ? (worksCommissioner.competence / 100) * 0.1
+      : 0
+    const effectiveProgressGain = (draw / project.totalCost) * 100 * (1 - leakage) * (1 + worksSpeedBonus)
     const totalSpent = project.totalSpent + draw
     const effectiveProgress = Math.min(100, project.effectiveProgress + effectiveProgressGain)
     const weeksRemaining = project.weeksRemaining - 1
