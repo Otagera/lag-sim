@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { STARTING_STATE } from './data/startingState'
 import { useGameStore } from './state/gameStore'
 import { clearSave, hasSavedGame, loadGame } from './state/persistence'
+import { ArchetypeSelectionScreen } from './ui/ArchetypeSelectionScreen'
 import { BudgetPanel } from './ui/BudgetPanel'
 import { Dashboard, TERMS } from './ui/Dashboard'
 import { DeputySelectionScreen } from './ui/DeputySelectionScreen'
@@ -23,8 +24,8 @@ function App() {
   const setMode = useGameStore((s) => s.setMode)
   const [showLoadPrompt, setShowLoadPrompt] = useState(false)
   const [showWelcome, setShowWelcome] = useState(false)
+  const [showArchetypeSelect, setShowArchetypeSelect] = useState(false)
   const [showDeputySelect, setShowDeputySelect] = useState(false)
-  const deputy = useGameStore((s) => s.deputy)
 
   useEffect(() => {
     if (hasSavedGame()) {
@@ -49,7 +50,7 @@ function App() {
     if (!hasSeenIntro()) {
       setShowWelcome(true)
     } else {
-      setShowDeputySelect(true)
+      setShowArchetypeSelect(true)
     }
   }
 
@@ -89,11 +90,19 @@ function App() {
         <WelcomeModal
           onStart={() => {
             setShowWelcome(false)
-            if (!deputy) setShowDeputySelect(true)
+            setShowArchetypeSelect(true)
           }}
         />
       )}
-      {showDeputySelect && !showWelcome && (
+      {showArchetypeSelect && !showWelcome && (
+        <ArchetypeSelectionScreen
+          onSelect={() => {
+            setShowArchetypeSelect(false)
+            setShowDeputySelect(true)
+          }}
+        />
+      )}
+      {showDeputySelect && !showArchetypeSelect && !showWelcome && (
         <DeputySelectionScreen onSelect={() => setShowDeputySelect(false)} />
       )}
       <header className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-800">

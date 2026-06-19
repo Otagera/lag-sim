@@ -356,10 +356,11 @@ Work through these in order. Tick each off when shipped (tests green, build pass
   - **International Funding Freeze**: `corruptionPressure > 75` for 3 consecutive weeks sets `grantFreezeDuration = 8`; `revenueEngine.ts` returns `grants = 0` while active; `highCorruptionWeeks` counter resets if pressure drops below 75.
   - **Riot Mode**: `youthTension > 70` sets `riotModeActive = true`; `drawNextEvent` in `eventEngine.ts` serves only `category: 'riot'` events from `src/data/events/riot.ts` (3 events: curfew, security surge, youth parley) until tension returns to ≤ 70. 15 tests in `src/engine/__tests__/cascades.test.ts`.
 
-- [ ] **Governor archetypes (variable starts)** — replace fixed STARTING_STATE with 3 selectable starts:
-  - Technocrat: high infrastructureScore + cashReserve, zero politicalCapital, partyGodfathers 30
-  - Party Loyalist: partyGodfathers 90, politicalCapital 180, corruptionPressure 50, publicTrust 35
-  - Reform Outsider: publicTrust 75, civilSocietyMedia 80, partyGodfathers 20, cashReserve 25
+- [x] **Governor archetypes (variable starts)** — `src/data/archetypes.ts` defines 3 archetypes via `getArchetypeState(key)` (merges onto `STARTING_STATE`); `ArchetypeSelectionScreen.tsx` shows before `DeputySelectionScreen` in the new-game flow (App.tsx); `STARTING_STATE` itself is unchanged (used as test baseline). Three archetypes:
+  - **Technocrat**: cashReserve 65, infrastructureScore 62, politicalCapital 0, partyGodfathers 30
+  - **Loyalist**: politicalCapital 180, partyGodfathers 90, publicTrust 35, corruptionPressure 50
+  - **Outsider**: publicTrust 75, civilSocietyMedia 80, cashReserve 25, partyGodfathers 20
+  - 17 tests in `src/data/__tests__/archetypes.test.ts`.
 
 ### Characters & Narrative
 
