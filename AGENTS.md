@@ -384,7 +384,11 @@ Work through these in order. Tick each off when shipped (tests green, build pass
 
 - [ ] **NPC relationship display** — no panel showing NEO/Dayo/SMJ status or relationship scores. Add to FactionPanel or a new NPCPanel.
 
-- [ ] **Fast-forward / speed-run mode** — developers need to test week 100+ scenarios without clicking through 100 event cards. Options to explore: (a) a "skip N weeks" dev button in App.tsx (gated by `import.meta.env.DEV`) that calls `tick()` in a loop with `Math.random` seeded, suppressing event draws; (b) a `simulateWeeks(state, n)` pure function in gameLoop.ts usable in test scripts; (c) a URL param `?devmode=fast` that auto-resolves every drawn event using choice index 0. The key constraint: fast-forward must still run through all engine steps (revenue, drag, debt) so the resulting state is game-valid, not synthetic.
+- [x] **Fast-forward / speed-run mode** — `src/engine/simulateEngine.ts` exports:
+  - `simulateWeeks(state, n, options): SimulateResult` — pure function. Temporarily replaces `Math.random` with mulberry32 seeded PRNG for full determinism (tick internals + choice selection both draw from the same seed). Strategies: `'first'` (always choice 0), `'random'` (random draw), `'weighted'` (softmax biased toward stat-improving choices). Returns `{ state, weeksSimulated, stoppedEarly, seed }`.
+  - `SimulateStrategy`, `SimulateOptions`, `SimulateResult` types.
+  - `fastForward(n, options)` action on the Zustand store wraps `simulateWeeks` and writes state.
+  - `DevPanel` component (`src/ui/DevPanel.tsx`) renders only in `import.meta.env.DEV` (bottom-right corner, collapsible). Shows strategy/weeks/seed inputs, a "⏩ Skip N weeks" button, and a before/after diff of key stats + factions after each run.
 
 - [ ] **Save versioning migration layer** — `persistence.ts` already embeds `version: SAVE_VERSION` (currently `2`) in localStorage and exports. When `SAVE_VERSION` increments, `loadGame` should detect mismatches and either migrate the old save or warn the user. Currently it silently uses `{ ...STARTING_STATE, ...rest }` merge which handles additive changes but not field renames or removals. Add a `migrateV1toV2(raw)` pattern for breaking changes.
 

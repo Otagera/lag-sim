@@ -17,6 +17,7 @@ import { PollPanel } from './ui/PollPanel'
 import { TimelinePanel } from './ui/TimelinePanel'
 import { WelcomeModal, hasSeenIntro } from './ui/WelcomeModal'
 import { formatGameMonth } from './utils/calendar'
+import { DevPanel } from './ui/DevPanel'
 
 function App() {
   const tick = useGameStore((s) => s.tick)
@@ -179,6 +180,8 @@ function App() {
           </div>
         </div>
       )}
+
+      {import.meta.env.DEV && <DevPanel />}
 
       {isGameOver && gameOverReason?.includes('term has ended') ? (
         <div className="flex-1 overflow-y-auto min-h-0">

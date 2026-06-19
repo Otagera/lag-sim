@@ -4,6 +4,7 @@ import { DEPUTY_PROFILES } from '../data/deputies'
 import { resolveEvent as resolveEventAction } from '../engine/eventEngine'
 import { tick as gameLoopTick } from '../engine/gameLoop'
 import { resolveGodfather } from '../engine/godfatherEngine'
+import { simulateWeeks, type SimulateOptions, type SimulateResult } from '../engine/simulateEngine'
 import { applyDelta } from '../engine/statEngine'
 import { applyFactionDelta } from '../engine/factionEngine'
 import { saveGame } from './persistence'
@@ -16,6 +17,7 @@ export interface GameStore extends GameState {
   resolveEvent: (choiceId: string) => void
   setMode: (mode: 'simple' | 'detailed') => void
   setDeputy: (key: DeputyKey) => void
+  fastForward: (n: number, options?: SimulateOptions) => SimulateResult
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -55,6 +57,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
       next = applyDelta(next, profile.statBonuses)
     }
     set(next)
+  },
+  fastForward: (n: number, options?: SimulateOptions) => {
+    const result = simulateWeeks(get(), n, options)
+    set(result.state)
+    return result
   },
 }))
 
