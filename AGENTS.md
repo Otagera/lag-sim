@@ -30,10 +30,11 @@ A browser-based governance simulation game set in Lagos, Nigeria. The player is 
     godfatherEngine.ts    — Fashemu arc, phase transitions, ask draw logic
     electionEngine.ts     — vote share calculation for term-end election
   /data
-    startingState.ts      — initial GameState values (source of truth for defaults)
-    deputies.ts           — 3 deputy profiles (technocrat, politician, loyalist)
-    commissioners.ts      — commissioner candidate pool per role
-    godfatherAsks.ts      — fashemuAsks[4] + generalGodfatherPool
+    startingState.ts           — initial GameState values (source of truth for defaults)
+    deputies.ts                — 7 deputy profiles (technocrat, politician, loyalist, reformer, traditionalist, economist, security-chief)
+    commissionerCandidates.ts  — 3 candidates per commissioner role with competence/loyalty/background
+    npcs.ts                    — NPCArchetypeDefinition (key, role, goal, passiveEffect, activationCondition, baseWeeklyPressure, namePools)
+    godfatherAsks.ts           — fashemuAsks[4] + generalGodfatherPool
     legacy.ts             — buildLegacy(): headline templates + monologue styles
     /events
       transport.ts
@@ -59,9 +60,12 @@ A browser-based governance simulation game set in Lagos, Nigeria. The player is 
     PollPanel.tsx         — constituency approval ratings
     GodfatherInbox.tsx    — Fashemu message thread with phase badge
     DeputySelectionScreen.tsx — full-screen deputy choice at game start
+    DeputyPanel.tsx       — resentment bar + trigger hint (right sidebar, hidden if no deputy)
+    CabinetPanel.tsx      — collapsible commissioner roster + appointment UI (costs 8 PC)
     LegacyScreen.tsx      — end-of-term legacy view (replaces Scorecard)
     TimelinePanel.tsx     — decision history
     Scorecard.tsx         — term grades (used mid-game; LegacyScreen replaces at end)
+    DevPanel.tsx          — DEV-only: simulateWeeks wrapper, strategy/seed/weeks inputs, stat diff display
 ```
 
 ---
@@ -98,13 +102,18 @@ applyFactionDeltaState(state, delta): GameState  // factionEngine.ts
 6. `firePendingDelayed` from pendingDelayed queue
 7. `factionEngine.drift`
 8. publicTrust drift toward constituency-weighted average (10% pull/week)
-9. `activateNPCs` (NEO, Dayo, SMJ threshold checks)
-10. `applyFashemuPhaseTransition`
-11. LGA election at week 86 (mandatory)
-12. Campaign mode flag at week 195
-13. `checkGameOver`
-14. Draw next event / godfather ask
-15. `infrastructureScore -= 0.3` passive decay
+9. `tickDeputyResentment` — per-archetype resentment accumulation
+10. `activateNPCs` — threshold checks per NPC slot
+11. `tickNPCPressure` — relationship-based weekly pressure gain
+12. `applyNPCGoalEffects` — passive stat effects from active NPC goals
+13. `checkNPCEscalation` — enqueue deck events when pressure ≥ 40
+14. `tickInitiative`
+15. `applyFashemuPhaseTransition`
+16. LGA election at week 86 (mandatory)
+17. Campaign mode flag at week 195
+18. `checkGameOver`
+19. Draw next event / godfather ask
+20. `infrastructureScore -= 0.3` passive decay
 
 ---
 
@@ -216,15 +225,31 @@ Phase transitions run weekly in `applyFashemuPhaseTransition` (godfatherEngine.t
 
 ---
 
-## NPC Activation (gameLoop.ts → activateNPCs)
+## NPC System (gameLoop.ts)
 
-| NPC | Activates when |
-|---|---|
-| NEO (Barr. Ngozi Eze-Okoro) | `corruptionPressure > 35` OR procurement scandal resolved |
-| Dayo (Comrade Dayo Afolabi) | `youthTension > 55` OR Makoko resolved badly + trust < 45 |
-| SMJ (Hon. Seun Majekodunmi) | `partyGodfathers < 45` OR `godfatherRefusalCount >= 2` |
+NPCs are stored in `activeNPCs: Record<NPCKey, NPCState>` (npc1/npc2/npc3). Each slot has an archetype drawn from `NPC_ARCHETYPES` in `src/data/npcs.ts`.
 
-Once active, their event cards become drawable (checked via `triggerCondition: state => state.activeNPCs.neo.isActive`).
+**NPCArchetypeDefinition fields:**
+- `goal: string` — displayed in NPCPanel; describes what this NPC is pursuing
+- `activationCondition: (state) => boolean` — NPC becomes active when true
+- `baseWeeklyPressure: (relationship) => number` — pressure gain per tick (hostile > neutral > ally)
+- `passiveEffect: (npc, state) => StatDelta` — **applies every tick while active** based on relationship tier
+
+**Passive effects by archetype (hostile / ally):**
+| Archetype | Goal | Hostile effect | Ally effect |
+|---|---|---|---|
+| journalist | Expose Corruption | corruptionPressure +0.5/wk | corruptionPressure -0.3/wk |
+| youth-organiser | Build Movement | youthTension +1.5/wk | youthTension -0.5, publicTrust +0.2/wk |
+| insider | Undermine Governor | politicalCapital -1/wk | politicalCapital +0.5/wk |
+| union-leader | Protect Workers | civilServiceReformScore -0.3/wk | infrastructureScore +0.1/wk |
+| opposition-senator | Block Federal Support | federalRelationship -0.5/wk | federalRelationship +0.3/wk |
+| diaspora-activist | International Accountability | publicTrust -0.3/wk | publicTrust +0.2/wk |
+| oba-liaison | Community Relations | publicTrust -0.2/wk | publicTrust +0.2/wk |
+| business-mogul | Business Growth | igr -0.1/wk | igr +0.1/wk |
+
+Neutral tier (relationship 30–64) has no passive effect. Hostile = relationship < 30. Ally = relationship ≥ 65.
+
+**Escalation:** when pressure ≥ 40, `checkNPCEscalation` enqueues a tier-matched event card from `NPC_DECK_BY_ARCHETYPE` and resets pressure to 0.
 
 ---
 
@@ -366,14 +391,15 @@ Work through these in order. Tick each off when shipped (tests green, build pass
 
 ### Characters & Narrative
 
-- [ ] **NPC active AI decks** — NEO, Dayo, SMJ currently fire reactive events. Each should pursue an independent goal via a weighted mini-deck that escalates pressure without player provocation.
+- [x] **NPC active AI decks** — all 8 archetypes in `npcs.ts` now have `goal: string` and `passiveEffect: (npc, state) => StatDelta`. Applied each tick via `applyNPCGoalEffects` in `gameLoop.ts` (step 12 of tick order). Hostile NPCs drain relevant stats; ally NPCs provide small weekly bonuses. Neutral tier has no effect. See the NPC System section above for the full table.
 
 - [x] **Deputy resentment arc** — `tickDeputyResentment` in `gameLoop.ts` accumulates resentment per tick based on deputy type:
   - technocrat: infra < 35 → +1/wk; politician: lgChairmen < 35 → +2/wk; loyalist: trust < 40 → +1/wk; reformer: corruption > 55 → +2/wk; traditionalist: refusals > 2 → +2/wk; economist: cash < 5 → +2/wk; security-chief: security < 40 → +1/wk.
   - Three consequence events in `characters.ts`: `deputy-consequence-politician` (resentment ≥ 60), `deputy-consequence-loyalist` (week ≥ 130), `deputy-consequence-reformer` (godfatherComplianceCount ≥ 3).
   - `resentmentDelta?: number` added to `Choice` type and wired in `resolveEvent` — negative values let consequence choices reset relationship.
   - After consequence resolves: `deputy.revealed = true`, resentment resets to 0, accumulation stops.
-  - [ ] **Deputy resentment UI** — no visible bar showing deputy mood. Add to existing Deputy panel or Dashboard.
+
+- [x] **Deputy resentment UI** — `DeputyPanel.tsx` in the right sidebar shows: archetype label, resentment bar (0–100, green/orange/red), trigger condition hint, and warning text at ≥ 40 / ≥ 60 resentment. Hidden if `deputy === null`.
 
 - [x] **Commissioner mechanical effects** — all four wired:
   - Works `isGodfatherChoice: true` → `procurementLeakage +5%` in `dragEngine.ts` and `projectEngine.ts`
@@ -385,11 +411,11 @@ Work through these in order. Tick each off when shipped (tests green, build pass
 
 - [ ] **simulation.test.ts BOUNDS coverage** — `BOUNDS` in the test only covers 10 of 21 `StatKey` values. Change type to `Partial<Record<StatKey, ...>>` and add entries for `ghostWorkerRate`, `contractorBacklog`, `debtStock`, `weeklyDebtRepayment`, `weeklyDebtInterest`, `landUseChargeEnforcement`, `grantsCompliance`, `civilServiceReformScore`, `baseOverheads`, `subventionCutRate`, `capitalEfficiency`.
 
-- [ ] **Campaign mode UI** — `inCampaignMode` flag exists but dashboard has no visual indicator that the player is in the election stretch. Add a banner/badge in App.tsx when `inCampaignMode === true`.
+- [x] **Campaign mode UI** — `inCampaignMode` flag activates at week 195. `App.tsx` renders a purple banner ("ELECTION CAMPAIGN MODE — Week 195+ · Every decision counts") directly below the header when `inCampaignMode === true` and the game is not over.
 
-- [ ] **Commissioner appointment screen** — no UI to browse candidates. Currently only fires via event card. Add a cabinet panel (simple mode: just names; detailed mode: competence/loyalty bars).
+- [x] **Commissioner appointment screen** — `CabinetPanel.tsx` in the right sidebar shows all 5 commissioner roles (works, finance, environment, transport, information). Each role card shows the current commissioner (competence/loyalty bars + "GF Pick" badge if godfather-appointed) or "Vacant". "Appoint"/"Replace" button opens inline candidate list from `src/data/commissionerCandidates.ts` (3 candidates per role with background description). Appointment costs 8 Pol. Capital and always sets `isGodfatherChoice: false`. Panel is collapsible. `appointCommissioner(role, candidate)` action on the Zustand store.
 
-- [ ] **NPC relationship display** — no panel showing NEO/Dayo/SMJ status or relationship scores. Add to FactionPanel or a new NPCPanel.
+- [x] **NPC relationship display** — `NPCPanel.tsx` added, shows all 3 active NPC slots with: name, short role, Ally/Neutral/Hostile badge, Goal text, relationship bar, pressure bar. Dormant slots show "Watching. Not yet active."
 
 - [x] **Fast-forward / speed-run mode** — `src/engine/simulateEngine.ts` exports:
   - `simulateWeeks(state, n, options): SimulateResult` — pure function. Temporarily replaces `Math.random` with mulberry32 seeded PRNG for full determinism (tick internals + choice selection both draw from the same seed). Strategies: `'first'` (always choice 0), `'random'` (random draw), `'weighted'` (softmax biased toward stat-improving choices). Returns `{ state, weeksSimulated, stoppedEarly, seed }`.

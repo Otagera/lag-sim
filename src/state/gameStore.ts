@@ -8,7 +8,7 @@ import { simulateWeeks, type SimulateOptions, type SimulateResult } from '../eng
 import { applyDelta } from '../engine/statEngine'
 import { applyFactionDelta } from '../engine/factionEngine'
 import { saveGame } from './persistence'
-import type { DeputyKey, GameState } from './types'
+import type { CommissionerRole, CommissionerState, DeputyKey, GameState } from './types'
 
 export interface GameStore extends GameState {
   tick: () => void
@@ -18,6 +18,7 @@ export interface GameStore extends GameState {
   setMode: (mode: 'simple' | 'detailed') => void
   setDeputy: (key: DeputyKey) => void
   fastForward: (n: number, options?: SimulateOptions) => SimulateResult
+  appointCommissioner: (role: CommissionerRole, candidate: CommissionerState) => void
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -62,6 +63,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const result = simulateWeeks(get(), n, options)
     set(result.state)
     return result
+  },
+  appointCommissioner: (role: CommissionerRole, candidate: CommissionerState) => {
+    const state = get()
+    const pcCost = 8
+    if (state.stats.politicalCapital < pcCost) return
+    set(applyDelta(
+      { ...state, commissioners: { ...state.commissioners, [role]: candidate } },
+      { politicalCapital: -pcCost },
+    ))
   },
 }))
 

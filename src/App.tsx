@@ -17,6 +17,8 @@ import { PollPanel } from './ui/PollPanel'
 import { TimelinePanel } from './ui/TimelinePanel'
 import { WelcomeModal, hasSeenIntro } from './ui/WelcomeModal'
 import { formatGameMonth } from './utils/calendar'
+import { CabinetPanel } from './ui/CabinetPanel'
+import { DeputyPanel } from './ui/DeputyPanel'
 import { DevPanel } from './ui/DevPanel'
 
 function App() {
@@ -26,6 +28,7 @@ function App() {
   const week = useGameStore((s) => s.week)
   const mode = useGameStore((s) => s.mode)
   const setMode = useGameStore((s) => s.setMode)
+  const inCampaignMode = useGameStore((s) => s.inCampaignMode)
   const [showLoadPrompt, setShowLoadPrompt] = useState(false)
   const [showWelcome, setShowWelcome] = useState(false)
   const [showArchetypeSelect, setShowArchetypeSelect] = useState(false)
@@ -157,6 +160,12 @@ function App() {
         </div>
       </header>
 
+      {inCampaignMode && !isGameOver && (
+        <div className="shrink-0 mx-3 mt-1 rounded bg-purple-900/60 border border-purple-600/50 px-3 py-1 text-center text-[10px] text-purple-200 font-semibold tracking-wide">
+          ELECTION CAMPAIGN MODE — Week 195+ · Every decision counts
+        </div>
+      )}
+
       {showLoadPrompt && (
         <div className="shrink-0 mx-3 mt-2 rounded-lg bg-blue-900/50 border border-blue-700 p-3 text-center">
           <p className="text-xs text-blue-200 mb-2">
@@ -204,7 +213,9 @@ function App() {
             </div>
             <div className="space-y-2 overflow-y-auto min-h-0">
               <FactionPanel />
+              <DeputyPanel />
               <NPCPanel />
+              <CabinetPanel />
               <BudgetPanel />
               <PollPanel />
               <GodfatherInbox />

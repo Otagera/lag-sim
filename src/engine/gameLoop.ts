@@ -204,9 +204,10 @@ export function tick(state: GameState): GameState {
   // Deputy resentment accumulation
   next = tickDeputyResentment(next)
 
-  // Activate NPCs based on conditions, tick pressure, and check escalation
+  // Activate NPCs based on conditions, tick pressure, apply goal effects, and check escalation
   next = activateNPCs(next)
   next = tickNPCPressure(next)
+  next = applyNPCGoalEffects(next)
   next = checkNPCEscalation(next)
 
   // Initiative tick
@@ -294,6 +295,21 @@ function tickNPCPressure(state: GameState): GameState {
   }
 
   return changed ? next : state
+}
+
+function applyNPCGoalEffects(state: GameState): GameState {
+  let next = state
+  for (const slot of NPC_SLOTS) {
+    const npc = next.activeNPCs[slot]
+    if (!npc.isActive) continue
+    const def = NPC_ARCHETYPES[npc.archetypeKey]
+    if (!def) continue
+    const delta = def.passiveEffect(npc, next)
+    if (Object.keys(delta).length > 0) {
+      next = applyDelta(next, delta)
+    }
+  }
+  return next
 }
 
 function checkNPCEscalation(state: GameState): GameState {

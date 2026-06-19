@@ -1,12 +1,14 @@
-import type { GameState, NPCArchetypeKey, NPCState } from '../state/types'
+import type { GameState, NPCArchetypeKey, NPCState, StatDelta } from '../state/types'
 
 export type NPCArchetypeDefinition = {
   key: NPCArchetypeKey
   role: string
   shortRole: string
   description: string
+  goal: string
   activationCondition: (state: GameState) => boolean
   baseWeeklyPressure: (relationship: number) => number
+  passiveEffect: (npc: NPCState, state: GameState) => StatDelta
   namePools: string[]
 }
 
@@ -18,11 +20,17 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
     shortRole: 'Journalist',
     description:
       'A barrister-turned-investigative journalist with deep source networks in the state legislature. Relentless on procurement and corruption angles.',
+    goal: 'Expose Corruption',
     activationCondition: (s) =>
       s.stats.corruptionPressure > 35 ||
       s.resolvedEvents.includes('ibeju-lekki-property') ||
       s.resolvedEvents.includes('building-approval-bury'),
     baseWeeklyPressure: (r) => (r < 30 ? 4 : r < 65 ? 2 : 0),
+    passiveEffect: (npc) => {
+      if (npc.relationship < 30) return { corruptionPressure: 0.5 }
+      if (npc.relationship >= 65) return { corruptionPressure: -0.3 }
+      return {}
+    },
     namePools: [
       'Barr. Rotimi Adesanya',
       'Barr. Yetunde Fashola-Briggs',
@@ -40,10 +48,16 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
     shortRole: 'Organiser',
     description:
       'A street-level organiser who channels youth anger into coordinated protest and electoral threat. Harder to dismiss than an opposition politician.',
+    goal: 'Build Movement',
     activationCondition: (s) =>
       s.stats.youthTension > 55 ||
       (s.resolvedEvents.includes('makoko-demolition-order') && s.stats.publicTrust < 45),
     baseWeeklyPressure: (r) => (r < 30 ? 5 : r < 65 ? 2 : 0),
+    passiveEffect: (npc) => {
+      if (npc.relationship < 30) return { youthTension: 1.5 }
+      if (npc.relationship >= 65) return { youthTension: -0.5, publicTrust: 0.2 }
+      return {}
+    },
     namePools: [
       'Comrade Dayo Afolabi',
       'Comrade Babatunde Akindele',
@@ -61,9 +75,15 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
     shortRole: 'Insider',
     description:
       'A lawmaker with deep roots in the party machine who operates in the shadows. When godfathers are unhappy, he is their instrument.',
+    goal: 'Undermine Governor',
     activationCondition: (s) =>
       s.factions.partyGodfathers < 45 || s.godfatherRefusalCount >= 2,
     baseWeeklyPressure: (r) => (r < 30 ? 3 : r < 65 ? 1 : 0),
+    passiveEffect: (npc) => {
+      if (npc.relationship < 30) return { politicalCapital: -1 }
+      if (npc.relationship >= 65) return { politicalCapital: 0.5 }
+      return {}
+    },
     namePools: [
       'Hon. Seun Majekodunmi',
       'Hon. Akinwunmi Adeleke',
@@ -81,9 +101,15 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
     shortRole: 'Union',
     description:
       'Controls public-sector workers across infrastructure, health, and education. A strike call can paralyse the state in 48 hours.',
+    goal: 'Protect Workers',
     activationCondition: (s) =>
       s.stats.infrastructureScore < 40 || s.stats.contractorBacklog > 3,
     baseWeeklyPressure: (r) => (r < 30 ? 4 : r < 65 ? 2 : 0),
+    passiveEffect: (npc) => {
+      if (npc.relationship < 30) return { civilServiceReformScore: -0.3 }
+      if (npc.relationship >= 65) return { infrastructureScore: 0.1 }
+      return {}
+    },
     namePools: [
       'Com. Gbenga Alabi',
       'Com. Lanre Ogundimu',
@@ -101,8 +127,14 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
     shortRole: 'Senator',
     description:
       'A federal lawmaker using committee power and floor debates to embarrass the state government in Abuja. Controls federal budget lines affecting Lagos.',
+    goal: 'Block Federal Support',
     activationCondition: (s) => s.stats.politicalCapital < 50,
     baseWeeklyPressure: (r) => (r < 30 ? 5 : r < 65 ? 2 : 0),
+    passiveEffect: (npc) => {
+      if (npc.relationship < 30) return { federalRelationship: -0.5 }
+      if (npc.relationship >= 65) return { federalRelationship: 0.3 }
+      return {}
+    },
     namePools: [
       'Sen. Kehinde Fashola',
       'Sen. Tunde Oloruntoba',
@@ -120,8 +152,14 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
     shortRole: 'Activist',
     description:
       'A Lagos-born academic and online organiser based abroad. International media connections and foreign donor relationships give her unusual reach.',
+    goal: 'International Accountability',
     activationCondition: (s) => s.week >= 30,
     baseWeeklyPressure: (r) => (r < 30 ? 3 : r < 65 ? 1 : 0),
+    passiveEffect: (npc) => {
+      if (npc.relationship < 30) return { publicTrust: -0.3 }
+      if (npc.relationship >= 65) return { publicTrust: 0.2 }
+      return {}
+    },
     namePools: [
       'Dr. Adeola Adesanya-Williams',
       'Dr. Kanyinsola Ogunwale',
@@ -139,8 +177,14 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
     shortRole: 'Oba Liaison',
     description:
       'Speaks for the council of traditional rulers. Commands deep respect in local communities and shapes informal opinion across all of Lagos.',
+    goal: 'Community Relations',
     activationCondition: (s) => s.factions.lgChairmen < 45,
     baseWeeklyPressure: (r) => (r < 30 ? 2 : r < 65 ? 1 : 0),
+    passiveEffect: (npc) => {
+      if (npc.relationship < 30) return { publicTrust: -0.2 }
+      if (npc.relationship >= 65) return { publicTrust: 0.2 }
+      return {}
+    },
     namePools: [
       'High Chief Adewale Balogun',
       'High Chief Oluwafemi Akinwunmi',
@@ -158,8 +202,14 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
     shortRole: 'Mogul',
     description:
       'Controls significant employment and supply chains across Lagos. Threatens capital flight and business-community defection when policy hurts his interests.',
+    goal: 'Business Growth',
     activationCondition: (s) => s.factions.businessCommunity < 40,
     baseWeeklyPressure: (r) => (r < 30 ? 3 : r < 65 ? 1 : 0),
+    passiveEffect: (npc) => {
+      if (npc.relationship < 30) return { igr: -0.1 }
+      if (npc.relationship >= 65) return { igr: 0.1 }
+      return {}
+    },
     namePools: [
       'Otunba Adewale Ogundimu',
       'Chief Tunde Fashola-Coker',

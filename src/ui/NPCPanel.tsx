@@ -54,6 +54,9 @@ function NPCCard({ npc }: { npc: NPCState }) {
 
       {npc.isActive ? (
         <div className="space-y-1.5">
+          {def?.goal && (
+            <p className="text-[9px] text-gray-500">Goal: <span className="text-gray-400">{def.goal}</span></p>
+          )}
           <div>
             <div className="flex justify-between text-[9px] text-gray-500 mb-0.5">
               <span>Relationship</span>
