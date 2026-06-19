@@ -266,6 +266,7 @@ export const politicalEvents: EventCard[] = [
           'Godfather satisfied early. Corruption Pressure +5. Procurement leakage increases. You start the term in his debt.',
         immediate: { corruptionPressure: 5 },
         factionImpact: { partyGodfathers: 10, civilSocietyMedia: -8, businessCommunity: -3 },
+        setFlags: { 'commissioner-works-godfather': true },
       },
       {
         id: 'appoint-badru',
@@ -524,6 +525,7 @@ export const politicalEvents: EventCard[] = [
           'Clean house now. Saves ₦640m/mth. Unions and LG Chairmen furious. Trust +5 when it leaks. Union threatens strike in 4 weeks.',
         immediate: { cashReserve: 0.64, publicTrust: 5 },
         factionImpact: { lgChairmen: -6 },
+        setFlags: { 'ghost-purge-aggressive': true },
         delayed: {
           weekOffset: 4,
           delta: {},
@@ -540,6 +542,7 @@ export const politicalEvents: EventCard[] = [
         immediate: {},
         factionImpact: { civilSocietyMedia: 3 },
         politicalCapitalCost: 20,
+        setFlags: { 'ghost-purge-quiet': true },
       },
       {
         id: 'sit-on-it',

@@ -49,6 +49,7 @@ export const crisisEvents: EventCard[] = [
           civilSocietyMedia: -25,
         },
         constituencyImpact: { makoko: -30 },
+        setFlags: { 'makoko-demolished': true },
       },
       {
         id: 'suspend-resettlement',

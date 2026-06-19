@@ -1,3 +1,4 @@
+import { chainEvents } from '../data/events/chains'
 import { characterEvents } from '../data/events/characters'
 import { crisisEvents } from '../data/events/crisis'
 import { economyEvents } from '../data/events/economy'
@@ -22,6 +23,7 @@ export const ALL_EVENTS: EventCard[] = [
   ...routineEvents,
   ...characterEvents,
   ...electionEvents,
+  ...chainEvents,
 ]
 
 function isEventAvailable(state: GameState, event: EventCard): boolean {
@@ -100,6 +102,10 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
 
   if (choice.corruptionTrigger) {
     next = applyDelta(next, { corruptionPressure: 3 })
+  }
+
+  if (choice.setFlags) {
+    next = { ...next, stateFlags: { ...next.stateFlags, ...choice.setFlags } }
   }
 
   let pendingDelayed = [...next.pendingDelayed]

@@ -2,6 +2,7 @@ import type { GameState } from '../state/types'
 
 export const STARTING_STATE: GameState = {
   week: 1,
+  stateFlags: {},
   stats: {
     igr: 12.8,
     cashReserve: 45,

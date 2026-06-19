@@ -130,6 +130,7 @@ export type Choice = {
   followUpEventId?: string
   politicalCapitalCost?: number
   corruptionTrigger?: boolean
+  setFlags?: Record<string, boolean>
 }
 
 export type EventCard = {
@@ -212,6 +213,7 @@ export type GodfatherAsk = {
 
 export type GameState = {
   week: number
+  stateFlags: Record<string, boolean>
   stats: Record<StatKey, number>
   factions: FactionState
   constituencyApproval: ConstituencyApproval

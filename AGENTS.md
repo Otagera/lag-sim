@@ -5,11 +5,11 @@
 
 ## What This Project Is
 
-A browser-based governance simulation game set in Lagos, Nigeria. The player is Governor of Lagos State. The game is **decision-driven** — think Frostpunk, not SimCity. No tiles, no real-time simulation. The player makes choices from event cards, watches stats change, and deals with delayed consequences weeks later.
+A browser-based governance simulation game set in Lagos, Nigeria. The player is Governor of Lagos State for a 4-year term (208 weeks). The game is **decision-driven** — think Frostpunk, not SimCity. No tiles, no real-time simulation. The player makes choices from event cards, watches stats change, and deals with delayed consequences weeks later.
 
 **The thesis:** Everyone thinks Lagos is easy to fix. This game lets them try.
 
-**Tech stack:** TypeScript, React, Zustand, Tailwind CSS, Vite. Runs entirely client-side. No backend in Phase 1.
+**Tech stack:** TypeScript, React, Zustand, Tailwind CSS, Vite. Runs entirely client-side. No backend.
 
 ---
 
@@ -18,159 +18,130 @@ A browser-based governance simulation game set in Lagos, Nigeria. The player is 
 ```
 /src
   /engine
-    gameLoop.ts         — weekly tick orchestrator
-    statEngine.ts       — pure stat mutation functions
-    budgetEngine.ts     — (deprecated) replaced by revenueEngine + expenditureEngine
-    revenueEngine.ts    — calculateWeeklyRevenue: PAYE, MDA, LUC, FAAC, grants
-    expenditureEngine.ts— calculateWeeklyExpenditure: personnel, debt, overheads, subventions
-    debtEngine.ts       — takeLoan, repayment scheduling, interest accrual
-    dragEngine.ts       — hidden drag: procurement leakage, ghost regen, overhead creep, FAAC variance
-    projectEngine.ts    — capital project pipeline, stall logic, completion events
-    factionEngine.ts    — faction mood updates
-    eventEngine.ts      — card drawing, condition checks, delay queue
-    corruptionEngine.ts — corruption pressure mechanics
+    gameLoop.ts           — weekly tick orchestrator (the god function)
+    statEngine.ts         — pure stat mutation via applyDelta()
+    revenueEngine.ts      — calculateWeeklyRevenue: PAYE, MDA, LUC, FAAC, grants
+    expenditureEngine.ts  — calculateWeeklyExpenditure: personnel, debt, overheads, subventions
+    debtEngine.ts         — takeLoan, emergencyBridgeLoan, repayment scheduling
+    dragEngine.ts         — hidden drag: procurement leakage, ghost regen, overhead creep, FAAC variance
+    projectEngine.ts      — capital project pipeline, stall logic, completion events
+    factionEngine.ts      — faction mood updates and drift
+    eventEngine.ts        — card drawing, condition checks, delay queue
+    godfatherEngine.ts    — Fashemu arc, phase transitions, ask draw logic
+    electionEngine.ts     — vote share calculation for term-end election
   /data
-    /events             — EventCard definitions, one file per category
+    startingState.ts      — initial GameState values (source of truth for defaults)
+    deputies.ts           — 3 deputy profiles (technocrat, politician, loyalist)
+    commissioners.ts      — commissioner candidate pool per role
+    godfatherAsks.ts      — fashemuAsks[4] + generalGodfatherPool
+    legacy.ts             — buildLegacy(): headline templates + monologue styles
+    /events
       transport.ts
       infrastructure.ts
-      political.ts
+      political.ts        — also contains Fashemu arc events, deputy events, LGA/primary events
       crisis.ts
       economy.ts
-    factions.ts         — faction definitions and base values
-    constituencies.ts   — zone definitions and primary concerns
-    startingState.ts    — initial game state values
+      characters.ts       — NEO, Dayo, SMJ events + removalResolutionEvent
+      election.ts         — 3 mandatory campaign event cards
+      llm_generated.ts    — LLM-authored event cards (optional)
+  /utils
+    calendar.ts           — weekToDate, formatGameDate, seasonOf (display layer only)
   /state
-    gameStore.ts        — Zustand store, single source of truth
-    types.ts            — ALL TypeScript types live here
+    gameStore.ts          — Zustand store, actions, setDeputy
+    types.ts              — ALL TypeScript types live here. Source of truth.
+    persistence.ts        — serialize/deserialize with STARTING_STATE merge for compat
   /ui
-    Dashboard.tsx       — master stats view
-    EventCard.tsx       — decision card + choice buttons
-    FactionPanel.tsx    — faction approval bars
-    BudgetPanel.tsx     — weekly P&L breakdown
-    PollPanel.tsx       — constituency approval ratings
-    GodfatherInbox.tsx  — godfather message thread
-  /hooks
-    useGameLoop.ts      — drives the weekly tick
-    useEventQueue.ts    — manages pending and delayed events
-  App.tsx
+    App.tsx               — root: welcome modal → deputy select → game → legacy screen
+    Dashboard.tsx         — master stats view
+    EventCard.tsx         — decision card + choice buttons
+    FactionPanel.tsx      — faction approval bars
+    BudgetPanel.tsx       — weekly P&L breakdown
+    PollPanel.tsx         — constituency approval ratings
+    GodfatherInbox.tsx    — Fashemu message thread with phase badge
+    DeputySelectionScreen.tsx — full-screen deputy choice at game start
+    LegacyScreen.tsx      — end-of-term legacy view (replaces Scorecard)
+    TimelinePanel.tsx     — decision history
+    Scorecard.tsx         — term grades (used mid-game; LegacyScreen replaces at end)
 ```
 
 ---
 
-## Core Types (types.ts — the source of truth)
+## Core Architecture Rules
 
-Every engine function is built around these types. Do not deviate from them without updating this file and all consumers.
+### The pure function pattern
+Every engine function is a pure function: `(state: GameState, ...) => GameState`. No mutation, no side effects.
 
+All stat changes go through:
 ```typescript
-// --- Stat Keys ---
-export type StatKey =
-  | 'igr'                  // weekly income in ₦bn (DERIVED: sum of all revenue lines)
-  | 'cashReserve'          // total liquid funds in ₦bn
-  | 'expenditure'          // weekly fixed costs in ₦bn (DERIVED: sum of all spending lines)
-  | 'infrastructureScore'  // 0–100
-  | 'publicTrust'          // 0–100 (percentage)
-  | 'politicalCapital'     // 0–200 (spendable resource)
-  | 'federalRelationship'  // -50 to +50
-  | 'securityIndex'        // 0–100
-  | 'corruptionPressure'   // 0–100 (percentage of budget lost)
-  | 'youthTension'         // 0–100
-  // Budget system stats (new):
-  | 'ghostWorkerRate'          // 0.05–0.20. Passive creep upward. Resets on purge but regenerates.
-  | 'contractorBacklog'        // ₦bn owed to contractors. Stalls projects if > ₦20bn.
-  | 'debtStock'                // total outstanding debt in ₦bn
-  | 'weeklyDebtRepayment'      // scheduled principal payment in ₦bn/wk
-  | 'weeklyDebtInterest'       // interest payment in ₦bn/wk (derived from debtStock * rate)
-  | 'landUseChargeEnforcement' // 0–3.0 multiplier. Starts at 1.0. Player can invest in enforcement.
-  | 'grantsCompliance'         // 0–1.0. World Bank/donor conditions compliance. Starts 0.6.
-  | 'civilServiceReformScore'  // 0–100. Slows ghost worker regen. Hard to build.
-  | 'baseOverheads'            // tracks overhead creep in ₦bn/wk above floor
-  | 'subventionCutRate'        // 0–0.4. Player can cut agency subventions. Has event consequences.
-  | 'capitalEfficiency'        // 0–1.0 (derived: 1 - procurementLeakageRate). Shows in project completion.
+applyDelta(state, delta): GameState         // statEngine.ts
+applyFactionDeltaState(state, delta): GameState  // factionEngine.ts
+```
 
-export type StatDelta = Partial<Record<StatKey, number>>
+### Stat bounds (enforced in statEngine.ts BOUNDS table)
+| Stat | Min | Max |
+|---|---|---|
+| publicTrust | 0 | 100 |
+| infrastructureScore | 0 | 100 |
+| securityIndex | 0 | 100 |
+| politicalCapital | 0 | 200 |
+| corruptionPressure | 15 | 80 |
+| federalRelationship | -50 | 50 |
+| cashReserve | -∞ | ∞ (but triggers emergency loan / bankruptcy) |
+| igr, expenditure | 0 | ∞ |
 
-// --- Factions ---
-export type FactionKey =
-  | 'businessCommunity'
-  | 'informalEconomy'
-  | 'partyGodfathers'
-  | 'federalGovt'
-  | 'civilSocietyMedia'
-  | 'lgChairmen'
+### Weekly tick order (gameLoop.ts)
+1. Increment week
+2. `revenueEngine` + `expenditureEngine` → apply net flow to cashReserve
+3. `dragEngine` → FAAC variance, ghost regen, overhead creep, procurement leakage
+4. Loan repayments + debt stock reduction
+5. `projectEngine.processProjects`
+6. `firePendingDelayed` from pendingDelayed queue
+7. `factionEngine.drift`
+8. publicTrust drift toward constituency-weighted average (10% pull/week)
+9. `activateNPCs` (NEO, Dayo, SMJ threshold checks)
+10. `applyFashemuPhaseTransition`
+11. LGA election at week 86 (mandatory)
+12. Campaign mode flag at week 195
+13. `checkGameOver`
+14. Draw next event / godfather ask
+15. `infrastructureScore -= 0.3` passive decay
 
-export type FactionDelta = Partial<Record<FactionKey, number>>
+---
 
-export type FactionState = Record<FactionKey, number> // -100 to +100
+## Key Types (types.ts — always the source of truth)
 
-// --- Constituencies ---
-export type ConstituencyKey =
-  | 'lagosIsland'
-  | 'victoriaIsland'
-  | 'lekki'
-  | 'surulere'
-  | 'oshodi'
-  | 'alimosho'
-  | 'periphery'   // Badagry, Epe, Ikorodu combined
-  | 'makoko'
+`types.ts` is comprehensive and well-documented. Don't duplicate its type definitions here — read it directly. Key structural notes:
 
-export type ConstituencyApproval = Record<ConstituencyKey, number> // 0–100
-
-// --- Revenue & Expenditure Breakdowns ---
-export type RevenueBreakdown = {
-  paye: number
-  mda: number
-  luc: number
-  other: number
-  faac: number
-  grants: number
-  total: number
-}
-
-export type ExpenditureBreakdown = {
-  personnel: number
-  debtInterest: number
-  debtRepayment: number
-  overheads: number
-  subventions: number
-  contractorPayment: number
-  total: number
-}
-
-export type HiddenDrag = {
-  procurementLeakage: number
-  ghostRegenRate: number
-  overheadCreep: number
-  faacVariance: number
-}
-
-// --- Capital Projects ---
-export type ProjectStatus = 'active' | 'stalled' | 'completed' | 'abandoned'
-
-export type CapitalProject = {
+**Choice shape:**
+```typescript
+type Choice = {
   id: string
-  name: string
-  location: ConstituencyKey
-  totalCost: number              // ₦bn
-  weeklyDraw: number             // how much cash leaves per week
-  totalSpent: number             // running total
-  effectiveProgress: number      // 0–100. Degraded by procurement leakage.
-  contractorId: string           // who's building it (Godfather connection possible)
-  weeksRemaining: number
-  status: ProjectStatus
-  stalledReason?: 'backlog' | 'political' | 'flooding' | 'procurement_inquiry'
+  label: string
+  description: string
+  immediate: StatDelta           // NOT statDelta — it's immediate
+  factionImpact: FactionDelta
+  delayed?: DelayedConsequence
+  followUpEventId?: string
+  politicalCapitalCost?: number
+  corruptionTrigger?: boolean
 }
+```
 
-// --- Borrowing ---
-export type LoanSource = 'domestic_bank' | 'world_bank' | 'bond_issuance' | 'federal_govt'
-
-export type LoanTerms = {
-  annualRate: number    // 0.18–0.22 for domestic, 0.03–0.05 for world bank, etc.
-  tenorYears: number
-  negotiationWeeks: number     // weeks before funds are available
-  conditions?: string[]        // e.g. 'open_procurement_required' for world bank
+**DelayedConsequence shape:**
+```typescript
+type DelayedConsequence = {
+  weekOffset: number
+  delta: StatDelta               // NOT statDelta
+  factionImpact?: FactionDelta
+  eventText: string              // single string, NOT title/description
+  constituencyImpact?: Partial<ConstituencyApproval>
+  followUpEventId?: string
 }
+```
 
-export type Loan = {
+**Loan shape:**
+```typescript
+type Loan = {
   id: string
   source: LoanSource
   principal: number
@@ -180,276 +151,93 @@ export type Loan = {
   disbursedOnWeek: number
   conditions: string[]
 }
-
-// --- Event Cards ---
-export type DelayedConsequence = {
-  weekOffset: number        // fires X weeks after choice is made
-  delta: StatDelta
-  factionImpact?: FactionDelta
-  eventText: string         // narrative shown when it fires
-  constituencyImpact?: Partial<ConstituencyApproval>
-  followUpEventId?: string
-}
-
-export type Choice = {
-  id: string
-  label: string                          // short button label
-  description: string                    // full choice explanation
-  immediate: StatDelta
-  factionImpact: FactionDelta
-  constituencyImpact?: Partial<ConstituencyApproval>
-  delayed?: DelayedConsequence
-  followUpEventId?: string
-  politicalCapitalCost?: number
-  corruptionTrigger?: boolean
-}
-
-export type EventCard = {
-  id: string
-  week?: number                          // undefined = draw from pool
-  triggerCondition?: (state: GameState) => boolean
-  title: string
-  body: string
-  choices: Choice[]
-  isRecurring?: boolean
-  cooldownWeeks?: number
-  weight?: number
-  severity: 'low' | 'medium' | 'high' | 'critical'
-  category: 'transport' | 'infrastructure' | 'political' | 'crisis' | 'economy' | 'social'
-}
-
-// --- Pending Delayed Events ---
-export type PendingEvent = {
-  id: string
-  firesOnWeek: number
-  consequence: DelayedConsequence
-  sourceEventTitle: string              // for player context
-}
-
-export type TimelineEntry = {
-  week: number
-  type: 'event' | 'delayed-consequence' | 'godfather' | 'milestone'
-  title: string
-  description: string
-}
-
-// --- Godfather ---
-export type GodfatherMessage = {
-  id: string
-  week: number
-  text: string
-  ask: GodfatherAsk
-}
-
-export type GodfatherAsk = {
-  type: 'contract' | 'appointment' | 'suppress' | 'money'
-  description: string
-  onAccept: StatDelta & { factionImpact?: FactionDelta }
-  onRefuse: StatDelta & { factionImpact?: FactionDelta }
-}
-
-// --- Master Game State ---
-export type GameState = {
-  week: number
-  stats: Record<StatKey, number>
-  factions: FactionState
-  constituencyApproval: ConstituencyApproval
-  activeEvent: EventCard | null
-  eventQueue: EventCard[]               // upcoming scheduled events
-  pendingDelayed: PendingEvent[]        // delayed consequences waiting to fire
-  resolvedEvents: string[]              // ids of completed events
-  eventsResolvedThisWeek: number
-  consecutiveBankruptWeeks: number
-  eventCooldowns: Record<string, number>
-  timeline: TimelineEntry[]
-  godfatherMessages: GodfatherMessage[]
-  godfatherRefusalCount: number
-  activeGodfatherMessage: GodfatherMessage | null
-  usedGodfatherAskIds: string[]
-  lastGodfatherWeek: number
-  // Budget system state
-  activeLoans: Loan[]
-  capitalProjects: CapitalProject[]
-  contractorBacklog: number
-  ghostWorkerRate: number
-  faacVarianceAccumulated: number
-  consecutiveDeficitWeeks: number
-  lastWeekRevenue?: RevenueBreakdown
-  lastWeekExpenditure?: ExpenditureBreakdown
-  weeklyDebtRepayment: number
-  weeklyDebtInterest: number
-  baseOverheads: number
-  godfatherComplianceCount: number
-  // Game over fields
-  isGameOver: boolean
-  gameOverReason?: string
-  mode: 'simple' | 'detailed'          // UI display mode
-}
 ```
 
----
-
-## Engine Rules (Do Not Break These)
-
-### statEngine.ts
-- All stat mutation must go through `applyDelta(state, delta): GameState`
-- Stats have hard bounds — enforce them:
-  - `publicTrust`: 0–100
-  - `infrastructureScore`: 0–100
-  - `securityIndex`: 0–100
-  - `politicalCapital`: 0–200
-  - `corruptionPressure`: 0–100
-  - `federalRelationship`: -50 to +50
-  - `cashReserve`: can go negative (triggers bankruptcy check)
-  - `igr` and `expenditure`: cannot go below 0
-- `applyDelta` must be a **pure function** — no side effects
-
-### budgetEngine.ts
-- (deprecated) Replaced by revenueEngine.ts + expenditureEngine.ts
-
-### revenueEngine.ts
-- `calculateWeeklyRevenue(state): RevenueBreakdown` — pure function
-- Every revenue line is a formula driven by game stats, not a fixed number:
-  - **PAYE** (base 19.6): driven by infrastructureScore (0.3×), securityIndex (0.2×), youthTension (0.2×), plus 0.3× base
-  - **MDA** (base 5.9): driven by infrastructureScore (0.4×), securityIndex (0.2×), plus 0.4× base
-  - **Land Use Charge** (base 0.3): multiplied by `landUseChargeEnforcement` stat (1.0–3.0)
-  - **Other** (base 2.1): half linked to infrastructureScore, half fixed
-  - **FAAC** (base 8.7): reduced by federalRelationship < 0 — 0.9× at -15, 0.7× at -30, 0.4× at -40, 0.1× below
-  - **Grants** (base 0.8): multiplied by `grantsCompliance` stat (0.6–1.0)
-
-### expenditureEngine.ts
-- `calculateWeeklyExpenditure(state): ExpenditureBreakdown` — pure function
-- Every expense line has structural pressure:
-  - **Personnel** (base 7.7): inflated by `ghostWorkerRate` × base (ghost worker drag)
-  - **Debt interest**: derived from `weeklyDebtInterest` stat (tracks outstanding debt × rate)
-  - **Debt repayment**: derived from `weeklyDebtRepayment` stat (scheduled principal)
-  - **Overheads** (base 15.4): inflated by godfather compliance (`godfatherComplianceCount × 0.3`)
-  - **Subventions** (base 3.9): reduced by `subventionCutRate` (0–0.4, player-controlled at event cost)
-  - **Contractor payment**: 15% of backlog per week, capped at ₦4bn
-
-### debtEngine.ts
-- `takeLoan(state, amount, source): GameState` — adds debt stock, sets repayment schedule
-- Loan sources have different terms:
-  - `domestic_bank`: 18–22% rate, 3yr tenor, fast, no conditions
-  - `world_bank`: 3–5% rate, 20yr tenor, slow (negotiationWeeks), requires `open_procurement`
-  - `bond_issuance`: 15–18% rate, 7yr tenor, medium, public scrutiny
-  - `federal_govt`: 0% rate, political cost (federalRelationship -10)
-- Loan conditions create gameplay constraints (e.g., World Bank blocks godfather contracts)
-
-### dragEngine.ts
-- `calculateHiddenDrag(state, capitalSpend): HiddenDrag` — pure function
-- Runs underneath every tick — player never sees raw numbers, only consequences:
-  - **Procurement leakage**: 15% + (corruptionPressure / 100 × 25%) of capital spend. At 28% corruption: 22% leakage. At 60%: 30%.
-  - **Ghost worker regen**: 0.001 × (1 − civilServiceReformScore / 100) per week. Slow drift upward after purge.
-  - **Overhead creep**: ₦0.05bn/week passive growth. Every MDA inflates its overhead request each budget cycle.
-  - **FAAC variance**: ±15% random walk each month. Logged as volatility event if swing > ₦2bn.
-
-### projectEngine.ts
-- Capital project pipeline management
-- Projects draw `weeklyDraw` from cash reserve each week
-- `effectiveProgress` degraded by procurement leakage — player pays for 100%, gets less
-- Projects stall when: contractor backlog > ₦20bn, political event fires, flooding hits, procurement inquiry launched
-- Stalled projects trigger constituency approval drops (half-finished road = political crisis)
-- Completion events push infrastructureScore, igr bump, and constituency approval gains
-
-### eventEngine.ts
-- Each week: check `triggerCondition` on all unresolved events first
-- Then draw from pool if no condition-triggered event fires
-- Max 2 events per week
-- After player chooses: apply `immediate` delta, queue `delayed` if present
-- `pendingDelayed` is checked every week — fire if `week >= firesOnWeek`
-- Recurring events (flooding) fire every year (week 26 and 52 range) with severity variance
-
-### factionEngine.ts
-- Faction values drift toward neutral (50) by 2 points per week if no events affect them
-- Faction below 20 = hostile (triggers passive negative effects)
-- Faction above 80 = ally (triggers passive positive effects)
-- Godfather faction is special: it does not drift. It stays where you left it.
-
-### corruptionEngine.ts
-- `corruptionPressure` rises by 0.5 per week passively
-- Rises by additional amount when godfather asks are accepted
-- Can be reduced by audit events (cost: Political Capital)
-- Cannot go below 15 (endemic baseline) or above 80 (system collapse)
-
-### gameLoop.ts (weekly tick order)
-1. Increment week
-2. Run `revenueEngine.calculateWeeklyRevenue` + `expenditureEngine.calculateWeeklyExpenditure`
-3. Calculate hidden drag via `dragEngine.calculateHiddenDrag`
-4. Apply net flow to cashReserve, update ghost worker rate, overhead creep, contractor backlog
-5. Fire any `pendingDelayed` events that are due
-6. Run `factionEngine.drift` → apply to state
-7. Check game over conditions
-8. Draw/trigger next event card(s)
-9. Passive stat decay: `infrastructureScore -= 0.3` per week without maintenance spend
+**EventCard:** no `oneTime` field. Recurring = `isRecurring: true`. One-shot = omit or `isRecurring: false`. `eventQueue: EventCard[]` — push the actual card object, not an id reference.
 
 ---
 
-## Starting State (startingState.ts)
+## Phase 2 State Fields
 
-```typescript
-export const STARTING_STATE: GameState = {
-  week: 1,
-  stats: {
-    igr: 12.8,                  // ₦bn per week
-    cashReserve: 45,            // ₦bn
-    expenditure: 11.2,          // ₦bn per week
-    infrastructureScore: 42,
-    publicTrust: 54,
-    politicalCapital: 100,
-    federalRelationship: 5,
-    securityIndex: 61,
-    corruptionPressure: 28,
-    youthTension: 35,
-  },
-  factions: {
-    businessCommunity: 55,
-    informalEconomy: 50,
-    partyGodfathers: 65,        // starts high — you owe them
-    federalGovt: 48,
-    civilSocietyMedia: 44,
-    lgChairmen: 58,
-  },
-  constituencyApproval: {
-    lagosIsland: 60,
-    victoriaIsland: 62,
-    lekki: 55,
-    surulere: 51,
-    oshodi: 47,
-    alimosho: 38,               // always the most neglected
-    periphery: 35,
-    makoko: 30,
-  },
-  activeEvent: null,
-  eventQueue: [],
-  pendingDelayed: [],
-  resolvedEvents: [],
-  godfatherMessages: [],
-  godfatherRefusalCount: 0,
-  isGameOver: false,
-  mode: 'simple',
-}
-```
+All live in `GameState` (types.ts). Defaults in `startingState.ts`. Persistence handled by `{ ...STARTING_STATE, ...rest }` merge in `persistence.ts` — old saves get defaults automatically.
+
+| Field | Type | Purpose |
+|---|---|---|
+| `deputy` | `DeputyState \| null` | Chosen deputy governor |
+| `fashemuPhase` | `FashemuPhase` | dormant → active → warning → break → reconciled → dead |
+| `fashemuAskIndex` | `number` | Which of the 4 ordered asks has been reached |
+| `fashemuRelationship` | `number` | Personal relationship score with Fashemu |
+| `fashemuEndingPath` | `'A'\|'B'\|'C'\|'D'\|null` | Set at term end |
+| `activeNPCs` | `Record<NPCKey, NPCState>` | NEO, Dayo, SMJ activation state |
+| `commissioners` | `Partial<Record<CommissionerRole, CommissionerState>>` | Cabinet |
+| `lgaElectionResult` | `number \| null` | % of LGAs loyal (set at week 86) |
+| `lgaElectionHeld` | `boolean` | |
+| `primaryWon` | `boolean \| null` | Party primary result |
+| `primaryScenario` | `'A'\|'B'\|'C'\|null` | Smooth / contested / open |
+| `campaignDecisions` | `string[]` | Choice ids from 3 campaign event cards |
+| `electionResult` | `number \| null` | Vote share at term end |
+| `reElected` | `boolean \| null` | |
+| `inCampaignMode` | `boolean` | True from week 195 |
+| `impeachmentStage` | `number` | 0=none, 1=first reading queued, 2=removed |
+| `emergencyLoansTaken` | `number` | Count of emergency bridge loans (escalates APR) |
 
 ---
 
-## 🚧 Known Design Debt — Units of Measurement
+## Game Over Conditions
 
-All stat values are currently raw `number` types with no formalised units. A reader must infer from context (or comments) whether a value is in ₦bn, percentage points, or an index score. This works fine for now but will become a source of bugs as the stat surface grows.
-
-**Deferred solution (revisit when it bites us):** Branded nominal types (`type Naira = number & { __brand: 'Naira' }`) per field to make unit mismatches a compile error. See `src/state/types.ts:StatKey` for all fields that need this treatment.
+| Condition | Trigger | Notes |
+|---|---|---|
+| Bankruptcy | `cashReserve < 0` for 3 consecutive weeks | First negative week auto-triggers ₦10bn emergency bridge loan at 35%+ APR |
+| Federal Takeover | `federalRelationship < -40` AND `infrastructureScore < 25` | |
+| Mass Uprising | `publicTrust < 15` AND `youthTension > 85` | |
+| Party Removal | `partyGodfathers < 10` AND week > 52 | Two-stage: first queues "Removal Resolution" event. Defy = instant removal. Fight/Negotiate = survives. Recovery above 10 cancels it. |
+| Term End | `week > 208` | Triggers election result + LegacyScreen |
 
 ---
 
-## Game Over Conditions (check after every weekly tick)
+## Fashemu Arc (Named Godfather)
 
-| Condition | Trigger |
+**Chief B.O.A. Fashemu** — 4 ordered asks at week gates 8, 26, 52, 85. Tracked by `fashemuAskIndex`. After all 4 resolved, general godfather pool activates.
+
+Phase transitions run weekly in `applyFashemuPhaseTransition` (godfatherEngine.ts):
+- `dormant` → `active`: 2+ compliances
+- `active` → `warning`: 3+ refusals
+- `warning` → `break`: 4+ refusals
+- `break` → `reconciled`: EFCC cooperation timeline entry
+- Any → `dead`: `fashemu-death` event fires (low probability after week 130)
+
+**Ending paths** (detected at week > 208 in `checkGameOver`):
+- A: compliance ≥ 3, no break → Fashemu backs successor
+- B: refusals ≥ 4, survived → freedom at cost
+- C: EFCC cooperation timeline entry found → complex legacy
+- D: `fashemuPhase === 'dead'` → fragmented network
+
+---
+
+## NPC Activation (gameLoop.ts → activateNPCs)
+
+| NPC | Activates when |
 |---|---|
-| Bankruptcy | `cashReserve < 0` for 3 consecutive weeks |
-| Federal Takeover | `federalRelationship < -40` AND `infrastructureScore < 25` |
-| Mass Uprising | `publicTrust < 15` AND `youthTension > 85` |
-| Party Removal | `partyGodfathers < 10` AND week > 52 (after first year) |
-| Term End | `week > 208` (4 years) → scorecard, not game over |
+| NEO (Barr. Ngozi Eze-Okoro) | `corruptionPressure > 35` OR procurement scandal resolved |
+| Dayo (Comrade Dayo Afolabi) | `youthTension > 55` OR Makoko resolved badly + trust < 45 |
+| SMJ (Hon. Seun Majekodunmi) | `partyGodfathers < 45` OR `godfatherRefusalCount >= 2` |
+
+Once active, their event cards become drawable (checked via `triggerCondition: state => state.activeNPCs.neo.isActive`).
+
+---
+
+## Calendar (utils/calendar.ts — display layer only)
+
+Engine truth is `state.week` (1–208). Dates are display-only.
+
+```
+START_DATE = 2027-05-29
+Week 1  = May 29, 2027
+Week 52 = May 27, 2028 (2028 is a leap year)
+Week 208 = May 28, 2031
+```
+
+Functions: `weekToDate(week)`, `formatGameDate(week)`, `formatGameMonth(week)`, `seasonOf(week)`.
 
 ---
 
@@ -457,100 +245,158 @@ All stat values are currently raw `number` types with no formalised units. A rea
 
 When adding new event cards to `/data/events/`:
 
-1. **Every card must have a minimum of 2, maximum of 4 choices**
+1. **Every card must have 2–4 choices**
 2. **At least one choice must move two factions in opposite directions**
 3. **At least one choice should have a `delayed` consequence**
 4. **No choice should be obviously correct** — if a choice is clearly right, redesign it
-5. **Body text must be written with Lagos texture** — reference real places, real dynamics
-6. **No moralising in the body text** — present the situation, not the lesson
-7. **Severity must be calibrated:**
+5. **Body text must have Lagos texture** — reference real places, real dynamics
+6. **No moralising in body text** — present the situation, not the lesson
+7. **Jurisdiction accuracy matters** — state procurement/assembly matters go through LAHA, not Federal Senate. Federal involvement requires a federal funding hook.
+8. **Severity calibration:**
    - `low`: single stat moves < 5pts
-   - `medium`: 2-3 stats move 5-10pts
-   - `high`: multiple stats move 10-20pts, or one stat moves 20+pts
+   - `medium`: 2–3 stats move 5–10pts
+   - `high`: multiple stats move 10–20pts, or one stat moves 20+pts
    - `critical`: potential game over path, or irreversible consequence
 
 ---
 
 ## UI/UX Rules
 
-- **Simple mode** (default): Show human-readable descriptions, hide raw numbers, lead with narrative
-- **Detailed mode**: Show all raw numbers, trend arrows, source footnotes for real data
-- The toggle lives in settings and persists in localStorage
-- Dashboard always shows: week number, cash reserve, public trust, political capital (the four "at a glance" stats)
-- Faction bars are always visible — they are the political weather
+- **Simple mode** (default): human-readable descriptions, hide raw numbers, lead with narrative
+- **Detailed mode**: raw numbers, trend arrows, source footnotes
+- Dashboard always shows: date (calendar format), cash reserve, public trust, political capital
+- Faction bars are always visible
 - Event card takes focus when active — dim everything else
-- Delayed consequences that fire show a brief "flashback" line: *"3 months ago, you chose to..."*
+- Delayed consequences show a "flashback" line: *"3 months ago, you chose to..."*
+- Term-end renders `<LegacyScreen />` not `<Scorecard />`
+
+---
+
+## Revenue Reference (revenueEngine.ts)
+
+| Line | Base (₦bn/wk) | Driver |
+|---|---|---|
+| PAYE | 19.6 | infrastructureScore (0.3×), securityIndex (0.2×), youthTension (0.2×), base (0.3×) |
+| MDA | 5.9 | infrastructureScore (0.4×), securityIndex (0.2×), base (0.4×) |
+| Land Use Charge | 0.3 | × landUseChargeEnforcement (1.0–3.0) |
+| Other | 2.1 | half linked to infra, half fixed |
+| FAAC | 8.7 | reduced by federalRelationship: -15=0.9×, -30=0.7×, -40=0.4×, below=-0.1× |
+| Grants | 0.8 | × grantsCompliance (0.6–1.0) |
+
+## Expenditure Reference (expenditureEngine.ts)
+
+| Line | Base (₦bn/wk) | Driver |
+|---|---|---|
+| Personnel | 7.7 | inflated by ghostWorkerRate |
+| Debt interest | derived | weeklyDebtInterest stat |
+| Debt repayment | derived | weeklyDebtRepayment stat |
+| Overheads | 15.4 | + godfatherComplianceCount × 0.3 |
+| Subventions | 3.9 | × (1 − subventionCutRate) |
+| Contractor payment | derived | 15% of backlog/wk, capped ₦4bn |
+
+---
+
+## Lagos Data Reference
+
+| Metric | Real Value |
+|---|---|
+| Lagos population | 15–22 million |
+| Formal sector workers | ~3 million |
+| Youth unemployment | ~38% |
+| Roads in poor condition | ~40% of 9,000km |
+| Civil servants | ~80,000 |
+| Annual budget | ₦2.2–2.8 trillion |
+| Annual IGR | ~₦660bn |
+| Debt stock | ~₦1.4 trillion |
+| Corruption drag (est.) | 20–40% of project costs |
+
+---
+
+## Build Tooling — Vite 6 (Downgraded from Vite 8)
+
+Vite 8, vitest 4, jsdom 29 were downgraded to Vite 6 / vitest 3 / jsdom 26 because Coolify's nixpacks resolves `NIXPACKS_NODE_VERSION=22` to Node 22.11.0, below Vite 8's minimum (22.12.0). To upgrade back: change `NIXPACKS_NODE_VERSION` to `24`.
 
 ---
 
 ## What NOT to Build Yet
 
-- No map (Phase 2)
-- No multiplayer
+- No map
+- No multiplayer / backend
 - No audio
-- No backend
 - No authentication
 - No save-to-server (localStorage is fine)
-- No Game B (the political career ladder)
+- No second term arc (reElected = true shows placeholder for now)
 
 ---
 
-## Verification Checklist (Claude Code: run these checks)
+## Questions Before Major Decisions
 
+- Adding a new major stat → ask first, it affects everything downstream
+- Changing weekly tick order → ask first, it changes game feel
+- Adding real Nigerian political names → sensitive, confirm approach first
+- Adding backend → confirm we're in a new phase first
+
+---
+
+## Phase 3 Backlog
+
+Work through these in order. Tick each off when shipped (tests green, build passes).
+
+### Replayability & Systems Depth
+
+- [x] **Event chains / state flags** — `stateFlags: Record<string, boolean>` on GameState; `setFlags?: Record<string, boolean>` on Choice; wired in `resolveEvent`. Four live chains: ghost purge aggressive → `union-court-injunction`; ghost purge quiet → `union-work-to-rule` (week ≥ 20); Fashemu's commissioner → `works-tender-scandal` (week ≥ 30); Makoko demolished → `makoko-land-grab-exposed`. Chain events live in `src/data/events/chains.ts`. 22 tests in `src/engine/__tests__/eventChains.test.ts`.
+
+- [ ] **Lagos Seasons (global modifier)** — at the start of each in-game year, roll a macro-modifier that shifts event weights and stat math:
+  - Rainy Season (weeks 5–17 of each year): flood/drainage events weight 3×, FAAC variance widens
+  - Federal Election Year (year 3): federalRelationship baseline drops, politicalCapital costs scale up
+  - Budget Crunch Quarter: FAAC reduced 20% for 4 weeks
+
+- [ ] **Adjacency-based crisis unlocks** — extreme stat combinations unlock cascades, not just individual event triggers:
+  - `corruptionPressure > 75` for 3 consecutive weeks → "International Funding Freeze" (grants drop to 0 for 8 weeks)
+  - `youthTension > 70` → normal event pool suspended, riot management sub-deck takes over until tension drops
+
+- [ ] **Governor archetypes (variable starts)** — replace fixed STARTING_STATE with 3 selectable starts:
+  - Technocrat: high infrastructureScore + cashReserve, zero politicalCapital, partyGodfathers 30
+  - Party Loyalist: partyGodfathers 90, politicalCapital 180, corruptionPressure 50, publicTrust 35
+  - Reform Outsider: publicTrust 75, civilSocietyMedia 80, partyGodfathers 20, cashReserve 25
+
+### Characters & Narrative
+
+- [ ] **NPC active AI decks** — NEO, Dayo, SMJ currently fire reactive events. Each should pursue an independent goal via a weighted mini-deck that escalates pressure without player provocation.
+
+- [ ] **Deputy resentment arc** — `resentment` field exists on `DeputyState` but nothing increments it. Wire: specific event choices that override deputy's "recommendation" increment resentment +10. At resentment ≥ 60, fire type-specific consequence card (technocrat leaks to press, politician joins opposition, loyalist secret revealed).
+
+- [ ] **Commissioner mechanical effects** — `competence`/`loyalty` scores are stored but unused by engines. Wire:
+  - Works commissioner `isGodfatherChoice: true` → `procurementLeakage +5%` in dragEngine
+  - Works commissioner high competence → project completion speed +10% in projectEngine
+  - Finance commissioner high competence → `grantsCompliance` starts 0.1 higher
+  - Information commissioner loyalty → modifier on civil society event weights
+
+### Tech Debt
+
+- [ ] **simulation.test.ts BOUNDS coverage** — `BOUNDS` in the test only covers 10 of 21 `StatKey` values. Change type to `Partial<Record<StatKey, ...>>` and add entries for `ghostWorkerRate`, `contractorBacklog`, `debtStock`, `weeklyDebtRepayment`, `weeklyDebtInterest`, `landUseChargeEnforcement`, `grantsCompliance`, `civilServiceReformScore`, `baseOverheads`, `subventionCutRate`, `capitalEfficiency`.
+
+- [ ] **Campaign mode UI** — `inCampaignMode` flag exists but dashboard has no visual indicator that the player is in the election stretch. Add a banner/badge in App.tsx when `inCampaignMode === true`.
+
+- [ ] **Commissioner appointment screen** — no UI to browse candidates. Currently only fires via event card. Add a cabinet panel (simple mode: just names; detailed mode: competence/loyalty bars).
+
+- [ ] **NPC relationship display** — no panel showing NEO/Dayo/SMJ status or relationship scores. Add to FactionPanel or a new NPCPanel.
+
+---
+
+## Verification Checklist (run before every merge)
+
+- [ ] `npm run build` passes (zero TypeScript errors)
+- [ ] `npx vitest run` — all tests green
 - [ ] All stat mutations go through `applyDelta` in statEngine.ts
-- [ ] All stats respect their bounds (no publicTrust > 100, no corruptionPressure < 15, etc.)
-- [ ] `applyDelta` has no side effects — it is a pure function
-- [ ] `weeklyTick` in gameLoop.ts follows the 9-step order defined above
-- [ ] Every EventCard in `/data/events/` conforms to the `EventCard` type
-- [ ] Every EventCard has no "obviously correct" choice
-- [ ] Every EventCard with `severity: 'critical'` has a delayed consequence path
-- [ ] `godfatherRefusalCount` increments on every refusal and triggers escalation at 2, 3, and 4
-- [ ] Game over conditions are checked after `budgetEngine.weeklyTick` fires, not before
-- [ ] `pendingDelayed` queue is sorted by `firesOnWeek` ascending
-- [ ] `constituencyApproval` contributes to `publicTrust` as a weighted average (Alimosho + periphery + makoko = 40% weight, Island + VI + Lekki = 30%, others = 30%)
-- [ ] Simple/Detailed mode toggle does not affect game state — only presentation layer
-
----
-
-## Lagos Data Reference (for calibrating event consequences)
-
-Keep these numbers in mind when writing event outcomes:
-
-| Metric | Real Value |
-|---|---|
-| Lagos population | 15–22 million (uncertain) |
-| Formal sector workers | ~3 million |
-| Youth unemployment | ~38% |
-| Roads in poor condition | ~40% of 9,000km |
-| Power grid coverage | 30–40% of city need |
-| Pipe-borne water access | ~30% of residents |
-| BRT daily ridership | ~200,000 (need is 10x) |
-| Building collapses/year | 40+ |
-| Civil servants | ~80,000 |
-| Annual budget | ₦2.2–2.8 trillion |
-| Annual IGR | ~₦660bn |
-| Debt stock | ~₦1.4 trillion |
-| Traffic cost (annual) | ~$1bn in lost productivity |
-| Corruption drag (estimated) | 20–40% of project costs |
-
----
-
-## 🚧 Build Tooling — Vite 6 (Downgraded from Vite 8)
-
-Vite 8, vitest 4, and jsdom 29 were downgraded to Vite 6 / vitest 3 / jsdom 26 because Coolify's nixpacks build image resolves `NIXPACKS_NODE_VERSION=22` to Node 22.11.0, which is below Vite 8's minimum (22.12.0).
-
-Nixpacks only respects major version from `NIXPACKS_NODE_VERSION` / `.nvmrc`. The nixpkgs archive pinning workaround (`nixpacks.toml`) is unreliable — the `ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7` archive that should contain Node 22.14.0 doesn't actually have `nodejs_24` either.
-
-**To upgrade back:** change `NIXPACKS_NODE_VERSION` to `24` (or wait for nixpacks to update its 22.x archive past 22.12.0). Test build locally first, then revert package.json to latest versions.
-
-## Questions for the Human (Before Major Decisions)
-
-If you are about to:
-- Add a new major stat → ask first, it affects everything
-- Change the weekly tick order → ask first, it changes game feel
-- Add a backend → Phase 2 concern, confirm we are there
-- Add map components → Phase 2 concern, confirm engine is validated first
-- Add real Nigerian political names → sensitive, confirm approach first
+- [ ] All stats respect their bounds
+- [ ] `applyDelta` has no side effects — pure function
+- [ ] Weekly tick follows the 15-step order above
+- [ ] Every new EventCard conforms to the `EventCard` type (no extra fields like `oneTime`, `statDelta`, `amount`)
+- [ ] Every EventCard has no obviously correct choice
+- [ ] `Choice.immediate` (not `statDelta`), `DelayedConsequence.delta` (not `statDelta`), `DelayedConsequence.eventText` (not `title`/`description`)
+- [ ] `eventQueue` pushes are `EventCard` objects, not id strings
+- [ ] Jurisdiction accuracy: state procurement/assembly → LAHA, not Federal Senate
 
 ---
 
