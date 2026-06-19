@@ -313,7 +313,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-senator-abuja-hearing',
     title: '{NPC}: Senate Hearing on Lagos',
-    body: `Senator {NPC} has convened a public hearing on "fiscal transparency in Lagos State." The Attorney-General has been summoned to Abuja. Federal allocation release for this month is contingent on outcome.`,
+    body: `{NPC} has convened a public hearing on "fiscal transparency in Lagos State." The Attorney-General has been summoned to Abuja. Federal allocation release for this month is contingent on outcome.`,
     severity: 'high',
     category: 'political',
     isRecurring: true,

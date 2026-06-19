@@ -77,7 +77,10 @@ export function drawNextEvent(state: GameState): EventCard | null {
   const available = ALL_EVENTS.filter((e) => isEventAvailable(state, e))
 
   const triggered = available.find(
-    (e) => e.triggerCondition?.(state) && (e.category !== 'election' || state.inCampaignMode),
+    (e) =>
+      e.triggerCondition?.(state) &&
+      !e.npcArchetype &&
+      (e.category !== 'election' || state.inCampaignMode),
   )
   if (triggered) return triggered
 
@@ -91,6 +94,7 @@ export function drawNextEvent(state: GameState): EventCard | null {
   const pool = available.filter(
     (e) => !e.triggerCondition
       && e.category !== 'riot'
+      && !e.npcArchetype
       && (e.category !== 'election' || state.inCampaignMode),
   )
   if (pool.length === 0) return null
