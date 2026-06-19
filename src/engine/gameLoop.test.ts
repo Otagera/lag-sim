@@ -150,4 +150,40 @@ describe('emergency bridge loan', () => {
     expect(s2.stats.weeklyDebtInterest).toBeGreaterThan(interest1)
     expect(s2.emergencyLoansTaken).toBe(2)
   })
+
+  it('stops offering emergency loans after 3 and lets bankruptcy counter run', () => {
+    // Build a state that has already taken 3 emergency loans
+    let s = clone(STARTING_STATE)
+    s.emergencyLoansTaken = 3
+    s.stats.cashReserve = -5  // already negative after expenses
+
+    const result = tick(s)
+    // No new loan should fire
+    expect(result.emergencyLoansTaken).toBe(3)
+    // Consecutive counter should start climbing
+    expect(result.consecutiveBankruptWeeks).toBeGreaterThan(0)
+  })
+
+  it('reaches game over within 3 weeks after hitting the loan cap', () => {
+    let s = clone(STARTING_STATE)
+    s.emergencyLoansTaken = 3
+    s.stats.cashReserve = -5
+
+    for (let i = 0; i < 4; i++) {
+      if (s.isGameOver) break
+      s = tick(s)
+    }
+    expect(s.isGameOver).toBe(true)
+    expect(s.gameOverReason).toMatch(/Bankruptcy/i)
+  })
+
+  it('adds Credit Exhausted timeline entry when third loan is taken', () => {
+    let s = clone(STARTING_STATE)
+    s.emergencyLoansTaken = 2
+    s.stats.cashReserve = -1
+
+    const result = tick(s)
+    expect(result.emergencyLoansTaken).toBe(3)
+    expect(result.timeline.some((e) => e.title === 'Credit Exhausted')).toBe(true)
+  })
 })

@@ -381,8 +381,23 @@ function checkGameOver(state: GameState): GameState {
   let next = { ...state }
 
   if (next.stats.cashReserve < 0) {
-    if (next.consecutiveBankruptWeeks === 0) {
+    if (next.consecutiveBankruptWeeks === 0 && next.emergencyLoansTaken < 3) {
       next = emergencyBridgeLoan(next)
+      if (next.emergencyLoansTaken === 3) {
+        next = {
+          ...next,
+          timeline: [
+            ...next.timeline,
+            {
+              week: next.week,
+              type: 'delayed-consequence' as const,
+              title: 'Credit Exhausted',
+              description:
+                'Lagos has drawn its final emergency credit line. No further bailouts are available — the state must balance its books or face insolvency.',
+            },
+          ],
+        }
+      }
       if (next.stats.cashReserve >= 0) return next
     }
     next.consecutiveBankruptWeeks++
