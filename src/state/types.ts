@@ -144,7 +144,7 @@ export type EventCard = {
   cooldownWeeks?: number
   weight?: number
   severity: 'low' | 'medium' | 'high' | 'critical'
-  category: 'transport' | 'infrastructure' | 'political' | 'crisis' | 'economy' | 'social' | 'election'
+  category: 'transport' | 'infrastructure' | 'political' | 'crisis' | 'economy' | 'social' | 'election' | 'riot'
   season?: 'wet' | 'dry'
 }
 
@@ -240,6 +240,9 @@ export type GameState = {
   godfatherComplianceCount: number
   impeachmentStage: number
   emergencyLoansTaken: number
+  highCorruptionWeeks: number
+  grantFreezeDuration: number
+  riotModeActive: boolean
   isGameOver: boolean
   gameOverReason?: string
   mode: 'simple' | 'detailed'

@@ -352,9 +352,9 @@ Work through these in order. Tick each off when shipped (tests green, build pass
   - **Budget Crunch** (December–January, ~weeks 28–35): `faacBasePenalty=0.2` (overrides election-year 0.1).
   - Wired in: `eventEngine.ts` (weight bias + PC cost scaling), `gameLoop.ts` (FAAC variance, crunch penalty, election drift). 28 tests in `src/engine/__tests__/seasonEngine.test.ts`.
 
-- [ ] **Adjacency-based crisis unlocks** — extreme stat combinations unlock cascades, not just individual event triggers:
-  - `corruptionPressure > 75` for 3 consecutive weeks → "International Funding Freeze" (grants drop to 0 for 8 weeks)
-  - `youthTension > 70` → normal event pool suspended, riot management sub-deck takes over until tension drops
+- [x] **Adjacency-based crisis unlocks** — extreme stat combinations trigger cascades, implemented in `gameLoop.ts`:
+  - **International Funding Freeze**: `corruptionPressure > 75` for 3 consecutive weeks sets `grantFreezeDuration = 8`; `revenueEngine.ts` returns `grants = 0` while active; `highCorruptionWeeks` counter resets if pressure drops below 75.
+  - **Riot Mode**: `youthTension > 70` sets `riotModeActive = true`; `drawNextEvent` in `eventEngine.ts` serves only `category: 'riot'` events from `src/data/events/riot.ts` (3 events: curfew, security surge, youth parley) until tension returns to ≤ 70. 15 tests in `src/engine/__tests__/cascades.test.ts`.
 
 - [ ] **Governor archetypes (variable starts)** — replace fixed STARTING_STATE with 3 selectable starts:
   - Technocrat: high infrastructureScore + cashReserve, zero politicalCapital, partyGodfathers 30

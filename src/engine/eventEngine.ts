@@ -5,6 +5,7 @@ import { economyEvents } from '../data/events/economy'
 import { electionEvents } from '../data/events/election'
 import { infrastructureEvents } from '../data/events/infrastructure'
 import { politicalEvents } from '../data/events/political'
+import { riotEvents } from '../data/events/riot'
 import { routineEvents } from '../data/events/routine'
 import { socialEvents } from '../data/events/social'
 import { transportEvents } from '../data/events/transport'
@@ -25,6 +26,7 @@ export const ALL_EVENTS: EventCard[] = [
   ...characterEvents,
   ...electionEvents,
   ...chainEvents,
+  ...riotEvents,
 ]
 
 function isEventAvailable(state: GameState, event: EventCard): boolean {
@@ -75,7 +77,14 @@ export function drawNextEvent(state: GameState): EventCard | null {
   const triggered = available.find((e) => e.triggerCondition?.(state))
   if (triggered) return triggered
 
-  const pool = available.filter((e) => !e.triggerCondition)
+  // Riot mode: normal pool suspended, only riot management events eligible
+  if (state.riotModeActive) {
+    const riotPool = available.filter((e) => e.category === 'riot')
+    if (riotPool.length === 0) return null
+    return weightedSelect(riotPool)
+  }
+
+  const pool = available.filter((e) => !e.triggerCondition && e.category !== 'riot')
   if (pool.length === 0) return null
 
   const { floodEventWeightMultiplier } = getSeasonModifier(state.week)

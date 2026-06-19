@@ -82,6 +82,65 @@ export function tick(state: GameState): GameState {
   // Passive corruption rise
   next = applyDelta(next, { corruptionPressure: 0.5 })
 
+  // Cascade: high corruption streak → International Funding Freeze
+  if (next.stats.corruptionPressure > 75) {
+    const streak = next.highCorruptionWeeks + 1
+    next = { ...next, highCorruptionWeeks: streak }
+    if (streak >= 3 && next.grantFreezeDuration === 0) {
+      next = {
+        ...next,
+        grantFreezeDuration: 8,
+        timeline: [
+          ...next.timeline,
+          {
+            week: next.week,
+            type: 'delayed-consequence' as const,
+            title: 'International Funding Freeze',
+            description:
+              'Sustained extreme corruption has triggered suspension of international grants for 8 weeks.',
+          },
+        ],
+      }
+    }
+  } else {
+    next = { ...next, highCorruptionWeeks: 0 }
+  }
+  if (next.grantFreezeDuration > 0) {
+    next = { ...next, grantFreezeDuration: next.grantFreezeDuration - 1 }
+  }
+
+  // Cascade: youthTension > 70 → riot mode (normal event pool suspended)
+  if (next.stats.youthTension > 70 && !next.riotModeActive) {
+    next = {
+      ...next,
+      riotModeActive: true,
+      timeline: [
+        ...next.timeline,
+        {
+          week: next.week,
+          type: 'delayed-consequence' as const,
+          title: 'Riot Alert',
+          description:
+            'Youth tension has exceeded critical threshold. Normal governance suspended — riot management required.',
+        },
+      ],
+    }
+  } else if (next.stats.youthTension <= 70 && next.riotModeActive) {
+    next = {
+      ...next,
+      riotModeActive: false,
+      timeline: [
+        ...next.timeline,
+        {
+          week: next.week,
+          type: 'delayed-consequence' as const,
+          title: 'Crisis Resolved',
+          description: 'Youth tension has subsided. Normal governance resumes.',
+        },
+      ],
+    }
+  }
+
   next.stats.ghostWorkerRate = Math.min(0.2, next.stats.ghostWorkerRate + drag.ghostRegenRate)
   next.stats.baseOverheads += drag.overheadCreep
   next.stats.contractorBacklog = Math.max(
