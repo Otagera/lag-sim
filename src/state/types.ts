@@ -150,6 +150,9 @@ export type Choice = {
     totalWeeks: number
     completionEventId: string
   }
+  // Phase 4 extensions
+  setSuspensionWeeks?: number  // starts/ends emergency suspension
+  setLitigationTimer?: number  // starts/clears judicial litigation arc
 }
 
 export type EventCard = {
@@ -306,4 +309,10 @@ export type GameState = {
   reElected: boolean | null
   inCampaignMode: boolean
   offeredDeputies: DeputyKey[]
+  // Phase 4
+  emergencySuspensionWeeks: number  // 0 = normal play; counts down each tick
+  administratorActIndex: number     // which suspension act is next (0–4, cycles)
+  litigationActive: boolean         // judicial arc in progress
+  litigationTimer: number           // weeks until Supreme Court ruling
+  offCycleElection: boolean         // flag set when litigation won
 }

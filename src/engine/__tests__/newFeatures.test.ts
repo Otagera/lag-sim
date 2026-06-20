@@ -157,6 +157,7 @@ describe('capital-flight-warning event', () => {
     const state = {
       ...clone(STARTING_STATE),
       stats: { ...STARTING_STATE.stats, corruptionPressure: 75 },
+      stateFlags: { 'efcc-investigated': true }, // suppress efcc-investigation-letter (phase4, fires at >68)
     }
     const event = drawNextEvent(state)
     expect(event?.id).toBe('capital-flight-warning')

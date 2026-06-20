@@ -167,6 +167,18 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     next = { ...next, activeInitiative: choice.launchInitiative }
   }
 
+  if (choice.setSuspensionWeeks !== undefined) {
+    next = { ...next, emergencySuspensionWeeks: choice.setSuspensionWeeks }
+  }
+
+  if (choice.setLitigationTimer !== undefined) {
+    next = {
+      ...next,
+      litigationActive: choice.setLitigationTimer > 0,
+      litigationTimer: choice.setLitigationTimer,
+    }
+  }
+
   if (choice.npcImpact) {
     const npcs = { ...next.activeNPCs }
     for (const [archetypeKey, delta] of Object.entries(choice.npcImpact)) {

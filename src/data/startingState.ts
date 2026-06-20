@@ -93,4 +93,10 @@ export const STARTING_STATE: GameState = {
   electionResult: null,
   reElected: null,
   inCampaignMode: false,
+  // Phase 4
+  emergencySuspensionWeeks: 0,
+  administratorActIndex: 0,
+  litigationActive: false,
+  litigationTimer: 0,
+  offCycleElection: false,
 }

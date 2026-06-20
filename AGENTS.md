@@ -44,7 +44,7 @@ A browser-based governance simulation game set in Lagos, Nigeria. The player is 
       economy.ts
       characters.ts       — NEO, Dayo, SMJ events + 3-stage removal arc (removal-resolution-reading → committee → floor-vote)
       election.ts         — 3 mandatory campaign event cards
-      phase4.ts           — Phase 4 "Political Realism" events (Cat 3 + Cat 4; Cat 2 + Cat 1 pending)
+      phase4.ts           — Phase 4 "Political Realism" events (all 4 categories complete)
       llm_generated.ts    — LLM-authored event cards (optional)
   /utils
     calendar.ts           — weekToDate, formatGameDate, seasonOf (display layer only)
@@ -110,9 +110,11 @@ applyFactionDeltaState(state, delta): GameState  // factionEngine.ts
 13. `checkNPCEscalation` — enqueue deck events when pressure ≥ 40
 14. `tickInitiative`
 15. `applyFashemuPhaseTransition`
-16. LGA election at week 86 (mandatory)
-17. Campaign mode flag at week 195
-18. `checkGameOver`
+16. `tickSuspension` — passive drain + administrator act progression if `emergencySuspensionWeeks > 0`
+17. `tickLitigation` — timer countdown; enqueues `supreme-court-ruling` at 0
+18. LGA election at week 86 (mandatory)
+19. Campaign mode flag at week 195
+20. `checkGameOver`
 19. Draw next event / godfather ask
 20. `infrastructureScore -= 0.3` passive decay
 
@@ -171,6 +173,24 @@ type Loan = {
 
 **Choice:** `resentmentDelta?: number` — applied to `state.deputy.resentment` in `resolveEvent`. Use negative values on consequence choices that repair the deputy relationship.
 
+**Choice:** `setSuspensionWeeks?: number` — sets `state.emergencySuspensionWeeks` in `resolveEvent`. Starts (> 0) or clears (= 0) the emergency suspension arc. Also used by `suspension-legal-challenge-success` to clear early.
+
+**Choice:** `setLitigationTimer?: number` — sets `state.litigationTimer` and `state.litigationActive` (true if > 0, false if 0). Used by `election-petition-filed` (start, 20 weeks) and `supreme-court-ruling` (clear, 0).
+
+---
+
+## Phase 4 State Fields
+
+New fields added to `GameState` in types.ts. Defaults in `startingState.ts`. Auto-merged by persistence layer.
+
+| Field | Type | Purpose |
+|---|---|---|
+| `emergencySuspensionWeeks` | `number` | Weeks remaining in emergency suspension (0 = not suspended) |
+| `administratorActIndex` | `number` | Which of 5 administrator act texts to show (0–4), incremented each suspended week |
+| `litigationActive` | `boolean` | Whether election petition judicial arc is active |
+| `litigationTimer` | `number` | Weeks until `supreme-court-ruling` is auto-enqueued |
+| `offCycleElection` | `boolean` | Reserved for rerun election path (currently unused) |
+
 ---
 
 ## Phase 2 State Fields
@@ -204,7 +224,7 @@ All live in `GameState` (types.ts). Defaults in `startingState.ts`. Persistence 
 | Condition | Trigger | Notes |
 |---|---|---|
 | Bankruptcy | `cashReserve < 0` for 3 consecutive weeks | First negative week auto-triggers ₦10bn emergency bridge loan at 35%+ APR |
-| Federal Takeover | `federalRelationship < -40` AND `infrastructureScore < 25` | |
+| Federal Takeover | `federalRelationship < -40` AND `infrastructureScore < 25` AND `emergencySuspensionWeeks === 0` | Suppressed during active emergency suspension (suspension IS the federal intervention) |
 | Mass Uprising | `publicTrust < 15` AND `youthTension > 85` | |
 | Party Removal | `partyGodfathers < 10` AND week > 52 | Three-stage arc: (1) `removal-resolution-reading` queued (`impeachmentStage = 1`). "Fight It" → chains to committee stage via `followUpEventId`. "Stonewall" in committee → chains to floor vote. "Accept the Outcome" (floor vote) or "Defy the Assembly" (reading) = game over. Recovery to **≥ 20** (not just > 10) cancels arc and clears queue. Stage stays at 1 until recovery or game over — does not re-trigger. |
 | Term End | `week > 208` | Triggers election result + LegacyScreen |
@@ -456,9 +476,21 @@ Work through these in order. Tick each off when shipped (tests green, build pass
 
 - [x] **Cat 3: Neighboring Sanctuary Offer** — `neighboring-sanctuary-offer` fires when `impeachmentStage >= 1` AND `partyGodfathers < 18`. One-shot (stateFlags prevent re-fire). Accept = PC +80, trust -5, partyGodfathers -15, sets `sanctuary-accepted: true`. Refuse = trust +5, PC -10.
 
-- [ ] **Cat 2: Emergency Suspension system** — new state fields needed: `emergencySuspensionWeeks: number`, `administratorActIndex: number`. 5-act suspension arc with `sole-administrator-weekly` event replacing normal event draw. EFCC investigation chain: `efccInvestigationActive` flag.
+- [x] **Cat 2: Emergency Suspension system** — `federal-emergency-threat` fires when `federalRelationship < -25` AND `youthTension > 65` (fires once per term). Defy choice chains to `federal-emergency-declared` (delayed +2 weeks). Suspension arc:
+  - `federal-emergency-declared` sets `emergencySuspensionWeeks` (3 or 5 via `setSuspensionWeeks`)
+  - Each tick: `tickSuspension` drains cashReserve -1.5, trust -1, godfathers -2, lgChairmen -2; adds timeline entry; enqueues the next `sole-administrator-act-N` event; decrements weeks
+  - 5 act events (`sole-administrator-act-1` through `sole-administrator-act-5`): all `triggerCondition: () => false`, each with a `file-legal-challenge` choice (sets `legal-challenge-filed: true`, costs 30 PC) + a wait choice
+  - `suspension-legal-challenge-success` / `-fail`: dual trigger-condition events (mutually exclusive). Success: `legal-challenge-succeeded: true`, PC +50. Fail: loses PC + trust.
+  - `tickSuspension` checks `legal-challenge-succeeded` flag for early reinstatement (PC +30, trust +10)
+  - Natural expiry sets `emergency-ever-suspended: true` flag; prevents future federal takeover game-over path
+  - `efcc-investigation-letter` fires when `corruptionPressure > 68` (independent of suspension). Three choices: cooperate (corruption -10, federal +8), challenge (federal -5, PC -20), quiet settlement (corruption +3, cash -2).
+  - 58 tests in `src/engine/__tests__/phase4CatTwoAndOne.test.ts`.
 
-- [ ] **Cat 1: Judicial Litigation arc** — new state fields: `litigationActive: boolean`, `litigationTimer: number`, `offCycleElection: boolean`. Random event (any archetype) weeks 2-6. Three-event arc: petition → tribunal hearing → Supreme Court ruling.
+- [x] **Cat 1: Judicial Litigation arc** — `election-petition-filed` fires weeks 2–8 when `corruptionPressure > 45` (one-shot). Contest choice: `setLitigationTimer: 20` starts litigation; negotiate choice sets `petition-avoided: true` (no litigation, costs more).
+  - `tickLitigation` decrements timer each week; enqueues `supreme-court-ruling` when it hits 0.
+  - `tribunal-midpoint-hearing` fires when `litigationActive AND litigationTimer <= 10`: negotiate-out-of-court choice clears litigation (`setLitigationTimer: 0`).
+  - `supreme-court-ruling` (queue-only): upheld → PC +80, trust +10, `litigation-won: true`; rerun → PC -40, trust -10, `litigation-lost: true`.
+  - 58 tests in `src/engine/__tests__/phase4CatTwoAndOne.test.ts`.
 
 ---
 

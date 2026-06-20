@@ -1,6 +1,98 @@
 import type { EventCard } from '../../state/types'
 
 export const phase4Events: EventCard[] = [
+  // ─── Cat 2: Federal Overreach (trigger-condition outcomes first for priority) ─
+
+  {
+    id: 'suspension-legal-challenge-success',
+    title: 'Legal Challenge: Court Rules in Your Favour',
+    body: `The Federal High Court has issued an emergency ruling: the emergency declaration lacked the statutory basis required under Section 305 of the Constitution. It was never submitted to the National Assembly within the prescribed period. The Sole Administrator must vacate Government House within 48 hours.`,
+    severity: 'critical',
+    category: 'political',
+    maxTotalFirings: 2,
+    triggerCondition: (state) =>
+      state.stateFlags['legal-challenge-filed'] === true &&
+      state.factions.partyGodfathers > 30 &&
+      state.stats.publicTrust > 40,
+    choices: [
+      {
+        id: 'accept-court-victory',
+        label: 'Return to Government House',
+        description:
+          'A constitutional victory. Trust +10. PC +30. Partygodfathers +8. Suspension ends immediately.',
+        immediate: { publicTrust: 10, politicalCapital: 30 },
+        factionImpact: { partyGodfathers: 8, civilSocietyMedia: 12, federalGovt: -5 },
+        setFlags: {
+          'legal-challenge-filed': false,
+          'legal-challenge-succeeded': true,
+        },
+      },
+    ],
+  },
+
+  {
+    id: 'suspension-legal-challenge-fail',
+    title: 'Legal Challenge: Application Struck Out',
+    body: `The Federal High Court has struck out your emergency challenge as "premature" — a procedural ruling the government's lawyers clearly choreographed. The court suggests you pursue normal appeal channels, which will take six to eight weeks. The Sole Administrator issued a statement saying he "respects the judiciary."`,
+    severity: 'critical',
+    category: 'political',
+    maxTotalFirings: 2,
+    triggerCondition: (state) =>
+      state.stateFlags['legal-challenge-filed'] === true &&
+      !(state.factions.partyGodfathers > 30 && state.stats.publicTrust > 40),
+    choices: [
+      {
+        id: 'regroup-legal-fail',
+        label: 'Regroup — take it to the appeal court',
+        description:
+          'PC -20. The suspension continues. Partygodfathers -5 (looked weak). File again when conditions improve.',
+        immediate: { politicalCapital: -20 },
+        factionImpact: { partyGodfathers: -5, civilSocietyMedia: -3 },
+        setFlags: { 'legal-challenge-filed': false },
+      },
+    ],
+  },
+
+  // ─── Cat 1: Judicial Arc (trigger-condition outcome must be high priority) ──
+
+  {
+    id: 'tribunal-midpoint-hearing',
+    title: 'Electoral Tribunal: Midpoint Hearing',
+    body: `The electoral tribunal has resumed after a five-week recess. Your legal team has filed 140 exhibits. The petitioner's counsel is expected to present the cross-examination of your returning officers today. The atmosphere in the court is electric — the judiciary is being watched by everyone. How you manage this hearing will shape the final ruling.`,
+    severity: 'high',
+    category: 'political',
+    triggerCondition: (state) => state.litigationActive && state.litigationTimer <= 10,
+    choices: [
+      {
+        id: 'press-witnesses',
+        label: 'Mount an Aggressive Cross-Examination',
+        description:
+          'PC -20. Partygodfathers -5 (you\'re spending their capital). But strengthens your case — increases final ruling odds.',
+        immediate: { politicalCapital: -20 },
+        factionImpact: { partyGodfathers: -5, civilSocietyMedia: 8 },
+        setFlags: { 'tribunal-contested-aggressively': true },
+      },
+      {
+        id: 'concede-minor-points',
+        label: 'Concede Minor Points, Defend Core Claims',
+        description:
+          'Looks judicial and measured. No stat cost. Partygodfathers +3. Slightly lower final ruling odds.',
+        immediate: {},
+        factionImpact: { partyGodfathers: 3, civilSocietyMedia: 3 },
+      },
+      {
+        id: 'negotiate-out-of-court',
+        label: 'Approach Petitioner for Out-of-Court Settlement',
+        description:
+          'PC -25. Ends litigation immediately if successful. Corruption +5. Civil society -8 (seen as dodging justice).',
+        immediate: { politicalCapital: -25, corruptionPressure: 5 },
+        factionImpact: { civilSocietyMedia: -8, partyGodfathers: 5 },
+        setFlags: { 'litigation-settled': true },
+        setLitigationTimer: 0,
+      },
+    ],
+  },
+
   // ─── Cat 3: Godfather Warfare ─────────────────────────────────────────────
   // These appear first so triggered outcomes (populist shield) take priority
   // in ALL_EVENTS over other simultaneously-triggered events.
@@ -363,6 +455,331 @@ export const phase4Events: EventCard[] = [
         immediate: {},
         factionImpact: { civilSocietyMedia: 5, lgChairmen: -10 },
         constituencyImpact: { alimosho: -6, oshodi: -4 },
+      },
+    ],
+  },
+
+  // ─── Cat 2: Federal Overreach ─────────────────────────────────────────────
+
+  {
+    id: 'federal-emergency-threat',
+    title: 'Federal Warning: Emergency Instruments Prepared',
+    body: `A confidential briefing from your Abuja contact lands at 6 a.m.: the Presidency has completed the paperwork for a Section 305 emergency declaration over Lagos State. The trigger is "breakdown of public order and fiscal mismanagement." The decision has not been signed. A delegation from the National Economic Council arrives this afternoon. This is a five-day window.`,
+    severity: 'critical',
+    category: 'political',
+    triggerCondition: (state) =>
+      state.stats.federalRelationship < -25 &&
+      state.stats.youthTension > 65 &&
+      !state.stateFlags['emergency-ever-suspended'] &&
+      !state.stateFlags['federal-emergency-threatened'],
+    choices: [
+      {
+        id: 'cooperate-with-abuja',
+        label: 'Cooperate with the Federal Delegation',
+        description:
+          'Accept their oversight conditions. Federal relationship +10. PC -20. Trust -3 (looks like capitulation). Averts suspension.',
+        immediate: { federalRelationship: 10, publicTrust: -3, politicalCapital: -20 },
+        factionImpact: { federalGovt: 10, partyGodfathers: -5, civilSocietyMedia: -5 },
+        setFlags: { 'federal-emergency-threatened': true },
+      },
+      {
+        id: 'publicly-defy-emergency',
+        label: 'Publicly Defy — Call a Press Conference',
+        description:
+          'Trust +8 (you fought). Federal relationship -8. Suspension declaration fires in 2 weeks unless you reach a settlement.',
+        immediate: { publicTrust: 8, federalRelationship: -8 },
+        factionImpact: { civilSocietyMedia: 10, partyGodfathers: -3, federalGovt: -10 },
+        setFlags: { 'federal-emergency-threatened': true },
+        delayed: {
+          weekOffset: 2,
+          delta: {},
+          eventText:
+            'The Presidency has signed the Section 305 emergency declaration. A Sole Administrator has been sworn in at Alausa Government House.',
+          followUpEventId: 'federal-emergency-declared',
+        },
+      },
+    ],
+  },
+
+  {
+    id: 'federal-emergency-declared',
+    title: 'State of Emergency: Sole Administrator Installed',
+    body: `The Section 305 declaration has been signed and gazetted. Brigadier-General Olurin (Rtd.) has been sworn in as Sole Administrator of Lagos State. He holds all executive powers. Your commissioners have been asked to vacate their offices. Government House has been secured by mobile police. You are constitutionally stripped of executive authority for the duration of the emergency — up to six months.`,
+    severity: 'critical',
+    category: 'political',
+    // Queue-only: fires via delayed consequence from publicly-defy choice
+    triggerCondition: () => false,
+    choices: [
+      {
+        id: 'accept-suspension-fight-legally',
+        label: 'Accept the Suspension — Fight Through the Courts',
+        description:
+          'The suspension begins (5 weeks game-time). Every week, the Administrator acts. You can file a legal challenge each week.',
+        immediate: { publicTrust: -5 },
+        factionImpact: { partyGodfathers: -8, civilSocietyMedia: 5 },
+        setSuspensionWeeks: 5,
+      },
+      {
+        id: 'mobilise-assembly-against-declaration',
+        label: 'Mobilise the Assembly to Reject the Declaration',
+        description:
+          'Section 305 requires Assembly ratification within 48 hours. If partyGodfathers > 40: challenge succeeds, suspension averted. If not: fails, suspension begins anyway.',
+        immediate: { politicalCapital: -30 },
+        factionImpact: { partyGodfathers: -5 },
+        // If godfathers too low, suspension still starts via the gameLoop trigger
+        setSuspensionWeeks: 3,
+      },
+    ],
+  },
+
+  // 5 administrator act events (queue-only, fired by tickSuspension each week)
+  {
+    id: 'sole-administrator-act-1',
+    title: 'Administrator Week 1: Federal Contracts',
+    body: `Alhaji Olurin has awarded a ₦5bn emergency road rehabilitation contract to a federal construction firm — bypassing Lagos procurement rules. Your Works Commissioner has been removed and replaced by a federal appointee. The state accounts show a new operational transfer to "security deployment costs."`,
+    severity: 'high',
+    category: 'crisis',
+    triggerCondition: () => false,
+    choices: [
+      {
+        id: 'file-legal-challenge-1',
+        label: 'File a Legal Challenge',
+        description:
+          'PC -30. If partyGodfathers > 30 AND trust > 40: court rules in your favour and suspension ends early.',
+        immediate: { politicalCapital: -30 },
+        factionImpact: { civilSocietyMedia: 5 },
+        setFlags: { 'legal-challenge-filed': true },
+      },
+      {
+        id: 'maintain-silence-1',
+        label: 'Maintain Dignified Silence',
+        description:
+          'Your supporters in Alimosho are holding prayer vigils. A timeline entry shows their solidarity.',
+        immediate: { publicTrust: 2 },
+        factionImpact: { informalEconomy: 3 },
+      },
+    ],
+  },
+
+  {
+    id: 'sole-administrator-act-2',
+    title: 'Administrator Week 2: Military Dispersal',
+    body: `Federal troops have dispersed a peaceful protest at Lagos Island demanding your return. Three market women were hospitalised. The Administrator issued a statement calling the protest "a threat to public order." Civil society organisations have issued a joint statement denouncing the crackdown — but without executive power, you cannot respond officially.`,
+    severity: 'high',
+    category: 'crisis',
+    triggerCondition: () => false,
+    choices: [
+      {
+        id: 'file-legal-challenge-2',
+        label: 'File a Legal Challenge',
+        description:
+          'PC -30. If partyGodfathers > 30 AND trust > 40: court rules in your favour and suspension ends early.',
+        immediate: { politicalCapital: -30 },
+        factionImpact: { civilSocietyMedia: 5 },
+        setFlags: { 'legal-challenge-filed': true },
+      },
+      {
+        id: 'issue-private-statement-2',
+        label: 'Issue a Private Statement of Support',
+        description:
+          'Reaches supporters through unofficial channels. Trust +3. LG Chairmen +2.',
+        immediate: { publicTrust: 3 },
+        factionImpact: { lgChairmen: 2, informalEconomy: 4 },
+      },
+    ],
+  },
+
+  {
+    id: 'sole-administrator-act-3',
+    title: 'Administrator Week 3: Council Dissolution',
+    body: `The Administrator has dissolved three local government councils in Alimosho, Oshodi, and Surulere — the areas with the highest loyalty to your administration. Federal-appointed caretaker committees have been installed. Your party ward coordinators report that the new administrators are blocking access to the councillors' offices.`,
+    severity: 'high',
+    category: 'crisis',
+    triggerCondition: () => false,
+    choices: [
+      {
+        id: 'file-legal-challenge-3',
+        label: 'File a Legal Challenge',
+        description:
+          'PC -30. If partyGodfathers > 30 AND trust > 40: court rules in your favour and suspension ends early.',
+        immediate: { politicalCapital: -30 },
+        factionImpact: { civilSocietyMedia: 5 },
+        setFlags: { 'legal-challenge-filed': true },
+      },
+      {
+        id: 'coordinate-through-party-3',
+        label: 'Coordinate Through Party Structures',
+        description:
+          'PC -10. Party channels keep loyalists organised despite the dissolution.',
+        immediate: { politicalCapital: -10 },
+        factionImpact: { partyGodfathers: 5, lgChairmen: 4 },
+      },
+    ],
+  },
+
+  {
+    id: 'sole-administrator-act-4',
+    title: 'Administrator Week 4: Supporter Message',
+    body: `Chief Adesanya writes from his hotel suite in Accra: "Sir, the people are not quiet. Oshodi market is on a one-day strike for you — unprompted. The agberos in Mile 2 refused to process any buses yesterday. We await your word. Do not let them see you broken." The message is unsigned but the handwriting is unmistakable.`,
+    severity: 'medium',
+    category: 'crisis',
+    triggerCondition: () => false,
+    choices: [
+      {
+        id: 'file-legal-challenge-4',
+        label: 'File a Legal Challenge — The People Are Ready',
+        description:
+          'PC -30. If partyGodfathers > 30 AND trust > 40: court rules in your favour and suspension ends early.',
+        immediate: { politicalCapital: -30 },
+        factionImpact: { civilSocietyMedia: 5 },
+        setFlags: { 'legal-challenge-filed': true },
+      },
+      {
+        id: 'send-word-back-4',
+        label: 'Send Word Back — Hold the Line',
+        description:
+          'Your message reaches the streets through trusted channels. Trust +5. Informal Economy +5.',
+        immediate: { publicTrust: 5 },
+        factionImpact: { informalEconomy: 5, partyGodfathers: 3 },
+      },
+    ],
+  },
+
+  {
+    id: 'sole-administrator-act-5',
+    title: 'Administrator Week 5: State Property Attacked',
+    body: `State government property was vandalised overnight at three locations. The Administrator blamed "remnants of the former administration." Local intelligence suggests the vandalism was organised by federal loyalists to justify extending the suspension period. The press is printing the Administrator's version unchallenged.`,
+    severity: 'high',
+    category: 'crisis',
+    triggerCondition: () => false,
+    choices: [
+      {
+        id: 'file-legal-challenge-5',
+        label: 'File a Final Legal Challenge',
+        description:
+          'PC -30. If partyGodfathers > 30 AND trust > 40: court rules in your favour and suspension ends early.',
+        immediate: { politicalCapital: -30 },
+        factionImpact: { civilSocietyMedia: 5 },
+        setFlags: { 'legal-challenge-filed': true },
+      },
+      {
+        id: 'wait-out-final-week-5',
+        label: 'Endure the Final Week',
+        description:
+          'The suspension ends next week. Every week you survived this made you harder to break. Trust +5.',
+        immediate: { publicTrust: 5, politicalCapital: 10 },
+        factionImpact: { civilSocietyMedia: 5 },
+      },
+    ],
+  },
+
+  {
+    id: 'efcc-investigation-letter',
+    title: 'EFCC Letter: Accounts Under Investigation',
+    body: `A hand-delivered letter from the Economic and Financial Crimes Commission requests your cooperation in an investigation into "certain transactions conducted through the Lagos State Infrastructure Fund between weeks 15 and 80 of your administration." The letter is technically a request, not a charge. Your legal team has one week to respond.`,
+    severity: 'high',
+    category: 'political',
+    triggerCondition: (state) =>
+      state.stats.corruptionPressure > 68 &&
+      !state.stateFlags['efcc-investigated'],
+    choices: [
+      {
+        id: 'cooperate-with-efcc',
+        label: 'Cooperate Fully — Open the Books',
+        description:
+          'Corruption -8. Federal relationship +5. If you have nothing to hide, this ends the matter.',
+        immediate: { corruptionPressure: -8, federalRelationship: 5 },
+        factionImpact: { civilSocietyMedia: 10, businessCommunity: 5, partyGodfathers: -8 },
+        setFlags: { 'efcc-investigated': true, 'efcc-cooperated': true },
+      },
+      {
+        id: 'challenge-efcc-jurisdiction',
+        label: 'Challenge EFCC Jurisdiction in Court',
+        description:
+          'PC -20. Buys 8 weeks. Civil society -8. Corruption +3 (looks guilty).',
+        immediate: { politicalCapital: -20, corruptionPressure: 3 },
+        factionImpact: { civilSocietyMedia: -8, partyGodfathers: 5 },
+        setFlags: { 'efcc-investigated': true },
+      },
+      {
+        id: 'quiet-political-settlement',
+        label: 'Quiet Political Settlement Through Abuja Channel',
+        description:
+          'PC -35. Cash -2. Corruption -3 but the precedent is set — they can ask again.',
+        immediate: { politicalCapital: -35, cashReserve: -2, corruptionPressure: -3 },
+        factionImpact: { partyGodfathers: 8, civilSocietyMedia: -5 },
+        corruptionTrigger: true,
+        setFlags: { 'efcc-investigated': true },
+      },
+    ],
+  },
+
+  // ─── Cat 1: Judicial Litigation ───────────────────────────────────────────
+
+  {
+    id: 'election-petition-filed',
+    title: 'Electoral Tribunal: Petition Filed',
+    body: `The returning officer for Eti-Osa has been served with a petition challenging your election results. The petitioner — your closest rival — is claiming irregularities in the collation of results from fourteen ward collation centres. The electoral tribunal has accepted the petition. The clock starts now. You have twenty weeks before the Supreme Court has final say.`,
+    severity: 'high',
+    category: 'political',
+    triggerCondition: (state) =>
+      state.week >= 2 &&
+      state.week <= 8 &&
+      state.stats.corruptionPressure > 45 &&
+      !state.stateFlags['petition-filed'] &&
+      !state.stateFlags['petition-avoided'],
+    choices: [
+      {
+        id: 'contest-petition-aggressively',
+        label: 'Contest — Retain Senior Counsel Immediately',
+        description:
+          'PC -20. Cash -1. Litigation begins (20-week countdown). Aggressive posture improves your odds at the tribunal midpoint.',
+        immediate: { politicalCapital: -20, cashReserve: -1 },
+        factionImpact: { civilSocietyMedia: 3, partyGodfathers: -3 },
+        setFlags: { 'petition-filed': true },
+        setLitigationTimer: 20,
+      },
+      {
+        id: 'negotiate-withdrawal',
+        label: 'Negotiate a Quiet Withdrawal',
+        description:
+          'PC -30. Cash -3. Corruption +5. The petition disappears before it becomes public. Avoids litigation entirely.',
+        immediate: { politicalCapital: -30, cashReserve: -3, corruptionPressure: 5 },
+        factionImpact: { civilSocietyMedia: -5, partyGodfathers: 5 },
+        corruptionTrigger: true,
+        setFlags: { 'petition-avoided': true },
+      },
+    ],
+  },
+
+  {
+    id: 'supreme-court-ruling',
+    title: 'Supreme Court Ruling: Final Judgement',
+    body: `The Supreme Court has delivered its judgement on the consolidated electoral petition. The ruling is binding. The five-justice panel has voted 3–2. The lead justice reads the conclusion: "Having considered all exhibits, oral testimony, and the provisions of the Electoral Act 2022..."`,
+    severity: 'critical',
+    category: 'political',
+    // Queue-only: fired by tickLitigation when litigationTimer hits 0
+    triggerCondition: () => false,
+    choices: [
+      {
+        id: 'ruling-upheld-your-election',
+        label: 'Ruling: Your election is upheld — petition dismissed',
+        description:
+          'The court dismisses the petition for lack of evidence. Trust +10. PC +80. Off-cycle election avoided. A constitutional victory.',
+        immediate: { publicTrust: 10, politicalCapital: 80 },
+        factionImpact: { civilSocietyMedia: 12, partyGodfathers: 8, federalGovt: 5 },
+        setFlags: { 'litigation-won': true, 'petition-filed': false },
+        setLitigationTimer: 0,
+      },
+      {
+        id: 'ruling-ordered-rerun',
+        label: 'Ruling: Election voided — bye-election ordered',
+        description:
+          'The court orders a supplementary election in the contested LGAs. Trust -10. PC -40. Off-cycle election arc begins.',
+        immediate: { publicTrust: -10, politicalCapital: -40 },
+        factionImpact: { civilSocietyMedia: -8, partyGodfathers: -10 },
+        setFlags: { 'litigation-lost': true, 'petition-filed': false },
+        setLitigationTimer: 0,
       },
     ],
   },

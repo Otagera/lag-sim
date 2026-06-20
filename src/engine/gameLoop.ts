@@ -216,6 +216,12 @@ export function tick(state: GameState): GameState {
   // Fashemu phase transitions
   next = applyFashemuPhaseTransition(next)
 
+  // Emergency suspension tick (must run before checkGameOver so suspension suppresses federal takeover)
+  next = tickSuspension(next)
+
+  // Litigation arc countdown
+  next = tickLitigation(next)
+
   // LGA election result calculation (mandatory week 86)
   if (next.week === 86 && !next.lgaElectionHeld) {
     next = resolveLGAElection(next)
@@ -469,6 +475,106 @@ function tickDeputyResentment(state: GameState): GameState {
   }
 }
 
+const ADMINISTRATOR_ACTIONS = [
+  'Alhaji Olurin has awarded a ₦5bn road contract to a federal contractor without competitive tender. Your Works Commissioner has been replaced.',
+  'Federal troops dispersed a protest at Lagos Island. The Administrator claims order has been restored — to his benefit, not yours.',
+  'The Administrator has dissolved three local government councils loyal to you and installed federal-approved replacements.',
+  'Chief Adesanya writes from his hotel: "Sir, your supporters are organising. We await your word. Do not let them see you broken."',
+  'State government property was vandalised overnight. The Administrator blamed "remnants of your administration." The press is printing it unchallenged.',
+]
+
+function tickSuspension(state: GameState): GameState {
+  if (state.emergencySuspensionWeeks <= 0) return state
+
+  // If a legal challenge succeeded, end suspension immediately
+  if (state.stateFlags['legal-challenge-succeeded']) {
+    const next: GameState = {
+      ...state,
+      emergencySuspensionWeeks: 0,
+      stateFlags: { ...state.stateFlags, 'legal-challenge-succeeded': false },
+      timeline: [
+        ...state.timeline,
+        {
+          week: state.week,
+          type: 'milestone' as const,
+          title: 'Reinstatement: Legal Victory',
+          description: 'The court has ruled the emergency declaration unconstitutional. You are restored to full executive authority.',
+        },
+      ],
+    }
+    return applyDelta(next, { publicTrust: 10, politicalCapital: 30 })
+  }
+
+  const actText = ADMINISTRATOR_ACTIONS[state.administratorActIndex % ADMINISTRATOR_ACTIONS.length]
+  const weeksLeft = state.emergencySuspensionWeeks - 1
+
+  let next: GameState = {
+    ...state,
+    emergencySuspensionWeeks: weeksLeft,
+    administratorActIndex: state.administratorActIndex + 1,
+    timeline: [
+      ...state.timeline,
+      {
+        week: state.week,
+        type: 'delayed-consequence' as const,
+        title: 'Federal Administrator',
+        description: actText,
+      },
+    ],
+  }
+
+  // Passive drain: administrator mismanages treasury and erodes support
+  next = applyDelta(next, { cashReserve: -1.5, publicTrust: -1 })
+  next = applyFactionDeltaState(next, { partyGodfathers: -2, lgChairmen: -2 })
+
+  // Enqueue the current act event if not already in queue
+  const actEventId = `sole-administrator-act-${(state.administratorActIndex % 5) + 1}`
+  if (!next.eventQueue.some((e) => e.id === actEventId) && !next.activeEvent) {
+    const actEvent = ALL_EVENTS.find((e) => e.id === actEventId)
+    if (actEvent) {
+      next = { ...next, eventQueue: [...next.eventQueue, actEvent] }
+    }
+  }
+
+  // Natural reinstatement when weeks hit 0
+  if (weeksLeft === 0) {
+    next = {
+      ...next,
+      stateFlags: { ...next.stateFlags, 'emergency-ever-suspended': true },
+      timeline: [
+        ...next.timeline,
+        {
+          week: next.week,
+          type: 'milestone' as const,
+          title: 'Emergency Ended',
+          description: 'The federal emergency period has expired. You are restored to executive authority — but the state has been changed.',
+        },
+      ],
+    }
+    next = applyDelta(next, { publicTrust: 3, politicalCapital: 15 })
+  }
+
+  return next
+}
+
+function tickLitigation(state: GameState): GameState {
+  if (!state.litigationActive || state.litigationTimer <= 0) return state
+
+  const timer = state.litigationTimer - 1
+  let next: GameState = { ...state, litigationTimer: timer }
+
+  if (timer === 0) {
+    // Supreme Court ruling event fires via queue
+    next = { ...next, litigationActive: false }
+    const rulingEvent = ALL_EVENTS.find((e) => e.id === 'supreme-court-ruling')
+    if (rulingEvent && !next.eventQueue.some((e) => e.id === 'supreme-court-ruling')) {
+      next = { ...next, eventQueue: [...next.eventQueue, rulingEvent] }
+    }
+  }
+
+  return next
+}
+
 function checkGameOver(state: GameState): GameState {
   if (state.isGameOver) return state
 
@@ -506,7 +612,12 @@ function checkGameOver(state: GameState): GameState {
     next.consecutiveBankruptWeeks = 0
   }
 
-  if (next.stats.federalRelationship < -40 && next.stats.infrastructureScore < 25) {
+  // Federal takeover: suppressed during an active emergency suspension (the suspension IS the intervention)
+  if (
+    next.stats.federalRelationship < -40 &&
+    next.stats.infrastructureScore < 25 &&
+    next.emergencySuspensionWeeks === 0
+  ) {
     return {
       ...next,
       isGameOver: true,
