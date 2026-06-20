@@ -1,4 +1,10 @@
 import { useEffect, useState } from 'react'
+import { Moon, Sun } from 'lucide-react'
+
+// Apply stored theme before first render to avoid flash
+if (localStorage.getItem('theme') === 'dark') {
+  document.documentElement.classList.add('dark')
+}
 import { STARTING_STATE } from './data/startingState'
 import { useGameStore } from './state/gameStore'
 import { clearSave, hasSavedGame, loadGame } from './state/persistence'
@@ -42,6 +48,20 @@ function App() {
   const [showHandover, setShowHandover] = useState(false)
   const [selectedArchetype, setSelectedArchetype] = useState<'technocrat' | 'loyalist' | 'outsider'>('technocrat')
   const [activeMobileTab, setActiveMobileTab] = useState<MobileTab>('event')
+  const [theme, setTheme] = useState<'light' | 'dark'>(
+    () => (localStorage.getItem('theme') as 'light' | 'dark') ?? 'light'
+  )
+
+  function toggleTheme() {
+    const next = theme === 'light' ? 'dark' : 'light'
+    setTheme(next)
+    localStorage.setItem('theme', next)
+    if (next === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }
 
   useEffect(() => {
     if (hasSavedGame()) {
@@ -168,6 +188,15 @@ function App() {
             style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
           >
             {mode === 'simple' ? 'Detailed' : 'Simple'}
+          </button>
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-1.5 border transition-colors flex items-center justify-center"
+            style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
+            title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          >
+            {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
           </button>
           {!isGameOver && (
             <button

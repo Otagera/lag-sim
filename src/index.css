@@ -62,6 +62,40 @@
   --accent-text: var(--accent-11);
 }
 
+/* ── Dark mode token overrides ──────────────────────────────────────────────── */
+
+.dark {
+  /* Neutral ramp — deep green-tinted dark */
+  --neutral-1: #0d1310;
+  --neutral-2: #141a16;
+  --neutral-3: #1b231d;
+  --neutral-4: #232e26;
+  --neutral-5: #2b3830;
+  --neutral-6: #35443d;
+  --neutral-7: #3f5047;
+  --neutral-8: #516059;
+  --neutral-11: #8fa08c;
+  --neutral-12: #dce8de;
+
+  /* Accent — green stays, text variant brightens for dark bg readability */
+  --accent-3: #0a1f11;
+  --accent-11: #84ca9c;
+
+  /* Semantic — dark-safe tints + bright text variants */
+  --error-3: #2c1412;
+  --error-9: #d97070;
+  --error-11: #e8958f;
+  --success-3: #0f1f12;
+  --success-9: #6dc972;
+  --success-11: #8ed492;
+  --warning-3: #211a0a;
+  --warning-9: #cfad5f;
+  --warning-11: #dfc278;
+  --info-3: #0d1922;
+  --info-9: #6aa0c0;
+  --info-11: #8ab8d4;
+}
+
 /* ── Base ──────────────────────────────────────────────────────────────────── */
 
 html,
