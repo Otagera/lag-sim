@@ -243,7 +243,9 @@ function App() {
         </div>
       )}
 
-      {import.meta.env.DEV && <DevPanel />}
+      {/* Development panel, I want to run fast forwrads on the go */}
+      {/* {import.meta.env.DEV && <DevPanel />} */}
+      <DevPanel />
 
       {isGameOver && gameOverReason?.includes('term has ended') ? (
         <div className="flex-1 overflow-y-auto min-h-0">
