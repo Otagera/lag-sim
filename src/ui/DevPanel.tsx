@@ -15,12 +15,12 @@ function Diff({ label, before, after, unit = '', invert = false }: StatDiff) {
   if (Math.abs(delta) < 0.05) return null
   const positive = invert ? delta < 0 : delta > 0
   const sign = delta > 0 ? '+' : ''
-  const color = positive ? 'text-green-400' : 'text-red-400'
+  const colorVar = positive ? 'var(--success-11)' : 'var(--error-11)'
   const formatted = Math.abs(delta) >= 1 ? delta.toFixed(1) : delta.toFixed(2)
   return (
     <div className="flex justify-between text-[10px]">
-      <span className="text-gray-400">{label}</span>
-      <span className={color}>{sign}{formatted}{unit}</span>
+      <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
+      <span style={{ color: colorVar }}>{sign}{formatted}{unit}</span>
     </div>
   )
 }
@@ -51,24 +51,31 @@ export function DevPanel() {
     }, 0)
   }
 
+  const disabled = running || state.isGameOver
+
   return (
     <div className="fixed bottom-4 right-4 z-50 font-mono">
       {!open ? (
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="rounded bg-yellow-600 hover:bg-yellow-500 px-2 py-1 text-[10px] font-bold text-black shadow-lg"
+          className="px-2 py-1 text-[10px] font-bold"
+          style={{ backgroundColor: 'var(--warning-9)', color: 'var(--neutral-12)' }}
         >
           DEV
         </button>
       ) : (
-        <div className="w-56 rounded-lg border border-yellow-600/50 bg-gray-950/95 shadow-2xl text-white">
-          <div className="flex items-center justify-between px-3 py-2 border-b border-yellow-600/30">
-            <span className="text-[10px] font-bold text-yellow-400">DEV PANEL</span>
+        <div className="w-56 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+          <div
+            className="flex items-center justify-between px-3 py-2"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            <span className="text-[10px] font-bold" style={{ color: 'var(--warning-11)' }}>DEV PANEL</span>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="text-gray-500 hover:text-white text-xs leading-none"
+              className="text-xs leading-none"
+              style={{ color: 'var(--text-secondary)' }}
             >
               ×
             </button>
@@ -76,11 +83,12 @@ export function DevPanel() {
 
           <div className="p-3 space-y-2">
             <div>
-              <label className="text-[9px] text-gray-500 uppercase tracking-wider block mb-1">Strategy</label>
+              <label className="label-caps block mb-1">Strategy</label>
               <select
                 value={strategy}
                 onChange={(e) => setStrategy(e.target.value as SimulateStrategy)}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-[10px] text-white"
+                className="w-full px-2 py-1 text-[10px] border"
+                style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)', color: 'var(--text)' }}
               >
                 <option value="first">First choice (deterministic)</option>
                 <option value="random">Random choices</option>
@@ -89,48 +97,56 @@ export function DevPanel() {
             </div>
 
             <div>
-              <label className="text-[9px] text-gray-500 uppercase tracking-wider block mb-1">Weeks to skip</label>
+              <label className="label-caps block mb-1">Weeks to skip</label>
               <input
                 type="number"
                 min={1}
                 max={208}
                 value={weeks}
                 onChange={(e) => setWeeks(Math.max(1, Math.min(208, parseInt(e.target.value) || 1)))}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-[10px] text-white"
+                className="w-full px-2 py-1 text-[10px] border"
+                style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)', color: 'var(--text)' }}
               />
             </div>
 
             <div>
-              <label className="text-[9px] text-gray-500 uppercase tracking-wider block mb-1">
-                Seed <span className="text-gray-600">(blank = random)</span>
+              <label className="label-caps block mb-1">
+                Seed <span style={{ color: 'var(--border-strong)' }}>(blank = random)</span>
               </label>
               <input
                 type="text"
                 placeholder="e.g. 42"
                 value={seedInput}
                 onChange={(e) => setSeedInput(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-[10px] text-white placeholder-gray-600"
+                className="w-full px-2 py-1 text-[10px] border"
+                style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)', color: 'var(--text)' }}
               />
             </div>
 
             <button
               type="button"
               onClick={handleSimulate}
-              disabled={running || state.isGameOver}
-              className="w-full rounded bg-yellow-600 hover:bg-yellow-500 disabled:bg-gray-700 disabled:text-gray-500 px-2 py-1.5 text-[10px] font-bold text-black transition-colors"
+              disabled={disabled}
+              className="w-full px-2 py-1.5 text-[10px] font-bold transition-colors"
+              style={{
+                backgroundColor: disabled ? 'var(--neutral-4)' : 'var(--warning-9)',
+                color: disabled ? 'var(--text-secondary)' : 'var(--neutral-12)',
+              }}
             >
               {running ? 'Simulating…' : `⏩ Skip ${weeks} week${weeks === 1 ? '' : 's'}`}
             </button>
 
             {result && (
-              <div className="mt-2 space-y-1 border-t border-gray-800 pt-2">
-                <div className="text-[9px] text-gray-500">
+              <div className="mt-2 space-y-1 pt-2" style={{ borderTop: '1px solid var(--border)' }}>
+                <div className="text-[9px]" style={{ color: 'var(--text-secondary)' }}>
                   Seed: {result.seed} · Week {result.weekBefore} → {result.state.week}
-                  {result.stoppedEarly && <span className="text-red-400 ml-1">(game over)</span>}
+                  {result.stoppedEarly && (
+                    <span className="ml-1" style={{ color: 'var(--error-11)' }}>(game over)</span>
+                  )}
                 </div>
 
                 {result.state.isGameOver && (
-                  <div className="text-[9px] text-red-400 bg-red-900/30 rounded px-1.5 py-1">
+                  <div className="text-[9px] px-1.5 py-1" style={{ color: 'var(--error-11)', backgroundColor: 'var(--error-3)' }}>
                     {result.state.gameOverReason}
                   </div>
                 )}
@@ -146,17 +162,21 @@ export function DevPanel() {
                   <Diff label="Debt Stock" before={result.statsBefore.debtStock} after={result.state.stats.debtStock} unit="bn" invert />
                 </div>
 
-                <div className="space-y-0.5 border-t border-gray-800 pt-1">
-                  <div className="text-[9px] text-gray-500 uppercase tracking-wider">Factions</div>
+                <div className="space-y-0.5 pt-1" style={{ borderTop: '1px solid var(--border)' }}>
+                  <p className="label-caps">Factions</p>
                   <Diff label="Godfathers" before={result.factionsBefore.partyGodfathers} after={result.state.factions.partyGodfathers} unit="pts" />
                   <Diff label="Business" before={result.factionsBefore.businessCommunity} after={result.state.factions.businessCommunity} unit="pts" />
                   <Diff label="Civil Society" before={result.factionsBefore.civilSocietyMedia} after={result.state.factions.civilSocietyMedia} unit="pts" />
                   <Diff label="LG Chairmen" before={result.factionsBefore.lgChairmen} after={result.state.factions.lgChairmen} unit="pts" />
                 </div>
 
-                <div className="text-[9px] text-gray-600 border-t border-gray-800 pt-1">
+                <div className="text-[9px] pt-1" style={{ borderTop: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
                   Resolved events: {result.state.resolvedEvents.length}
-                  {result.state.grantFreezeCount > 0 && <span className="text-orange-400 ml-2">Freezes: {result.state.grantFreezeCount}</span>}
+                  {result.state.grantFreezeCount > 0 && (
+                    <span className="ml-2" style={{ color: 'var(--warning-11)' }}>
+                      Freezes: {result.state.grantFreezeCount}
+                    </span>
+                  )}
                 </div>
               </div>
             )}

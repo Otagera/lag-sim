@@ -39,7 +39,7 @@ describe('BudgetPanel', () => {
     // net = 5 - 10 = -5, displayed as −₦5.0bn
     const net = screen.getByText(/−₦5\.0bn/)
     expect(net).toBeInTheDocument()
-    expect(net.className).toContain('text-red-400')
+    expect(net.getAttribute('style')).toContain('var(--error-11)')
   })
 
   it('shows detailed income/expenditure items in detailed mode', () => {

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { buildLegacy } from '../data/legacy'
 import { STARTING_STATE } from '../data/startingState'
 import { useGameStore } from '../state/gameStore'
@@ -36,17 +37,18 @@ function grade(value: number, max: number): string {
 
 function gradeColor(g: string): string {
   switch (g) {
-    case 'A': return 'text-green-400'
-    case 'B': return 'text-blue-400'
-    case 'C': return 'text-yellow-400'
-    case 'D': return 'text-orange-400'
-    default: return 'text-red-400'
+    case 'A': return 'var(--success-11)'
+    case 'B': return 'var(--info-11)'
+    case 'C': return 'var(--warning-11)'
+    case 'D': return 'var(--warning-9)'
+    default: return 'var(--error-11)'
   }
 }
 
 export function LegacyScreen() {
   const state = useGameStore((s) => s)
   const legacy = buildLegacy(state)
+  const [btnHover, setBtnHover] = useState(false)
 
   const endDate = formatGameDate(state.week)
   const totalEvents = state.resolvedEvents.length
@@ -65,61 +67,62 @@ export function LegacyScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white py-8 px-4 overflow-y-auto">
+    <div className="min-h-screen py-8 px-4 overflow-y-auto" style={{ backgroundColor: 'var(--background)', color: 'var(--text)' }}>
       <div className="max-w-2xl mx-auto space-y-8">
 
-        {/* Masthead */}
-        <div className="border-b-2 border-gray-700 pb-4 text-center">
-          <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">
-            Lagos State Government — Term End Report
-          </div>
-          <h1 className="text-2xl font-bold">
+        {/* Masthead — accent-solid bottom rule mirrors modal header treatment */}
+        <div className="pb-4 text-center" style={{ borderBottom: '2px solid var(--accent-solid)' }}>
+          <p className="label-caps mb-1">Lagos State Government — Term End Report</p>
+          <h1 className="font-display text-2xl font-semibold" style={{ color: 'var(--text)' }}>
             {state.reElected ? 'Re-Election Victory' : state.reElected === false ? 'Term Ended — Defeat' : 'End of Term'}
           </h1>
-          <p className="text-gray-400 text-xs mt-1">
+          <p className="text-[11px] mt-1" style={{ color: 'var(--text-secondary)' }}>
             {endDate} &middot; {totalEvents} major decisions &middot; {state.week} weeks in office
           </p>
           {state.electionResult !== null && (
-            <div className={`mt-2 text-sm font-semibold ${state.reElected ? 'text-green-400' : 'text-red-400'}`}>
+            <p className="mt-2 text-sm font-semibold" style={{ color: state.reElected ? 'var(--success-11)' : 'var(--error-11)' }}>
               Election result: {state.electionResult.toFixed(1)}% vote share
-            </div>
+            </p>
           )}
         </div>
 
         {/* Headlines */}
         <div className="space-y-4">
-          <h2 className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">
-            The Record — As History Will Judge It
-          </h2>
+          <h2 className="label-caps">The Record — As History Will Judge It</h2>
           {legacy.headlines.map((headline, i) => (
-            <div key={headline.key} className="border-l-2 border-gray-700 pl-4">
-              <div className="text-[9px] text-gray-600 mb-0.5">VANGUARD / PUNCH / THE NATION #{i + 1}</div>
-              <h3 className="text-sm font-bold text-white leading-snug">{headline.headline}</h3>
-              <p className="text-gray-400 text-xs mt-1 leading-relaxed">{headline.subhead}</p>
+            <div key={headline.key} style={{ borderLeft: '2px solid var(--border)', paddingLeft: '16px' }}>
+              <p className="text-[9px] mb-0.5" style={{ color: 'var(--border-strong)' }}>
+                VANGUARD / PUNCH / THE NATION #{i + 1}
+              </p>
+              <h3 className="font-display text-sm font-semibold leading-snug" style={{ color: 'var(--text)' }}>
+                {headline.headline}
+              </h3>
+              <p className="text-[11px] mt-1 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                {headline.subhead}
+              </p>
             </div>
           ))}
         </div>
 
         {/* Governor's Final Address */}
-        <div className="rounded-xl border border-gray-700 bg-gray-900 p-5">
+        <div className="p-4 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <div className="text-[10px] text-gray-500 uppercase tracking-widest">
-              Governor's Final Press Address
-            </div>
-            <span className="text-[9px] rounded px-1.5 py-0.5 bg-gray-700 text-gray-400">
+            <p className="label-caps">Governor's Final Press Address</p>
+            <span
+              className="text-[9px] px-1.5 py-0.5"
+              style={{ backgroundColor: 'var(--neutral-4)', color: 'var(--text-secondary)' }}
+            >
               {monologueLabel}
             </span>
           </div>
-          <p className="text-gray-200 text-sm leading-relaxed italic">
+          <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text)' }}>
             "{legacy.monologue}"
           </p>
         </div>
 
         {/* Stats Grid */}
         <div>
-          <h2 className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-3">
-            Final Scorecard
-          </h2>
+          <h2 className="label-caps mb-3">Final Scorecard</h2>
           <div className="flex justify-center gap-4 mb-4">
             {(['publicTrust', 'infrastructureScore', 'securityIndex', 'youthTension'] as const).map((key) => {
               const val = key === 'youthTension' ? 100 - state.stats[key] : state.stats[key]
@@ -131,9 +134,9 @@ export function LegacyScreen() {
               const change = val - (key === 'youthTension' ? 100 - STARTING_STATE.stats[key] : STARTING_STATE.stats[key])
               return (
                 <div key={key} className="flex flex-col items-center">
-                  <span className={`text-2xl font-bold ${gradeColor(g)}`}>{g}</span>
-                  <span className="text-[9px] text-gray-500 uppercase">{label}</span>
-                  <span className={`text-[9px] ${change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  <span className="text-2xl font-bold" style={{ color: gradeColor(g) }}>{g}</span>
+                  <span className="label-caps">{label}</span>
+                  <span className="text-[9px]" style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}>
                     {change >= 0 ? '+' : ''}{change.toFixed(0)}
                   </span>
                 </div>
@@ -143,15 +146,15 @@ export function LegacyScreen() {
 
           <div className="grid grid-cols-2 gap-3 text-[10px]">
             <div className="space-y-1">
-              <p className="text-gray-500 uppercase text-[9px] tracking-wide">Factions</p>
+              <p className="label-caps">Factions</p>
               {(Object.keys(state.factions) as FactionKey[]).map((key) => {
                 const change = state.factions[key] - STARTING_STATE.factions[key]
                 return (
                   <div key={key} className="flex justify-between">
-                    <span className="text-gray-400 truncate mr-1">{FACTION_LABELS[key]}</span>
-                    <span className="text-gray-300 shrink-0">
+                    <span className="truncate mr-1" style={{ color: 'var(--text-secondary)' }}>{FACTION_LABELS[key]}</span>
+                    <span className="shrink-0" style={{ color: 'var(--text)' }}>
                       {state.factions[key]}
-                      <span className={change >= 0 ? 'text-green-400 ml-0.5' : 'text-red-400 ml-0.5'}>
+                      <span className="ml-0.5" style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}>
                         ({change >= 0 ? '+' : ''}{change})
                       </span>
                     </span>
@@ -160,15 +163,15 @@ export function LegacyScreen() {
               })}
             </div>
             <div className="space-y-1">
-              <p className="text-gray-500 uppercase text-[9px] tracking-wide">Constituencies</p>
+              <p className="label-caps">Constituencies</p>
               {(Object.keys(state.constituencyApproval) as ConstituencyKey[]).map((key) => {
                 const change = state.constituencyApproval[key] - STARTING_STATE.constituencyApproval[key]
                 return (
                   <div key={key} className="flex justify-between">
-                    <span className="text-gray-400 truncate mr-1">{CONSTITUENCY_LABELS[key]}</span>
-                    <span className="text-gray-300 shrink-0">
+                    <span className="truncate mr-1" style={{ color: 'var(--text-secondary)' }}>{CONSTITUENCY_LABELS[key]}</span>
+                    <span className="shrink-0" style={{ color: 'var(--text)' }}>
                       {state.constituencyApproval[key]}%
-                      <span className={change >= 0 ? 'text-green-400 ml-0.5' : 'text-red-400 ml-0.5'}>
+                      <span className="ml-0.5" style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}>
                         ({change >= 0 ? '+' : ''}{change})
                       </span>
                     </span>
@@ -180,21 +183,23 @@ export function LegacyScreen() {
 
           <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[10px]">
             <div>
-              <p className="text-gray-500">Cash</p>
-              <p className={`font-bold ${state.stats.cashReserve >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              <p className="label-caps">Cash</p>
+              <p className="font-bold" style={{ color: state.stats.cashReserve >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}>
                 {state.stats.cashReserve >= 0 ? 'A' : 'F'}
               </p>
-              <p className="text-gray-400">₦{state.stats.cashReserve.toFixed(0)}bn</p>
+              <p style={{ color: 'var(--text-secondary)' }}>₦{state.stats.cashReserve.toFixed(0)}bn</p>
             </div>
             <div>
-              <p className="text-gray-500">Fashemu</p>
-              <p className="text-gray-300 font-bold capitalize">{state.fashemuPhase}</p>
-              <p className="text-gray-400">Path {state.fashemuEndingPath ?? '—'}</p>
+              <p className="label-caps">Fashemu</p>
+              <p className="font-semibold capitalize" style={{ color: 'var(--text)' }}>{state.fashemuPhase}</p>
+              <p style={{ color: 'var(--text-secondary)' }}>Path {state.fashemuEndingPath ?? '—'}</p>
             </div>
             <div>
-              <p className="text-gray-500">Compliance</p>
-              <p className="text-gray-300 font-bold">{state.godfatherComplianceCount}/{state.godfatherComplianceCount + state.godfatherRefusalCount}</p>
-              <p className="text-gray-400">accepted</p>
+              <p className="label-caps">Compliance</p>
+              <p className="font-semibold" style={{ color: 'var(--text)' }}>
+                {state.godfatherComplianceCount}/{state.godfatherComplianceCount + state.godfatherRefusalCount}
+              </p>
+              <p style={{ color: 'var(--text-secondary)' }}>accepted</p>
             </div>
           </div>
         </div>
@@ -203,7 +208,13 @@ export function LegacyScreen() {
           <button
             type="button"
             onClick={handleNewGame}
-            className="rounded-lg bg-blue-600 hover:bg-blue-500 px-8 py-3 text-sm font-semibold transition-colors"
+            onMouseEnter={() => setBtnHover(true)}
+            onMouseLeave={() => setBtnHover(false)}
+            className="px-8 py-3 text-sm font-semibold transition-colors"
+            style={{
+              backgroundColor: btnHover ? 'var(--accent-10)' : 'var(--accent-solid)',
+              color: 'var(--accent-on-solid)',
+            }}
           >
             New Game
           </button>

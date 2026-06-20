@@ -1,1 +1,97 @@
 @import "tailwindcss";
+
+/* ── Federal Gazette design tokens ──────────────────────────────────────────── */
+
+:root {
+  /* Neutral ramp (seed hue 155, muted) */
+  --neutral-1: #fcfdfc;
+  --neutral-2: #f8f9f8;
+  --neutral-3: #eef1ef;
+  --neutral-4: #e5e9e6;
+  --neutral-5: #dae0dc;
+  --neutral-6: #cdd4cf;
+  --neutral-7: #bec6c0;
+  --neutral-8: #a4aea7;
+  --neutral-9: #afbbb2;
+  --neutral-10: #9da8a0;
+  --neutral-11: #5f6561;
+  --neutral-12: #2b2f2c;
+
+  /* Nigerian green accent ramp */
+  --accent-1: #fafefb;
+  --accent-2: #f4fbf6;
+  --accent-3: #e6f5ea;
+  --accent-4: #d9eedf;
+  --accent-5: #c9e7d2;
+  --accent-6: #b7ddc3;
+  --accent-7: #a2d1b1;
+  --accent-8: #82ba95;
+  --accent-9: #84ca9c;
+  --accent-10: #74b68b;
+  --accent-11: #486d55;
+  --accent-12: #203326;
+  --accent-on-solid: #061009;
+
+  /* Semantic */
+  --error-3: #ffebe9;
+  --error-9: #c56c65;
+  --error-11: #86534f;
+  --success-3: #e6f6e6;
+  --success-9: #84cc86;
+  --success-11: #486e49;
+  --warning-3: #f6f0e4;
+  --warning-9: #ceb47e;
+  --warning-11: #6f6144;
+  --info-3: #e7f2fa;
+  --info-9: #7aabce;
+  --info-11: #4c677a;
+
+  /* Semantic aliases */
+  --background: var(--neutral-1);
+  --surface: var(--neutral-2);
+  --surface-hover: var(--neutral-3);
+  --surface-active: var(--neutral-4);
+  --border-subtle: var(--neutral-6);
+  --border: var(--neutral-7);
+  --border-strong: var(--neutral-8);
+  --text-secondary: var(--neutral-11);
+  --text: var(--neutral-12);
+  --accent-bg-subtle: var(--accent-3);
+  --accent-solid: var(--accent-9);
+  --accent-solid-hover: var(--accent-10);
+  --accent-text: var(--accent-11);
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────────── */
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text);
+  font-family: 'Archivo Narrow', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Typography helpers ─────────────────────────────────────────────────────── */
+
+.font-display {
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+}
+
+/* Section label style: 10px Archivo Narrow ALL CAPS + tracked */
+.label-caps {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}

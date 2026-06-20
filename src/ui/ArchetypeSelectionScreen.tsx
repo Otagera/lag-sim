@@ -2,22 +2,10 @@ import { ARCHETYPES, ARCHETYPE_KEY_ORDER, getArchetypeState } from '../data/arch
 import type { ArchetypeKey } from '../data/archetypes'
 import { useGameStore } from '../state/gameStore'
 
-const BG: Record<ArchetypeKey, string> = {
-  technocrat: 'border-blue-600 bg-blue-900/20',
-  loyalist: 'border-amber-600 bg-amber-900/20',
-  outsider: 'border-green-600 bg-green-900/20',
-}
-
-const ACCENT: Record<ArchetypeKey, string> = {
-  technocrat: 'text-blue-400',
-  loyalist: 'text-amber-400',
-  outsider: 'text-green-400',
-}
-
-const BTN: Record<ArchetypeKey, string> = {
-  technocrat: 'bg-blue-700 hover:bg-blue-600',
-  loyalist: 'bg-amber-700 hover:bg-amber-600',
-  outsider: 'bg-green-700 hover:bg-green-600',
+const BORDER_COLOR: Record<ArchetypeKey, string> = {
+  technocrat: 'var(--info-9)',
+  loyalist: 'var(--warning-9)',
+  outsider: 'var(--accent-solid)',
 }
 
 type Props = {
@@ -31,11 +19,12 @@ export function ArchetypeSelectionScreen({ onSelect }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-gray-950 z-50 overflow-y-auto flex items-start justify-center py-8 px-4">
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center py-8 px-4" style={{ backgroundColor: 'var(--background)' }}>
       <div className="w-full max-w-3xl">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-white">Who Are You?</h1>
-          <p className="text-gray-400 text-sm mt-2 max-w-xl mx-auto">
+          <p className="label-caps" style={{ color: 'var(--accent-text)' }}>Choose your path</p>
+          <h1 className="font-display text-2xl font-semibold mt-1" style={{ color: 'var(--text)' }}>Who Are You?</h1>
+          <p className="text-sm mt-2 max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
             Your background shapes how you enter government. Each archetype starts with different
             strengths and liabilities. Choose wisely — this cannot be undone.
           </p>
@@ -45,22 +34,24 @@ export function ArchetypeSelectionScreen({ onSelect }: Props) {
           {ARCHETYPE_KEY_ORDER.map((key) => {
             const arch = ARCHETYPES[key]
             return (
-              <div key={key} className={`rounded-xl border-2 p-4 flex flex-col gap-3 ${BG[key]}`}>
+              <div
+                key={key}
+                className="border p-4 flex flex-col gap-3"
+                style={{ borderColor: BORDER_COLOR[key], borderTopWidth: '2px', backgroundColor: 'var(--surface)' }}
+              >
                 <div>
-                  <div className={`text-xs font-semibold uppercase tracking-wide ${ACCENT[key]}`}>
-                    {arch.shortName}
-                  </div>
-                  <h2 className="text-sm font-bold text-white mt-0.5">{arch.name}</h2>
-                  <p className={`text-[11px] mt-0.5 ${ACCENT[key]}`}>{arch.tagline}</p>
+                  <div className="label-caps" style={{ color: BORDER_COLOR[key] }}>{arch.shortName}</div>
+                  <h2 className="text-[13px] font-semibold mt-0.5" style={{ color: 'var(--text)' }}>{arch.name}</h2>
+                  <p className="text-[11px] mt-0.5 italic" style={{ color: BORDER_COLOR[key] }}>{arch.tagline}</p>
                 </div>
 
-                <p className="text-xs text-gray-300 leading-relaxed flex-1">{arch.description}</p>
+                <p className="text-[11px] leading-relaxed flex-1" style={{ color: 'var(--text)' }}>{arch.description}</p>
 
-                <div className="space-y-1 text-[11px]">
+                <div className="space-y-1 text-[11px]" style={{ borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
                   {arch.statPreview.map((s) => (
                     <div key={s.label} className="flex justify-between">
-                      <span className="text-gray-400">{s.label}</span>
-                      <span className={s.positive ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
+                      <span style={{ color: 'var(--text-secondary)' }}>{s.label}</span>
+                      <span className="font-semibold" style={{ color: s.positive ? 'var(--success-11)' : 'var(--error-11)' }}>
                         {s.value}
                       </span>
                     </div>
@@ -69,19 +60,20 @@ export function ArchetypeSelectionScreen({ onSelect }: Props) {
 
                 <div className="space-y-1 text-[11px]">
                   <div>
-                    <span className="text-green-400 font-semibold">Strength: </span>
-                    <span className="text-gray-300">{arch.strength}</span>
+                    <span className="font-semibold" style={{ color: 'var(--success-11)' }}>Strength: </span>
+                    <span style={{ color: 'var(--text)' }}>{arch.strength}</span>
                   </div>
                   <div>
-                    <span className="text-red-400 font-semibold">Risk: </span>
-                    <span className="text-gray-300">{arch.risk}</span>
+                    <span className="font-semibold" style={{ color: 'var(--error-11)' }}>Risk: </span>
+                    <span style={{ color: 'var(--text)' }}>{arch.risk}</span>
                   </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => handleSelect(key)}
-                  className={`w-full rounded-lg py-2 text-xs font-semibold text-white transition-colors ${BTN[key]}`}
+                  className="w-full py-2 text-[11px] font-semibold transition-colors"
+                  style={{ backgroundColor: BORDER_COLOR[key], color: 'var(--neutral-1)' }}
                 >
                   Play as {arch.shortName}
                 </button>
@@ -90,7 +82,7 @@ export function ArchetypeSelectionScreen({ onSelect }: Props) {
           })}
         </div>
 
-        <p className="text-center text-gray-600 text-[11px] mt-6">
+        <p className="text-center text-[11px] mt-6" style={{ color: 'var(--border-strong)' }}>
           After choosing your archetype you will select your Deputy Governor.
         </p>
       </div>

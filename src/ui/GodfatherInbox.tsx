@@ -10,12 +10,12 @@ function escalationWarning(count: number): string | null {
 }
 
 const PHASE_LABEL: Record<FashemuPhase, { text: string; color: string }> = {
-  dormant: { text: 'Quiet', color: 'text-gray-500' },
-  active: { text: 'Active', color: 'text-yellow-400' },
-  warning: { text: 'Warning', color: 'text-orange-400' },
-  break: { text: 'BROKEN', color: 'text-red-500' },
-  reconciled: { text: 'Reconciled', color: 'text-blue-400' },
-  dead: { text: 'Deceased', color: 'text-gray-600' },
+  dormant: { text: 'Quiet', color: 'var(--text-secondary)' },
+  active: { text: 'Active', color: 'var(--warning-11)' },
+  warning: { text: 'Warning', color: 'var(--warning-9)' },
+  break: { text: 'BROKEN', color: 'var(--error-9)' },
+  reconciled: { text: 'Reconciled', color: 'var(--info-11)' },
+  dead: { text: 'Deceased', color: 'var(--border-strong)' },
 }
 
 export function GodfatherInbox() {
@@ -35,59 +35,65 @@ export function GodfatherInbox() {
 
   return (
     <div
-      className={`rounded border ${activeMessage ? 'border-yellow-600 bg-gray-800' : 'border-gray-700 bg-gray-800'} p-3`}
+      className="p-3 border"
+      style={{
+        borderColor: activeMessage ? 'var(--warning-9)' : 'var(--border)',
+        backgroundColor: activeMessage ? 'var(--warning-3)' : 'var(--surface)',
+      }}
     >
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h2 className="text-sm font-semibold text-gray-300">
+          <h2 className="text-[12px] font-semibold" style={{ color: 'var(--text)' }}>
             {isFashemuMessage ? 'Chief B.O.A. Fashemu' : 'Godfather'}
           </h2>
           <div className="flex items-center gap-1.5 mt-0.5">
-            <span className={`text-[10px] font-medium ${phaseInfo.color}`}>{phaseInfo.text}</span>
+            <span className="text-[10px] font-medium" style={{ color: phaseInfo.color }}>{phaseInfo.text}</span>
             {fashemuAskIndex < fashemuAsks.length && (
-              <span className="text-[10px] text-gray-600">
+              <span className="text-[10px]" style={{ color: 'var(--border-strong)' }}>
                 · Ask {fashemuAskIndex + 1}/4
               </span>
             )}
           </div>
         </div>
-        {activeMessage && <span className="text-xs text-yellow-500">ACTIVE</span>}
+        {activeMessage && <span className="label-caps" style={{ color: 'var(--warning-11)' }}>Active</span>}
       </div>
 
       {activeMessage && (
         <div className="mb-3 space-y-3">
-          <p className="text-sm text-gray-200 italic leading-relaxed">{activeMessage.text}</p>
-          <p className="text-xs text-gray-400">{activeMessage.ask.description}</p>
+          <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--text)' }}>{activeMessage.text}</p>
+          <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>{activeMessage.ask.description}</p>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={acceptGodfather}
-              className="flex-1 rounded bg-yellow-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-yellow-600"
+              className="flex-1 px-3 py-1.5 text-[11px] font-semibold transition-colors"
+              style={{ backgroundColor: 'var(--warning-9)', color: 'var(--accent-on-solid)' }}
             >
               Accept
             </button>
             <button
               type="button"
               onClick={refuseGodfather}
-              className="flex-1 rounded bg-gray-700 px-3 py-1.5 text-xs font-medium text-gray-200 hover:bg-gray-600"
+              className="flex-1 px-3 py-1.5 text-[11px] border transition-colors"
+              style={{ borderColor: 'var(--border)', color: 'var(--text)', backgroundColor: 'var(--surface)' }}
             >
               Refuse
             </button>
           </div>
-          {warning && <p className="text-xs text-red-400 font-medium">{warning}</p>}
+          {warning && <p className="text-[11px] font-medium" style={{ color: 'var(--error-11)' }}>{warning}</p>}
         </div>
       )}
 
       {!activeMessage && messages.length === 0 && (
-        <p className="text-xs text-gray-500">No messages yet.</p>
+        <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>No messages yet.</p>
       )}
 
       {!activeMessage && messages.length > 0 && (
         <div className="space-y-2 max-h-48 overflow-y-auto">
           {messages.map((msg) => (
-            <div key={msg.id} className="border-l-2 border-gray-600 pl-2">
-              <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">{msg.text}</p>
-              <p className="text-[10px] text-gray-600 mt-0.5">
+            <div key={msg.id} className="pl-2" style={{ borderLeft: '1px solid var(--border)' }}>
+              <p className="text-[11px] leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{msg.text}</p>
+              <p className="text-[10px] mt-0.5" style={{ color: 'var(--border-strong)' }}>
                 Week {msg.week} &middot; {msg.ask.type}
               </p>
             </div>

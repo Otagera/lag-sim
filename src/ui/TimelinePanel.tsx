@@ -29,12 +29,13 @@ function DeltaTag({ label, value }: { label: string; value: number }) {
   const positive = value > 0
   return (
     <span
-      className={`inline-flex items-center rounded px-1 py-px text-[9px] font-medium ${
-        positive ? 'bg-green-900/60 text-green-300' : 'bg-red-900/60 text-red-300'
-      }`}
+      className="inline-flex items-center px-1 py-px text-[9px] font-medium"
+      style={{
+        backgroundColor: positive ? 'var(--success-3)' : 'var(--error-3)',
+        color: positive ? 'var(--success-11)' : 'var(--error-11)',
+      }}
     >
-      {positive ? '+' : ''}
-      {value.toFixed(0)} {label}
+      {positive ? '+' : ''}{value.toFixed(0)} {label}
     </span>
   )
 }
@@ -64,11 +65,18 @@ function DeltaRow({ statDelta, factionDelta }: { statDelta?: StatDelta; factionD
   )
 }
 
-const TYPE_STYLE: Record<TimelineEntry['type'], { dot: string; label: string }> = {
-  event: { dot: 'bg-blue-500', label: 'Decision' },
-  'delayed-consequence': { dot: 'bg-yellow-500', label: 'Consequence' },
-  godfather: { dot: 'bg-purple-500', label: 'Godfather' },
-  milestone: { dot: 'bg-green-500', label: 'Milestone' },
+const TYPE_DOT: Record<TimelineEntry['type'], string> = {
+  event: 'var(--info-9)',
+  'delayed-consequence': 'var(--warning-9)',
+  godfather: 'var(--accent-solid)',
+  milestone: 'var(--success-9)',
+}
+
+const TYPE_LABEL: Record<TimelineEntry['type'], string> = {
+  event: 'Decision',
+  'delayed-consequence': 'Consequence',
+  godfather: 'Godfather',
+  milestone: 'Milestone',
 }
 
 const PAGE_SIZE = 10
@@ -79,9 +87,9 @@ export function TimelinePanel() {
 
   if (timeline.length === 0) {
     return (
-      <div className="rounded-lg bg-gray-800 p-4">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase mb-2">Decision Log</h3>
-        <p className="text-gray-500 text-xs">No decisions yet. Click "Next Week" to begin.</p>
+      <div className="p-4 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+        <h3 className="label-caps mb-2">Decision Log</h3>
+        <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>No decisions yet. Click "Next Week" to begin.</p>
       </div>
     )
   }
@@ -91,29 +99,25 @@ export function TimelinePanel() {
   const visible = reversed.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
 
   return (
-    <div className="rounded-lg bg-gray-800 p-3">
+    <div className="p-3 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-[11px] font-semibold text-gray-400 uppercase">
-          Decision Log ({timeline.length})
-        </h3>
+        <h3 className="label-caps">Decision Log ({timeline.length})</h3>
         {totalPages > 1 && (
-          <div className="flex items-center gap-1 text-[10px] text-gray-500">
+          <div className="flex items-center gap-1 text-[10px]" style={{ color: 'var(--text-secondary)' }}>
             <button
               type="button"
               disabled={page === 0}
               onClick={() => setPage((p) => p - 1)}
-              className="px-1 rounded hover:bg-gray-700 disabled:opacity-30"
+              className="px-1 disabled:opacity-30"
             >
               ‹
             </button>
-            <span>
-              {page + 1}/{totalPages}
-            </span>
+            <span>{page + 1}/{totalPages}</span>
             <button
               type="button"
               disabled={page === totalPages - 1}
               onClick={() => setPage((p) => p + 1)}
-              className="px-1 rounded hover:bg-gray-700 disabled:opacity-30"
+              className="px-1 disabled:opacity-30"
             >
               ›
             </button>
@@ -122,34 +126,28 @@ export function TimelinePanel() {
       </div>
 
       <div className="space-y-2.5">
-        {visible.map((entry, i) => {
-          const style = TYPE_STYLE[entry.type]
-          return (
-            <div
-              key={`${entry.week}-${entry.title}-${i}`}
-              className="flex gap-2.5"
-            >
-              <div className="flex flex-col items-center gap-1 pt-1 shrink-0">
-                <div className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
-                <div className="w-px flex-1 bg-gray-700 min-h-[12px]" />
-              </div>
-              <div className="pb-1 min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[9px] text-gray-600">{formatGameDate(entry.week)}</span>
-                  <span className={`text-[9px] font-semibold uppercase tracking-wide ${
-                    entry.type === 'delayed-consequence' ? 'text-yellow-600' :
-                    entry.type === 'godfather' ? 'text-purple-500' : 'text-blue-500'
-                  }`}>
-                    {style.label}
-                  </span>
-                </div>
-                <p className="text-white text-xs font-medium leading-tight mt-0.5">{entry.title}</p>
-                <p className="text-gray-400 text-[10px] mt-0.5 leading-snug">{entry.description}</p>
-                <DeltaRow statDelta={entry.statDelta} factionDelta={entry.factionDelta} />
-              </div>
+        {visible.map((entry, i) => (
+          <div key={`${entry.week}-${entry.title}-${i}`} className="flex gap-2.5">
+            <div className="flex flex-col items-center gap-1 pt-1 shrink-0">
+              <div
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: TYPE_DOT[entry.type] }}
+              />
+              <div className="w-px flex-1 min-h-[12px]" style={{ backgroundColor: 'var(--border)' }} />
             </div>
-          )
-        })}
+            <div className="pb-1 min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[9px]" style={{ color: 'var(--border-strong)' }}>{formatGameDate(entry.week)}</span>
+                <span className="text-[9px] font-semibold uppercase tracking-wide" style={{ color: TYPE_DOT[entry.type] }}>
+                  {TYPE_LABEL[entry.type]}
+                </span>
+              </div>
+              <p className="text-[12px] font-semibold leading-tight mt-0.5" style={{ color: 'var(--text)' }}>{entry.title}</p>
+              <p className="text-[10px] mt-0.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>{entry.description}</p>
+              <DeltaRow statDelta={entry.statDelta} factionDelta={entry.factionDelta} />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )

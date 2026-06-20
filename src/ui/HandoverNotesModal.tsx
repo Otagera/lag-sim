@@ -45,41 +45,44 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
     onClose()
   }
 
+  function factionColor(val: number): string {
+    if (val >= 60) return 'var(--success-11)'
+    if (val >= 40) return 'var(--warning-11)'
+    return 'var(--error-11)'
+  }
+
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center px-4 py-8 overflow-y-auto">
-      <div className="w-full max-w-2xl bg-gray-900 border border-gray-700 rounded-xl shadow-2xl">
-        {/* Header */}
-        <div className="border-b border-gray-700 px-6 py-4">
-          <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-0.5">
-            Government of Lagos State — Restricted
-          </p>
-          <h1 className="text-lg font-bold text-white">Handover Notes</h1>
-          <p className="text-xs text-gray-400 mt-0.5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8 overflow-y-auto" style={{ backgroundColor: 'rgba(43,47,44,0.85)' }}>
+      <div className="w-full max-w-2xl border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
+        <div
+          className="px-6 py-4"
+          style={{ borderBottom: '2px solid var(--accent-solid)' }}
+        >
+          <p className="label-caps">Government of Lagos State — Restricted</p>
+          <h1 className="font-display text-lg font-semibold mt-1" style={{ color: 'var(--text)' }}>Handover Notes</h1>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>
             Prepared by the Chief of Staff, Government House Alausa
           </p>
         </div>
 
         <div className="px-6 py-5 space-y-5">
-          {/* Fiscal situation */}
           <section>
-            <h2 className="text-xs font-semibold text-amber-400 uppercase tracking-wide mb-2">
-              1. Fiscal Situation
-            </h2>
-            <div className="rounded bg-gray-800 p-3 space-y-1.5 text-[11px]">
+            <h2 className="label-caps mb-2" style={{ color: 'var(--warning-11)' }}>1. Fiscal Situation</h2>
+            <div className="p-3 space-y-1.5 text-[11px] border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
               <div className="flex justify-between">
-                <span className="text-gray-400">Current weekly revenue</span>
-                <span className="text-green-400 font-medium">₦{stats.igr.toFixed(1)}bn</span>
+                <span style={{ color: 'var(--text-secondary)' }}>Current weekly revenue</span>
+                <span className="font-medium" style={{ color: 'var(--success-11)' }}>₦{stats.igr.toFixed(1)}bn</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Fixed commitments (floor)</span>
-                <span className="text-red-400 font-medium">₦{weeklyFloor.toFixed(1)}bn</span>
+                <span style={{ color: 'var(--text-secondary)' }}>Fixed commitments (floor)</span>
+                <span className="font-medium" style={{ color: 'var(--error-11)' }}>₦{weeklyFloor.toFixed(1)}bn</span>
               </div>
-              <div className="border-t border-gray-700 pt-1 flex justify-between font-semibold">
-                <span className="text-gray-300">Weekly shortfall</span>
-                <span className="text-red-400">₦{revenueGap.toFixed(1)}bn</span>
+              <div className="flex justify-between font-semibold pt-1" style={{ borderTop: '1px solid var(--border)' }}>
+                <span style={{ color: 'var(--text)' }}>Weekly shortfall</span>
+                <span style={{ color: 'var(--error-11)' }}>₦{revenueGap.toFixed(1)}bn</span>
               </div>
             </div>
-            <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">
+            <p className="text-[11px] mt-2 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
               The fixed cost floor — civil servant salaries, overhead, subventions — is ₦30bn per week.
               Revenue must reach at least ₦35bn before this administration can invest freely.
               Priority levers: PAYE enforcement, Land Use Charge compliance, and reducing overhead drag
@@ -87,71 +90,64 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
             </p>
           </section>
 
-          {/* Political landscape */}
           <section>
-            <h2 className="text-xs font-semibold text-blue-400 uppercase tracking-wide mb-2">
-              2. Political Landscape
-            </h2>
+            <h2 className="label-caps mb-2" style={{ color: 'var(--info-11)' }}>2. Political Landscape</h2>
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               {Object.entries(factions).map(([key, val]) => {
                 const label = key.replace(/([A-Z])/g, ' $1').trim()
-                const color = val >= 60 ? 'text-green-400' : val >= 40 ? 'text-yellow-400' : 'text-red-400'
                 return (
-                  <div key={key} className="flex justify-between rounded bg-gray-800 px-2 py-1">
-                    <span className="text-gray-400 capitalize">{label}</span>
-                    <span className={`font-medium ${color}`}>{val}</span>
+                  <div key={key} className="flex justify-between px-2 py-1 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+                    <span className="capitalize" style={{ color: 'var(--text-secondary)' }}>{label}</span>
+                    <span className="font-medium" style={{ color: factionColor(val) }}>{val}</span>
                   </div>
                 )
               })}
             </div>
             {factions.partyGodfathers < 50 && (
-              <p className="text-[11px] text-red-400 mt-2">
+              <p className="text-[11px] mt-2" style={{ color: 'var(--error-11)' }}>
                 ⚠ Party Godfathers are already below 50. Expect early pressure from the machine.
               </p>
             )}
             {factions.civilSocietyMedia < 40 && (
-              <p className="text-[11px] text-amber-400 mt-2">
+              <p className="text-[11px] mt-2" style={{ color: 'var(--warning-11)' }}>
                 ⚠ Civil Society and media are lukewarm. You will not get the benefit of the doubt on early scandals.
               </p>
             )}
           </section>
 
-          {/* Known actors */}
           <section>
-            <h2 className="text-xs font-semibold text-purple-400 uppercase tracking-wide mb-2">
-              3. Known Political Actors
-            </h2>
-            <p className="text-[11px] text-gray-400 mb-2">
+            <h2 className="label-caps mb-2" style={{ color: 'var(--accent-text)' }}>3. Known Political Actors</h2>
+            <p className="text-[11px] mb-2" style={{ color: 'var(--text-secondary)' }}>
               Intelligence has identified three individuals who will react to your decisions.
               They are dormant now — but watching.
             </p>
             <div className="space-y-1.5">
               {npcSlots.map(({ name, role }) => (
-                <div key={name} className="flex items-start gap-2 rounded bg-gray-800 px-3 py-2">
-                  <div className="shrink-0 w-1.5 h-1.5 rounded-full bg-gray-500 mt-1.5" />
+                <div key={name} className="flex items-start gap-2 px-3 py-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+                  <div className="shrink-0 w-1.5 h-1.5 rounded-full mt-1.5" style={{ backgroundColor: 'var(--border-strong)' }} />
                   <div>
-                    <span className="text-[11px] font-medium text-white">{name}</span>
-                    <span className="text-[10px] text-gray-500 ml-2">— {role}</span>
+                    <span className="text-[11px] font-medium" style={{ color: 'var(--text)' }}>{name}</span>
+                    <span className="text-[10px] ml-2" style={{ color: 'var(--text-secondary)' }}>— {role}</span>
                   </div>
                 </div>
               ))}
             </div>
           </section>
 
-          {/* CoS advice */}
-          <section className="border-t border-gray-700 pt-4">
-            <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Chief of Staff</p>
-            <p className="text-[12px] text-gray-300 leading-relaxed italic">
+          <section style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+            <p className="label-caps mb-1">Chief of Staff</p>
+            <p className="text-[12px] leading-relaxed italic" style={{ color: 'var(--text)' }}>
               "{ARCHETYPE_COS_NOTE[archetypeKey]}"
             </p>
           </section>
         </div>
 
-        <div className="border-t border-gray-700 px-6 py-4 flex justify-end">
+        <div className="px-6 py-4 flex justify-end" style={{ borderTop: '1px solid var(--border)' }}>
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg bg-blue-700 hover:bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition-colors"
+            className="px-6 py-2 text-sm font-semibold transition-colors"
+            style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
           >
             Begin Governing
           </button>

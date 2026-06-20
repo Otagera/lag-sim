@@ -4,36 +4,6 @@ import type { DeputyKey } from '../state/types'
 
 const FALLBACK_KEYS: DeputyKey[] = ['technocrat', 'politician', 'loyalist']
 
-const BG_COLORS: Record<DeputyKey, string> = {
-  technocrat: 'border-blue-600 bg-blue-900/20',
-  politician: 'border-green-600 bg-green-900/20',
-  loyalist: 'border-amber-600 bg-amber-900/20',
-  reformer: 'border-purple-600 bg-purple-900/20',
-  traditionalist: 'border-stone-500 bg-stone-900/20',
-  economist: 'border-cyan-600 bg-cyan-900/20',
-  'security-chief': 'border-red-600 bg-red-900/20',
-}
-
-const ACCENT: Record<DeputyKey, string> = {
-  technocrat: 'text-blue-400',
-  politician: 'text-green-400',
-  loyalist: 'text-amber-400',
-  reformer: 'text-purple-400',
-  traditionalist: 'text-stone-400',
-  economist: 'text-cyan-400',
-  'security-chief': 'text-red-400',
-}
-
-const BTN_COLOR: Record<DeputyKey, string> = {
-  technocrat: 'bg-blue-700 hover:bg-blue-600',
-  politician: 'bg-green-700 hover:bg-green-600',
-  loyalist: 'bg-amber-700 hover:bg-amber-600',
-  reformer: 'bg-purple-700 hover:bg-purple-600',
-  traditionalist: 'bg-stone-700 hover:bg-stone-600',
-  economist: 'bg-cyan-700 hover:bg-cyan-600',
-  'security-chief': 'bg-red-700 hover:bg-red-600',
-}
-
 type Props = {
   onSelect: () => void
 }
@@ -49,11 +19,12 @@ export function DeputySelectionScreen({ onSelect }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-gray-950 z-50 overflow-y-auto flex items-start justify-center py-8 px-4">
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center py-8 px-4" style={{ backgroundColor: 'var(--background)' }}>
       <div className="w-full max-w-3xl">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-white">Choose Your Deputy Governor</h1>
-          <p className="text-gray-400 text-sm mt-2 max-w-xl mx-auto">
+          <p className="label-caps" style={{ color: 'var(--accent-text)' }}>Your running mate</p>
+          <h1 className="font-display text-2xl font-semibold mt-1" style={{ color: 'var(--text)' }}>Choose Your Deputy Governor</h1>
+          <p className="text-sm mt-2 max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
             Your Deputy will shape how the administration governs. Each brings different strengths
             and risks. This decision cannot be undone.
           </p>
@@ -65,28 +36,27 @@ export function DeputySelectionScreen({ onSelect }: Props) {
             return (
               <div
                 key={key}
-                className={`rounded-xl border-2 p-4 flex flex-col gap-3 ${BG_COLORS[key]}`}
+                className="border p-4 flex flex-col gap-3"
+                style={{ borderColor: 'var(--border)', borderTopWidth: '2px', borderTopColor: 'var(--accent-solid)', backgroundColor: 'var(--surface)' }}
               >
                 <div>
-                  <div className={`text-xs font-semibold uppercase tracking-wide ${ACCENT[key]}`}>
-                    {profile.shortName}
-                  </div>
-                  <h2 className="text-sm font-bold text-white mt-0.5">{profile.name}</h2>
-                  <p className="text-[11px] text-gray-400 mt-0.5">{profile.title}</p>
+                  <div className="label-caps" style={{ color: 'var(--accent-text)' }}>{profile.shortName}</div>
+                  <h2 className="text-[13px] font-semibold mt-0.5" style={{ color: 'var(--text)' }}>{profile.name}</h2>
+                  <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>{profile.title}</p>
                 </div>
 
-                <p className="text-xs text-gray-300 leading-relaxed flex-1">
+                <p className="text-[11px] leading-relaxed flex-1" style={{ color: 'var(--text)' }}>
                   {profile.description}
                 </p>
 
-                <div className="space-y-2 text-[11px]">
+                <div className="space-y-1.5 text-[11px]">
                   <div>
-                    <span className="text-green-400 font-semibold">Strength: </span>
-                    <span className="text-gray-300">{profile.strength}</span>
+                    <span className="font-semibold" style={{ color: 'var(--success-11)' }}>Strength: </span>
+                    <span style={{ color: 'var(--text)' }}>{profile.strength}</span>
                   </div>
                   <div>
-                    <span className="text-red-400 font-semibold">Risk: </span>
-                    <span className="text-gray-300">{profile.risk}</span>
+                    <span className="font-semibold" style={{ color: 'var(--error-11)' }}>Risk: </span>
+                    <span style={{ color: 'var(--text)' }}>{profile.risk}</span>
                   </div>
                 </div>
 
@@ -95,14 +65,13 @@ export function DeputySelectionScreen({ onSelect }: Props) {
                     {Object.entries(profile.factionBonuses).map(([faction, delta]) => (
                       <span
                         key={faction}
-                        className={`text-[10px] rounded px-1.5 py-0.5 ${
-                          (delta ?? 0) >= 0
-                            ? 'bg-green-900/40 text-green-300'
-                            : 'bg-red-900/40 text-red-300'
-                        }`}
+                        className="text-[10px] px-1.5 py-0.5"
+                        style={{
+                          backgroundColor: (delta ?? 0) >= 0 ? 'var(--success-3)' : 'var(--error-3)',
+                          color: (delta ?? 0) >= 0 ? 'var(--success-11)' : 'var(--error-11)',
+                        }}
                       >
-                        {faction.replace(/([A-Z])/g, ' $1').trim()} {(delta ?? 0) > 0 ? '+' : ''}
-                        {delta}
+                        {faction.replace(/([A-Z])/g, ' $1').trim()} {(delta ?? 0) > 0 ? '+' : ''}{delta}
                       </span>
                     ))}
                   </div>
@@ -111,7 +80,8 @@ export function DeputySelectionScreen({ onSelect }: Props) {
                 <button
                   type="button"
                   onClick={() => handleSelect(key)}
-                  className={`w-full rounded-lg py-2 text-xs font-semibold text-white transition-colors ${BTN_COLOR[key]}`}
+                  className="w-full py-2 text-[11px] font-semibold transition-colors"
+                  style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
                 >
                   Select {profile.shortName}
                 </button>
@@ -120,7 +90,7 @@ export function DeputySelectionScreen({ onSelect }: Props) {
           })}
         </div>
 
-        <p className="text-center text-gray-600 text-[11px] mt-6">
+        <p className="text-center text-[11px] mt-6" style={{ color: 'var(--border-strong)' }}>
           Your choice will be applied immediately. The deputy's strengths activate at game start.
         </p>
       </div>

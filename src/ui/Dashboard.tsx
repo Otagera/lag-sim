@@ -12,9 +12,9 @@ function StatCard({
 }) {
   const fmt = format ?? ((v) => v.toFixed(1))
   return (
-    <div className="rounded-lg bg-gray-800 p-2">
-      <p className="text-[10px] text-gray-400 uppercase tracking-wide">{label}</p>
-      <p className="text-lg font-bold text-white">{fmt(value)}</p>
+    <div className="p-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+      <p className="label-caps">{label}</p>
+      <p className="text-[15px] font-semibold mt-0.5" style={{ color: 'var(--text)' }}>{fmt(value)}</p>
     </div>
   )
 }

@@ -277,6 +277,20 @@ New initiatives require an entry in `src/data/initiatives.ts`:
 
 ---
 
+## Design Context
+
+- **Register**: product
+- **Purpose**: browser governance sim — data-dense, decision-focused UI
+- **Audience**: serious player, adult register, reads fast under pressure
+- **Personality**: Consequential · Grounded · Pressured
+- **DNA**: Federal Gazette — Editorial Minimalism base + Data-Dense Pro layout discipline — see DESIGN.md
+- **Archetype**: Sage (evidence-led, measured, zero decoration)
+- **Mode**: Light only
+- **Constraints**: Tailwind v4 (`@import "tailwindcss"`), React inline styles for token refs (`style={{ color: 'var(--token)' }}`), WCAG AA
+- **Fonts**: Newsreader (EventCard titles only, `.font-display`) + Archivo Narrow (everything else)
+- **Signature move**: `border-top: 2px solid var(--accent-solid)` on EventCard — nowhere else
+- **Kill list**: no `rounded-lg`, no shadows, no `bg-gray-*`, no second accent color
+
 ## Verification Checklist
 
 Run before every merge:

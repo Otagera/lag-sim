@@ -15,29 +15,26 @@ export function WelcomeModal({ onStart }: { onStart: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-      <div className="w-full max-w-lg rounded-xl bg-gray-900 border border-gray-700 overflow-y-auto max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(43,47,44,0.85)' }}>
+      <div className="w-full max-w-lg border overflow-y-auto max-h-[90vh]" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
+        <div
+          className="p-4"
+          style={{ borderBottom: '2px solid var(--accent-solid)' }}
+        >
+          <p className="label-caps" style={{ color: 'var(--accent-text)' }}>Lagos, Nigeria — 2024</p>
+          <h1 className="font-display text-2xl font-semibold mt-1" style={{ color: 'var(--text)' }}>Lagos Governor Sim</h1>
+        </div>
         <div className="p-6 space-y-5">
-          {/* Header */}
-          <div className="text-center space-y-1">
-            <p className="text-[10px] uppercase tracking-widest text-yellow-500 font-semibold">
-              Lagos, Nigeria — 2024
-            </p>
-            <h1 className="text-2xl font-bold text-white">Lagos Governor Sim</h1>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              You've just been sworn in as Governor of Lagos State. 22 million people. ₦45bn in the
-              bank. Your party called in every favour to get you here.
-            </p>
-            <p className="text-gray-500 text-sm italic">Now they want returns.</p>
-          </div>
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--text)' }}>
+            You've just been sworn in as Governor of Lagos State. 22 million people. ₦45bn in the
+            bank. Your party called in every favour to get you here.
+          </p>
+          <p className="text-sm italic" style={{ color: 'var(--text-secondary)' }}>Now they want returns.</p>
 
-          <div className="border-t border-gray-800" />
+          <div style={{ borderTop: '1px solid var(--border)' }} />
 
-          {/* How to play */}
           <div className="space-y-2">
-            <p className="text-[10px] uppercase tracking-widest text-gray-500 font-semibold">
-              How to play
-            </p>
+            <p className="label-caps">How to play</p>
             <ol className="space-y-2 text-sm">
               {[
                 'Click "Next Week" in the top-right to advance time.',
@@ -46,73 +43,51 @@ export function WelcomeModal({ onStart }: { onStart: () => void }) {
                 'Survive 208 weeks (4 years) without going bankrupt, triggering an uprising, or getting removed by your party.',
               ].map((step, i) => (
                 <li key={i} className="flex gap-3">
-                  <span className="shrink-0 w-5 h-5 rounded-full bg-yellow-700 text-white text-[10px] font-bold flex items-center justify-center mt-0.5">
+                  <span
+                    className="shrink-0 w-5 h-5 text-[10px] font-bold flex items-center justify-center mt-0.5"
+                    style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
+                  >
                     {i + 1}
                   </span>
-                  <span className="text-gray-300">{step}</span>
+                  <span style={{ color: 'var(--text)' }}>{step}</span>
                 </li>
               ))}
             </ol>
           </div>
 
-          <div className="border-t border-gray-800" />
+          <div style={{ borderTop: '1px solid var(--border)' }} />
 
-          {/* Key stats */}
           <div className="space-y-2">
-            <p className="text-[10px] uppercase tracking-widest text-gray-500 font-semibold">
-              Watch these stats
-            </p>
+            <p className="label-caps">Watch these stats</p>
             <div className="space-y-2">
               {[
-                {
-                  icon: '₦',
-                  label: 'Cash Reserve',
-                  desc: 'Your liquidity. If this goes negative for 3 weeks in a row, the state is insolvent.',
-                  color: 'text-green-400',
-                },
-                {
-                  icon: '%',
-                  label: 'Public Trust',
-                  desc: 'Combined approval across constituencies. Below 15 with high youth tension = uprising.',
-                  color: 'text-blue-400',
-                },
-                {
-                  icon: '⚡',
-                  label: 'Political Capital',
-                  desc: 'Spend it to take bold or expensive actions. Hard to earn back.',
-                  color: 'text-yellow-400',
-                },
-                {
-                  icon: '👔',
-                  label: 'Factions',
-                  desc: 'Six power blocs. The Party Godfathers don\'t drift — once they turn hostile, you\'re out.',
-                  color: 'text-purple-400',
-                },
+                { icon: '₦', label: 'Cash Reserve', desc: 'Your liquidity. If this goes negative for 3 weeks in a row, the state is insolvent.', color: 'var(--success-11)' },
+                { icon: '%', label: 'Public Trust', desc: 'Combined approval across constituencies. Below 15 with high youth tension = uprising.', color: 'var(--info-11)' },
+                { icon: '⚡', label: 'Political Capital', desc: 'Spend it to take bold or expensive actions. Hard to earn back.', color: 'var(--warning-11)' },
+                { icon: '👔', label: 'Factions', desc: "Six power blocs. The Party Godfathers don't drift — once they turn hostile, you're out.", color: 'var(--accent-text)' },
               ].map(({ icon, label, desc, color }) => (
                 <div key={label} className="flex gap-3">
-                  <span className={`shrink-0 text-sm font-bold w-5 text-center ${color}`}>
-                    {icon}
-                  </span>
+                  <span className="shrink-0 text-sm font-bold w-5 text-center" style={{ color }}>{icon}</span>
                   <div>
-                    <p className="text-white text-xs font-semibold">{label}</p>
-                    <p className="text-gray-400 text-xs">{desc}</p>
+                    <p className="text-[12px] font-semibold" style={{ color: 'var(--text)' }}>{label}</p>
+                    <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>{desc}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="border-t border-gray-800" />
+          <div style={{ borderTop: '1px solid var(--border)' }} />
 
-          {/* CTA */}
-          <div className="text-center space-y-2">
-            <p className="text-gray-500 text-xs">
+          <div className="text-center space-y-3">
+            <p className="text-[11px] italic" style={{ color: 'var(--text-secondary)' }}>
               Everyone thinks Lagos is easy to fix. Let's see what you do with it.
             </p>
             <button
               type="button"
               onClick={handleStart}
-              className="w-full rounded-lg bg-yellow-600 hover:bg-yellow-500 text-white font-semibold py-2.5 text-sm transition-colors"
+              className="w-full py-2.5 text-sm font-semibold transition-colors"
+              style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
             >
               Start Governing
             </button>

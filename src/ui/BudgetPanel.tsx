@@ -23,7 +23,6 @@ const EXPENDITURE_LINES: {
   { label: 'Contractor Backlog', key: 'contractorPayment' },
 ]
 
-// Fixed floor from expenditureEngine: 17 (overheads) + 9.2 (personnel) + 3.9 (subventions)
 const FIXED_EXPENDITURE_FLOOR = 30.1
 
 export function BudgetPanel() {
@@ -40,27 +39,26 @@ export function BudgetPanel() {
   const atFloor = igr < FIXED_EXPENDITURE_FLOOR
 
   return (
-    <div className="rounded-lg bg-gray-800 p-2">
-      <h2 className="text-[11px] font-semibold text-gray-400 uppercase mb-1.5">Weekly Budget</h2>
+    <div className="p-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+      <h2 className="label-caps mb-2">Weekly Budget</h2>
 
-      {/* Fiscal health bar — always visible */}
-      <div className="mb-2 rounded bg-gray-750 border border-gray-700 p-1.5">
+      <div className="mb-2 p-1.5 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
         <div className="flex justify-between text-[10px] mb-1">
-          <span className="text-gray-400">Revenue</span>
-          <span className={`font-medium ${atFloor ? 'text-red-400' : 'text-green-400'}`}>{naira(igr)}</span>
+          <span style={{ color: 'var(--text-secondary)' }}>Revenue</span>
+          <span className="font-semibold" style={{ color: atFloor ? 'var(--error-11)' : 'var(--success-11)' }}>{naira(igr)}</span>
         </div>
         <div className="flex justify-between text-[10px] mb-1">
-          <span className="text-gray-400">Expenditure</span>
-          <span className="text-red-400 font-medium">{naira(expenditure)}</span>
+          <span style={{ color: 'var(--text-secondary)' }}>Expenditure</span>
+          <span className="font-semibold" style={{ color: 'var(--error-11)' }}>{naira(expenditure)}</span>
         </div>
-        <div className="border-t border-gray-700 pt-1 flex justify-between text-[10px] font-semibold">
-          <span className="text-gray-300">Net this week</span>
-          <span className={net >= 0 ? 'text-green-400' : 'text-red-400'}>
+        <div className="flex justify-between text-[10px] font-semibold pt-1" style={{ borderTop: '1px solid var(--border)' }}>
+          <span style={{ color: 'var(--text)' }}>Net this week</span>
+          <span style={{ color: net >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}>
             {net >= 0 ? '+' : '−'}{naira(net)}
           </span>
         </div>
         {atFloor && (
-          <p className="text-[9px] text-amber-400 mt-1 leading-tight">
+          <p className="text-[9px] mt-1 leading-tight" style={{ color: 'var(--warning-11)' }}>
             Fixed commitments alone cost ₦{FIXED_EXPENDITURE_FLOOR.toFixed(0)}bn/week.
             Revenue needs to reach ₦{(FIXED_EXPENDITURE_FLOOR + 5).toFixed(0)}bn+ to sustain operations.
           </p>
@@ -68,16 +66,19 @@ export function BudgetPanel() {
       </div>
 
       {activeInitiative && (
-        <div className="mb-2 rounded bg-gray-750 border border-blue-900/50 p-1.5">
-          <p className="text-[9px] text-blue-400 uppercase tracking-wide mb-1">Active Initiative</p>
+        <div className="mb-2 p-1.5 border" style={{ borderColor: 'var(--accent-solid)', backgroundColor: 'var(--accent-bg-subtle)' }}>
+          <p className="label-caps mb-1" style={{ color: 'var(--accent-text)' }}>Active Initiative</p>
           <div className="flex justify-between text-[10px] mb-1">
-            <span className="text-gray-300">{activeInitiative.name}</span>
-            <span className="text-gray-400">{activeInitiative.weeksRemaining}w left</span>
+            <span style={{ color: 'var(--text)' }}>{activeInitiative.name}</span>
+            <span style={{ color: 'var(--text-secondary)' }}>{activeInitiative.weeksRemaining}w left</span>
           </div>
-          <div className="w-full bg-gray-700 rounded-full h-1">
+          <div className="w-full h-1" style={{ backgroundColor: 'var(--neutral-4)' }}>
             <div
-              className="bg-blue-500 h-1 rounded-full"
-              style={{ width: `${((activeInitiative.totalWeeks - activeInitiative.weeksRemaining) / activeInitiative.totalWeeks) * 100}%` }}
+              className="h-full"
+              style={{
+                width: `${((activeInitiative.totalWeeks - activeInitiative.weeksRemaining) / activeInitiative.totalWeeks) * 100}%`,
+                backgroundColor: 'var(--accent-solid)',
+              }}
             />
           </div>
         </div>
@@ -85,42 +86,42 @@ export function BudgetPanel() {
 
       {mode === 'detailed' && (
         <div className="space-y-1 text-[10px]">
-          <p className="text-gray-500 uppercase text-[9px] tracking-wide">Income Breakdown</p>
+          <p className="label-caps mt-1">Income Breakdown</p>
           {REVENUE_LINES.map((line) => {
             const value = revenue?.[line.key] ?? 0
             return (
               <div key={line.key} className="flex justify-between">
-                <span className="text-gray-400">{line.label}</span>
-                <span className={value === 0 ? 'text-gray-600' : 'text-gray-300'}>{naira(value)}</span>
+                <span style={{ color: 'var(--text-secondary)' }}>{line.label}</span>
+                <span style={{ color: value === 0 ? 'var(--border-strong)' : 'var(--text)' }}>{naira(value)}</span>
               </div>
             )
           })}
 
-          <p className="text-gray-500 uppercase text-[9px] tracking-wide mt-1">Expenditure Breakdown</p>
+          <p className="label-caps mt-2">Expenditure Breakdown</p>
           {EXPENDITURE_LINES.map((line) => {
             const value = expBreakdown?.[line.key] ?? 0
             const isOverhead = line.key === 'overheads'
             return (
               <div key={line.key} className="flex justify-between">
-                <span className={isOverhead ? 'text-amber-500/80' : 'text-gray-400'}>{line.label}</span>
-                <span className={isOverhead ? 'text-amber-400' : 'text-gray-300'}>{naira(value)}</span>
+                <span style={{ color: isOverhead ? 'var(--warning-11)' : 'var(--text-secondary)' }}>{line.label}</span>
+                <span style={{ color: isOverhead ? 'var(--warning-9)' : 'var(--text)' }}>{naira(value)}</span>
               </div>
             )
           })}
           {expBreakdown && (
-            <p className="text-[9px] text-gray-600 italic mt-0.5">
+            <p className="text-[9px] mt-0.5 italic" style={{ color: 'var(--border-strong)' }}>
               Overheads include ₦17bn fixed base — reducible through civil service reform.
             </p>
           )}
 
-          <div className="flex justify-between pt-0.5 text-gray-500 italic">
+          <div className="flex justify-between pt-0.5 italic" style={{ color: 'var(--text-secondary)' }}>
             <span>Corruption leakage ~{corruptionPressure.toFixed(0)}% of capital</span>
           </div>
 
           {revenueGap > 0 && (
-            <div className="rounded bg-red-950/60 border border-red-900/50 p-1.5 mt-1">
-              <p className="text-[9px] text-red-300 font-medium">Revenue Gap</p>
-              <p className="text-[9px] text-red-400 mt-0.5">
+            <div className="p-1.5 mt-1 border" style={{ borderColor: 'var(--error-9)', backgroundColor: 'var(--error-3)' }}>
+              <p className="text-[9px] font-semibold" style={{ color: 'var(--error-11)' }}>Revenue Gap</p>
+              <p className="text-[9px] mt-0.5" style={{ color: 'var(--error-11)' }}>
                 You need ₦{revenueGap.toFixed(1)}bn more per week just to cover fixed commitments.
                 Grow PAYE, enforce Land Use Charge, and reform overheads.
               </p>

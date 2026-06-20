@@ -10,37 +10,36 @@ const FACTION_LABELS: Record<FactionKey, string> = {
   lgChairmen: 'LG Chairmen',
 }
 
+function barColor(value: number): string {
+  if (value < 0) return 'var(--error-9)'
+  if (value >= 50) return 'var(--success-9)'
+  if (value >= 20) return 'var(--warning-9)'
+  return 'var(--error-9)'
+}
+
 function FactionBar({ factionKey, value }: { factionKey: FactionKey; value: number }) {
-  const fillColor =
-    value < 0
-      ? 'bg-red-600'
-      : value >= 50
-        ? 'bg-green-600'
-        : value >= 20
-          ? 'bg-yellow-600'
-          : 'bg-red-600'
   const fillWidth = `${(Math.abs(value) / 100) * 50}%`
 
   return (
     <div>
-      <div className="flex justify-between text-[10px] mb-px">
-        <span className="text-gray-300 truncate mr-1">{FACTION_LABELS[factionKey]}</span>
-        <span className="text-gray-400 shrink-0">{value}</span>
+      <div className="flex justify-between mb-px">
+        <span className="label-caps truncate mr-1">{FACTION_LABELS[factionKey]}</span>
+        <span className="label-caps shrink-0" style={{ color: 'var(--text)' }}>{value}</span>
       </div>
-      <div className="relative h-1.5 w-full bg-gray-700 rounded-full overflow-hidden">
+      <div className="relative h-1.5 w-full overflow-hidden" style={{ backgroundColor: 'var(--neutral-4)' }}>
         {value >= 0 && (
           <div
-            className={`absolute left-1/2 top-0 h-full rounded-r-full ${fillColor}`}
-            style={{ width: fillWidth }}
+            className="absolute left-1/2 top-0 h-full"
+            style={{ width: fillWidth, backgroundColor: barColor(value) }}
           />
         )}
         {value < 0 && (
           <div
-            className={`absolute right-1/2 top-0 h-full rounded-l-full ${fillColor}`}
-            style={{ width: fillWidth }}
+            className="absolute right-1/2 top-0 h-full"
+            style={{ width: fillWidth, backgroundColor: barColor(value) }}
           />
         )}
-        <div className="absolute left-1/2 top-0 -translate-x-px w-0.5 h-full bg-gray-500" />
+        <div className="absolute left-1/2 top-0 -translate-x-px w-px h-full" style={{ backgroundColor: 'var(--border)' }} />
       </div>
     </div>
   )
@@ -59,9 +58,9 @@ export function FactionPanel() {
   const factions = useGameStore((s) => s.factions)
 
   return (
-    <div className="rounded-lg bg-gray-800 p-2">
-      <h2 className="text-[11px] font-semibold text-gray-400 uppercase mb-1.5">Factions</h2>
-      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+    <div className="p-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+      <h2 className="label-caps mb-2">Factions</h2>
+      <div className="grid grid-cols-2 gap-x-3 gap-y-2">
         {ALL_FACTIONS.map((key) => (
           <FactionBar key={key} factionKey={key} value={factions[key]} />
         ))}

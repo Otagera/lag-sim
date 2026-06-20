@@ -14,36 +14,36 @@ const ROLE_LABELS: Record<CommissionerRole, string> = {
 const ALL_ROLES: CommissionerRole[] = ['works', 'finance', 'environment', 'transport', 'information']
 const APPOINT_PC_COST = 8
 
-function StatBar({ value, color }: { value: number; color: string }) {
+function StatBar({ value, barColor }: { value: number; barColor: string }) {
   return (
-    <div className="h-1 w-full bg-gray-700 rounded-full overflow-hidden">
-      <div className={`h-full ${color} rounded-full`} style={{ width: `${value}%` }} />
+    <div className="h-1 w-full overflow-hidden" style={{ backgroundColor: 'var(--neutral-4)' }}>
+      <div className="h-full" style={{ width: `${value}%`, backgroundColor: barColor }} />
     </div>
   )
 }
 
-function CommissionerCard({ role, commissioner }: { role: CommissionerRole; commissioner: CommissionerState }) {
+function CommissionerCard({ commissioner }: { role: CommissionerRole; commissioner: CommissionerState }) {
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
-        <p className="text-[11px] font-semibold text-white truncate">{commissioner.name}</p>
+        <p className="text-[11px] font-semibold truncate" style={{ color: 'var(--text)' }}>{commissioner.name}</p>
         {commissioner.isGodfatherChoice && (
-          <span className="shrink-0 text-[8px] bg-yellow-900/60 text-yellow-400 border border-yellow-700/50 px-1 py-0.5 rounded ml-1">
+          <span className="shrink-0 text-[8px] px-1 py-0.5 ml-1 border" style={{ color: 'var(--warning-11)', borderColor: 'var(--warning-9)', backgroundColor: 'var(--warning-3)' }}>
             GF Pick
           </span>
         )}
       </div>
       <div>
-        <div className="flex justify-between text-[9px] text-gray-500 mb-0.5">
+        <div className="flex justify-between text-[9px] mb-0.5" style={{ color: 'var(--text-secondary)' }}>
           <span>Competence</span><span>{commissioner.competence}</span>
         </div>
-        <StatBar value={commissioner.competence} color="bg-blue-500" />
+        <StatBar value={commissioner.competence} barColor="var(--info-9)" />
       </div>
       <div>
-        <div className="flex justify-between text-[9px] text-gray-500 mb-0.5">
+        <div className="flex justify-between text-[9px] mb-0.5" style={{ color: 'var(--text-secondary)' }}>
           <span>Loyalty</span><span>{commissioner.loyalty}</span>
         </div>
-        <StatBar value={commissioner.loyalty} color={commissioner.loyalty >= 60 ? 'bg-green-500' : 'bg-orange-500'} />
+        <StatBar value={commissioner.loyalty} barColor={commissioner.loyalty >= 60 ? 'var(--success-9)' : 'var(--warning-9)'} />
       </div>
     </div>
   )
@@ -70,16 +70,15 @@ function RoleRow({ role }: { role: CommissionerRole }) {
   }
 
   return (
-    <div className="rounded border border-gray-700 bg-gray-800/40 p-2">
+    <div className="border p-2" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-[10px] font-semibold text-gray-300 uppercase tracking-wide">
-          {ROLE_LABELS[role]}
-        </span>
+        <span className="label-caps">{ROLE_LABELS[role]}</span>
         {!selecting && (
           <button
             type="button"
             onClick={() => setSelecting(true)}
-            className="text-[9px] px-1.5 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors"
+            className="text-[9px] px-1.5 py-0.5 border transition-colors"
+            style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)', backgroundColor: 'var(--surface)' }}
           >
             {commissioner ? 'Replace' : 'Appoint'}
           </button>
@@ -88,7 +87,8 @@ function RoleRow({ role }: { role: CommissionerRole }) {
           <button
             type="button"
             onClick={() => setSelecting(false)}
-            className="text-[9px] px-1.5 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-400 transition-colors"
+            className="text-[9px] px-1.5 py-0.5 border"
+            style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)', backgroundColor: 'var(--surface)' }}
           >
             Cancel
           </button>
@@ -97,13 +97,13 @@ function RoleRow({ role }: { role: CommissionerRole }) {
 
       {!selecting && commissioner && <CommissionerCard role={role} commissioner={commissioner} />}
       {!selecting && !commissioner && (
-        <p className="text-[9px] text-gray-600 italic">Vacant — no commissioner appointed</p>
+        <p className="text-[9px] italic" style={{ color: 'var(--border-strong)' }}>Vacant — no commissioner appointed</p>
       )}
 
       {selecting && (
         <div className="space-y-1.5">
           {!canAfford && (
-            <p className="text-[9px] text-orange-400">Insufficient Pol. Capital (need {APPOINT_PC_COST})</p>
+            <p className="text-[9px]" style={{ color: 'var(--warning-11)' }}>Insufficient Pol. Capital (need {APPOINT_PC_COST})</p>
           )}
           {candidates.map((c) => (
             <button
@@ -111,21 +111,24 @@ function RoleRow({ role }: { role: CommissionerRole }) {
               type="button"
               disabled={!canAfford}
               onClick={() => handleAppoint(c)}
-              className="w-full text-left rounded border border-gray-600 bg-gray-700/50 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed p-1.5 transition-colors"
+              className="w-full text-left border p-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+              onMouseEnter={(e) => { if (canAfford) e.currentTarget.style.backgroundColor = 'var(--surface-hover)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--surface)' }}
             >
               <div className="flex items-start justify-between gap-1">
                 <div className="min-w-0">
-                  <p className="text-[10px] font-semibold text-white truncate">{c.name}</p>
-                  <p className="text-[9px] text-gray-400 leading-tight">{c.background}</p>
+                  <p className="text-[10px] font-semibold truncate" style={{ color: 'var(--text)' }}>{c.name}</p>
+                  <p className="text-[9px] leading-tight" style={{ color: 'var(--text-secondary)' }}>{c.background}</p>
                 </div>
-                <div className="shrink-0 text-right text-[9px] text-gray-400">
+                <div className="shrink-0 text-right text-[9px]" style={{ color: 'var(--text-secondary)' }}>
                   <div>C: {c.competence}</div>
                   <div>L: {c.loyalty}</div>
                 </div>
               </div>
             </button>
           ))}
-          <p className="text-[9px] text-gray-600">Cost: {APPOINT_PC_COST} Pol. Capital</p>
+          <p className="text-[9px]" style={{ color: 'var(--text-secondary)' }}>Cost: {APPOINT_PC_COST} Pol. Capital</p>
         </div>
       )}
     </div>
@@ -136,14 +139,14 @@ export function CabinetPanel() {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="rounded-lg border border-gray-700 bg-gray-800 p-3">
+    <div className="border p-2" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center justify-between"
       >
-        <h3 className="text-xs font-bold text-gray-200">Cabinet</h3>
-        <span className="text-[10px] text-gray-500">{open ? '▲' : '▼'}</span>
+        <h3 className="label-caps">Cabinet</h3>
+        <span className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>{open ? '▲' : '▼'}</span>
       </button>
 
       {open && (

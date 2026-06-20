@@ -31,7 +31,7 @@ describe('GodfatherInbox', () => {
 
     render(<GodfatherInbox />)
 
-    expect(screen.getByText('ACTIVE')).toBeInTheDocument()
+    expect(screen.getByText('Active')).toBeInTheDocument()
     expect(screen.getByText('Do this favour for me.')).toBeInTheDocument()
     expect(screen.getByText('A small favour')).toBeInTheDocument()
     expect(screen.getByText('Accept')).toBeInTheDocument()

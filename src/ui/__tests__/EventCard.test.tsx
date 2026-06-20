@@ -83,12 +83,11 @@ describe('EventCard', () => {
     expect(state.factions.businessCommunity).toBe(53) // 55 - 2
   })
 
-  it('shows severity color via border class', () => {
+  it('shows severity label for critical event', () => {
     const criticalEvent = { ...testEvent, severity: 'critical' as const }
     useGameStore.setState({ activeEvent: criticalEvent })
 
-    const { container } = render(<EventCard />)
-    const card = container.firstChild as HTMLElement
-    expect(card.className).toContain('border-red-600')
+    render(<EventCard />)
+    expect(screen.getByText('Critical')).toBeInTheDocument()
   })
 })
