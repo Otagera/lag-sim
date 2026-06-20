@@ -2,6 +2,12 @@ import { ARCHETYPES, ARCHETYPE_KEY_ORDER, getArchetypeState } from '../data/arch
 import type { ArchetypeKey } from '../data/archetypes'
 import { useGameStore } from '../state/gameStore'
 
+const DAY_ONE: Record<ArchetypeKey, string> = {
+  technocrat: 'The party machine will test you in the first 8 weeks. With zero political capital, even small confrontations cost you double.',
+  loyalist: "Expect the godfather's first ask within 4 weeks. Corruption is already at 50% — any early scandal compounds fast.",
+  outsider: 'Cash reserves are critically thin. Without IGR reform in the first month, you risk insolvency before Year 2.',
+}
+
 const BORDER_COLOR: Record<ArchetypeKey, string> = {
   technocrat: 'var(--info-9)',
   loyalist: 'var(--warning-9)',
@@ -68,6 +74,13 @@ export function ArchetypeSelectionScreen({ onSelect }: Props) {
                     <span style={{ color: 'var(--text)' }}>{arch.risk}</span>
                   </div>
                 </div>
+
+                <p
+                  className="text-[11px] leading-relaxed pt-2"
+                  style={{ borderTop: '1px solid var(--border)', color: 'var(--text-secondary)', fontStyle: 'italic' }}
+                >
+                  {DAY_ONE[key]}
+                </p>
 
                 <button
                   type="button"

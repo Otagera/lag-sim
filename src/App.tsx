@@ -132,6 +132,7 @@ function App() {
       )}
       {showDeputySelect && !showArchetypeSelect && !showWelcome && (
         <DeputySelectionScreen
+          archetypeKey={selectedArchetype}
           onSelect={() => {
             setShowDeputySelect(false)
             if (!hasSeenHandover()) setShowHandover(true)

@@ -134,6 +134,23 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
             </div>
           </section>
 
+          <section>
+            <h2 className="label-caps mb-2" style={{ color: 'var(--success-11)' }}>4. Cabinet Appointments</h2>
+            <div className="p-3 text-[11px] border space-y-2" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+              <p style={{ color: 'var(--text)' }}>
+                Cabinet screening begins as early as <span className="font-semibold">Week 4</span>. 
+                You must allocate critical <span className="font-semibold">Ministry</span> slots to incoming <span className="font-semibold">Commissioners</span>.
+              </p>
+              <p>
+                There are no reshuffles here—appointments are permanent. Pick an incompetent loyalist or an untouchable godfather favorite, and you are stuck with them for the rest of your term.
+              </p>
+              <p style={{ color: 'var(--text-secondary)' }}>
+                Three ministries carry disproportionate fiscal weight: <span style={{ color: 'var(--text)' }}>Works, Finance, and Lands</span>.
+                Your Deputy's background influences which candidates will agree to serve.
+              </p>
+            </div>
+          </section>
+
           <section style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
             <p className="label-caps mb-1">Chief of Staff</p>
             <p className="text-[12px] leading-relaxed italic" style={{ color: 'var(--text)' }}>

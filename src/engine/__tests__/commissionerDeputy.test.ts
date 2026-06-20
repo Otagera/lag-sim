@@ -99,12 +99,7 @@ describe('commissioner: information commissioner dampens hostile civil society e
     }
     ALL_EVENTS.push(hostileEvent)
 
-    const withInfoComm: GameState = {
-      ...clone(STARTING_STATE),
-      commissioners: { information: { name: 'Info Comm', competence: 70, loyalty: 100, isGodfatherChoice: false } },
-    }
-    // Without commissioner: weight should be higher; with commissioner: dampened
-    // We verify this indirectly by checking the state doesn't throw and the event exists
+    // We verify the event exists (actual dampening is probabilistic and tested indirectly)
     expect(ALL_EVENTS.find((e) => e.id === 'test-hostile-media')).toBeDefined()
 
     ALL_EVENTS.pop()

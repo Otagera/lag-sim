@@ -61,7 +61,7 @@ function getEventWeight(event: EventCard, floodMultiplier = 1, mediaDampening = 
   let weight = event.season === 'wet' ? base * floodMultiplier : base
   // Information commissioner loyalty reduces probability of hostile media/civil-society events
   if (mediaDampening > 0) {
-    const mediaImpact = (event.factionImpact as Record<string, number> | undefined)?.civilSocietyMedia ?? 0
+    const mediaImpact = event.factionImpact?.civilSocietyMedia ?? 0
     if (mediaImpact < -3) weight *= 1 - mediaDampening
   }
   return weight

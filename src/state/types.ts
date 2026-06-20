@@ -172,6 +172,7 @@ export type EventCard = {
   npcArchetype?: NPCArchetypeKey
   npcTier?: 'ally' | 'neutral' | 'hostile'
   requiresInitiativeSlot?: boolean
+  factionImpact?: FactionDelta
 }
 
 export type PendingEvent = {

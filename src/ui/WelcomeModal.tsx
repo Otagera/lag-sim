@@ -1,4 +1,14 @@
+import { BarChart3, Landmark, Network, Zap } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+
 const INTRO_KEY = 'lagos-intro-seen'
+
+const STATS: { Icon: LucideIcon; label: string; desc: string; color: string }[] = [
+  { Icon: Landmark, label: 'Cash Reserve', desc: 'Your liquidity. If this goes negative for 3 weeks in a row, the state is insolvent.', color: 'var(--success-11)' },
+  { Icon: BarChart3, label: 'Public Trust', desc: 'Combined approval across constituencies. Below 15 with high youth tension = uprising.', color: 'var(--info-11)' },
+  { Icon: Zap, label: 'Political Capital', desc: 'Spend it to take bold or expensive actions. Hard to earn back.', color: 'var(--warning-11)' },
+  { Icon: Network, label: 'Factions', desc: "Six power blocs. The Party Godfathers don't drift — once they turn hostile, you're out.", color: 'var(--accent-text)' },
+]
 
 export function hasSeenIntro(): boolean {
   return localStorage.getItem(INTRO_KEY) !== null
@@ -60,14 +70,11 @@ export function WelcomeModal({ onStart }: { onStart: () => void }) {
           <div className="space-y-2">
             <p className="label-caps">Watch these stats</p>
             <div className="space-y-2">
-              {[
-                { icon: '₦', label: 'Cash Reserve', desc: 'Your liquidity. If this goes negative for 3 weeks in a row, the state is insolvent.', color: 'var(--success-11)' },
-                { icon: '%', label: 'Public Trust', desc: 'Combined approval across constituencies. Below 15 with high youth tension = uprising.', color: 'var(--info-11)' },
-                { icon: '⚡', label: 'Political Capital', desc: 'Spend it to take bold or expensive actions. Hard to earn back.', color: 'var(--warning-11)' },
-                { icon: '👔', label: 'Factions', desc: "Six power blocs. The Party Godfathers don't drift — once they turn hostile, you're out.", color: 'var(--accent-text)' },
-              ].map(({ icon, label, desc, color }) => (
+              {STATS.map(({ Icon, label, desc, color }) => (
                 <div key={label} className="flex gap-3">
-                  <span className="shrink-0 text-sm font-bold w-5 text-center" style={{ color }}>{icon}</span>
+                  <span className="shrink-0 w-5 flex items-center justify-center mt-0.5">
+                    <Icon className="w-4 h-4" strokeWidth={1.5} style={{ color }} />
+                  </span>
                   <div>
                     <p className="text-[12px] font-semibold" style={{ color: 'var(--text)' }}>{label}</p>
                     <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>{desc}</p>
