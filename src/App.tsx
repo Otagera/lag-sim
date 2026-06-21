@@ -19,6 +19,7 @@ import { FactionPanel } from './ui/FactionPanel'
 import { GodfatherInbox } from './ui/GodfatherInbox'
 import { NPCPanel } from './ui/NPCPanel'
 import { LegacyScreen } from './ui/LegacyScreen'
+import { MapPanel } from './ui/MapPanel'
 import { PollPanel } from './ui/PollPanel'
 import { TimelinePanel } from './ui/TimelinePanel'
 import { WelcomeModal, hasSeenIntro } from './ui/WelcomeModal'
@@ -290,6 +291,7 @@ function App() {
           <div className="hidden lg:flex flex-1 gap-2 p-2 overflow-hidden min-h-0">
             <div className="flex-1 space-y-2 overflow-y-auto min-h-0">
               <Dashboard />
+              <MapPanel />
               <EventCard />
             </div>
             <div className="w-72 xl:w-80 shrink-0 flex flex-col min-h-0">
@@ -303,6 +305,7 @@ function App() {
               {activeMobileTab === 'event' && (
                 <div className="space-y-2">
                   <Dashboard />
+                  <MapPanel />
                   <EventCard />
                   <GodfatherInbox />
                 </div>
