@@ -12,7 +12,7 @@ import { SAVE_VERSION } from './version'
 import { ArchetypeSelectionScreen } from './ui/ArchetypeSelectionScreen'
 import { HandoverNotesModal, hasSeenHandover } from './ui/HandoverNotesModal'
 import { BudgetPanel } from './ui/BudgetPanel'
-import { Dashboard, TERMS } from './ui/Dashboard'
+import { Dashboard, YEARS } from './ui/Dashboard'
 import { DeputySelectionScreen } from './ui/DeputySelectionScreen'
 import { EventCard } from './ui/EventCard'
 import { FactionPanel } from './ui/FactionPanel'
@@ -118,7 +118,7 @@ function App() {
   }
 
   const year = Math.ceil(week / 52)
-  const termLabel = TERMS[Math.min(year - 1, TERMS.length - 1)]
+  const termLabel = YEARS[Math.min(year - 1, YEARS.length - 1)]
   const monthLabel = formatGameMonth(week)
 
   const factionAlert = Object.values(factions).some((v) => v <= 25)
@@ -210,6 +210,18 @@ function App() {
           )}
         </div>
       </header>
+
+      {/* Term progress strip — 2px hairline filling left-to-right over 208 weeks */}
+      <div className="shrink-0" style={{ height: '2px', backgroundColor: 'var(--neutral-4)' }}>
+        <div
+          style={{
+            height: '100%',
+            width: `${Math.min((week / 208) * 100, 100)}%`,
+            backgroundColor: 'var(--accent-solid)',
+            transition: 'width 0.5s ease',
+          }}
+        />
+      </div>
 
       {inCampaignMode && !isGameOver && (
         <div className="shrink-0 mx-3 mt-1 border px-3 py-1 text-center text-[10px] font-semibold tracking-wide" style={{ borderColor: 'var(--accent-solid)', color: 'var(--accent-text)', backgroundColor: 'var(--accent-bg-subtle)' }}>

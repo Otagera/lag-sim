@@ -12,12 +12,14 @@ function insiderSlot(state: GameState) {
 }
 
 // Stage 1 of the 3-stage impeachment arc — queued by checkGameOver when partyGodfathers < 10
+// triggerCondition: () => false locks it out of the random pool; it only enters play via eventQueue
 export const removalResolutionEvent: EventCard = {
   id: 'removal-resolution-reading',
   title: 'Removal Resolution: First Reading',
   body: `The Lagos State House of Assembly has introduced a resolution for your removal from office. The Speaker has ruled it admissible. You have 72 hours to mount a defence.`,
   severity: 'critical',
   category: 'political',
+  triggerCondition: () => false,
   choices: [
     {
       id: 'fight',
@@ -50,13 +52,14 @@ export const removalResolutionEvent: EventCard = {
   ],
 }
 
-// Stage 2 — queued via followUpEventId from the "Fight It" choice
+// Stage 2 — queued via followUpEventId from the "Fight It" choice; never drawn from random pool
 export const removalResolutionCommitteeEvent: EventCard = {
   id: 'removal-resolution-committee',
   title: 'Removal Resolution: Committee Stage',
   body: `The House Impeachment Committee has convened in Ikeja. Three commissioners have been summoned. Financial records from the past two years are on the table. The committee chair is allied with a godfather faction. This is the real fight.`,
   severity: 'critical',
   category: 'political',
+  triggerCondition: () => false,
   choices: [
     {
       id: 'full-disclosure',
@@ -83,13 +86,14 @@ export const removalResolutionCommitteeEvent: EventCard = {
   ],
 }
 
-// Stage 3 — queued via followUpEventId from the "Stonewall" choice
+// Stage 3 — queued via followUpEventId from the "Stonewall" choice; never drawn from random pool
 export const removalResolutionFloorVoteEvent: EventCard = {
   id: 'removal-resolution-floor-vote',
   title: 'Removal Resolution: Floor Vote',
   body: `The full House of Assembly convenes at midnight. Forty members are needed to remove you. The whipping operation has been running for days. Your fate in the next two hours will define Lagos political history.`,
   severity: 'critical',
   category: 'political',
+  triggerCondition: () => false,
   choices: [
     {
       id: 'mobilise-allies',
@@ -109,10 +113,35 @@ export const removalResolutionFloorVoteEvent: EventCard = {
   ],
 }
 
+// Primary contest loss — queued by checkGameOver when Scenario B requirements aren't met
+export const primaryContestLossEvent: EventCard = {
+  id: 'primary-contest-loss',
+  title: 'Primary Defeat: SMJ Wins the Nomination',
+  body: `The results come in by midnight. Hon. Seun Majekodunmi has secured the party's gubernatorial ticket. Without the Civil Society endorsement or the LGA delegate base behind you, the ward counts didn't hold. Your campaign team is silent. The party machinery has already pivoted.
+
+Your first term ends here. There will be no second.`,
+  severity: 'critical',
+  category: 'political',
+  triggerCondition: () => false,
+  choices: [
+    {
+      id: 'accept-primary-defeat',
+      label: 'Accept the Result',
+      description: 'Concede the primary with dignity. Your tenure ends at week 208 without a re-election contest.',
+      immediate: {},
+      factionImpact: {},
+      setFlags: { 'primary-lost': true },
+    },
+  ],
+}
+
 export const characterEvents: EventCard[] = [
-  // Impeachment arc stage 2 and 3 — must be in ALL_EVENTS so followUpEventId lookup works
+  // Impeachment arc stages 2 and 3 — in ALL_EVENTS for followUpEventId lookup only;
+  // triggerCondition: () => false prevents random pool selection
   removalResolutionCommitteeEvent,
   removalResolutionFloorVoteEvent,
+  // Primary contest loss arc — queue-only, same pattern as removal arc
+  primaryContestLossEvent,
   // --- Journalist archetype events ---
   {
     id: 'neo-laha-inquiry',

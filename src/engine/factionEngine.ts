@@ -16,7 +16,7 @@ export function applyFactionDelta(factions: FactionState, delta: FactionDelta): 
   for (const [key, change] of Object.entries(delta)) {
     if (change === undefined) continue
     const current = updated[key as keyof typeof updated]
-    updated[key as keyof typeof updated] = Math.max(-100, Math.min(100, current + change))
+    updated[key as keyof typeof updated] = Math.max(0, Math.min(100, current + change))
   }
   return updated
 }

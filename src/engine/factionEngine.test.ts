@@ -13,11 +13,11 @@ describe('applyFactionDelta', () => {
     expect(result.partyGodfathers).toBe(45)
   })
 
-  it('clamps factions to -100–100', () => {
+  it('clamps factions to 0–100', () => {
     const result = applyFactionDelta(STARTING_STATE.factions, { businessCommunity: 200 })
     expect(result.businessCommunity).toBe(100)
     const result2 = applyFactionDelta(STARTING_STATE.factions, { businessCommunity: -200 })
-    expect(result2.businessCommunity).toBe(-100)
+    expect(result2.businessCommunity).toBe(0)
   })
 
   it('applies multiple faction changes at once', () => {

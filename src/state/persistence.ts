@@ -48,6 +48,11 @@ function migrateV1toV2(raw: RawSaveData): RawSaveData {
   return { ...raw, version: 2 }
 }
 
+function migrateV2toV3(raw: RawSaveData): RawSaveData {
+  // v3 adds choiceUseCounts for diminishing returns tracking; default to empty object
+  return { ...raw, choiceUseCounts: {}, version: 3 }
+}
+
 /**
  * Applies any needed migrations to bring a raw save up to SAVE_VERSION.
  * Exported so persistence tests can verify migration logic in isolation.
@@ -65,7 +70,7 @@ export function migrate(raw: RawSaveData): SerializableState {
 
   let data: RawSaveData = raw
   if (version < 2) data = migrateV1toV2(data)
-  // Add future migrations here: if (version < 3) data = migrateV2toV3(data)
+  if (version < 3) data = migrateV2toV3(data)
 
   return data as SerializableState
 }

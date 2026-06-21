@@ -383,14 +383,16 @@ export const politicalEvents: EventCard[] = [
           'Win smoothly. Civil Society -6 (they see it as a Godfather coronation). Political Capital +20. Ending path: A.',
         immediate: { politicalCapital: 20 },
         factionImpact: { partyGodfathers: 12, civilSocietyMedia: -6 },
+        setFlags: { 'primary-a': true },
       },
       {
         id: 'primary-reform-running-mate',
         label: 'Push a Reform Running Mate (Risk Fashemu)',
         description:
-          'Back a reform-minded Deputy for Term 2 against his preference. Trust +8. Fashemu goes to break phase. SMJ activates.',
+          'Back a reform-minded Deputy for Term 2 against his preference. Trust +8. Fashemu goes to break phase. SMJ activates. Win requires Civil Society ≥ 55 and Business Community ≥ 50.',
         immediate: { publicTrust: 8, politicalCapital: -20 },
         factionImpact: { partyGodfathers: -20, civilSocietyMedia: 12 },
+        setFlags: { 'primary-b': true, 'primary-b-civil-society': true },
       },
     ],
   },
@@ -410,17 +412,19 @@ export const politicalEvents: EventCard[] = [
         id: 'primary-grassroots',
         label: 'Grassroots Delegate Campaign',
         description:
-          'Political Capital -60. Win through ward-by-ward delegate mobilisation. Requires LGA result > 50%.',
+          'Political Capital -60. Win through ward-by-ward delegate mobilisation. Requires LGA election result ≥ 60% (12/20 loyal LGAs).',
         immediate: { politicalCapital: -60 },
         factionImpact: { lgChairmen: 10, informalEconomy: 5 },
+        setFlags: { 'primary-b': true, 'primary-b-grassroots': true },
       },
       {
         id: 'primary-civil-society',
         label: 'Civil Society Endorsements',
         description:
-          'Let Civil Society carry your candidacy. Trust +8. Requires civilSocietyMedia > 55 AND businessCommunity > 50.',
+          'Let Civil Society carry your candidacy. Trust +8. Requires civilSocietyMedia ≥ 55 AND businessCommunity ≥ 50.',
         immediate: { publicTrust: 8 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: 5 },
+        setFlags: { 'primary-b': true, 'primary-b-civil-society': true },
       },
     ],
   },
@@ -442,6 +446,7 @@ export const politicalEvents: EventCard[] = [
           'Present a detailed Term 2 manifesto. Trust +10, Civil Society +10. Clean win.',
         immediate: { publicTrust: 10, politicalCapital: -20 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: 5 },
+        setFlags: { 'primary-c': true },
       },
       {
         id: 'primary-coalition',
@@ -450,6 +455,7 @@ export const politicalEvents: EventCard[] = [
           'Bring together business, civil society, and LG Chairmen independently. Political Capital -30. Broadest base.',
         immediate: { politicalCapital: -30 },
         factionImpact: { businessCommunity: 8, civilSocietyMedia: 8, lgChairmen: 6 },
+        setFlags: { 'primary-c': true },
       },
     ],
   },
@@ -737,6 +743,140 @@ export const politicalEvents: EventCard[] = [
         description: 'Godfathers -10. Civil Society +5.',
         immediate: {},
         factionImpact: { partyGodfathers: -10, civilSocietyMedia: 5 },
+      },
+    ],
+  },
+
+  // ── State of the State: annual internal memos ────────────────────────────
+
+  {
+    id: 'state-of-state-year1',
+    title: 'Year One Review: Internal Memo',
+    body: `LAGOS STATE GOVERNMENT — RESTRICTED
+FROM: Office of the Chief of Staff
+TO: H.E. The Governor
+
+Twelve months in. The honeymoon period is formally over.
+
+Revenue: IGR baseline has shifted since handover. FAAC dependency remains elevated — federal allocation still accounts for over 35% of total weekly receipts. LIRS digital roll-out is showing early results in Ikeja and Surulere.
+
+Political: The party's National Working Committee has been watching how you managed the first godfather contacts. Their assessment is not yet written, but it will be. Three commissioner portfolios still carry informal relationships from the previous administration.
+
+Public confidence tracks your infrastructure decisions from the first quarter more than any other variable. Youth tension is moving with the unemployment numbers — it always does.
+
+This office recommends a frank expenditure review before Year 2 commitments are locked.`,
+    severity: 'medium',
+    category: 'political',
+    triggerCondition: (state) => state.week >= 52 && state.week <= 57,
+    choices: [
+      {
+        id: 'commission-fiscal-review',
+        label: 'Commission Internal Fiscal Review',
+        description: 'Signal discipline. Political Capital -8. Identify savings or expose problems. Cash Reserve +2.',
+        immediate: { cashReserve: 2, politicalCapital: -8 },
+        factionImpact: { civilSocietyMedia: 4, partyGodfathers: -3 },
+      },
+      {
+        id: 'acknowledge-internally',
+        label: 'Acknowledge Internally, Stay the Course',
+        description: 'No disruption. Political Capital +2. You know where you stand.',
+        immediate: { politicalCapital: 2 },
+        factionImpact: {},
+      },
+      {
+        id: 'publish-year-one-scorecard',
+        label: 'Publish the Findings Publicly',
+        description: 'Radical transparency. Civil Society +10, Godfathers -6. You will be held to what you admit.',
+        immediate: { publicTrust: 5, politicalCapital: -5 },
+        factionImpact: { civilSocietyMedia: 10, partyGodfathers: -6 },
+      },
+    ],
+  },
+
+  {
+    id: 'state-of-state-year2',
+    title: 'Mid-Term Review: Internal Memo',
+    body: `LAGOS STATE GOVERNMENT — RESTRICTED
+FROM: Office of the Chief of Staff
+TO: H.E. The Governor
+
+You are at the midpoint of your first term. This is when legacies begin to show.
+
+Structural: The Year 1 investments are now producing second-order effects — or not. Revenue lines that were bets are either paying or draining. Faction loyalty has crystallised around the decisions you made under pressure, not under comfort.
+
+The LGA election result defined your relationship with the House for the next two years. That calculus is now fixed.
+
+Historical note: Every Lagos governor who lost re-election made their decisive mistake between Weeks 104 and 156. The next year is not where victories are won — it is where they are thrown away.
+
+This office recommends protecting structural gains and being selective about new commitments before the campaign window.`,
+    severity: 'high',
+    category: 'political',
+    triggerCondition: (state) => state.week >= 104 && state.week <= 109,
+    choices: [
+      {
+        id: 'cabinet-reshuffle',
+        label: 'Reshuffle the Cabinet',
+        description: 'Reset relationships. Political Capital -10. New energy, new liabilities.',
+        immediate: { politicalCapital: -10 },
+        factionImpact: { partyGodfathers: -5, civilSocietyMedia: 5, lgChairmen: 3 },
+      },
+      {
+        id: 'double-down-direction',
+        label: 'Stay the Course',
+        description: 'Political Capital +5. Stability signals confidence. Markets and civil servants respond to consistency.',
+        immediate: { politicalCapital: 5, publicTrust: 3 },
+        factionImpact: { businessCommunity: 5 },
+      },
+      {
+        id: 'declare-midterm-reform',
+        label: 'Declare a Mid-Term Reform Agenda',
+        description: 'Trust +5, Civil Society +6, Political Capital -8. The party will want to know what changed.',
+        immediate: { publicTrust: 5, politicalCapital: -8 },
+        factionImpact: { civilSocietyMedia: 6, partyGodfathers: -4 },
+      },
+    ],
+  },
+
+  {
+    id: 'state-of-state-year3',
+    title: 'Year Three Review: Eyes Only',
+    body: `LAGOS STATE GOVERNMENT — FOR YOUR EYES ONLY
+FROM: Office of the Chief of Staff
+TO: H.E. The Governor
+
+One year to the election.
+
+Electoral: Internal polling projections are in a sealed annex. This office will not summarise them in writing. A verbal briefing should be scheduled this week.
+
+Financial: The state's fiscal position over the next 52 weeks is the single most visible indicator voters use. Not the long speeches. Not the press releases. The roads in their street, the teacher in their child's school, the checkpoint on their commute.
+
+Legacy: What you have built since Week 1 is now visible to anyone who examines it. The question is no longer what you are going to do. It is what you have already done.
+
+Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
+    severity: 'high',
+    category: 'political',
+    triggerCondition: (state) => state.week >= 156 && state.week <= 161,
+    choices: [
+      {
+        id: 'pivot-quick-wins',
+        label: 'Pivot to Visible Quick Wins',
+        description: 'Trust +6, Political Capital -5, Infrastructure -2. Election-year instinct: visible impact over structural gain.',
+        immediate: { publicTrust: 6, politicalCapital: -5, infrastructureScore: -2 },
+        factionImpact: { lgChairmen: 5, businessCommunity: -3 },
+      },
+      {
+        id: 'stay-governance-course',
+        label: 'Stay the Course',
+        description: 'Political Capital +5. Resist governing for headlines. Structural gains hold.',
+        immediate: { politicalCapital: 5 },
+        factionImpact: { businessCommunity: 4, civilSocietyMedia: 3 },
+      },
+      {
+        id: 'early-campaign-positioning',
+        label: 'Begin Early Campaign Positioning',
+        description: 'Trust +3, Godfathers +5, Civil Society -4. Start warming up the party machine now.',
+        immediate: { publicTrust: 3, politicalCapital: -3 },
+        factionImpact: { partyGodfathers: 5, civilSocietyMedia: -4 },
       },
     ],
   },

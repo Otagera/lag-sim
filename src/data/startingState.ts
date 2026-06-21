@@ -99,4 +99,6 @@ export const STARTING_STATE: GameState = {
   litigationActive: false,
   litigationTimer: 0,
   offCycleElection: false,
+  // Deck management
+  choiceUseCounts: {},
 }

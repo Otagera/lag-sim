@@ -1,6 +1,193 @@
 import type { EventCard } from '../../state/types'
 
 export const routineEvents: EventCard[] = [
+  // ── Early-game narrative events (weeks 2–20) ──────────────────────────────
+
+  {
+    id: 'handover-briefing',
+    title: 'Transition Report: 312 Pages',
+    body: `Your Chief of Staff placed the transition committee's dossier on your desk at 6am. It runs to 312 pages. Three items are flagged in red ink: a ₦24bn contractors' verification backlog with dubious documentation, a disputed FAAC advance that expires in 90 days, and a welfare fund quietly emptied in the final weeks of the previous administration.
+
+You have two hours before your first full cabinet briefing. The dossier will define what surprises you allow yourself to inherit.`,
+    severity: 'low',
+    category: 'political',
+    triggerCondition: (state) => state.week >= 2 && state.week <= 6,
+    choices: [
+      {
+        id: 'read-everything',
+        label: 'Read the Full Report',
+        description: 'Work through it yourself. Political Capital -8. You will know exactly what you inherited — no surprises later.',
+        immediate: { politicalCapital: -8, publicTrust: 4 },
+        factionImpact: { civilSocietyMedia: 3 },
+      },
+      {
+        id: 'three-red-items',
+        label: 'Focus on the Three Flagged Items',
+        description: 'Deal with the known problems first. Balanced approach.',
+        immediate: { politicalCapital: -3 },
+        factionImpact: {},
+      },
+      {
+        id: 'assign-to-commissioners',
+        label: 'Distribute to Commissioners',
+        description: 'Delegate the reading. Political Capital +5. You will not know what you missed.',
+        immediate: { politicalCapital: 5 },
+        factionImpact: {},
+      },
+    ],
+  },
+
+  {
+    id: 'teacher-salary-arrears',
+    title: 'Three Months of Unpaid Teachers',
+    body: `The NUT Lagos branch has assembled outside the Secretariat gates. 82,000 teachers are owed three months of salary — ₦8.4bn total — that the previous administration diverted in its final months. Parents from Alimosho, Surulere, and Oshodi have joined the crowd. School resumption is in four days.
+
+This is not a new problem. It is an inherited one. How you handle it is the first signal you give.`,
+    severity: 'medium',
+    category: 'social',
+    triggerCondition: (state) => state.week >= 3 && state.week <= 8,
+    choices: [
+      {
+        id: 'clear-all-arrears',
+        label: 'Clear All Three Months Now',
+        description: 'Schools open. Teachers paid. Cash Reserve -₦8.4bn. Trust +10. Civil Society +8.',
+        immediate: { cashReserve: -8.4, publicTrust: 10, youthTension: -5 },
+        factionImpact: { civilSocietyMedia: 8 },
+      },
+      {
+        id: 'partial-arrears',
+        label: 'Pay Two Months, Audit the Third',
+        description: 'Clear ₦5.6bn now. Audit the disputed final month. Teachers accept reluctantly.',
+        immediate: { cashReserve: -5.6, publicTrust: 5 },
+        factionImpact: { civilSocietyMedia: 4 },
+      },
+      {
+        id: 'audit-first',
+        label: 'Order a Full Audit Before Any Payment',
+        description: 'Responsible governance — but it takes weeks. Teachers stay home. Looks like stalling.',
+        immediate: { publicTrust: -5, youthTension: 8 },
+        factionImpact: { civilSocietyMedia: -6 },
+        delayed: {
+          weekOffset: 4,
+          delta: { cashReserve: -5.6, publicTrust: 3 },
+          eventText: 'The audit has concluded. Two months of arrears confirmed legitimate. Payment processed — four weeks late.',
+        },
+      },
+    ],
+  },
+
+  {
+    id: 'first-budget-address',
+    title: 'Budget Address to the Assembly',
+    body: `You are scheduled to address the Lagos State House of Assembly this afternoon on the FY supplementary budget. This is the first time the assembly watches you govern — not campaign. Your framing of the fiscal situation will define what they think you believe about Lagos.
+
+Finance Ministry has prepared three narrative options. Each tells a true story. Each tells a different one.`,
+    severity: 'low',
+    category: 'political',
+    triggerCondition: (state) => state.week >= 4 && state.week <= 10,
+    choices: [
+      {
+        id: 'austerity-frame',
+        label: 'Fiscal Discipline: The State We Inherited',
+        description: 'Name the problems, announce cost cuts. Business +8, Civil Society -5, Trust -3, Political Capital +8.',
+        immediate: { politicalCapital: 8, publicTrust: -3 },
+        factionImpact: { businessCommunity: 8, civilSocietyMedia: -5, partyGodfathers: -4 },
+      },
+      {
+        id: 'reform-frame',
+        label: 'Investment: A New Revenue Story',
+        description: 'Lead with IGR reform and infrastructure. Civil Society +8, Business +3, Political Capital -5.',
+        immediate: { politicalCapital: -5, infrastructureScore: 2 },
+        factionImpact: { civilSocietyMedia: 8, businessCommunity: 3 },
+      },
+      {
+        id: 'continuity-frame',
+        label: 'Continuity: Building on the Foundation',
+        description: 'Reassure everyone. Political Capital +10, Godfathers +5. The assembly applauds politely and waits to see what you actually do.',
+        immediate: { politicalCapital: 10 },
+        factionImpact: { partyGodfathers: 5, civilSocietyMedia: -2 },
+      },
+    ],
+  },
+
+  {
+    id: 'first-rains-flooding',
+    title: 'The June Rains Hit Agege and Oshodi',
+    body: `The rainy season has arrived, and with it the annual crisis. Flooding on the Lagos-Badagry Expressway, at the Ojota interchange, and across Agege has left commuters stranded since 4am. A video of a man wading through chest-high water near Abule-Egba has 50,000 engagements before breakfast.
+
+This happens every year. The drainage system was last upgraded in 2009. Your Works Ministry has two options ready and one creative one.`,
+    severity: 'medium',
+    category: 'infrastructure',
+    season: 'wet',
+    isRecurring: true,
+    cooldownWeeks: 52,
+    maxTotalFirings: 4,
+    choices: [
+      {
+        id: 'emergency-drainage',
+        label: 'Emergency Drainage Clearance',
+        description: 'Deploy LAWMA and Works teams now. Cash Reserve -₦1.5bn, Infrastructure +3, Trust +5.',
+        immediate: { cashReserve: -1.5, infrastructureScore: 3, publicTrust: 5 },
+        factionImpact: { lgChairmen: 4 },
+      },
+      {
+        id: 'redirect-infra-budget',
+        label: 'Redirect Infrastructure Budget',
+        description: 'Pull from planned project allocations. Infrastructure +2 now, stalls compound later.',
+        immediate: { infrastructureScore: 2 },
+        factionImpact: {},
+        delayed: {
+          weekOffset: 10,
+          delta: { infrastructureScore: -3 },
+          eventText: 'Flooding response diversions have stalled two road contracts in Oshodi and Alimosho. The arrears are beginning to show.',
+        },
+      },
+      {
+        id: 'declare-state-emergency',
+        label: 'Declare Emergency in Affected LGAs',
+        description: 'Unlocks federal emergency funds. Trust +3, Youth Tension -3, Business Community -4.',
+        immediate: { publicTrust: 3, youthTension: -3, cashReserve: 2 },
+        factionImpact: { businessCommunity: -4, lgChairmen: 3 },
+      },
+    ],
+  },
+
+  {
+    id: 'hundred-days-press',
+    title: '100 Days: The Reckoning',
+    body: `Your administration's first 100 days conclude this Friday. Four newspapers are running assessments. Two are generous. The 'Eko Budget Watch' civil society group has filed a detailed FOIA request on your spending decisions since Week 1.
+
+This is the moment your administration acquires a public character — the story Lagosians will tell about you for the next four years, whether you shape it or not.`,
+    severity: 'medium',
+    category: 'political',
+    week: 15,
+    choices: [
+      {
+        id: 'publish-detailed-report',
+        label: 'Publish a Detailed 100-Day Report',
+        description: 'Civil Society +8, Trust +5, Political Capital -5. You have to justify every line.',
+        immediate: { publicTrust: 5, politicalCapital: -5 },
+        factionImpact: { civilSocietyMedia: 8 },
+      },
+      {
+        id: 'single-press-conference',
+        label: 'Hold One Press Conference',
+        description: 'Controlled messaging. Trust +3, Civil Society +2. Less exposure, less upside.',
+        immediate: { publicTrust: 3 },
+        factionImpact: { civilSocietyMedia: 2 },
+      },
+      {
+        id: 'decline-hundred-days',
+        label: 'No Engagement: "We Govern, Not Perform"',
+        description: 'Trust -4, Civil Society -6. Looks defensive. The narrative writes itself without you.',
+        immediate: { publicTrust: -4, politicalCapital: 5 },
+        factionImpact: { civilSocietyMedia: -6 },
+      },
+    ],
+  },
+
+  // ── Standard recurring governance events ─────────────────────────────────
+
   {
     id: 'routine-budget-allocation',
     title: 'Weekly Budget Allocation',
@@ -10,6 +197,7 @@ export const routineEvents: EventCard[] = [
     isRecurring: true,
     cooldownWeeks: 8,
     maxTotalFirings: 8,
+    maxWeek: 150,
     choices: [
       {
         id: 'prioritise-infrastructure',
@@ -43,6 +231,7 @@ export const routineEvents: EventCard[] = [
     isRecurring: true,
     cooldownWeeks: 10,
     maxTotalFirings: 6,
+    maxWeek: 150,
     choices: [
       {
         id: 'highlight-successes',
@@ -76,6 +265,7 @@ export const routineEvents: EventCard[] = [
     isRecurring: true,
     cooldownWeeks: 12,
     maxTotalFirings: 5,
+    maxWeek: 150,
     choices: [
       {
         id: 'approve-digital',
@@ -109,6 +299,7 @@ export const routineEvents: EventCard[] = [
     isRecurring: true,
     cooldownWeeks: 10,
     maxTotalFirings: 6,
+    maxWeek: 150,
     choices: [
       {
         id: 'fund-neighbourhood',
@@ -142,6 +333,7 @@ export const routineEvents: EventCard[] = [
     isRecurring: true,
     cooldownWeeks: 10,
     maxTotalFirings: 5,
+    maxWeek: 150,
     choices: [
       {
         id: 'approve-full-maintenance',
@@ -175,6 +367,7 @@ export const routineEvents: EventCard[] = [
     isRecurring: true,
     cooldownWeeks: 10,
     maxTotalFirings: 5,
+    maxWeek: 150,
     choices: [
       {
         id: 'attend-personally',
@@ -208,6 +401,7 @@ export const routineEvents: EventCard[] = [
     isRecurring: true,
     cooldownWeeks: 8,
     maxTotalFirings: 6,
+    maxWeek: 150,
     choices: [
       {
         id: 'visit-with-fanfare',
@@ -243,6 +437,7 @@ export const routineEvents: EventCard[] = [
     isRecurring: true,
     cooldownWeeks: 12,
     maxTotalFirings: 6,
+    maxWeek: 150,
     choices: [
       {
         id: 'strict-enforcement',

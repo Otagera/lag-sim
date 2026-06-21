@@ -153,11 +153,14 @@ export type Choice = {
   // Phase 4 extensions
   setSuspensionWeeks?: number  // starts/ends emergency suspension
   setLitigationTimer?: number  // starts/clears judicial litigation arc
+  // Deck management
+  diminishingReturns?: boolean  // yield scales down on repeat selection; corruption spikes after 2nd use
 }
 
 export type EventCard = {
   id: string
   week?: number
+  maxWeek?: number  // event expires from pool after this week (complement to `week` minimum)
   triggerCondition?: (state: GameState) => boolean
   title: string
   body: string
@@ -282,6 +285,7 @@ export type GameState = {
   consecutiveDeficitWeeks: number
   lastWeekRevenue?: RevenueBreakdown
   lastWeekExpenditure?: ExpenditureBreakdown
+  lastWeekStatSnapshot?: { cashReserve: number; publicTrust: number; politicalCapital: number }
   godfatherComplianceCount: number
   impeachmentStage: number
   emergencyLoansTaken: number
@@ -316,4 +320,6 @@ export type GameState = {
   litigationActive: boolean         // judicial arc in progress
   litigationTimer: number           // weeks until Supreme Court ruling
   offCycleElection: boolean         // flag set when litigation won
+  // Deck management
+  choiceUseCounts: Record<string, number>  // key: `${eventId}:${choiceId}` — tracks repeat selections
 }

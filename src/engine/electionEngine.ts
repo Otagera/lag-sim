@@ -22,9 +22,9 @@ function weightedConstituencyApproval(state: GameState): number {
 
 function primaryBonus(state: GameState): number {
   const { primaryScenario } = state
-  if (primaryScenario === 'A') return 8
-  if (primaryScenario === 'B') return -5
-  if (primaryScenario === 'C') return 2
+  if (primaryScenario === 'A') return 10   // godfather-backed: smooth coronation
+  if (primaryScenario === 'B') return -8   // contested: party machinery against you
+  if (primaryScenario === 'C') return 2    // open: freedom without infrastructure
   return 0
 }
 
@@ -67,13 +67,35 @@ function npcPenalty(state: GameState): number {
   return penalty
 }
 
+function lgaBonus(state: GameState): number {
+  if (state.lgaElectionResult === null) return 0
+  // 0% LGA → -3, 50% → 0, 100% → +3
+  return (state.lgaElectionResult / 100) * 6 - 3
+}
+
+function factionEndorsementBonus(state: GameState): number {
+  const { businessCommunity, civilSocietyMedia, lgChairmen, informalEconomy } = state.factions
+  let bonus = 0
+  if (businessCommunity >= 60) bonus += 2
+  else if (businessCommunity <= 35) bonus -= 2
+  if (civilSocietyMedia >= 60) bonus += 2
+  else if (civilSocietyMedia <= 35) bonus -= 2
+  if (lgChairmen >= 65) bonus += 2
+  else if (lgChairmen <= 35) bonus -= 2
+  if (informalEconomy >= 60) bonus += 1
+  else if (informalEconomy <= 30) bonus -= 1
+  return bonus
+}
+
 export function calculateVoteShare(state: GameState): number {
   const base = weightedConstituencyApproval(state)
   const primary = primaryBonus(state)
   const campaign = campaignModifier(state)
   const fashemu = fashemuGroundModifier(state)
   const npc = npcPenalty(state)
+  const lga = lgaBonus(state)
+  const endorsement = factionEndorsementBonus(state)
 
-  const raw = base + primary + campaign + fashemu + npc
+  const raw = base + primary + campaign + fashemu + npc + lga + endorsement
   return Math.max(20, Math.min(80, raw))
 }

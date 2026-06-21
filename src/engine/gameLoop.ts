@@ -8,7 +8,7 @@ import { calculateWeeklyExpenditure } from './expenditureEngine'
 import { applyFactionDeltaState, drift } from './factionEngine'
 import { applyFashemuPhaseTransition, drawGodfatherAsk, shouldDrawGodfather } from './godfatherEngine'
 import { emergencyBridgeLoan } from './debtEngine'
-import { removalResolutionEvent } from '../data/events/characters'
+import { primaryContestLossEvent, removalResolutionEvent } from '../data/events/characters'
 import { processProjects } from './projectEngine'
 import { calculateWeeklyRevenue } from './revenueEngine'
 import { getSeasonModifier } from './seasonEngine'
@@ -35,7 +35,16 @@ export function tick(state: GameState): GameState {
 
   const revenue = calculateWeeklyRevenue(next)
   const expenditure = calculateWeeklyExpenditure(next)
-  next = { ...next, lastWeekRevenue: revenue, lastWeekExpenditure: expenditure }
+  next = {
+    ...next,
+    lastWeekRevenue: revenue,
+    lastWeekExpenditure: expenditure,
+    lastWeekStatSnapshot: {
+      cashReserve: state.stats.cashReserve,
+      publicTrust: state.stats.publicTrust,
+      politicalCapital: state.stats.politicalCapital,
+    },
+  }
 
   const capitalSpend = next.capitalProjects
     .filter((p) => p.status === 'active')
@@ -670,6 +679,42 @@ function checkGameOver(state: GameState): GameState {
       eventQueue: next.eventQueue.filter(
         (e) => !['removal-resolution-reading', 'removal-resolution-committee', 'removal-resolution-floor-vote'].includes(e.id),
       ),
+    }
+  }
+
+  // Derive primaryScenario from stateFlags once a primary event has resolved
+  if (!next.primaryScenario) {
+    if (next.stateFlags['primary-a']) next = { ...next, primaryScenario: 'A' }
+    else if (next.stateFlags['primary-b']) next = { ...next, primaryScenario: 'B' }
+    else if (next.stateFlags['primary-c']) next = { ...next, primaryScenario: 'C' }
+  }
+
+  // Scenario B primary loss: check requirements on the first tick after week 175
+  if (next.stateFlags['primary-b'] && next.week >= 176 && next.primaryWon === null) {
+    const grassrootsWin =
+      next.stateFlags['primary-b-grassroots'] && (next.lgaElectionResult ?? 0) >= 60
+    const civilWin =
+      next.stateFlags['primary-b-civil-society'] &&
+      next.factions.civilSocietyMedia >= 55 &&
+      next.factions.businessCommunity >= 50
+    if (grassrootsWin || civilWin) {
+      next = { ...next, primaryWon: true }
+    } else if (!next.eventQueue.some((e) => e.id === 'primary-contest-loss')) {
+      next = {
+        ...next,
+        primaryWon: false,
+        eventQueue: [...next.eventQueue, primaryContestLossEvent],
+      }
+    }
+  }
+
+  // Primary loss game-over — fires after player resolves the loss event
+  if (next.stateFlags['primary-lost']) {
+    return {
+      ...next,
+      isGameOver: true,
+      gameOverReason:
+        'You lost the party primary to Hon. Seun Majekodunmi. Your re-election bid ends here.',
     }
   }
 

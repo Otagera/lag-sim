@@ -1,9 +1,11 @@
 import { chainEvents } from '../data/events/chains'
 import { characterEvents } from '../data/events/characters'
 import { NPC_DECK_EVENTS } from '../data/events/npcDecks'
+import { campaignEraEvents } from '../data/events/campaign'
 import { crisisEvents } from '../data/events/crisis'
 import { economyEvents } from '../data/events/economy'
 import { electionEvents } from '../data/events/election'
+import { finaleEvents } from '../data/events/finale'
 import { infrastructureEvents } from '../data/events/infrastructure'
 import { phase4Events } from '../data/events/phase4'
 import { politicalEvents } from '../data/events/political'
@@ -11,7 +13,7 @@ import { riotEvents } from '../data/events/riot'
 import { routineEvents } from '../data/events/routine'
 import { socialEvents } from '../data/events/social'
 import { transportEvents } from '../data/events/transport'
-import type { EventCard, GameState, PendingEvent, TimelineEntry } from '../state/types'
+import type { EventCard, GameState, PendingEvent, StatKey, TimelineEntry } from '../state/types'
 import { applyConstituencyImpact } from './constituencyEngine'
 import { applyFactionDelta } from './factionEngine'
 import { getSeasonModifier } from './seasonEngine'
@@ -30,6 +32,8 @@ export const ALL_EVENTS: EventCard[] = [
   ...routineEvents,
   ...characterEvents,
   ...electionEvents,
+  ...campaignEraEvents,
+  ...finaleEvents,
   ...chainEvents,
   ...riotEvents,
   ...NPC_DECK_EVENTS,
@@ -40,6 +44,7 @@ function isEventAvailable(state: GameState, event: EventCard): boolean {
     if (state.week < state.eventCooldowns[event.id]) return false
   }
   if (event.week !== undefined && state.week < event.week) return false
+  if (event.maxWeek !== undefined && state.week > event.maxWeek) return false
   if (event.maxTotalFirings !== undefined) {
     const count = state.resolvedEvents.filter((id) => id === event.id).length
     if (count >= event.maxTotalFirings) return false
@@ -126,7 +131,23 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
   const choice = event.choices.find((c) => c.id === choiceId)
   if (!choice) return state
 
-  let next = applyDelta(state, choice.immediate)
+  // Diminishing returns: read usage count from original state before any mutations
+  const drKey = `${event.id}:${choice.id}`
+  const drUses = choice.diminishingReturns ? (state.choiceUseCounts?.[drKey] ?? 0) : 0
+
+  // Scale positive stat gains down on repeat use; costs (negative values) are never discounted
+  let effectiveImmediate = choice.immediate
+  if (choice.diminishingReturns && drUses > 0) {
+    const scale = Math.max(0.2, 1 - drUses * 0.25)
+    effectiveImmediate = Object.fromEntries(
+      Object.entries(choice.immediate ?? {}).map(([k, v]) => [
+        k,
+        typeof v === 'number' && v > 0 ? Math.round(v * scale * 10) / 10 : v,
+      ]),
+    ) as Record<StatKey, number>
+  }
+
+  let next = applyDelta(state, effectiveImmediate)
 
   if (choice.factionImpact) {
     next = {
@@ -243,6 +264,16 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
       ? [...next.campaignDecisions, choice.id]
       : next.campaignDecisions
 
+  // Diminishing returns: escalating penalties and counter increment
+  let choiceUseCounts = next.choiceUseCounts ?? {}
+  if (choice.diminishingReturns) {
+    if (drUses >= 2) next = applyDelta(next, { corruptionPressure: drUses * 2 })
+    if (drUses >= 3) {
+      next = { ...next, factions: applyFactionDelta(next.factions, { civilSocietyMedia: -(drUses * 3) }) }
+    }
+    choiceUseCounts = { ...choiceUseCounts, [drKey]: drUses + 1 }
+  }
+
   return {
     ...next,
     activeEvent: null,
@@ -253,6 +284,7 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     eventsResolvedThisWeek: next.eventsResolvedThisWeek + 1,
     timeline: [...next.timeline, timelineEntry],
     campaignDecisions,
+    choiceUseCounts,
   }
 }
 

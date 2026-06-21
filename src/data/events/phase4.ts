@@ -379,7 +379,7 @@ export const phase4Events: EventCard[] = [
         id: 'distribute-food-cash',
         label: 'Distribute Rice, Cash, and Essential Goods',
         description:
-          'Trust +8 in target constituencies. Cash -3. Corruption +3. Infrastructure -0.5.',
+          'Trust +8 in target constituencies. Cash -3. Corruption +3. Infrastructure -0.5. Repeat use degrades yield and spikes corruption.',
         immediate: { cashReserve: -3, corruptionPressure: 3, infrastructureScore: -0.5 },
         factionImpact: { informalEconomy: 8, lgChairmen: 6 },
         constituencyImpact: {
@@ -389,6 +389,7 @@ export const phase4Events: EventCard[] = [
           periphery: 6,
           makoko: 6,
         },
+        diminishingReturns: true,
       },
       {
         id: 'resist-and-build',

@@ -285,7 +285,7 @@ New initiatives require an entry in `src/data/initiatives.ts`:
 - **Personality**: Consequential · Grounded · Pressured
 - **DNA**: Federal Gazette — Editorial Minimalism base + Data-Dense Pro layout discipline — see DESIGN.md
 - **Archetype**: Sage (evidence-led, measured, zero decoration)
-- **Mode**: Light only
+- **Mode**: Light + dark (toggle in header; `.dark` class on `<html>` overrides all tokens)
 - **Constraints**: Tailwind v4 (`@import "tailwindcss"`), React inline styles for token refs (`style={{ color: 'var(--token)' }}`), WCAG AA
 - **Fonts**: Newsreader (EventCard titles only, `.font-display`) + Archivo Narrow (everything else)
 - **Signature move**: `border-top: 2px solid var(--accent-solid)` on EventCard — nowhere else
