@@ -252,6 +252,31 @@ function statFallbackHeadlines(state: GameState, needed: number): HeadlineSlot[]
     }
   }
 
+  if (result.length < needed) {
+    if (state.currentTerm === 2 && state.stats.corruptionPressure >= 70) {
+      result.push({
+        key: 'corruption-reckoning',
+        headline: `Lagos Exits With Corruption Index at ${state.stats.corruptionPressure.toFixed(0)}% — EFCC Watching`,
+        subhead:
+          'The outgoing administration leaves governance accountability unresolved. Anti-corruption bodies have noted the disparity between fiscal discipline and procurement integrity.',
+      })
+    }
+  }
+
+  if (result.length < needed) {
+    if (
+      state.currentTerm === 2 &&
+      state.stats.cashReserve >= 150 &&
+      state.stats.infrastructureScore < 65
+    ) {
+      result.push({
+        key: 'cash-hoard',
+        headline: `₦${state.stats.cashReserve.toFixed(0)}bn Left Unspent: Lagos Has Cash, Not Roads`,
+        subhead: `Policy economists note the opportunity cost of Lagos's record cash reserve at handover: infrastructure investment of the same magnitude would have served an estimated ${Math.round(state.stats.cashReserve * 2)}m daily commuters.`,
+      })
+    }
+  }
+
   return result.slice(0, needed)
 }
 

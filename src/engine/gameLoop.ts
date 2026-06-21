@@ -685,15 +685,15 @@ function checkGameOver(state: GameState): GameState {
     }
   }
 
-  // Derive primaryScenario from stateFlags once a primary event has resolved
-  if (!next.primaryScenario) {
+  // Derive primaryScenario from stateFlags once a primary event has resolved (term1 only)
+  if (!next.primaryScenario && next.currentTerm === 1) {
     if (next.stateFlags['primary-a']) next = { ...next, primaryScenario: 'A' }
     else if (next.stateFlags['primary-b']) next = { ...next, primaryScenario: 'B' }
     else if (next.stateFlags['primary-c']) next = { ...next, primaryScenario: 'C' }
   }
 
-  // Scenario B primary loss: check requirements on the first tick after week 175
-  if (next.stateFlags['primary-b'] && next.week >= 176 && next.primaryWon === null) {
+  // Scenario B primary loss: check requirements on the first tick after week 175 (term1 only)
+  if (next.stateFlags['primary-b'] && next.week >= 176 && next.primaryWon === null && next.currentTerm === 1) {
     const grassrootsWin =
       next.stateFlags['primary-b-grassroots'] && (next.lgaElectionResult ?? 0) >= 60
     const civilWin =
@@ -711,8 +711,8 @@ function checkGameOver(state: GameState): GameState {
     }
   }
 
-  // Primary loss game-over — fires after player resolves the loss event
-  if (next.stateFlags['primary-lost']) {
+  // Primary loss game-over — fires after player resolves the loss event (term1 only)
+  if (next.stateFlags['primary-lost'] && next.currentTerm === 1) {
     return {
       ...next,
       isGameOver: true,

@@ -30,18 +30,21 @@ export const WINNING_STRATEGY = {
 
   continuous: {
     cashReserve: 1,
-    igr: 2,
+    igr: 2,              // IGR compounds; term2-only igrLoss guard handles permanent losses
     corruptionPressure: -1,
+    politicalCapital: 0.3,
   },
 
   emergency: {
-    fedRel: { threshold: -10, statWeight: 20, factionWeight: 10 },
-    cashReserve: { threshold: 60, weight: 25 },
-    corruption: { threshold: 50, weight: 18 },
-    godfathers: { threshold: 15, weekGate: 40, weight: 12 },
-    youthTension: { threshold: 65, weight: 8 },
-    publicTrust: { threshold: 35, weight: 12 },
-    expenditure: { cashThreshold: 50, normalWeight: 2, crisisWeight: 8 },
+    fedRel:           { threshold: -10, statWeight: 20, factionWeight: 10 },
+    cashReserve:      { threshold: 60, weight: 25 },   // keeps emergency active through most of term1
+    corruption:       { threshold: 50, weight: 18 },
+    godfathers:       { threshold: 15, weekGate: 40, weight: 12 },
+    youthTension:     { threshold: 55, weight: 12 },   // fires before Ajegunle trigger (>55)
+    publicTrust:      { threshold: 35, weight: 12 },
+    expenditure:      { cashThreshold: 50, normalWeight: 2, crisisWeight: 8 },
+    politicalCapital: { threshold: 25, weekGate: 209, weight: 15 },  // term2-only PC floor
+    igrLoss:          { weekGate: 209, weight: 8 },  // term2-only: large penalty for permanent revenue loss
   },
 
   godfather: {
@@ -95,6 +98,7 @@ function scoreWinningChoice(
   score += (d.cashReserve ?? 0) * cont.cashReserve
   score += (d.igr ?? 0) * cont.igr
   score -= (d.corruptionPressure ?? 0) * cont.corruptionPressure
+  score += (d.politicalCapital ?? 0) * cont.politicalCapital
 
   if (state.stats.federalRelationship < cfg.fedRel.threshold) {
     score += (d.federalRelationship ?? 0) * cfg.fedRel.statWeight
@@ -126,6 +130,14 @@ function scoreWinningChoice(
       ? cfg.expenditure.crisisWeight
       : cfg.expenditure.normalWeight
     score -= d.expenditure * weight
+  }
+
+  if (state.stats.politicalCapital < cfg.politicalCapital.threshold && state.week > cfg.politicalCapital.weekGate) {
+    score += (d.politicalCapital ?? 0) * cfg.politicalCapital.weight
+  }
+
+  if ((d.igr ?? 0) < 0 && state.week > cfg.igrLoss.weekGate) {
+    score += d.igr! * cfg.igrLoss.weight
   }
 
   return score

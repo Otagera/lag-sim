@@ -8,7 +8,8 @@ export function calculateWeeklyExpenditure(state: GameState): ExpenditureBreakdo
   const debtInterest = state.stats.weeklyDebtInterest
   const debtRepayment = state.stats.weeklyDebtRepayment
 
-  const overheadBase = 17.0
+  // Term2 institutions are leaner: 4 years of reform, fewer setup costs
+  const overheadBase = state.currentTerm === 2 ? 5.0 : 17.0
   const godfatherInflation = state.godfatherComplianceCount * 0.3 + state.stats.baseOverheads
   const overheads = overheadBase + godfatherInflation
 

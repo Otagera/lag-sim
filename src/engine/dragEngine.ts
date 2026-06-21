@@ -8,7 +8,8 @@ export function calculateHiddenDrag(state: GameState, capitalSpend: number): Hid
 
   const ghostRegenRate = 0.001 * (1 - state.stats.civilServiceReformScore / 100)
 
-  const overheadCreep = 0.05
+  // Term2: institutional efficiency reforms slow bureaucratic expansion
+  const overheadCreep = state.currentTerm === 2 ? 0.02 : 0.05
 
   const faacVariance = (Math.random() - 0.5) * 0.3 * 8.7
 

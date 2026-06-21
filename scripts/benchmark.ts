@@ -1,21 +1,20 @@
 #!/usr/bin/env npx tsx
 /**
- * Winning strategy benchmark.
+ * Winning strategy benchmark — full two-term run.
  *
- * Runs the 'winning' simulation strategy across all archetypes and seeds,
- * reporting per-run outcomes and total win rate.
+ * Simulates 416 weeks (term1 + term2) per (archetype × seed) pair,
+ * reporting both term1 re-election and term2 completion outcomes.
  *
  * Usage:
  *   npx tsx scripts/benchmark.ts
  *
- * Exits with code 0 if win rate ≥ 80%, otherwise code 1.
+ * Exits with code 0 if full-term win rate ≥ 60%, otherwise code 1.
  */
 
 import { simulateWeeks } from '../src/engine/simulateEngine'
 import { getArchetypeState } from '../src/data/archetypes'
 import type { GameState } from '../src/state/types'
 
-/** mulberry32 seeded PRNG — deterministic for a given seed */
 function mulberry32(seed: number): () => number {
   let s = seed | 0
   return () => {
@@ -26,11 +25,6 @@ function mulberry32(seed: number): () => number {
   }
 }
 
-/**
- * Generate a seeded state that is deterministic for a given (archetype, stateSeed) pair.
- * getArchetypeState uses Math.random for NPC/deputy selection, so we temporarily
- * replace Math.random with a seeded PRNG for reproducibility.
- */
 function makeSeededArchetypeState(arch: 'technocrat' | 'loyalist' | 'outsider', stateSeed: number): GameState {
   const orig = Math.random
   Math.random = mulberry32(stateSeed)
@@ -42,16 +36,32 @@ function makeSeededArchetypeState(arch: 'technocrat' | 'loyalist' | 'outsider', 
 const SEEDS = [42, 777, 12345, 99, 2020]
 const ARCHETYPES = ['technocrat', 'loyalist', 'outsider'] as const
 const MIN_WIN_RATE = 0.6
-const TOTAL_WEEKS = 208
+const TOTAL_WEEKS = 416
 
 interface BenchmarkResult {
   archetype: string
   seed: number
-  week: number
-  cashReserve: number
-  vote: number | null
-  won: boolean
+  finalWeek: number
+  cashT1: number | null   // cash at week 209 transition (if re-elected)
+  cashFinal: number
+  reElected: boolean
+  term2Won: boolean
   outcome: string
+}
+
+function classifyOutcome(s: GameState): string {
+  if (!s.reElected && s.currentTerm === 1) {
+    if (s.isGameOver) return s.gameOverReason ?? 'T1_LOST'
+    return 'T1_LOST_ELECTION'
+  }
+  if (s.reElected && s.currentTerm === 2) {
+    if (!s.isGameOver) return 'T2_IN_PROGRESS'
+    const r = s.gameOverReason ?? ''
+    if (r.includes('second term has ended') || r.includes('term has ended')) return 'T2_COMPLETE'
+    return r
+  }
+  if (s.isGameOver) return s.gameOverReason ?? 'GAME_OVER'
+  return 'UNKNOWN'
 }
 
 function runBenchmark(): BenchmarkResult[] {
@@ -67,31 +77,34 @@ function runBenchmark(): BenchmarkResult[] {
         simSeed: seed,
         simWeeksSkipped: 0,
       }
-      const r = simulateWeeks(base as GameState, TOTAL_WEEKS, {
-        strategy: 'winning',
-        seed,
-      })
-      const s = r.state
-      const won = s.reElected === true
-      const vote = s.electionResult ?? null
 
-      let outcome: string
-      if (won) {
-        outcome = 'RE-ELECTED'
-      } else if (s.isGameOver) {
-        outcome = s.gameOverReason ?? 'LOST'
-      } else {
-        outcome = 'LOST_ELECTION'
-      }
+      const r = simulateWeeks(base as GameState, TOTAL_WEEKS, { strategy: 'winning', seed })
+      const s = r.state
+
+      const reElected = s.reElected === true
+      const term2Won =
+        reElected &&
+        s.isGameOver &&
+        !!(s.gameOverReason?.includes('second term has ended') || s.gameOverReason?.includes('term has ended'))
+
+      // Approximate cash at term1 end: only meaningful if they made it to term2
+      const cashT1 = reElected
+        ? s.timeline
+            .slice()
+            .reverse()
+            .find((e) => e.week <= 209)
+            ?.statDelta?.cashReserve ?? null
+        : null
 
       results.push({
         archetype: arch,
         seed,
-        week: s.week,
-        cashReserve: s.stats.cashReserve,
-        vote,
-        won,
-        outcome,
+        finalWeek: s.week,
+        cashT1,
+        cashFinal: s.stats.cashReserve,
+        reElected,
+        term2Won,
+        outcome: classifyOutcome(s),
       })
     }
   }
@@ -100,25 +113,42 @@ function runBenchmark(): BenchmarkResult[] {
 }
 
 function printResults(results: BenchmarkResult[]): void {
+  const t1wins = results.filter((r) => r.reElected)
+  const t2wins = results.filter((r) => r.term2Won)
+
+  console.log('\n── Term 1 ────────────────────────────────────────────────────────')
   for (const r of results) {
-    const voteStr = r.vote !== null ? `${r.vote.toFixed(1)}%` : '-'
-    const mark = r.won ? ' ✓' : ' ✗'
+    const mark = r.reElected ? ' ✓' : ' ✗'
+    const cashStr = `cash=${r.cashFinal.toFixed(1).padStart(7)}`
+    const detail = r.reElected ? `→ term2` : r.outcome.slice(0, 50)
     console.log(
-      `${r.archetype.padEnd(12)}seed=${String(r.seed).padEnd(6)}` +
-      `wk=${String(r.week).padEnd(4)}cash=${r.cashReserve.toFixed(1).padStart(7)}` +
-      ` vote=${voteStr} ${r.outcome}${mark}`,
+      `${r.archetype.padEnd(12)}seed=${String(r.seed).padEnd(6)}wk=${String(r.finalWeek).padEnd(4)}` +
+      `${cashStr} ${detail}${mark}`,
     )
   }
+
+  console.log('\n── Term 2 (re-elected runs only) ─────────────────────────────────')
+  for (const r of t1wins) {
+    const mark = r.term2Won ? ' ✓' : ' ✗'
+    const cashStr = `cash=${r.cashFinal.toFixed(1).padStart(7)}`
+    console.log(
+      `${r.archetype.padEnd(12)}seed=${String(r.seed).padEnd(6)}wk=${String(r.finalWeek).padEnd(4)}` +
+      `${cashStr} ${r.outcome.slice(0, 55)}${mark}`,
+    )
+  }
+
+  console.log(`\nT1 re-elected: ${t1wins.length}/${results.length}`)
+  console.log(`T2 completed:  ${t2wins.length}/${results.length}  (full two-term wins)`)
 }
 
 const results = runBenchmark()
 printResults(results)
 
-const wins = results.filter((r) => r.won).length
+const wins = results.filter((r) => r.term2Won).length
 const total = results.length
 const rate = wins / total
 
-console.log(`\nWins: ${wins}/${total} (${(rate * 100).toFixed(1)}%)`)
+console.log(`\nFull win rate: ${wins}/${total} (${(rate * 100).toFixed(1)}%)`)
 console.log(`Target: ≥ ${(MIN_WIN_RATE * 100).toFixed(0)}%`)
 
 if (rate >= MIN_WIN_RATE) {

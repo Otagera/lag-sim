@@ -277,6 +277,50 @@ export function LegacyScreen() {
           </div>
         </div>
 
+        {state.currentTerm === 2 && (
+          <div>
+            <h2 className="label-caps mb-3">Eight-Year Accountability Index</h2>
+            <div className="grid grid-cols-2 gap-3 text-[10px]">
+              <div className="p-3" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
+                <p className="label-caps mb-1">Corruption at Exit</p>
+                <p
+                  className="text-xl font-bold"
+                  style={{
+                    color:
+                      state.stats.corruptionPressure >= 70
+                        ? 'var(--error-11)'
+                        : state.stats.corruptionPressure >= 50
+                          ? 'var(--warning-11)'
+                          : 'var(--success-11)',
+                  }}
+                >
+                  {state.stats.corruptionPressure.toFixed(0)}%
+                </p>
+                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                  {state.stats.corruptionPressure >= 70
+                    ? 'Accountability crisis — EFCC inquiry pending'
+                    : state.stats.corruptionPressure >= 50
+                      ? 'Under scrutiny — irregularities noted'
+                      : 'Clean exit — no material findings'}
+                </p>
+              </div>
+              <div className="p-3" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
+                <p className="label-caps mb-1">Cash at Handover</p>
+                <p className="text-xl font-bold" style={{ color: 'var(--text)' }}>
+                  ₦{state.stats.cashReserve.toFixed(0)}bn
+                </p>
+                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                  {state.stats.cashReserve >= 150
+                    ? `Fiscal surplus — ₦${(state.stats.cashReserve - 50).toFixed(0)}bn above operational floor`
+                    : state.stats.cashReserve >= 0
+                      ? 'Stable — books balanced at handover'
+                      : 'Deficit — successor faces liquidity gap'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="text-center">
           <button
             type="button"

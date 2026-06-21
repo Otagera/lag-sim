@@ -176,6 +176,7 @@ export type EventCard = {
   npcTier?: 'ally' | 'neutral' | 'hostile'
   requiresInitiativeSlot?: boolean
   factionImpact?: FactionDelta
+  followUpEventId?: string
 }
 
 export type PendingEvent = {

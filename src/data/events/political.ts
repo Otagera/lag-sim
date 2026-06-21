@@ -372,6 +372,7 @@ export const politicalEvents: EventCard[] = [
     category: 'political',
     week: 170,
     triggerCondition: (state) =>
+      state.currentTerm === 1 &&
       !state.primaryScenario &&
       state.week >= 170 &&
       state.godfatherComplianceCount >= 2 &&
@@ -405,6 +406,7 @@ export const politicalEvents: EventCard[] = [
     category: 'political',
     week: 172,
     triggerCondition: (state) =>
+      state.currentTerm === 1 &&
       !state.primaryScenario &&
       state.week >= 172 &&
       state.godfatherRefusalCount >= 2 &&
@@ -438,6 +440,7 @@ export const politicalEvents: EventCard[] = [
     category: 'political',
     week: 170,
     triggerCondition: (state) =>
+      state.currentTerm === 1 &&
       !state.primaryScenario &&
       state.week >= 170 &&
       (state.fashemuPhase === 'dead' || state.godfatherRefusalCount >= 5),

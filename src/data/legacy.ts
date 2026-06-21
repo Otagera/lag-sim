@@ -32,6 +32,25 @@ function pickMonologue(state: GameState): { text: string; style: 'compliant' | '
   const refusals = state.godfatherRefusalCount
   const trust = state.stats.publicTrust
 
+  if (state.currentTerm === 2) {
+    if (state.stats.corruptionPressure >= 70) {
+      return {
+        style: 'survivor',
+        text: `Eight years. The city is different — some of that is my doing, some of it happened despite me. There will be inquiries. Some of what those inquiries find will be accurate. Governance at this scale, under these pressures, is not a clean operation. I made choices about what to protect and what to sacrifice. The books show the cash. What the books cannot show is what it costs to hold a state together when every faction, every godfather, every federal ministry is pulling in a different direction. I served. I would make different choices in some rooms. But I served.`,
+      }
+    }
+    if (state.stats.infrastructureScore >= 65) {
+      return {
+        style: 'reformer',
+        text: `Eight years is a long time to stay honest about what you are doing. I came in with a plan for infrastructure. I am leaving with that plan substantially complete. The metro extension is running. The roads in Alimosho are not what I hoped — that I regret — but the fiscal architecture we built will last longer than any road. My successor inherits something I did not: a state government that people trust with money. That is harder to build than any bridge, and easier to destroy than any road.`,
+      }
+    }
+    return {
+      style: compliance >= 3 ? 'compliant' : 'survivor',
+      text: `Two terms teaches you things one term cannot. The machine is larger than any individual. What I am proudest of is not what we built — it is that we did not break what we inherited. Lagos came into my hands functioning, fractious, and magnificent. It leaves my hands the same. My successor will face the same machine, the same factions, the same impossible math of a state that wants everything and can fund only half of it. To them I say: the files are clean, the account is settled, and the godfathers are watching. Good luck.`,
+    }
+  }
+
   if (compliance >= 3 && refusals <= 1) {
     return {
       style: 'compliant',

@@ -308,13 +308,13 @@ He controls the party secretariat and has three of your commissioners openly cam
       {
         id: 'emergency-it-rebuild',
         label: 'Emergency System Rebuild — International Vendor',
-        description: 'Contract a foreign cybersecurity firm for an emergency rebuild. Cash -4. Takes 6 weeks. Full IGR restoration after. Business community reassured.',
-        immediate: { cashReserve: -4.0, igr: -5.0 },
+        description: 'Contract a foreign cybersecurity firm for an emergency rebuild. Cash -4. Takes 6 weeks. Partial IGR restoration after (68% collection restored; some businesses switch to cash-avoidance habits). Business community reassured.',
+        immediate: { cashReserve: -4.0, igr: -2.0 },
         factionImpact: { businessCommunity: 5, civilSocietyMedia: 3 },
         delayed: {
           weekOffset: 6,
-          delta: { igr: 5.0 },
-          eventText: 'The LIRS digital platform has been fully restored by the international contractor. Revenue collection is back to normal.',
+          delta: { igr: 2.0 },
+          eventText: 'The LIRS digital platform has been fully restored by the international contractor. Revenue collection is back to normal, though some taxpayers who shifted to informal avoidance during the outage have not fully returned.',
         },
       },
       {
@@ -572,9 +572,7 @@ The Lagos Island commercial corridor is now directly threatened by northward spr
   {
     id: 'term2-olusosun-landfill-fire',
     title: 'Term 2: Olusosun Landfill Catastrophic Fire',
-    body: `A section of the Olusosun landfill in Ojota — the largest in West Africa at 42 hectares — has caught fire. Dense toxic smoke is spreading across Ojota, Maryland, and Ikeja. The Lagos State Fire Service has been fighting the blaze for six days. The Ikeja District Hospital emergency ward is overwhelmed. Flights in and out of Murtala Muhammed Airport have been disrupted.
-
-LAWMA officials confirm that prohibited industrial waste — illegally dumped by three manufacturing companies — is fueling the blaze.`,
+    body: `A section of the Olusosun landfill in Ojota — the largest in West Africa at 42 hectares — has caught fire. Dense toxic smoke is spreading across Ojota, Maryland, and Ikeja. The Lagos State Fire Service has been fighting the blaze for six days. The Ikeja District Hospital emergency ward is overwhelmed. Flights in and out of Murtala Muhammed Airport have been disrupted. LAWMA officials confirm that prohibited industrial waste — illegally dumped by three manufacturing companies — is fueling the blaze.`,
     severity: 'critical',
     category: 'crisis',
     week: 239,
@@ -636,7 +634,8 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
         constituencyImpact: { lagosIsland: -12, victoriaIsland: -8 },
         delayed: {
           weekOffset: 10,
-          delta: { infrastructureScore: 5, businessCommunity: 10 },
+          delta: { infrastructureScore: 5 },
+          factionImpact: { businessCommunity: 10 },
           eventText: 'The Eko Bridge rehabilitation is complete. The Federal Government has co-funded 40% of the repair costs in a rare cooperative intervention.',
         },
       },
@@ -925,7 +924,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
 The NEC letter asks you to "facilitate" his endorsement at the state congress in three weeks.`,
     severity: 'critical',
     category: 'political',
-    week: 261,
+    week: 352,
     triggerCondition: (state) => state.currentTerm === 2,
     choices: [
       {
@@ -960,7 +959,7 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
     body: `Your campaign director arrives with a simple ask from the Godfather caucus: the party primary for your successor must be "guided." Specifically, delegate cards in Alimosho, Agege, and Mushin — where your preferred reform candidate has grassroots support — should be "managed" to produce the right delegate count. The price of non-compliance: the party withdraws all organizational support from your remaining infrastructure projects in the final months of your tenure.`,
     severity: 'high',
     category: 'political',
-    week: 265,
+    week: 358,
     triggerCondition: (state) => state.currentTerm === 2,
     choices: [
       {
@@ -1001,7 +1000,7 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
     body: `PricewaterhouseCoopers has submitted its final commissioned performance audit of your eight-year administration (both terms). The summary chapter has been leaked to Sahara Reporters: "₦312bn in capital expenditure was committed across 847 projects. Only 34% achieved full commissioning. ₦48bn cannot be reconciled through available documentation." The report lands 8 months before your successor takes office.`,
     severity: 'critical',
     category: 'economy',
-    week: 268,
+    week: 384,
     triggerCondition: (state) => state.currentTerm === 2,
     choices: [
       {
@@ -1035,7 +1034,7 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
     body: `The Economic and Financial Crimes Commission has filed a formal criminal charge against "The Lagos State Government and persons connected thereto" regarding procurement irregularities in the Outer Ring Road contract (2021). The filing is timed for maximum impact: eight months before your exit. Your legal team suspects Abuja is using the EFCC to shape your post-tenure vulnerability — ensuring you need political cover from the same Godfathers you spent eight years resisting.`,
     severity: 'critical',
     category: 'political',
-    week: 270,
+    week: 386,
     triggerCondition: (state) =>
       state.currentTerm === 2 && state.stats.corruptionPressure > 55,
     choices: [
@@ -1072,7 +1071,7 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
     body: `Your five priority legacy bills — the Lagos Transport Authority Consolidation Bill, the State Healthcare Financing Act, the Digital Infrastructure Development Bill, the Lagos Revenue Authority Reform Bill, and the Public Procurement Transparency Act — have all been allowed to expire at their second reading in the House of Assembly. The Speaker has confirmed there will be no third reading before the close of the legislative session. Your term ends in four months.`,
     severity: 'high',
     category: 'political',
-    week: 275,
+    week: 390,
     triggerCondition: (state) => state.currentTerm === 2,
     choices: [
       {
@@ -1110,7 +1109,7 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
 Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He is also backing the new man.`,
     severity: 'high',
     category: 'political',
-    week: 285,
+    week: 362,
     triggerCondition: (state) => state.currentTerm === 2,
     choices: [
       {
@@ -1144,7 +1143,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
     body: `The Incoming Administration's Transition Committee, chaired by a hostile party operative, has informed your Chief of Staff that they require "immediate access" to all contract databases, MDA files, and financial archives — including the State Finance Commissioner's encrypted cloud system — before your tenure ends. Legal counsel advises this is constitutionally premature by three months. You suspect they are looking for ammunition, not briefing material.`,
     severity: 'medium',
     category: 'political',
-    week: 295,
+    week: 400,
     triggerCondition: (state) => state.currentTerm === 2,
     choices: [
       {
@@ -1179,7 +1178,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
     body: `Your speechwriter has presented three draft versions of your valedictory address, to be delivered in the packed Glover Memorial Hall in two weeks. Each articulates a different account of eight years. The draft you choose will anchor the historical record — and how civil society, the business community, and ordinary Lagos residents remember you as you hand over the keys.`,
     severity: 'medium',
     category: 'political',
-    week: 305,
+    week: 406,
     triggerCondition: (state) => state.currentTerm === 2,
     choices: [
       {
@@ -1215,7 +1214,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
     body: `Your Commissioner for Finance has presented a ₦22bn supplementary budget for the final six months of your tenure — covering infrastructure completion, pension clearance, and emergency health spending. The House of Assembly's new leadership, fully aligned with the incoming administration, has allowed the bill to sit without a date for second reading. They are running out the clock. Every week of delay is ₦3.7bn in uncompleted contracts.`,
     severity: 'high',
     category: 'economy',
-    week: 310,
+    week: 409,
     triggerCondition: (state) => state.currentTerm === 2,
     choices: [
       {
@@ -1254,7 +1253,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
     body: `Your Chief of Staff has compiled the official Handover Note — 480 pages covering every ministry, agency, and fiscal position across your two terms. The document contains detailed evidence of your predecessor's debts, the full pension liability, the ghost worker problem your administration partially resolved, and the condition of every capital project. Your legal team warns: the document is also ammunition for a hostile successor to blame you for structural problems you inherited.`,
     severity: 'medium',
     category: 'political',
-    week: 350,
+    week: 413,
     triggerCondition: (state) => state.currentTerm === 2,
     choices: [
       {
@@ -1544,7 +1543,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
     body: `Your preferred successor — the technocrat you nurtured, whose primary campaign you structured, whose manifesto your team helped write — has filed a formal withdrawal from the gubernatorial race. His one-paragraph statement cites "insurmountable institutional pressure and the need to protect my family." He has not named names. He does not return your calls. The primary is in six weeks and you have no candidate.`,
     severity: 'critical',
     category: 'political',
-    week: 288,
+    week: 366,
     triggerCondition: (state) =>
       state.currentTerm === 2 && !state.stateFlags['endorsed-nec-candidate'],
     choices: [
@@ -1709,7 +1708,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         factionImpact: { businessCommunity: 18, civilSocietyMedia: 5, partyGodfathers: -3 },
         delayed: {
           weekOffset: 4,
-          delta: { igr: 3.0, businessCommunity: 8 },
+          delta: { igr: 3.0 },
+          factionImpact: { businessCommunity: 8 },
           eventText: 'MTN has confirmed it is staying in Lagos. Six other multinationals have signed the Lagos Island Business Continuity Compact.',
         },
       },
@@ -1821,8 +1821,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'emergency-coastal-defense',
         label: 'Emergency Rock Armour and Geotextile Revetment',
-        description: 'Deploy emergency coastal protection. Cash -5. Infrastructure +6. Slows erosion for 5 years. Victoria Island approvals restored.',
-        immediate: { cashReserve: -5.0, infrastructureScore: 6 },
+        description: 'Deploy emergency coastal protection. Cash -3.5. Infrastructure +6. Slows erosion for 5 years. Victoria Island approvals restored.',
+        immediate: { cashReserve: -3.5, infrastructureScore: 6 },
         factionImpact: { businessCommunity: 10, civilSocietyMedia: 6 },
         constituencyImpact: { victoriaIsland: 10, lekki: 5 },
       },
