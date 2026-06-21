@@ -72,9 +72,17 @@ export function LegacyScreen() {
 
         {/* Masthead — accent-solid bottom rule mirrors modal header treatment */}
         <div className="pb-4 text-center" style={{ borderBottom: '2px solid var(--accent-solid)' }}>
-          <p className="label-caps mb-1">Lagos State Government — Term End Report</p>
+          <p className="label-caps mb-1">
+            Lagos State Government — {state.currentTerm === 2 ? 'Second Term End Report' : 'Term End Report'}
+          </p>
           <h1 className="font-display text-2xl font-semibold" style={{ color: 'var(--text)' }}>
-            {state.reElected ? 'Re-Election Victory' : state.reElected === false ? 'Term Ended — Defeat' : 'End of Term'}
+            {state.currentTerm === 2
+              ? 'Two Terms: Legacy Sealed'
+              : state.reElected
+                ? 'Re-Election Victory'
+                : state.reElected === false
+                  ? 'Term Ended — Defeat'
+                  : 'End of Term'}
           </h1>
           <p className="text-[11px] mt-1" style={{ color: 'var(--text-secondary)' }}>
             {endDate} &middot; {totalEvents} major decisions &middot; {state.week} weeks in office
@@ -119,6 +127,28 @@ export function LegacyScreen() {
             "{legacy.monologue}"
           </p>
         </div>
+
+        {/* Election Journey */}
+        {(state.electionResult !== null || state.stateFlags['primary-lost']) && (
+          <div className="space-y-3">
+            <h2 className="label-caps">The Road to the Election</h2>
+            <div style={{ borderLeft: '2px solid var(--accent-solid)', paddingLeft: '16px' }}>
+              <p className="text-[9px] mb-0.5 label-caps" style={{ color: 'var(--border-strong)' }}>
+                {legacy.primaryNarrative.path === 'lost' ? 'PRIMARY — DEFEATED' : `PRIMARY PATH — SCENARIO ${legacy.primaryNarrative.path.toUpperCase()}`}
+              </p>
+              <h3 className="font-display text-sm font-semibold" style={{ color: 'var(--text)' }}>
+                {legacy.primaryNarrative.title}
+              </h3>
+              <p className="text-[11px] mt-1 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                {legacy.primaryNarrative.summary}
+              </p>
+            </div>
+            <div className="text-[10px] p-3" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', border: '1px solid' }}>
+              <p className="label-caps mb-1">Endorsement Picture</p>
+              <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>{legacy.endorsementSummary}</p>
+            </div>
+          </div>
+        )}
 
         {/* Stats Grid */}
         <div>

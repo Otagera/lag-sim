@@ -15,7 +15,7 @@ Your chief strategist has spent three days preparing two dossiers. One documents
 You have two hours. What you say in this room will be replayed until February.`,
     severity: 'critical',
     category: 'political',
-    triggerCondition: (state) => state.week >= 205 && !state.resolvedEvents.includes('finale-debate'),
+    triggerCondition: (state) => state.week >= 205 && !state.resolvedEvents.includes('finale-debate') && state.currentTerm === 1,
     followUpEventId: 'finale-security-breakdown',
     choices: [
       {

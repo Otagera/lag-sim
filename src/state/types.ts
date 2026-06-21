@@ -236,6 +236,16 @@ export type PrimaryScenario = 'A' | 'B' | 'C'
 export type FashemuPhase = 'dormant' | 'active' | 'warning' | 'break' | 'reconciled' | 'dead'
 export type FashemuEndingPath = 'A' | 'B' | 'C' | 'D'
 
+export type RunArchetype = 'technocrat' | 'loyalist' | 'outsider'
+export type RunSimStrategy = 'first' | 'random' | 'weighted' | 'winning'
+
+export type RunMeta = {
+  archetype: RunArchetype | null
+  simStrategy: RunSimStrategy | null
+  simSeed: number | null
+  simWeeksSkipped: number | null
+}
+
 // --- End Phase 2 Types ---
 
 export type GodfatherMessage = {
@@ -322,4 +332,8 @@ export type GameState = {
   offCycleElection: boolean         // flag set when litigation won
   // Deck management
   choiceUseCounts: Record<string, number>  // key: `${eventId}:${choiceId}` — tracks repeat selections
+  // Term tracking
+  currentTerm: number  // 1 = first term, 2 = second term after re-election
+  // Run metadata — diagnostic only, no gameplay effect
+  runMeta: RunMeta
 }

@@ -114,7 +114,7 @@ Never write `state.stats.publicTrust += X`. Always go through `applyDelta`.
 19. Campaign mode flag at week 195
 20. `checkGameOver`
 21. Draw next event / godfather ask
-22. `infrastructureScore -= 0.3` passive decay
+22. Infrastructure passive decay: `infrastructureScore -= (0.5 + max(0, score - 70) * 0.005)` + youth tension passive rise `youthTension += 0.4`
 
 ---
 
@@ -169,6 +169,13 @@ type DelayedConsequence = {
 
 ## State Fields Reference
 
+### Term tracking field
+
+| Field | Type | Default | Purpose |
+|---|---|---|---|
+| `currentTerm` | `number` | `1` | 1 = first term, 2 = second term. Set to 2 by `checkGameOver` on re-election instead of ending the game. |
+| `choiceUseCounts` | `Record<string, number>` | `{}` | Tracks how many times `${eventId}:${choiceId}` was chosen; powers diminishing returns scaling. |
+
 ### Phase 4 fields (added for Political Realism arc)
 
 | Field | Type | Default | Purpose |
@@ -204,7 +211,10 @@ All new fields get defaults in `startingState.ts` and are auto-merged by `{ ...S
 | Federal Takeover | `federalRelationship < -40` AND `infrastructureScore < 25` AND `emergencySuspensionWeeks === 0` |
 | Mass Uprising | `publicTrust < 15` AND `youthTension > 85` |
 | Party Removal | `partyGodfathers < 10` AND week > 52, AND removal arc completes (3-stage: resolution → committee → floor vote) |
-| Term End | week > 208 → election → LegacyScreen |
+| Term End (loss) | week > 208 AND vote ≤ 50% → LegacyScreen |
+| Second Term | week > 208 AND vote > 50% → `currentTerm = 2`, continue to week 416 |
+| Second Term End | week > 416 AND `currentTerm === 2` → final LegacyScreen |
+| Primary Defeat | Scenario B primary requirements not met by week 176 → `primary-contest-loss` event → game over |
 
 **Recovery from removal arc:** `partyGodfathers` recovering to ≥ 20 cancels the arc and clears the queue. Stage stays at 1 until recovery or game over.
 
@@ -266,6 +276,22 @@ New initiatives require an entry in `src/data/initiatives.ts`:
 - [x] Fast-forward / speed-run mode
 - [x] Save versioning migration layer
 
+### Balance + Mid-Game + Second Term (shipped)
+
+- [x] **Infrastructure balance**: decay raised from −0.3 to −0.5/wk + maintenance scaling above 70 (prevents near-100 trivially holding)
+- [x] **Youth tension passive drift**: +0.4/wk baseline; 0 tension is no longer achievable permanently
+- [x] **Mid-game chapter events** (`src/data/events/midgame.ts`): 4 triggered inflection points at weeks 60/78/104/130 — press verdict, assembly budget revolt, teachers' strike, security audit
+- [x] **Primary narrative wired** (`setFlags` → `primaryScenario` derivation): path A/B/C now mechanically determines `primaryBonus()` in election formula
+- [x] **Primary loss condition**: Scenario B fails if requirements not met by week 176 → `primary-contest-loss` event → game over
+- [x] **Election formula widened**: adds LGA midterm bonus (±3), faction endorsement bonus (±7), recalibrated primary weights
+- [x] **Campaign sub-deck** (`src/data/events/campaign.ts`): 4 campaign events + 3 opponent cards that target actual player weaknesses
+- [x] **Finale chain** (`src/data/events/finale.ts`): debate → security breakdown → election eve (weeks 205–207)
+- [x] **Routine card expiry**: `maxWeek: 150` on all 8 routine events — campaign era fills the vacuum
+- [x] **Stomach infrastructure diminishing returns**: repeat use scales yields down; escalating corruption + civil society penalties
+- [x] **Second term**: `currentTerm` field; re-election at week 208 continues to week 416 instead of ending game
+- [x] **Legacy screen enriched**: primary path narrative, endorsement picture, second-term masthead
+- [x] **SAVE_VERSION = 4** with `migrateV3toV4` (adds `currentTerm: 1` to old saves)
+
 ### Phase 4 — Political Realism
 
 - [x] **Cat 4: Ghost Worker Purge** — biometric (12 wks) vs committee (8 wks) initiative. Committee path has midpoint stall event (allowance demand). Both set `ghost-purge-resolved`. 59 tests in `phase4CatFourAndThree.test.ts`.
@@ -306,3 +332,44 @@ Run before every merge:
 - [ ] Queue-only events have `triggerCondition: () => false`
 - [ ] Jurisdiction accuracy: state assembly/procurement → LAHA, not Federal Senate
 - [ ] New initiative has entry in `src/data/initiatives.ts`
+
+### Winning Strategy Tuning
+
+The `'winning'` simulation strategy (`src/engine/simulateEngine.ts`) uses `WINNING_STRATEGY` — a single config object at the top of the file with all thresholds and weights. This strategy wins ≥ 60% of runs across 15 seeds (3 archetypes × 5 seeds; current best: 10/15 = 67%).
+
+**When to re-tune:**
+- Revenue/expenditure formula changes (game balance)
+- New event categories that alter the option pool
+- Stat bound changes (BOUNDS table in statEngine.ts)
+- Post-debugging the game economy
+
+**How to tune:**
+
+```bash
+# 1. Run the benchmark to measure current win rate
+npx tsx scripts/benchmark.ts
+
+# 2. Edit WINNING_STRATEGY thresholds in src/engine/simulateEngine.ts
+#    Key levers:
+#    - emergency.cashReserve: threshold (default 60) + weight (default 25) —
+#      raise both to trigger earlier / stronger cash-preserving choices
+#    - continuous.cashReserve + continuous.igr (default 1 and 2) —
+#      always-active cash preference; raising above 2 overrides choice[0]
+#      too often (tested: ≥ 3 caused regression)
+#    - godfather.corruptionRefuseThreshold (default 50): lower = refuse earlier
+#      to protect grants (corruption > 75 = -0.8bn/wk). Raising to 55+ caused
+#      corruption death spirals; 50 is the sweet spot.
+#    - godfather.comfortableGodfathers (default 30): when to stop accepting.
+#      Raising to 40 caused more risk than benefit.
+#    - overrideMinScore (default 5): minimum score above baseline to override
+#      choice[0]. Lower = more deviation from safe default. 3 caused regressions.
+
+# 3. Verify the benchmark passes (≥ 60%)
+```
+
+**Design principles behind the config:**
+1. **Default to choice[0]** — game designers put the safe/effective option first on every event card. Only override when a stat crosses an emergency threshold.
+2. **Godfather corruption ceiling** — the funding freeze (corruption > 75) costs 0.8bn/wk in lost grants. Keeping corruption below 60 is worth more than keeping godfathers above 25.
+3. **Cash is king in the late game** — the structural deficit (expenditure > revenue) from week 150+ burns cash at 5-8bn/week. The strategy must build a large mid-game buffer and minimize late-game spending.
+4. **Loyalist always wins** — high starting godfathers (90) + political capital (180) is dominant. Technocrat and outsider start with weak cash/godfathers and lose whenever events deal an unlucky hand.
+5. **Deterministic state seeding** — `makeSeededArchetypeState` in both the benchmark test and standalone script ensures NPC/deputy assignment is reproducible, making the benchmark fully deterministic.

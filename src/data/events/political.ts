@@ -372,6 +372,7 @@ export const politicalEvents: EventCard[] = [
     category: 'political',
     week: 170,
     triggerCondition: (state) =>
+      !state.primaryScenario &&
       state.week >= 170 &&
       state.godfatherComplianceCount >= 2 &&
       (state.fashemuPhase === 'active' || state.fashemuPhase === 'reconciled' || state.fashemuPhase === 'dormant'),
@@ -404,6 +405,7 @@ export const politicalEvents: EventCard[] = [
     category: 'political',
     week: 172,
     triggerCondition: (state) =>
+      !state.primaryScenario &&
       state.week >= 172 &&
       state.godfatherRefusalCount >= 2 &&
       (state.fashemuPhase === 'warning' || state.fashemuPhase === 'break'),
@@ -436,6 +438,7 @@ export const politicalEvents: EventCard[] = [
     category: 'political',
     week: 170,
     triggerCondition: (state) =>
+      !state.primaryScenario &&
       state.week >= 170 &&
       (state.fashemuPhase === 'dead' || state.godfatherRefusalCount >= 5),
     choices: [
@@ -500,7 +503,7 @@ export const politicalEvents: EventCard[] = [
         label: 'Immediate Purge',
         description:
           'Clean house now. Saves ₦640m/mth. Unions and LG Chairmen furious. Trust +5 when it leaks. Union threatens strike in 4 weeks.',
-        immediate: { cashReserve: 0.64, publicTrust: 5 },
+        immediate: { cashReserve: 0.64, publicTrust: 5, ghostWorkerRate: -0.04 },
         factionImpact: { lgChairmen: -6 },
         setFlags: { 'ghost-purge-aggressive': true },
         delayed: {

@@ -38,6 +38,7 @@ function App() {
   const mode = useGameStore((s) => s.mode)
   const setMode = useGameStore((s) => s.setMode)
   const inCampaignMode = useGameStore((s) => s.inCampaignMode)
+  const currentTerm = useGameStore((s) => s.currentTerm)
   const factions = useGameStore((s) => s.factions)
   const activeGodfatherMessage = useGameStore((s) => s.activeGodfatherMessage)
 
@@ -96,6 +97,13 @@ function App() {
       version: SAVE_VERSION,
       exportedAt: new Date().toISOString(),
       week: state.week,
+      meta: {
+        archetype: state.runMeta.archetype,
+        simStrategy: state.runMeta.simStrategy,
+        simSeed: state.runMeta.simSeed,
+        simWeeksSkipped: state.runMeta.simWeeksSkipped,
+        currentTerm: state.currentTerm,
+      },
       stats: state.stats,
       factions: state.factions,
       constituencyApproval: state.constituencyApproval,
@@ -117,8 +125,9 @@ function App() {
     URL.revokeObjectURL(url)
   }
 
-  const year = Math.ceil(week / 52)
-  const termLabel = YEARS[Math.min(year - 1, YEARS.length - 1)]
+  const termBaseWeek = currentTerm === 2 ? week - 208 : week
+  const year = Math.ceil(termBaseWeek / 52)
+  const termLabel = currentTerm === 2 ? `Year ${year + 4}` : YEARS[Math.min(year - 1, YEARS.length - 1)]
   const monthLabel = formatGameMonth(week)
 
   const factionAlert = Object.values(factions).some((v) => v <= 25)
@@ -216,13 +225,18 @@ function App() {
         <div
           style={{
             height: '100%',
-            width: `${Math.min((week / 208) * 100, 100)}%`,
+            width: `${Math.min(((currentTerm === 2 ? week - 208 : week) / 208) * 100, 100)}%`,
             backgroundColor: 'var(--accent-solid)',
             transition: 'width 0.5s ease',
           }}
         />
       </div>
 
+      {currentTerm === 2 && !isGameOver && (
+        <div className="shrink-0 mx-3 mt-1 border px-3 py-1 text-center text-[10px] font-semibold tracking-wide" style={{ borderColor: 'var(--accent-solid)', color: 'var(--accent-text)', backgroundColor: 'var(--accent-bg-subtle)' }}>
+          SECOND TERM — Week {week} · Years {year + 4} of 8
+        </div>
+      )}
       {inCampaignMode && !isGameOver && (
         <div className="shrink-0 mx-3 mt-1 border px-3 py-1 text-center text-[10px] font-semibold tracking-wide" style={{ borderColor: 'var(--accent-solid)', color: 'var(--accent-text)', backgroundColor: 'var(--accent-bg-subtle)' }}>
           ELECTION CAMPAIGN MODE — Week 195+ · Every decision counts

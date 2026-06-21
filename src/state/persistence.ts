@@ -53,6 +53,11 @@ function migrateV2toV3(raw: RawSaveData): RawSaveData {
   return { ...raw, choiceUseCounts: {}, version: 3 }
 }
 
+function migrateV3toV4(raw: RawSaveData): RawSaveData {
+  // v4 adds currentTerm for second-term re-election play; all existing saves are term 1
+  return { ...raw, currentTerm: 1, version: 4 }
+}
+
 /**
  * Applies any needed migrations to bring a raw save up to SAVE_VERSION.
  * Exported so persistence tests can verify migration logic in isolation.
@@ -71,6 +76,7 @@ export function migrate(raw: RawSaveData): SerializableState {
   let data: RawSaveData = raw
   if (version < 2) data = migrateV1toV2(data)
   if (version < 3) data = migrateV2toV3(data)
+  if (version < 4) data = migrateV3toV4(data)
 
   return data as SerializableState
 }

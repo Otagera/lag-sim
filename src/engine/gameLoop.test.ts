@@ -236,3 +236,145 @@ describe('tickInitiative', () => {
     expect(result.eventQueue[0].id).toBe('paye-enforcement-result')
   })
 })
+
+describe('primaryScenario derivation from stateFlags', () => {
+  beforeEach(() => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
+  })
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('derives primaryScenario A from primary-a flag', () => {
+    const state = { ...clone(STARTING_STATE), week: 100, stateFlags: { 'primary-a': true } }
+    const result = tick(state)
+    expect(result.primaryScenario).toBe('A')
+  })
+
+  it('derives primaryScenario B from primary-b flag', () => {
+    const state = { ...clone(STARTING_STATE), week: 100, stateFlags: { 'primary-b': true } }
+    const result = tick(state)
+    expect(result.primaryScenario).toBe('B')
+  })
+
+  it('derives primaryScenario C from primary-c flag', () => {
+    const state = { ...clone(STARTING_STATE), week: 100, stateFlags: { 'primary-c': true } }
+    const result = tick(state)
+    expect(result.primaryScenario).toBe('C')
+  })
+
+  it('does not overwrite an already-set primaryScenario', () => {
+    const state = {
+      ...clone(STARTING_STATE),
+      week: 100,
+      primaryScenario: 'A' as const,
+      stateFlags: { 'primary-b': true },
+    }
+    const result = tick(state)
+    expect(result.primaryScenario).toBe('A')
+  })
+})
+
+describe('Scenario B primary loss condition', () => {
+  beforeEach(() => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
+  })
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  function scenarioBBase(overrides: Partial<GameState> = {}): GameState {
+    return {
+      ...clone(STARTING_STATE),
+      week: 176,
+      stateFlags: { 'primary-b': true, 'primary-b-civil-society': true },
+      primaryScenario: 'B' as const,
+      primaryWon: null,
+      ...overrides,
+    }
+  }
+
+  it('enqueues primary-contest-loss when civil society thresholds are not met', () => {
+    const state = scenarioBBase({
+      factions: {
+        ...STARTING_STATE.factions,
+        civilSocietyMedia: 40,   // below 55 threshold
+        businessCommunity: 40,   // below 50 threshold
+      },
+    })
+    const result = tick(state)
+    expect(result.primaryWon).toBe(false)
+    expect(result.eventQueue.some((e) => e.id === 'primary-contest-loss')).toBe(true)
+  })
+
+  it('sets primaryWon true when civil society path thresholds are met', () => {
+    const state = scenarioBBase({
+      factions: {
+        ...STARTING_STATE.factions,
+        civilSocietyMedia: 60,   // >= 55
+        businessCommunity: 55,   // >= 50
+      },
+    })
+    const result = tick(state)
+    expect(result.primaryWon).toBe(true)
+    expect(result.eventQueue.some((e) => e.id === 'primary-contest-loss')).toBe(false)
+  })
+
+  it('sets primaryWon true when grassroots path thresholds are met', () => {
+    const state = scenarioBBase({
+      stateFlags: { 'primary-b': true, 'primary-b-grassroots': true },
+      lgaElectionResult: 65,   // >= 60
+    })
+    const result = tick(state)
+    expect(result.primaryWon).toBe(true)
+  })
+
+  it('does not re-enqueue primary-contest-loss if already in queue', () => {
+    const lossEvent = { id: 'primary-contest-loss', title: '', body: '', severity: 'critical' as const, category: 'political' as const, choices: [] }
+    const state = scenarioBBase({
+      factions: { ...STARTING_STATE.factions, civilSocietyMedia: 40, businessCommunity: 40 },
+      eventQueue: [lossEvent],
+    })
+    const result = tick(state)
+    const count = result.eventQueue.filter((e) => e.id === 'primary-contest-loss').length
+    expect(count).toBe(1)
+  })
+
+  it('triggers game over when primary-lost flag is set', () => {
+    const state = {
+      ...clone(STARTING_STATE),
+      week: 180,
+      stateFlags: { 'primary-lost': true },
+    }
+    const result = tick(state)
+    expect(result.isGameOver).toBe(true)
+    expect(result.gameOverReason).toMatch(/primary/i)
+  })
+})
+
+describe('primary event mutual exclusion', () => {
+  beforeEach(() => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
+  })
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('does not draw a second primary event once primaryScenario is set', () => {
+    // Simulate save-10 pattern: both fashemu-backed and primary-open conditions met
+    const state = {
+      ...clone(STARTING_STATE),
+      week: 171,
+      primaryScenario: 'A' as const,  // already resolved via fashemu-backed
+      stateFlags: { 'primary-a': true },
+      godfatherComplianceCount: 3,
+      godfatherRefusalCount: 6,
+      fashemuPhase: 'dormant' as const,
+      resolvedEvents: ['primary-fashemu-backed'],
+    }
+    const result = tick(state)
+    // primary-open must NOT enter the queue despite its trigger condition passing
+    expect(result.eventQueue.some((e) => e.id === 'primary-open')).toBe(false)
+    expect(result.activeEvent?.id).not.toBe('primary-open')
+  })
+})

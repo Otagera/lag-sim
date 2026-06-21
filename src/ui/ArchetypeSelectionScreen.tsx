@@ -20,7 +20,8 @@ type Props = {
 
 export function ArchetypeSelectionScreen({ onSelect }: Props) {
   function handleSelect(key: ArchetypeKey) {
-    useGameStore.setState(getArchetypeState(key))
+    const base = getArchetypeState(key)
+    useGameStore.setState({ ...base, runMeta: { ...base.runMeta, archetype: key } })
     onSelect(key)
   }
 

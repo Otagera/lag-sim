@@ -3,7 +3,7 @@ import { drawNextEvent, resolveEvent } from './eventEngine'
 import { resolveGodfather } from './godfatherEngine'
 import { tick } from './gameLoop'
 
-export type SimulateStrategy = 'first' | 'random' | 'weighted'
+export type SimulateStrategy = 'first' | 'random' | 'weighted' | 'winning'
 
 export interface SimulateOptions {
   strategy?: SimulateStrategy
@@ -15,6 +15,43 @@ export interface SimulateResult {
   weeksSimulated: number
   stoppedEarly: boolean
   seed: number
+}
+
+/**
+ * Winning strategy configuration.
+ *
+ * Tune these values when game balance changes (new events, stat bounds,
+ * revenue/expenditure formulas). Run `npx tsx scripts/benchmark.ts` to
+ * verify the win rate stays ≥ 80%.
+ */
+export const WINNING_STRATEGY = {
+  overrideMinScore: 5,
+  baselineScore: 0.1,
+
+  continuous: {
+    cashReserve: 1,
+    igr: 2,
+    corruptionPressure: -1,
+  },
+
+  emergency: {
+    fedRel: { threshold: -10, statWeight: 20, factionWeight: 10 },
+    cashReserve: { threshold: 60, weight: 25 },
+    corruption: { threshold: 50, weight: 18 },
+    godfathers: { threshold: 15, weekGate: 40, weight: 12 },
+    youthTension: { threshold: 65, weight: 8 },
+    publicTrust: { threshold: 35, weight: 12 },
+    expenditure: { cashThreshold: 50, normalWeight: 2, crisisWeight: 8 },
+  },
+
+  godfather: {
+    corruptionRefuseThreshold: 50,
+    emergencyGodfathers: 8,
+    emergencyWeekGate: 40,
+    safetyGodfathers: 15,
+    comfortableGodfathers: 30,
+    middleRefusalCount: 3,
+  },
 }
 
 // mulberry32 seeded PRNG — gives identical sequences for the same seed
@@ -44,29 +81,100 @@ function scoreChoice(choice: EventCard['choices'][number]): number {
   )
 }
 
-function pickChoiceId(event: EventCard, strategy: SimulateStrategy, rng: () => number): string {
+function scoreWinningChoice(
+  choice: EventCard['choices'][number],
+  state: GameState,
+  _eventId: string,
+): number {
+  const d = choice.immediate
+  const f = choice.factionImpact ?? {}
+  const cfg = WINNING_STRATEGY.emergency
+  const cont = WINNING_STRATEGY.continuous
+  let score = WINNING_STRATEGY.baselineScore
+
+  score += (d.cashReserve ?? 0) * cont.cashReserve
+  score += (d.igr ?? 0) * cont.igr
+  score -= (d.corruptionPressure ?? 0) * cont.corruptionPressure
+
+  if (state.stats.federalRelationship < cfg.fedRel.threshold) {
+    score += (d.federalRelationship ?? 0) * cfg.fedRel.statWeight
+    score += (f.federalGovt ?? 0) * cfg.fedRel.factionWeight
+  }
+
+  if (state.stats.cashReserve < cfg.cashReserve.threshold) {
+    score += (d.cashReserve ?? 0) * cfg.cashReserve.weight
+  }
+
+  if (state.stats.corruptionPressure > cfg.corruption.threshold) {
+    score -= (d.corruptionPressure ?? 0) * cfg.corruption.weight
+  }
+
+  if (state.factions.partyGodfathers < cfg.godfathers.threshold && state.week > cfg.godfathers.weekGate) {
+    score += (f.partyGodfathers ?? 0) * cfg.godfathers.weight
+  }
+
+  if (state.stats.youthTension > cfg.youthTension.threshold) {
+    score -= (d.youthTension ?? 0) * cfg.youthTension.weight
+  }
+
+  if (state.stats.publicTrust < cfg.publicTrust.threshold) {
+    score += (d.publicTrust ?? 0) * cfg.publicTrust.weight
+  }
+
+  if (d.expenditure && d.expenditure > 0) {
+    const weight = state.stats.cashReserve < cfg.expenditure.cashThreshold
+      ? cfg.expenditure.crisisWeight
+      : cfg.expenditure.normalWeight
+    score -= d.expenditure * weight
+  }
+
+  return score
+}
+
+function pickChoiceId(event: EventCard, strategy: SimulateStrategy, rng: () => number, state?: GameState): string {
   const { choices } = event
   if (!choices.length) return ''
   if (strategy === 'first') return choices[0].id
   if (strategy === 'random') return choices[Math.floor(rng() * choices.length)].id
-
-  // weighted: proportional draw biased toward choices that help survival
-  const scores = choices.map((c) => Math.max(0.1, scoreChoice(c) + 20))
-  const total = scores.reduce((s, w) => s + w, 0)
-  let roll = rng() * total
-  for (let i = 0; i < choices.length; i++) {
-    roll -= scores[i]
-    if (roll <= 0) return choices[i].id
+  if (strategy === 'weighted') {
+    const scores = choices.map((c) => Math.max(0.1, scoreChoice(c) + 20))
+    const total = scores.reduce((s, w) => s + w, 0)
+    let roll = rng() * total
+    for (let i = 0; i < choices.length; i++) {
+      roll -= scores[i]
+      if (roll <= 0) return choices[i].id
+    }
+    return choices[choices.length - 1].id
   }
-  return choices[choices.length - 1].id
+  if (strategy === 'winning' && state) {
+    // Default to first choice (safe/effective), only override in emergencies
+    const scores = choices.map((c) => scoreWinningChoice(c, state, event.id))
+    const maxScore = Math.max(...scores)
+    if (maxScore > WINNING_STRATEGY.overrideMinScore) {
+      const bestIdx = scores.indexOf(maxScore)
+      return choices[bestIdx].id
+    }
+    return choices[0].id
+  }
+  return choices[0].id
+}
+
+function shouldAcceptGodfather(state: GameState): boolean {
+  const cfg = WINNING_STRATEGY.godfather
+  if (state.stats.corruptionPressure > cfg.corruptionRefuseThreshold) return false
+  if (state.factions.partyGodfathers < cfg.emergencyGodfathers && state.week > cfg.emergencyWeekGate) return true
+  if (state.factions.partyGodfathers < cfg.safetyGodfathers) return true
+  if (state.factions.partyGodfathers > cfg.comfortableGodfathers) return false
+  if (state.godfatherRefusalCount >= cfg.middleRefusalCount) return true
+  return false
 }
 
 function autoResolveWeek(state: GameState, strategy: SimulateStrategy, rng: () => number): GameState {
   let s = state
 
-  // Dismiss godfather message with a random accept/refuse
+  // Dismiss godfather message
   if (s.activeGodfatherMessage) {
-    const accept = rng() > 0.5
+    const accept = strategy === 'winning' ? shouldAcceptGodfather(s) : rng() > 0.5
     s = resolveGodfather(s, s.activeGodfatherMessage, accept)
   }
 
@@ -74,7 +182,7 @@ function autoResolveWeek(state: GameState, strategy: SimulateStrategy, rng: () =
   let safety = 0
   while (s.activeEvent && s.eventsResolvedThisWeek < 2 && safety < 10) {
     const event = s.activeEvent
-    const choiceId = pickChoiceId(event, strategy, rng)
+    const choiceId = pickChoiceId(event, strategy, rng, strategy === 'winning' ? s : undefined)
     s = resolveEvent({ ...s, activeEvent: null }, event, choiceId)
     if (!s.activeEvent && s.eventsResolvedThisWeek < 2) {
       const next = drawNextEvent(s)

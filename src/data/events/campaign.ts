@@ -82,7 +82,7 @@ This is unprecedented. The last governor who went to elections without a unified
 At current trajectory, you win Lagos Island but lose the mainland. That math does not produce a win.`,
     severity: 'high',
     category: 'political',
-    triggerCondition: (state) => state.week >= 165,
+    triggerCondition: (state) => state.week >= 165 && state.currentTerm === 1,
     choices: [
       {
         id: 'emergency-constituency-blitz',
@@ -118,7 +118,7 @@ At current trajectory, you win Lagos Island but lose the mainland. That math doe
 Without the NURTW fleet, mainland turnout — your base — drops an estimated 22%. You cannot win this election on Lagos Island votes alone.`,
     severity: 'high',
     category: 'economy',
-    triggerCondition: (state) => state.week >= 172,
+    triggerCondition: (state) => state.week >= 172 && state.currentTerm === 1,
     choices: [
       {
         id: 'pay-full-subvention',

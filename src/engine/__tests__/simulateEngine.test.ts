@@ -2,9 +2,34 @@ import { describe, it, expect, vi, afterEach } from 'vitest'
 import { STARTING_STATE } from '../../data/startingState'
 import type { GameState } from '../../state/types'
 import { simulateWeeks } from '../simulateEngine'
+import { getArchetypeState } from '../../data/archetypes'
 
 function clone(s: GameState): GameState {
   return JSON.parse(JSON.stringify(s))
+}
+
+/** mulberry32 seeded PRNG — deterministic for a given seed */
+function mulberry32(seed: number): () => number {
+  let s = seed | 0
+  return () => {
+    s = (s + 0x6d2b79f5) | 0
+    let t = Math.imul(s ^ (s >>> 15), 1 | s)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+/**
+ * Generate a seeded state that is deterministic for a given (archetype, stateSeed) pair.
+ * This is necessary because getArchetypeState uses Math.random for NPC/deputy selection,
+ * so we temporarily replace Math.random with a seeded PRNG for reproducibility.
+ */
+function makeSeededArchetypeState(arch: 'technocrat' | 'loyalist' | 'outsider', stateSeed: number): GameState {
+  const orig = Math.random
+  Math.random = mulberry32(stateSeed)
+  const base = getArchetypeState(arch)
+  Math.random = orig
+  return base
 }
 
 afterEach(() => vi.restoreAllMocks())
@@ -59,7 +84,6 @@ describe('simulateWeeks — strategies', () => {
   it('random strategy with different seeds produces different outcomes over 50 weeks', () => {
     const r1 = simulateWeeks(clone(STARTING_STATE), 50, { strategy: 'random', seed: 1 })
     const r2 = simulateWeeks(clone(STARTING_STATE), 50, { strategy: 'random', seed: 999999 })
-    // At least one stat should differ — seeds should diverge
     const differ =
       r1.state.stats.cashReserve !== r2.state.stats.cashReserve ||
       r1.state.stats.publicTrust !== r2.state.stats.publicTrust ||
@@ -76,7 +100,6 @@ describe('simulateWeeks — strategies', () => {
       weightedCorrupt += simulateWeeks(clone(STARTING_STATE), 52, { strategy: 'weighted', seed }).state.stats.corruptionPressure
       randomCorrupt += simulateWeeks(clone(STARTING_STATE), 52, { strategy: 'random', seed }).state.stats.corruptionPressure
     }
-    // weighted should prefer anti-corruption choices — average should be lower
     expect(weightedCorrupt / totalRuns).toBeLessThanOrEqual(randomCorrupt / totalRuns + 5)
   })
 })
@@ -130,5 +153,62 @@ describe('simulateWeeks — long run sanity', () => {
       expect(stats.corruptionPressure).toBeGreaterThanOrEqual(0)
       expect(stats.infrastructureScore).toBeGreaterThanOrEqual(0)
     }
+  })
+})
+
+describe('simulateWeeks — winning strategy benchmark', () => {
+  const SEEDS = [42, 777, 12345, 99, 2020]
+  const ARCHETYPES = ['technocrat', 'loyalist', 'outsider'] as const
+  const MIN_WIN_RATE = 0.6
+
+  it('winning strategy is deterministic from STARTING_STATE', () => {
+    const r1 = simulateWeeks(clone(STARTING_STATE), 52, { strategy: 'winning', seed: 42 })
+    const r2 = simulateWeeks(clone(STARTING_STATE), 52, { strategy: 'winning', seed: 42 })
+    expect(r1.state.stats.cashReserve).toBeCloseTo(r2.state.stats.cashReserve, 3)
+    expect(r1.state.stats.publicTrust).toBeCloseTo(r2.state.stats.publicTrust, 3)
+  })
+
+  for (const arch of ['technocrat', 'loyalist', 'outsider'] as const) {
+    it(`winning strategy is deterministic for ${arch} with seeded state`, () => {
+      const base1 = makeSeededArchetypeState(arch, 42)
+      base1.runMeta = { archetype: arch, simStrategy: 'winning', simSeed: 42, simWeeksSkipped: 0 }
+      const r1 = simulateWeeks(base1 as GameState, 52, { strategy: 'winning', seed: 42 })
+
+      const base2 = makeSeededArchetypeState(arch, 42)
+      base2.runMeta = { archetype: arch, simStrategy: 'winning', simSeed: 42, simWeeksSkipped: 0 }
+      const r2 = simulateWeeks(base2 as GameState, 52, { strategy: 'winning', seed: 42 })
+
+      expect(r1.state.stats.cashReserve).toBeCloseTo(r2.state.stats.cashReserve, 3)
+      expect(r1.state.stats.publicTrust).toBeCloseTo(r2.state.stats.publicTrust, 3)
+    })
+  }
+
+  it(`wins ≥ ${(MIN_WIN_RATE * 100).toFixed(0)}% across 15 seeds`, () => {
+    let wins = 0
+    const total = SEEDS.length * ARCHETYPES.length
+    const results: string[] = []
+
+    for (const arch of ARCHETYPES) {
+      for (const seed of SEEDS) {
+        const stateSeed = seed + ARCHETYPES.indexOf(arch) * 10000
+        const base = makeSeededArchetypeState(arch, stateSeed)
+        base.runMeta = {
+          archetype: arch,
+          simStrategy: 'winning',
+          simSeed: seed,
+          simWeeksSkipped: 0,
+        }
+        const r = simulateWeeks(base as GameState, 208, { strategy: 'winning', seed })
+        const won = r.state.reElected === true
+        if (won) wins++
+        results.push(`${arch} seed=${seed} reElected=${r.state.reElected} cash=${r.state.stats.cashReserve.toFixed(1)} week=${r.state.week} isGameOver=${r.state.isGameOver} ${won ? 'WIN' : 'LOSE'}`)
+      }
+    }
+
+    // console.log for debug: uncomment to see per-seed results
+    // console.log('Benchmark results:\n' + results.join('\n'))
+    // console.log(`Wins: ${wins}/${total} = ${((wins / total) * 100).toFixed(0)}%`)
+
+    expect(wins / total).toBeGreaterThanOrEqual(MIN_WIN_RATE)
   })
 })

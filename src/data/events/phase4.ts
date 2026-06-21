@@ -373,7 +373,7 @@ export const phase4Events: EventCard[] = [
     category: 'economy',
     isRecurring: true,
     cooldownWeeks: 10,
-    triggerCondition: (state) => state.week >= 155 || state.inCampaignMode,
+    triggerCondition: (state) => (state.week >= 155 || state.inCampaignMode) && state.currentTerm === 1,
     choices: [
       {
         id: 'distribute-food-cash',
@@ -431,7 +431,7 @@ export const phase4Events: EventCard[] = [
     isRecurring: true,
     cooldownWeeks: 12,
     triggerCondition: (state) =>
-      (state.week >= 165 || state.inCampaignMode) && state.stats.cashReserve > 5,
+      (state.week >= 165 || state.inCampaignMode) && state.stats.cashReserve > 5 && state.currentTerm === 1,
     choices: [
       {
         id: 'fund-rallies-from-infra',

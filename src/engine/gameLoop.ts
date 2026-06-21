@@ -236,8 +236,8 @@ export function tick(state: GameState): GameState {
     next = resolveLGAElection(next)
   }
 
-  // Enter campaign mode at week 195
-  if (next.week >= 195 && !next.inCampaignMode) {
+  // Enter campaign mode at week 195 (first term only — second term has no election)
+  if (next.week >= 195 && !next.inCampaignMode && next.currentTerm === 1) {
     next = { ...next, inCampaignMode: true }
   }
 
@@ -258,7 +258,10 @@ export function tick(state: GameState): GameState {
     }
   }
 
-  next = applyDelta(next, { infrastructureScore: -0.3 })
+  // Infrastructure decay: base -0.5/week, +0.005 per point above 70 (high-infra states need more maintenance)
+  const infraDecay = 0.5 + Math.max(0, next.stats.infrastructureScore - 70) * 0.005
+  // Youth tension: passive +0.4/week — the city always generates new pressure
+  next = applyDelta(next, { infrastructureScore: -infraDecay, youthTension: 0.4 })
 
   return next
 }
@@ -718,7 +721,16 @@ function checkGameOver(state: GameState): GameState {
     }
   }
 
-  if (next.week > 208) {
+  // Second term end: week 416 is 208 weeks × 2 terms
+  if (next.week > 416 && next.currentTerm === 2) {
+    return {
+      ...next,
+      isGameOver: true,
+      gameOverReason: 'Your second term has ended. Your legacy is now sealed.',
+    }
+  }
+
+  if (next.week > 208 && next.currentTerm === 1) {
     const electionResult = calculateVoteShare(next)
     const reElected = electionResult > 50
 
@@ -731,6 +743,29 @@ function checkGameOver(state: GameState): GameState {
       else if (cooopedEFCC) fashemuEndingPath = 'C'
       else if (next.godfatherRefusalCount >= 4) fashemuEndingPath = 'B'
       else if (next.godfatherComplianceCount >= 3) fashemuEndingPath = 'A'
+    }
+
+    if (reElected) {
+      // Continue into second term instead of ending the game
+      return {
+        ...next,
+        electionResult,
+        reElected,
+        fashemuEndingPath,
+        currentTerm: 2,
+        inCampaignMode: false,
+        primaryScenario: null,
+        primaryWon: null,
+        timeline: [
+          ...next.timeline,
+          {
+            week: next.week,
+            type: 'milestone' as const,
+            title: 'Re-Election Victory — Second Term Begins',
+            description: `${electionResult.toFixed(1)}% of the vote. The people have given you another mandate. Second term begins — the stakes are higher, the margin for error is smaller.`,
+          },
+        ],
+      }
     }
 
     return {

@@ -6,10 +6,18 @@ export type HeadlineSlot = {
   subhead: string
 }
 
+export type PrimaryNarrative = {
+  path: 'A' | 'B' | 'C' | 'uncontested' | 'lost'
+  title: string
+  summary: string
+}
+
 export type LegacyData = {
   headlines: HeadlineSlot[]
   monologue: string
   monologueStyle: 'compliant' | 'reformer' | 'survivor'
+  primaryNarrative: PrimaryNarrative
+  endorsementSummary: string
 }
 
 function pickHeadlines(state: GameState): HeadlineSlot[] {
@@ -164,8 +172,72 @@ function pickMonologue(state: GameState): { text: string; style: 'compliant' | '
   }
 }
 
+function pickPrimaryNarrative(state: GameState): PrimaryNarrative {
+  if (state.stateFlags['primary-lost']) {
+    return {
+      path: 'lost',
+      title: 'The Primary That Ended It',
+      summary: `Hon. Seun Majekodunmi secured the party ticket. Without the LGA delegate base or civil society endorsement needed for a contested primary, the ward counts didn't hold. The re-election bid ended before the general election.`,
+    }
+  }
+  if (state.primaryScenario === 'A') {
+    return {
+      path: 'A',
+      title: 'The Godfather Primary',
+      summary: `Chief Fashemu's network delivered the party nomination through coordinated delegate management. The primary was decided in Ikoyi drawing rooms before a single ward voted. Efficient. Owed.`,
+    }
+  }
+  if (state.primaryScenario === 'B') {
+    const wasGrassroots = state.stateFlags['primary-b-grassroots']
+    return {
+      path: 'B',
+      title: wasGrassroots ? 'The Grassroots Primary' : 'The Civil Society Primary',
+      summary: wasGrassroots
+        ? `A contested primary won on LGA delegate votes — ${state.lgaElectionResult?.toFixed(0) ?? '?'}% of LGAs loyal after the midterm elections. The party machinery was against you. The ward structure held.`
+        : `A contested primary won through civil society and business community credibility. Neither Fashemu's network nor the ward machine delivered this — reputation did.`,
+    }
+  }
+  if (state.primaryScenario === 'C') {
+    return {
+      path: 'C',
+      title: 'The Open Primary',
+      summary: `An open party primary — no godfather endorsement, no guaranteed machine. Won on platform credibility and a reform coalition that held together long enough to secure the ticket.`,
+    }
+  }
+  return {
+    path: 'uncontested',
+    title: 'No Primary Contested',
+    summary: `The re-election campaign reached the general election without a primary contest being formally resolved.`,
+  }
+}
+
+function buildEndorsementSummary(state: GameState): string {
+  const { businessCommunity, civilSocietyMedia, lgChairmen, informalEconomy, partyGodfathers } = state.factions
+  const parts: string[] = []
+
+  if (businessCommunity >= 60) parts.push('Business community backing strong')
+  else if (businessCommunity <= 35) parts.push('Business community withdrew support')
+
+  if (civilSocietyMedia >= 60) parts.push('civil society endorsed')
+  else if (civilSocietyMedia <= 35) parts.push('civil society hostile')
+
+  if (lgChairmen >= 65) parts.push('LG chairmen mobilised')
+  else if (lgChairmen <= 35) parts.push('LG chairmen defected')
+
+  if (informalEconomy >= 60) parts.push('informal economy networks active')
+  else if (informalEconomy <= 30) parts.push('informal economy disengaged')
+
+  if (partyGodfathers >= 50) parts.push('party structure cooperative')
+  else parts.push('party structure fractured')
+
+  if (parts.length === 0) return 'No clear bloc endorsed or opposed the administration.'
+  return parts.join('; ') + '.'
+}
+
 export function buildLegacy(state: GameState): LegacyData {
   const headlines = pickHeadlines(state)
   const { text, style } = pickMonologue(state)
-  return { headlines, monologue: text, monologueStyle: style }
+  const primaryNarrative = pickPrimaryNarrative(state)
+  const endorsementSummary = buildEndorsementSummary(state)
+  return { headlines, monologue: text, monologueStyle: style, primaryNarrative, endorsementSummary }
 }

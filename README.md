@@ -54,10 +54,10 @@ After 208 weeks, an election determines your legacy.
 | `cashReserve` (₦bn) | Enables spending choices; below 0 triggers emergency loan | < 0 for 3 weeks = bankruptcy game-over |
 | `publicTrust` (0–100) | Drifts toward constituency average; low = riot risk | < 15 with youthTension > 85 = mass uprising |
 | `politicalCapital` (0–200) | Spent on high-value choices; limited resource | < 20 = many choices unavailable |
-| `infrastructureScore` (0–100) | Drives PAYE revenue; decays 0.3/week passively | < 25 with bad federal relation = takeover |
+| `infrastructureScore` (0–100) | Drives PAYE revenue; decays −0.5/wk base + extra scaling above 70 | < 25 with bad federal relation = takeover |
 | `federalRelationship` (-50–50) | Multiplies FAAC transfers; negative = federal hostility | < -40 with infra < 25 = federal takeover |
 | `corruptionPressure` (15–80) | Triggers EFCC events, grant freezes, capital flight | > 68 = EFCC investigation; > 75 for 3 wks = grant freeze |
-| `youthTension` (0–100) | > 70 activates riot mode (replaces normal events) | > 85 with trust < 15 = game over |
+| `youthTension` (0–100) | Passive +0.4/wk drift; > 70 activates riot mode | > 85 with trust < 15 = game over |
 | `ghostWorkerRate` (0.0–∞) | Inflates personnel costs each week | > 0.14 = ghost worker crisis event fires |
 | `securityIndex` (0–100) | Feeds into PAYE; below 40 triggers deputy resentment | |
 | `igr` (₦bn/wk) | Base revenue multiplier (influenced by infra + security) | |
@@ -86,7 +86,7 @@ Use this section to find the source of a problem or pull a specific lever.
 
 | Symptom | Root Cause | Fix |
 |---|---|---|
-| PAYE drops steadily | `infrastructureScore` decaying (−0.3/wk) | Capital projects, infrastructure events, resist stomach-infrastructure choice |
+| PAYE drops steadily | `infrastructureScore` decaying (−0.5/wk base; above 70, steeper) | Capital projects, infrastructure events, resist stomach-infrastructure choice |
 | PAYE drops sharply | `youthTension` rising | Resolve riots, youth-oriented social events |
 | FAAC drops to near-zero | `federalRelationship` < −30 | Cooperate with federal delegation, avoid defying Abuja |
 | FAAC variance spike | Wet season (weeks 5–18 of each year) OR federal election year | Ride it out; avoid loans |
@@ -275,7 +275,10 @@ Makoko demolished → makoko-land-grab-exposed
 | Federal Takeover | `federalRelationship < -40` AND `infrastructureScore < 25` AND not suspended |
 | Mass Uprising | `publicTrust < 15` AND `youthTension > 85` |
 | Party Removal | `partyGodfathers < 10` AND week > 52, AND removal arc completes |
-| Term End | week > 208 → election result → LegacyScreen |
+| Term End (loss) | week > 208 AND vote share ≤ 50% → LegacyScreen |
+| Term End (win) | week > 208 AND vote share > 50% → second term begins (week 209–416) |
+| Second Term End | week > 416 (currentTerm = 2) → final LegacyScreen |
+| Primary Defeat | Scenario B primary lost (requirements not met by week 176) → game over |
 
 > **Note:** Federal Takeover is suppressed while `emergencySuspensionWeeks > 0` — the suspension IS the federal intervention.
 
@@ -359,6 +362,19 @@ Grants    = 0.8 × grantsCompliance  (0 if freeze active, 0 if compliance zeroed
 
 ---
 
+## Mid-Game Chapter Events (weeks 52–150)
+
+Four year-anchored events create a narrative spine through the middle of the game. Each fires once via `triggerCondition` (bypassing the random pool), ensuring the inflection points always occur regardless of luck:
+
+| Week | Event | What it forces |
+|---|---|---|
+| ~60 | Year One: The Press Verdict | Respond to a multi-newspaper governance audit (trust / civil society choice) |
+| ~78 | House of Assembly Budget Blockade | Buy votes, concede 15%, or go public against an Assembly raid on capital budget |
+| ~104 | Statewide Teachers' Strike | Pay full ₦6.2bn arrears, negotiate partial, or blame federal austerity |
+| ~130 | Year Three Security Downturn | Address hidden security deterioration before campaign season |
+
+---
+
 ## What Is Not Built (and Should Not Be)
 
 - No map or tiles
@@ -366,7 +382,6 @@ Grants    = 0.8 × grantsCompliance  (0 if freeze active, 0 if compliance zeroed
 - No audio
 - No authentication
 - No save-to-server (localStorage only)
-- No second-term arc (placeholder only)
 
 ---
 

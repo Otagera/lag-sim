@@ -7,6 +7,7 @@ import { economyEvents } from '../data/events/economy'
 import { electionEvents } from '../data/events/election'
 import { finaleEvents } from '../data/events/finale'
 import { infrastructureEvents } from '../data/events/infrastructure'
+import { midgameEvents } from '../data/events/midgame'
 import { phase4Events } from '../data/events/phase4'
 import { politicalEvents } from '../data/events/political'
 import { riotEvents } from '../data/events/riot'
@@ -32,6 +33,7 @@ export const ALL_EVENTS: EventCard[] = [
   ...routineEvents,
   ...characterEvents,
   ...electionEvents,
+  ...midgameEvents,
   ...campaignEraEvents,
   ...finaleEvents,
   ...chainEvents,

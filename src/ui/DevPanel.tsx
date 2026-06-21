@@ -93,6 +93,7 @@ export function DevPanel() {
                 <option value="first">First choice (deterministic)</option>
                 <option value="random">Random choices</option>
                 <option value="weighted">Weighted (survival-biased)</option>
+                <option value="winning">Winning (tuned strategy)</option>
               </select>
             </div>
 
@@ -144,6 +145,17 @@ export function DevPanel() {
                     <span className="ml-1" style={{ color: 'var(--error-11)' }}>(game over)</span>
                   )}
                 </div>
+
+                {result.state.reElected && (
+                  <div className="text-[9px] px-1.5 py-1 font-bold" style={{ color: 'var(--success-11)', backgroundColor: 'var(--success-3)' }}>
+                    RE-ELECTED — {result.state.electionResult?.toFixed(1)}% of vote · Term {result.state.currentTerm}
+                  </div>
+                )}
+                {result.state.electionResult !== undefined && result.state.electionResult !== null && !result.state.reElected && (
+                  <div className="text-[9px] px-1.5 py-1 font-bold" style={{ color: 'var(--text)', backgroundColor: 'var(--warning-3)' }}>
+                    Election: {result.state.electionResult.toFixed(1)}% — not re-elected
+                  </div>
+                )}
 
                 {result.state.isGameOver && (
                   <div className="text-[9px] px-1.5 py-1" style={{ color: 'var(--error-11)', backgroundColor: 'var(--error-3)' }}>

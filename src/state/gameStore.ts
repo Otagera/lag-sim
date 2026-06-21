@@ -61,7 +61,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
   fastForward: (n: number, options?: SimulateOptions) => {
     const result = simulateWeeks(get(), n, options)
-    set(result.state)
+    set({
+      ...result.state,
+      runMeta: {
+        ...result.state.runMeta,
+        simStrategy: options?.strategy ?? 'first',
+        simSeed: result.seed,
+        simWeeksSkipped: n,
+      },
+    })
     return result
   },
   appointCommissioner: (role: CommissionerRole, candidate: CommissionerState) => {
