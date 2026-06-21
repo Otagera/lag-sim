@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { buildLegacy } from '../data/legacy'
 import { STARTING_STATE } from '../data/startingState'
 import { useGameStore } from '../state/gameStore'
@@ -49,6 +49,36 @@ export function LegacyScreen() {
   const state = useGameStore((s) => s)
   const legacy = buildLegacy(state)
   const [btnHover, setBtnHover] = useState(false)
+  const [llmMonologue, setLlmMonologue] = useState<string | null>(null)
+  const [llmLoading, setLlmLoading] = useState(false)
+  const workerRef = useRef<Worker | null>(null)
+
+  useEffect(() => {
+    setLlmLoading(true)
+    const worker = new Worker(new URL('../workers/llmWorker.ts', import.meta.url), {
+      type: 'module',
+    })
+    workerRef.current = worker
+
+    worker.onmessage = (e: MessageEvent<{ type: string; text?: string; message?: string }>) => {
+      if (e.data.type === 'result' && e.data.text) {
+        setLlmMonologue(e.data.text)
+      }
+      setLlmLoading(false)
+    }
+
+    worker.onerror = () => {
+      setLlmLoading(false)
+    }
+
+    worker.postMessage({ prompt: legacy.prompt })
+
+    return () => {
+      worker.terminate()
+      workerRef.current = null
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const endDate = formatGameDate(state.week)
   const totalEvents = state.resolvedEvents.length
@@ -113,19 +143,32 @@ export function LegacyScreen() {
         </div>
 
         {/* Governor's Final Address */}
-        <div className="p-4 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+        <div
+          className="p-4 border transition-all"
+          style={{
+            borderColor: llmLoading ? 'var(--accent-solid)' : 'var(--border)',
+            backgroundColor: 'var(--surface)',
+            animation: llmLoading ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none',
+          }}
+        >
           <div className="flex items-center gap-2 mb-3">
             <p className="label-caps">Governor's Final Press Address</p>
             <span
               className="text-[9px] px-1.5 py-0.5"
               style={{ backgroundColor: 'var(--neutral-4)', color: 'var(--text-secondary)' }}
             >
-              {monologueLabel}
+              {llmLoading ? 'composing…' : llmMonologue ? 'AI-generated' : monologueLabel}
             </span>
           </div>
-          <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text)' }}>
-            "{legacy.monologue}"
-          </p>
+          {llmLoading ? (
+            <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text-secondary)' }}>
+              Composing the address…
+            </p>
+          ) : (
+            <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text)' }}>
+              "{llmMonologue ?? legacy.monologue}"
+            </p>
+          )}
         </div>
 
         {/* Election Journey */}
