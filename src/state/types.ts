@@ -267,6 +267,20 @@ export type RunMeta = {
   simWeeksSkipped: number | null
 }
 
+export type NewsArticle = {
+  headline: string
+  deck: string
+  category: 'fiscal' | 'political' | 'crisis' | 'milestone' | 'background'
+  dataPoints: Array<{
+    label: string
+    value: string
+    delta?: string
+    positive?: boolean
+  }>
+  llmGenerated?: boolean
+  llmPending?: boolean
+}
+
 // --- End Phase 2 Types ---
 
 export type GodfatherMessage = {
@@ -357,6 +371,8 @@ export type GameState = {
   currentTerm: number  // 1 = first term, 2 = second term after re-election
   // Per-LGA approval sliding window (last 8 weeks)
   approvalHistory: Record<ConstituencyKey, number[]>
+  // News engine — set after tick when something newsworthy happens
+  newspaperHeadline?: NewsArticle
   // Run metadata — diagnostic only, no gameplay effect
   runMeta: RunMeta
 }

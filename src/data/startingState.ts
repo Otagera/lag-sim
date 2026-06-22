@@ -120,6 +120,7 @@ export const STARTING_STATE: GameState = {
     alimosho: [], agege: [], ifakoIjaye: [], badagry: [],
     epe: [], ikorodu: [], ojo: [], ajeromiIfelodun: [],
   },
+  newspaperHeadline: undefined,
   // Term tracking
   currentTerm: 1,
   // Run metadata

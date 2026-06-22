@@ -5,6 +5,7 @@ import { resolveEvent as resolveEventAction } from '../engine/eventEngine'
 import { tick as gameLoopTick } from '../engine/gameLoop'
 import { resolveGodfather } from '../engine/godfatherEngine'
 import { simulateWeeks, type SimulateOptions, type SimulateResult } from '../engine/simulateEngine'
+import { evaluateSkipNews } from '../engine/evaluateNews'
 import { applyDelta } from '../engine/statEngine'
 import { applyFactionDelta } from '../engine/factionEngine'
 import { saveGame } from './persistence'
@@ -19,6 +20,8 @@ export interface GameStore extends GameState {
   setDeputy: (key: DeputyKey) => void
   fastForward: (n: number, options?: SimulateOptions) => SimulateResult
   appointCommissioner: (role: CommissionerRole, candidate: CommissionerState) => void
+  clearNewspaperHeadline: () => void
+  enrichNewspaperHeadline: (headline: string, deck: string) => void
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -60,7 +63,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set(next)
   },
   fastForward: (n: number, options?: SimulateOptions) => {
-    const result = simulateWeeks(get(), n, options)
+    const prevState = get()
+    const result = simulateWeeks(prevState, n, options)
+    const skipArticle = evaluateSkipNews(prevState, result.state, n)
     set({
       ...result.state,
       runMeta: {
@@ -69,6 +74,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         simSeed: result.seed,
         simWeeksSkipped: n,
       },
+      newspaperHeadline: skipArticle,
     })
     return result
   },
@@ -80,6 +86,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
       { ...state, commissioners: { ...state.commissioners, [role]: candidate } },
       { politicalCapital: -pcCost },
     ))
+  },
+  clearNewspaperHeadline: () => {
+    set({ newspaperHeadline: undefined })
+  },
+  enrichNewspaperHeadline: (headline: string, deck: string) => {
+    set((s) => ({
+      newspaperHeadline: s.newspaperHeadline
+        ? { ...s.newspaperHeadline, headline, deck, llmGenerated: true, llmPending: false }
+        : undefined,
+    }))
   },
 }))
 

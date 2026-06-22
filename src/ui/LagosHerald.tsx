@@ -16,34 +16,46 @@ function moodColour(v: number): string {
   return v > 0.5 ? 'var(--success-11)' : v < -0.5 ? 'var(--error-11)' : 'var(--text-secondary)'
 }
 
-type Props = {
-  onClose: () => void
+const CATEGORY_LABEL: Record<string, string> = {
+  fiscal: 'FISCAL',
+  political: 'ANALYSIS',
+  crisis: 'CRISIS',
+  milestone: 'MILESTONE',
+  background: 'BRIEFING',
 }
 
-export function LagosHerald({ onClose }: Props) {
+const CATEGORY_COLOR: Record<string, string> = {
+  fiscal: 'var(--info-11)',
+  political: 'var(--warning-11)',
+  crisis: 'var(--error-11)',
+  milestone: 'var(--accent-text)',
+  background: 'var(--text-secondary)',
+}
+
+export function LagosHerald() {
   const week = useGameStore((s) => s.week)
-  const timeline = useGameStore((s) => s.timeline)
+  const newspaperHeadline = useGameStore((s) => s.newspaperHeadline)
   const lastWeekRevenue = useGameStore((s) => s.lastWeekRevenue)
   const lastWeekSpend = useGameStore((s) => s.lastWeekExpenditure)
   const snapshot = useGameStore((s) => s.lastWeekStatSnapshot)
   const trust = useGameStore((s) => s.stats.publicTrust)
   const polCap = useGameStore((s) => s.stats.politicalCapital)
   const approvalHistory = useGameStore((s) => s.approvalHistory)
+  const clearNewspaperHeadline = useGameStore((s) => s.clearNewspaperHeadline)
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') {
+        clearNewspaperHeadline()
+      }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [onClose])
+  }, [])
+
+  if (!newspaperHeadline) return null
 
   const prevWeek = week - 1
-
-  const leadEntry =
-    timeline.findLast((e) => e.type === 'event' && e.week === prevWeek) ??
-    timeline.findLast((e) => e.type === 'delayed-consequence' && e.week === week) ??
-    null
 
   const netFlow = lastWeekRevenue && lastWeekSpend
     ? lastWeekRevenue.total - lastWeekSpend.total
@@ -76,7 +88,7 @@ export function LagosHerald({ onClose }: Props) {
         {/* Masthead */}
         <div className="px-6 py-4" style={{ borderBottom: '2px solid var(--accent-solid)' }}>
           <p className="label-caps" style={{ color: 'var(--text-secondary)' }}>
-            ISSUE {week - 1 === 0 ? 1 : week - 1}
+            ISSUE {prevWeek === 0 ? 1 : prevWeek}
           </p>
           <h1 className="font-display text-xl font-bold mt-0.5" style={{ color: 'var(--text)' }}>
             THE LAGOS HERALD
@@ -88,23 +100,50 @@ export function LagosHerald({ onClose }: Props) {
 
         <div className="px-6 py-5 space-y-5">
           {/* Lead Story */}
-          {leadEntry ? (
-            <section>
-              <h2 className="font-display text-base font-semibold leading-snug" style={{ color: 'var(--text)' }}>
-                {leadEntry.title}
-              </h2>
+          <section>
+            <span className="label-caps" style={{ color: CATEGORY_COLOR[newspaperHeadline.category] ?? 'var(--text-secondary)' }}>
+              {CATEGORY_LABEL[newspaperHeadline.category] ?? 'NEWS'}
+            </span>
+            <h2 className="font-display text-base font-semibold leading-snug mt-1" style={{ color: 'var(--text)' }}>
+              {newspaperHeadline.headline}
+            </h2>
+            {newspaperHeadline.llmGenerated ? (
+              <p className="text-[12px] mt-1 leading-relaxed italic" style={{ color: 'var(--text)' }}>
+                &ldquo;{newspaperHeadline.deck}&rdquo;
+              </p>
+            ) : (
               <p className="text-[11px] mt-1 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                {leadEntry.description}
+                {newspaperHeadline.deck}
+                {newspaperHeadline.llmPending && (
+                  <span className="ml-1.5 text-[10px]" style={{ color: 'var(--text-secondary)' }}>
+                    polishing&hellip;
+                  </span>
+                )}
               </p>
-            </section>
-          ) : (
+            )}
+          </section>
+
+          {/* Inside the Numbers */}
+          {newspaperHeadline.dataPoints.length > 0 && (
             <section>
-              <h2 className="font-display text-base font-semibold" style={{ color: 'var(--text)' }}>
-                Quiet week in Government House
-              </h2>
-              <p className="text-[11px] mt-1" style={{ color: 'var(--text-secondary)' }}>
-                No major developments were reported this week.
-              </p>
+              <h3 className="label-caps mb-2" style={{ color: 'var(--text-secondary)' }}>INSIDE THE NUMBERS</h3>
+              <div className="p-3 space-y-1.5 text-[11px] border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+                {newspaperHeadline.dataPoints.map((dp) => (
+                  <div key={dp.label} className="flex justify-between items-center">
+                    <span style={{ color: 'var(--text-secondary)' }}>{dp.label}</span>
+                    <span>
+                      <span className="font-medium" style={{ color: dp.positive === true ? 'var(--success-11)' : dp.positive === false ? 'var(--error-11)' : 'var(--text)' }}>
+                        {dp.value}
+                      </span>
+                      {dp.delta && (
+                        <span className="ml-1.5" style={{ color: dp.positive === true ? 'var(--success-11)' : dp.positive === false ? 'var(--error-11)' : 'var(--text-secondary)' }}>
+                          {dp.delta}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </section>
           )}
 
@@ -213,7 +252,7 @@ export function LagosHerald({ onClose }: Props) {
         <div className="px-6 py-4 flex justify-end" style={{ borderTop: '1px solid var(--border)' }}>
           <button
             type="button"
-            onClick={onClose}
+            onClick={clearNewspaperHeadline}
             className="px-6 py-2 text-sm font-semibold transition-colors"
             style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
           >

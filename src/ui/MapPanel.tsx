@@ -24,7 +24,10 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
   if (values.length < 2) return null
   const W = 60, H = 16
   const xStep = W / (values.length - 1)
-  const pts = values.map((v, i) => `${i * xStep},${H - (v / 100) * H}`).join(' ')
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const range = Math.max(max - min, 10)
+  const pts = values.map((v, i) => `${i * xStep},${H - ((v - min) / range) * H}`).join(' ')
   return (
     <svg width={W} height={H} style={{ display: 'block' }}>
       <polyline points={pts} fill="none" stroke={color} strokeWidth={1.5}

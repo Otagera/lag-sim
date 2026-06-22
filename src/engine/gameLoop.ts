@@ -13,6 +13,7 @@ import { processProjects } from './projectEngine'
 import { calculateWeeklyRevenue } from './revenueEngine'
 import { getSeasonModifier } from './seasonEngine'
 import { applyDelta } from './statEngine'
+import { evaluateNews } from './evaluateNews'
 
 const CONSTITUENCY_TRUST_WEIGHTS: Partial<Record<string, number>> = {
   alimosho:        13,
@@ -282,6 +283,9 @@ export function tick(state: GameState): GameState {
     updatedHistory[key] = [...prev, next.constituencyApproval[key]].slice(-8)
   }
   next = { ...next, approvalHistory: updatedHistory }
+
+  const article = evaluateNews(state, next)
+  next = article ? { ...next, newspaperHeadline: article } : next
 
   return next
 }

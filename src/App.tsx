@@ -29,6 +29,7 @@ import { CabinetPanel } from './ui/CabinetPanel'
 import { DeputyPanel } from './ui/DeputyPanel'
 import { DevPanel } from './ui/DevPanel'
 import { SidebarTabs } from './ui/SidebarTabs'
+import { buildNewsPrompt, generateNewsText } from './engine/llmNews'
 
 type MobileTab = 'event' | 'factions' | 'gov' | 'data'
 
@@ -43,13 +44,13 @@ function App() {
   const currentTerm = useGameStore((s) => s.currentTerm)
   const factions = useGameStore((s) => s.factions)
   const activeGodfatherMessage = useGameStore((s) => s.activeGodfatherMessage)
+  const newspaperHeadline = useGameStore((s) => s.newspaperHeadline)
 
   const [showLoadPrompt, setShowLoadPrompt] = useState(false)
   const [showWelcome, setShowWelcome] = useState(false)
   const [showArchetypeSelect, setShowArchetypeSelect] = useState(false)
   const [showDeputySelect, setShowDeputySelect] = useState(false)
   const [showHandover, setShowHandover] = useState(false)
-  const [showHerald, setShowHerald] = useState(false)
   const [selectedArchetype, setSelectedArchetype] = useState<'technocrat' | 'loyalist' | 'outsider'>('technocrat')
   const [activeMobileTab, setActiveMobileTab] = useState<MobileTab>('event')
   const [theme, setTheme] = useState<'light' | 'dark'>(
@@ -74,6 +75,30 @@ function App() {
       setShowWelcome(true)
     }
   }, [])
+
+  // LLM enrichment: when a new newspaperHeadline appears, fire the worker
+  useEffect(() => {
+    if (!newspaperHeadline || newspaperHeadline.llmGenerated || newspaperHeadline.llmPending) return
+
+    useGameStore.setState((s) => ({
+      newspaperHeadline: s.newspaperHeadline
+        ? { ...s.newspaperHeadline, llmPending: true }
+        : undefined,
+    }))
+
+    const prompt = buildNewsPrompt(newspaperHeadline, week, inCampaignMode, currentTerm)
+    generateNewsText(prompt).then((llmText) => {
+      if (llmText) {
+        useGameStore.getState().enrichNewspaperHeadline(newspaperHeadline.headline, llmText)
+      } else {
+        useGameStore.setState((s) => ({
+          newspaperHeadline: s.newspaperHeadline
+            ? { ...s.newspaperHeadline, llmPending: false }
+            : undefined,
+        }))
+      }
+    })
+  }, [newspaperHeadline?.headline, newspaperHeadline?.llmGenerated, newspaperHeadline?.llmPending])
 
   function handleResume() {
     const saved = loadGame()
@@ -128,11 +153,6 @@ function App() {
     URL.revokeObjectURL(url)
   }
 
-  const handleNextWeek = () => {
-    tick()
-    setShowHerald(true)
-  }
-
   const termBaseWeek = currentTerm === 2 ? week - 208 : week
   const year = Math.ceil(termBaseWeek / 52)
   const termLabel = currentTerm === 2 ? `Year ${year + 4}` : YEARS[Math.min(year - 1, YEARS.length - 1)]
@@ -182,8 +202,8 @@ function App() {
           onClose={() => setShowHandover(false)}
         />
       )}
-      {showHerald && (
-        <LagosHerald onClose={() => setShowHerald(false)} />
+      {newspaperHeadline && (
+        <LagosHerald />
       )}
 
       <header className="shrink-0 flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: 'var(--border)' }}>
@@ -221,7 +241,7 @@ function App() {
           {!isGameOver && (
             <button
               type="button"
-              onClick={handleNextWeek}
+              onClick={tick}
               className="px-3 py-1 text-[11px] font-semibold transition-colors"
               style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
             >
