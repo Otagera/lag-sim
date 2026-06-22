@@ -1,0 +1,9 @@
+{
+  "projectId": "ef95eb7f-e566-4020-a218-b87e6c17d68b",
+  "pkg": "lagos-governor-sim",
+  "globalName": "LagosGovernorSim",
+  "shape": "package",
+  "cssEntry": ".design-sync/tokens.css",
+  "runtimeFontPrefixes": ["Newsreader", "Archivo Narrow"],
+  "readmeHeader": ".design-sync/conventions.md"
+}

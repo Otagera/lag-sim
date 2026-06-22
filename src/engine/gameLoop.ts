@@ -15,14 +15,26 @@ import { getSeasonModifier } from './seasonEngine'
 import { applyDelta } from './statEngine'
 
 const CONSTITUENCY_TRUST_WEIGHTS: Partial<Record<string, number>> = {
-  alimosho: 40 / 3,
-  periphery: 40 / 3,
-  makoko: 40 / 3,
-  lagosIsland: 10,
-  victoriaIsland: 10,
-  lekki: 10,
-  surulere: 15,
-  oshodi: 15,
+  alimosho:        13,
+  oshodiIsolo:      6,
+  mushin:           5,
+  kosofe:           6,
+  surulere:         5,
+  amuwoOdofin:      4,
+  apapa:            3,
+  lagosMainland:    5,
+  ikeja:            5,
+  agege:            5,
+  ifakoIjaye:       4,
+  ikorodu:          7,
+  badagry:          5,
+  ojo:              5,
+  epe:              3,
+  ajeromiIfelodun:  4,
+  shomolu:          4,
+  lagosIsland:      4,
+  etiOsa:           4,
+  ibejuLekki:       3,
 }
 
 export function tick(state: GameState): GameState {

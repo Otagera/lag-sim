@@ -37,13 +37,25 @@ export type FactionDelta = Partial<FactionState>
 
 export type ConstituencyKey =
   | 'lagosIsland'
-  | 'victoriaIsland'
-  | 'lekki'
+  | 'etiOsa'
+  | 'ibejuLekki'
   | 'surulere'
-  | 'oshodi'
+  | 'amuwoOdofin'
+  | 'apapa'
+  | 'oshodiIsolo'
+  | 'mushin'
+  | 'shomolu'
+  | 'kosofe'
+  | 'lagosMainland'
+  | 'ikeja'
   | 'alimosho'
-  | 'periphery'
-  | 'makoko'
+  | 'agege'
+  | 'ifakoIjaye'
+  | 'badagry'
+  | 'epe'
+  | 'ikorodu'
+  | 'ojo'
+  | 'ajeromiIfelodun'
 
 export type ConstituencyApproval = Record<ConstituencyKey, number>
 
@@ -149,6 +161,14 @@ export type Choice = {
     weeksRemaining: number
     totalWeeks: number
     completionEventId: string
+  }
+  launchProject?: {
+    name: string
+    location: ConstituencyKey
+    totalCost: number
+    weeklyDraw: number
+    weeksRemaining: number
+    contractorId: string
   }
   // Phase 4 extensions
   setSuspensionWeeks?: number  // starts/ends emergency suspension

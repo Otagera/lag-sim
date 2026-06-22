@@ -83,7 +83,7 @@ export const llmEvents: EventCard[] = [
         description: 'Refuse to pay. Revert to manual cash collection at the bridges. IGR suffers due to immediate systemic leakage, and massive gridlock hits the islands.',
         immediate: { igr: -1, infrastructureScore: -4 },
         factionImpact: { businessCommunity: -10 },
-        constituencyImpact: { victoriaIsland: -12, lekki: -12 },
+        constituencyImpact: { etiOsa: -12, ibejuLekki: -12 },
         delayed: {
           weekOffset: 4,
           delta: { infrastructureScore: 2 },
@@ -105,7 +105,7 @@ export const llmEvents: EventCard[] = [
         description: 'Temporarily slash the state\'s transaction fee to get drivers moving. Relieves traffic and calms youth tension, but permanently trims weekly state IGR.',
         immediate: { igr: -0.4, youthTension: -8, publicTrust: 4 },
         factionImpact: { businessCommunity: 6 },
-        constituencyImpact: { lekki: 10 },
+        constituencyImpact: { ibejuLekki: 10 },
       },
       {
         id: 'disperse-with-taskforce',
@@ -113,7 +113,7 @@ export const llmEvents: EventCard[] = [
         description: 'Deploy the Task Force to forcibly tow striking vehicles and impound them. Restores traffic flows instantly, but infuriates the middle class and triggers media backlash.',
         immediate: { securityIndex: 4, publicTrust: -6 },
         factionImpact: { civilSocietyMedia: -10, informalEconomy: -8 },
-        constituencyImpact: { lekki: -5 },
+        constituencyImpact: { ibejuLekki: -5 },
       },
     ],
   },
@@ -130,7 +130,7 @@ export const llmEvents: EventCard[] = [
         description: 'Invoke the Land Use Act to seize the land at minimum legal cost. Delights corporate investors and godfathers, but triggers severe communal tension and drops rural trust.',
         immediate: { publicTrust: -5 },
         factionImpact: { businessCommunity: 15, partyGodfathers: 12 },
-        constituencyImpact: { periphery: -15 },
+        constituencyImpact: { ikorodu: -15 },
         delayed: {
           weekOffset: 6,
           delta: { infrastructureScore: 10 },
@@ -143,7 +143,7 @@ export const llmEvents: EventCard[] = [
         description: 'Draw heavily from reserves to pay true market value to indigenous families. Avoids social unrest and secures civil media acclaim, but drastically inflates the project\'s baseline cost.',
         immediate: { cashReserve: -4 },
         factionImpact: { civilSocietyMedia: 10 },
-        constituencyImpact: { periphery: 15 },
+        constituencyImpact: { ikorodu: 15 },
       },
     ],
   },
@@ -447,7 +447,7 @@ export const llmEvents: EventCard[] = [
         description: 'Impose an emergency climate infrastructure tax on island real estate developers to fund coastal reinforcement. Boosts infrastructure capacity long-term, but alienates elite financiers.',
         immediate: { infrastructureScore: -3 },
         factionImpact: { businessCommunity: -15, civilSocietyMedia: 10 },
-        constituencyImpact: { victoriaIsland: -10, lekki: -10 },
+        constituencyImpact: { etiOsa: -10, ibejuLekki: -10 },
         delayed: {
           weekOffset: 6,
           delta: { infrastructureScore: 12, cashReserve: 2.5 },
@@ -477,7 +477,7 @@ export const llmEvents: EventCard[] = [
         description: 'Launch an aggressive security raid to destroy the illegal camps. Security index ticks up, but localized peripheral support craters and youth tension climbs.',
         immediate: { securityIndex: 5, youthTension: 8 },
         factionImpact: { civilSocietyMedia: 6, informalEconomy: -12 },
-        constituencyImpact: { periphery: -15 },
+        constituencyImpact: { ikorodu: -15 },
       },
       {
         id: 'ignore-and-collect',
@@ -531,7 +531,7 @@ export const llmEvents: EventCard[] = [
         description: 'Enforce safety supremacy. Civil media and public trust rise significantly, but the elite business community turns fiercely hostile.',
         immediate: { publicTrust: 12 },
         factionImpact: { civilSocietyMedia: 18, businessCommunity: -20, partyGodfathers: -15 },
-        constituencyImpact: { victoriaIsland: -8 },
+        constituencyImpact: { etiOsa: -8 },
         delayed: {
           weekOffset: 6,
           delta: { infrastructureScore: 6 },
@@ -567,7 +567,7 @@ export const llmEvents: EventCard[] = [
         description: 'Flooding the terminal with maximum armed enforcement units. Restores immediate territorial security, but local youth tension peaks due to collateral arrests.',
         immediate: { securityIndex: 8, youthTension: 14 },
         factionImpact: { informalEconomy: -12, lgChairmen: -5 },
-        constituencyImpact: { oshodi: -10 },
+        constituencyImpact: { oshodiIsolo: -10 },
       },
       {
         id: 'appoint-interim-godfather',
@@ -625,7 +625,7 @@ export const llmEvents: EventCard[] = [
         description: 'Clear the roads by force. Security increases, but youth tension spikes. The informal economy suffers deeply.',
         immediate: { securityIndex: 5, youthTension: 10, publicTrust: -5 },
         factionImpact: { informalEconomy: -15, civilSocietyMedia: -5 },
-        constituencyImpact: { surulere: -5, oshodi: -5 },
+        constituencyImpact: { surulere: -5, oshodiIsolo: -5 },
         delayed: {
           weekOffset: 2,
           delta: { securityIndex: -10 },
@@ -693,7 +693,7 @@ export const llmEvents: EventCard[] = [
         description: 'Implement an extensive diversion through community roads in Kosofe. Infrastructure decays further, and trust plummets.',
         immediate: { infrastructureScore: -6, publicTrust: -12 },
         factionImpact: { businessCommunity: -12 },
-        constituencyImpact: { periphery: -10 },
+        constituencyImpact: { ikorodu: -10 },
       },
     ],
   },
@@ -747,7 +747,7 @@ export const llmEvents: EventCard[] = [
         description: 'Divert funds to deploy temporary medical tents and clean water trucks immediately. Protects public trust at a monetary cost.',
         immediate: { cashReserve: -0.8, publicTrust: 6 },
         factionImpact: { civilSocietyMedia: 5 },
-        constituencyImpact: { periphery: 12 },
+        constituencyImpact: { ikorodu: 12 },
         delayed: {
           weekOffset: 3,
           delta: { youthTension: -5 },
@@ -782,7 +782,7 @@ export const llmEvents: EventCard[] = [
         description: 'Collect the revenue. Weekly income shoots up, but the formal business sector turns fiercely hostile, souring relations with federal trade ministries.',
         immediate: { igr: 2 },
         factionImpact: { businessCommunity: -18, federalGovt: -8 },
-        constituencyImpact: { lekki: -12 },
+        constituencyImpact: { ibejuLekki: -12 },
         delayed: {
           weekOffset: 8,
           delta: { cashReserve: -3 },
@@ -795,7 +795,7 @@ export const llmEvents: EventCard[] = [
         description: 'Completely exempt the firms to retain investment. Sacrifices potential state revenue, but delights business elites.',
         immediate: { igr: -0.5 },
         factionImpact: { businessCommunity: 15, civilSocietyMedia: -8 },
-        constituencyImpact: { lekki: 15 },
+        constituencyImpact: { ibejuLekki: 15 },
       },
       {
         id: 'discreet-consultancy-deal',

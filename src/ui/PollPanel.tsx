@@ -2,14 +2,26 @@ import { useGameStore } from '../state/gameStore'
 import type { ConstituencyKey } from '../state/types'
 
 const CONSTITUENCY_LABELS: Record<ConstituencyKey, string> = {
-  lagosIsland: 'Lagos Isl.',
-  victoriaIsland: 'VI',
-  lekki: 'Lekki',
-  surulere: 'Surulere',
-  oshodi: 'Oshodi',
-  alimosho: 'Alimosho',
-  periphery: 'Periphery',
-  makoko: 'Makoko',
+  lagosIsland:      'Lagos Isl.',
+  etiOsa:           'Eti Osa',
+  ibejuLekki:       'Ibeju-Lekki',
+  surulere:         'Surulere',
+  amuwoOdofin:      'Amuwo Odofin',
+  apapa:            'Apapa',
+  oshodiIsolo:      'Oshodi/Isolo',
+  mushin:           'Mushin',
+  shomolu:          'Shomolu',
+  kosofe:           'Kosofe',
+  lagosMainland:    'Lagos Mainland',
+  ikeja:            'Ikeja',
+  alimosho:         'Alimosho',
+  agege:            'Agege',
+  ifakoIjaye:       'Ifako/Ijaye',
+  badagry:          'Badagry',
+  epe:              'Epe',
+  ikorodu:          'Ikorodu',
+  ojo:              'Ojo',
+  ajeromiIfelodun:  'Ajeromi/Ifel.',
 }
 
 function approvalColor(value: number): string {
@@ -35,9 +47,11 @@ function ApprovalBar({ constituencyKey, value }: { constituencyKey: Constituency
   )
 }
 
-const ALL_CONSTITUENCIES: ConstituencyKey[] = [
-  'lagosIsland', 'victoriaIsland', 'lekki', 'surulere',
-  'oshodi', 'alimosho', 'periphery', 'makoko',
+const ALL_LGAS: ConstituencyKey[] = [
+  'lagosIsland', 'etiOsa', 'ibejuLekki', 'surulere', 'amuwoOdofin',
+  'apapa', 'oshodiIsolo', 'mushin', 'shomolu', 'kosofe',
+  'lagosMainland', 'ikeja', 'alimosho', 'agege', 'ifakoIjaye',
+  'badagry', 'epe', 'ikorodu', 'ojo', 'ajeromiIfelodun',
 ]
 
 export function PollPanel() {
@@ -45,10 +59,10 @@ export function PollPanel() {
 
   return (
     <div className="p-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
-      <h2 className="label-caps mb-2">Polling</h2>
+      <h2 className="label-caps mb-2">Polling — 20 LGAs</h2>
       <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-        {ALL_CONSTITUENCIES.map((key) => (
-          <ApprovalBar key={key} constituencyKey={key} value={approval[key]} />
+        {ALL_LGAS.map((key) => (
+          <ApprovalBar key={key} constituencyKey={key} value={approval[key] ?? 50} />
         ))}
       </div>
     </div>

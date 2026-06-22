@@ -4,8 +4,8 @@ import { applyConstituencyImpact } from './constituencyEngine'
 
 describe('applyConstituencyImpact', () => {
   it('adds positive delta to approval', () => {
-    const result = applyConstituencyImpact(STARTING_STATE, { makoko: 10 })
-    expect(result.constituencyApproval.makoko).toBe(40)
+    const result = applyConstituencyImpact(STARTING_STATE, { lagosMainland: 10 })
+    expect(result.constituencyApproval.lagosMainland).toBe(40)
   })
 
   it('subtracts negative delta from approval', () => {
@@ -14,42 +14,42 @@ describe('applyConstituencyImpact', () => {
   })
 
   it('clamps approval to 0–100', () => {
-    const result = applyConstituencyImpact(STARTING_STATE, { makoko: 200 })
-    expect(result.constituencyApproval.makoko).toBe(100)
-    const result2 = applyConstituencyImpact(STARTING_STATE, { makoko: -200 })
-    expect(result2.constituencyApproval.makoko).toBe(0)
+    const result = applyConstituencyImpact(STARTING_STATE, { lagosMainland: 200 })
+    expect(result.constituencyApproval.lagosMainland).toBe(100)
+    const result2 = applyConstituencyImpact(STARTING_STATE, { lagosMainland: -200 })
+    expect(result2.constituencyApproval.lagosMainland).toBe(0)
   })
 
   it('applies multiple constituency changes at once', () => {
     const result = applyConstituencyImpact(STARTING_STATE, {
-      lekki: -5,
+      ibejuLekki: -5,
       alimosho: 10,
-      periphery: -3,
+      ikorodu: -3,
     })
-    expect(result.constituencyApproval.lekki).toBe(50)
+    expect(result.constituencyApproval.ibejuLekki).toBe(50)
     expect(result.constituencyApproval.alimosho).toBe(48)
-    expect(result.constituencyApproval.periphery).toBe(32)
+    expect(result.constituencyApproval.ikorodu).toBe(37)
   })
 
   it('skips undefined values in impact', () => {
     const result = applyConstituencyImpact(STARTING_STATE, {
-      makoko: 5,
+      lagosMainland: 5,
       surulere: undefined,
     })
-    expect(result.constituencyApproval.makoko).toBe(35)
+    expect(result.constituencyApproval.lagosMainland).toBe(35)
     expect(result.constituencyApproval.surulere).toBe(STARTING_STATE.constituencyApproval.surulere)
   })
 
   it('does not mutate input state', () => {
     const original = { ...STARTING_STATE.constituencyApproval }
-    applyConstituencyImpact(STARTING_STATE, { makoko: 50 })
+    applyConstituencyImpact(STARTING_STATE, { lagosMainland: 50 })
     expect(STARTING_STATE.constituencyApproval).toEqual(original)
   })
 
   it('returns full GameState with only constituencyApproval changed', () => {
-    const result = applyConstituencyImpact(STARTING_STATE, { makoko: 10 })
+    const result = applyConstituencyImpact(STARTING_STATE, { lagosMainland: 10 })
     expect(result.week).toBe(STARTING_STATE.week)
     expect(result.stats).toBe(STARTING_STATE.stats)
-    expect(result.constituencyApproval.makoko).not.toBe(STARTING_STATE.constituencyApproval.makoko)
+    expect(result.constituencyApproval.lagosMainland).not.toBe(STARTING_STATE.constituencyApproval.lagosMainland)
   })
 })

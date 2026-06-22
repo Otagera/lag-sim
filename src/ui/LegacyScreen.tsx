@@ -16,14 +16,26 @@ const FACTION_LABELS: Record<FactionKey, string> = {
 }
 
 const CONSTITUENCY_LABELS: Record<ConstituencyKey, string> = {
-  lagosIsland: 'Lagos Island',
-  victoriaIsland: 'Victoria Island',
-  lekki: 'Lekki',
-  surulere: 'Surulere',
-  oshodi: 'Oshodi',
-  alimosho: 'Alimosho',
-  periphery: 'Periphery',
-  makoko: 'Makoko',
+  lagosIsland:      'Lagos Island',
+  etiOsa:           'Eti Osa',
+  ibejuLekki:       'Ibeju-Lekki',
+  surulere:         'Surulere',
+  amuwoOdofin:      'Amuwo Odofin',
+  apapa:            'Apapa',
+  oshodiIsolo:      'Oshodi/Isolo',
+  mushin:           'Mushin',
+  shomolu:          'Shomolu',
+  kosofe:           'Kosofe',
+  lagosMainland:    'Lagos Mainland',
+  ikeja:            'Ikeja',
+  alimosho:         'Alimosho',
+  agege:            'Agege',
+  ifakoIjaye:       'Ifako/Ijaye',
+  badagry:          'Badagry',
+  epe:              'Epe',
+  ikorodu:          'Ikorodu',
+  ojo:              'Ojo',
+  ajeromiIfelodun:  'Ajeromi/Ifelodun',
 }
 
 function grade(value: number, max: number): string {

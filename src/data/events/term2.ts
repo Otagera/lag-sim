@@ -24,7 +24,7 @@ export const term2Events: EventCard[] = [
         description: 'Invoke the Land Use Act to seize peripheral wetlands near Lekki, selling them to elite party financiers to raise the ₦25bn equity. Spikes cash reserves but triggers deep civil media hostility.',
         immediate: { cashReserve: 25.0, publicTrust: -8, corruptionPressure: 5 },
         factionImpact: { partyGodfathers: 15, businessCommunity: 12, civilSocietyMedia: -18 },
-        constituencyImpact: { lekki: -10, periphery: -12 },
+        constituencyImpact: { ibejuLekki: -10, ikorodu: -12 },
         corruptionTrigger: true,
         delayed: {
           weekOffset: 12,
@@ -76,7 +76,7 @@ export const term2Events: EventCard[] = [
         description: 'Deploy the Lagos Task Force to seal federal ministry buildings across Ikoyi and Lagos Island for violating state environmental sanitation regulations. Spikes public trust but federal relations plummet.',
         immediate: { federalRelationship: -20, publicTrust: 8, politicalCapital: 5 },
         factionImpact: { federalGovt: -25, civilSocietyMedia: 6 },
-        constituencyImpact: { lagosIsland: 10, victoriaIsland: 8 },
+        constituencyImpact: { lagosIsland: 10, etiOsa: 8 },
         delayed: {
           weekOffset: 5,
           delta: { securityIndex: -10 },
@@ -113,7 +113,7 @@ export const term2Events: EventCard[] = [
         description: 'Deploy armored task force units to physically dismantle the illegal toll plazas. Restores logistics flow but triggers an immediate total transit strike across the mainland.',
         immediate: { securityIndex: 8, youthTension: 15, infrastructureScore: 4 },
         factionImpact: { informalEconomy: -25, businessCommunity: 10, civilSocietyMedia: 5 },
-        constituencyImpact: { oshodi: -15, surulere: -10 },
+        constituencyImpact: { oshodiIsolo: -15, surulere: -10 },
         delayed: {
           weekOffset: 2,
           delta: { igr: -2.5 },
@@ -134,7 +134,7 @@ export const term2Events: EventCard[] = [
         description: 'Offer union leadership a structured ₦500M annual welfare fund in exchange for removing the barriers. Moderate outcome — union complies partially.',
         immediate: { cashReserve: -0.5, politicalCapital: -10 },
         factionImpact: { informalEconomy: 5, businessCommunity: 5, civilSocietyMedia: 3 },
-        constituencyImpact: { oshodi: 5, surulere: 5 },
+        constituencyImpact: { oshodiIsolo: 5, surulere: 5 },
       },
     ],
   },
@@ -351,7 +351,7 @@ He controls the party secretariat and has three of your commissioners openly cam
         description: 'Pay arrears, fund research grants, and replace the VC. Cash -3.5. Strike ends in 72 hours. Youth Tension -8. Civil society applauds. Trust +6.',
         immediate: { cashReserve: -3.5, publicTrust: 6, youthTension: -8 },
         factionImpact: { civilSocietyMedia: 10, informalEconomy: 5 },
-        constituencyImpact: { alimosho: 6, periphery: 5 },
+        constituencyImpact: { alimosho: 6, ikorodu: 5 },
       },
       {
         id: 'partial-asuu-settlement',
@@ -428,7 +428,7 @@ He controls the party secretariat and has three of your commissioners openly cam
         description: 'Full multi-agency deployment: DSS, Army Intelligence, and EFCC financial tracking. Cash -2.5. Security Index +12. Business community confidence restored.',
         immediate: { cashReserve: -2.5, securityIndex: 12 },
         factionImpact: { businessCommunity: 15, civilSocietyMedia: 6, federalGovt: 5 },
-        constituencyImpact: { victoriaIsland: 10, lekki: 8 },
+        constituencyImpact: { etiOsa: 10, ibejuLekki: 8 },
       },
       {
         id: 'private-security-mandate',
@@ -436,7 +436,7 @@ He controls the party secretariat and has three of your commissioners openly cam
         description: 'Formally allow gated community policing by licensed private firms. Fast but deepens inequality — visible enforcement only for the wealthy.',
         immediate: { securityIndex: 5, publicTrust: -4 },
         factionImpact: { businessCommunity: 10, civilSocietyMedia: -8, informalEconomy: -5 },
-        constituencyImpact: { victoriaIsland: 8, lekki: 6, periphery: -5 },
+        constituencyImpact: { etiOsa: 8, ibejuLekki: 6, ikorodu: -5 },
       },
       {
         id: 'community-intelligence-network',
@@ -444,7 +444,7 @@ He controls the party secretariat and has three of your commissioners openly cam
         description: 'Invest ₦800M in community-based early warning systems in at-risk areas. Slower but builds lasting trust. Security Index +6. Periphery communities included.',
         immediate: { cashReserve: -0.8, securityIndex: 6 },
         factionImpact: { informalEconomy: 8, civilSocietyMedia: 10 },
-        constituencyImpact: { periphery: 6, alimosho: 4, makoko: 5 },
+        constituencyImpact: { ikorodu: 6, alimosho: 4, lagosMainland: 5 },
       },
     ],
   },
@@ -503,7 +503,7 @@ He controls the party secretariat and has three of your commissioners openly cam
         description: 'Halt all truck operations in the corridor between 6am-12pm. Relocate industrial polluters over 12 weeks. Cash -4. Infrastructure +5. Business community objects (port logistics frozen).',
         immediate: { cashReserve: -4.0, infrastructureScore: 5, publicTrust: 8 },
         factionImpact: { civilSocietyMedia: 15, businessCommunity: -12, informalEconomy: -5 },
-        constituencyImpact: { surulere: 8, periphery: 6 },
+        constituencyImpact: { surulere: 8, ikorodu: 6 },
       },
       {
         id: 'install-industrial-filters',
@@ -544,7 +544,7 @@ The Lagos Island commercial corridor is now directly threatened by northward spr
         description: 'Full military joint task force deployment. Cash -3. Security Index +15. Youth Tension -10. High trust cost: civil society scrutinizes human rights compliance.',
         immediate: { cashReserve: -3.0, securityIndex: 15, youthTension: -10, publicTrust: -5 },
         factionImpact: { civilSocietyMedia: -8, businessCommunity: 8, federalGovt: 5 },
-        constituencyImpact: { periphery: -8, surulere: 5 },
+        constituencyImpact: { ikorodu: -8, surulere: 5 },
       },
       {
         id: 'cult-reconciliation-programme',
@@ -564,7 +564,7 @@ The Lagos Island commercial corridor is now directly threatened by northward spr
         description: 'Fast, cheap. Visible action. Security Index +5. But market activity in the community collapses and informal economy protests the night lockdown.',
         immediate: { securityIndex: 5, youthTension: -5, igr: -0.5 },
         factionImpact: { informalEconomy: -12, businessCommunity: 5, civilSocietyMedia: -5 },
-        constituencyImpact: { periphery: -10 },
+        constituencyImpact: { ikorodu: -10 },
       },
     ],
   },
@@ -631,7 +631,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
         description: 'Close immediately and deploy federal and state engineers. Cash -8. Infrastructure +12. Trust +8. Lagos Island commercial activity drops 30% for 10 weeks.',
         immediate: { cashReserve: -8.0, publicTrust: 8, infrastructureScore: 12 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: -15 },
-        constituencyImpact: { lagosIsland: -12, victoriaIsland: -8 },
+        constituencyImpact: { lagosIsland: -12, etiOsa: -8 },
         delayed: {
           weekOffset: 10,
           delta: { infrastructureScore: 5 },
@@ -807,7 +807,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
         description: 'Inject full capital and operating funding. Clear salary arrears. Replace broken equipment. Cash -6. Trust +12. Infrastructure +4. Civil society praises the responsiveness.',
         immediate: { cashReserve: -6.0, publicTrust: 12, infrastructureScore: 4 },
         factionImpact: { civilSocietyMedia: 15, informalEconomy: 8 },
-        constituencyImpact: { alimosho: 6, periphery: 8, surulere: 6 },
+        constituencyImpact: { alimosho: 6, ikorodu: 8, surulere: 6 },
       },
       {
         id: 'lasuth-ppp-restructure',
@@ -815,7 +815,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
         description: 'Concession hospital management to a private healthcare group. Solves equipment crisis. Fees increase. Trust -6 among low-income users. Cash +3 from concession fee.',
         immediate: { cashReserve: 3.0, publicTrust: -6, infrastructureScore: 3 },
         factionImpact: { businessCommunity: 12, civilSocietyMedia: -10, informalEconomy: -12 },
-        constituencyImpact: { periphery: -10, alimosho: -8 },
+        constituencyImpact: { ikorodu: -10, alimosho: -8 },
       },
       {
         id: 'dismiss-lasuth-management',
@@ -1666,7 +1666,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         description: 'Clear ₦4.5bn in outstanding compensation first, then proceed. Trust +4 (fair process). Infrastructure +8. Business community aligned. Informal economy upset but compensated.',
         immediate: { cashReserve: -4.5, infrastructureScore: 8, publicTrust: 4 },
         factionImpact: { businessCommunity: 8, informalEconomy: -5, civilSocietyMedia: 5 },
-        constituencyImpact: { lagosIsland: -5, oshodi: 5 },
+        constituencyImpact: { lagosIsland: -5, oshodiIsolo: 5 },
       },
       {
         id: 'redesign-flyover-alignment',
@@ -1719,7 +1719,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         description: 'Ring-fence ₦3bn for emergency road rehabilitation and power supply upgrades around Victoria Island and Lagos Island. Infrastructure +5. Direct business retention signal.',
         immediate: { cashReserve: -3.0, infrastructureScore: 5 },
         factionImpact: { businessCommunity: 10, civilSocietyMedia: 3 },
-        constituencyImpact: { victoriaIsland: 10, lagosIsland: 8 },
+        constituencyImpact: { etiOsa: 10, lagosIsland: 8 },
       },
       {
         id: 'ignore-mtn-threat',
@@ -1824,7 +1824,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         description: 'Deploy emergency coastal protection. Cash -3.5. Infrastructure +6. Slows erosion for 5 years. Victoria Island approvals restored.',
         immediate: { cashReserve: -3.5, infrastructureScore: 6 },
         factionImpact: { businessCommunity: 10, civilSocietyMedia: 6 },
-        constituencyImpact: { victoriaIsland: 10, lekki: 5 },
+        constituencyImpact: { etiOsa: 10, ibejuLekki: 5 },
       },
       {
         id: 'eko-atlantic-extension',
@@ -1844,7 +1844,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         description: 'Declare the eroded zone a permanent coastal buffer and rezone it as a public park. Cheap. Civil society loves it. Business community loses premium real estate access.',
         immediate: { publicTrust: 6, infrastructureScore: 2 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: -8 },
-        constituencyImpact: { victoriaIsland: 3, lekki: 3 },
+        constituencyImpact: { etiOsa: 3, ibejuLekki: 3 },
       },
     ],
   },
@@ -1975,7 +1975,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         description: 'Cut your losses. Open what you have. Infrastructure +5. The 4km Agege extension becomes your successor\'s problem. Business community disappointed.',
         immediate: { infrastructureScore: 5, publicTrust: -3 },
         factionImpact: { businessCommunity: -8, civilSocietyMedia: -5, lgChairmen: -5 },
-        constituencyImpact: { alimosho: -10, oshodi: -8 },
+        constituencyImpact: { alimosho: -10, oshodiIsolo: -8 },
       },
     ],
   },
@@ -2038,7 +2038,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         description: 'Release the final payment and recommission the contractor. Cash -4. Infrastructure +10. The project becomes a second-term legacy delivery.',
         immediate: { cashReserve: -4.0, infrastructureScore: 5 },
         factionImpact: { businessCommunity: 8, lgChairmen: 6 },
-        constituencyImpact: { alimosho: 8, oshodi: 5 },
+        constituencyImpact: { alimosho: 8, oshodiIsolo: 5 },
         delayed: {
           weekOffset: 12,
           delta: { infrastructureScore: 10, publicTrust: 6 },
@@ -2080,7 +2080,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         description: 'Double down on enforcement. Youth Tension +15. Trust -8 in periphery. Long-term infrastructure +4 as alternative transport fills the gap.',
         immediate: { youthTension: 15, publicTrust: -8, cashReserve: -1.5 },
         factionImpact: { informalEconomy: -20, businessCommunity: 5, civilSocietyMedia: -5 },
-        constituencyImpact: { periphery: -15, alimosho: -10, makoko: -12 },
+        constituencyImpact: { ikorodu: -15, alimosho: -10, lagosMainland: -12 },
       },
       {
         id: 'suspend-ban-peripheral',
@@ -2088,7 +2088,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         description: 'Allow okadas on peripheral community routes, maintain ban on major highways. Informal economy recovers partially. Trust +5 in periphery. Business community neutral.',
         immediate: { publicTrust: 5, youthTension: -8 },
         factionImpact: { informalEconomy: 12, businessCommunity: 3, civilSocietyMedia: 5 },
-        constituencyImpact: { periphery: 10, alimosho: 6, makoko: 8 },
+        constituencyImpact: { ikorodu: 10, alimosho: 6, lagosMainland: 8 },
       },
       {
         id: 'okada-electric-conversion',
@@ -2120,7 +2120,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         description: 'Coordinate with the IGP for immediate arrest and prosecution. Trust +12. Youth Tension -10. Federal Relationship -3 (police are federal, you\'re overstepping). Civil society erupts in support.',
         immediate: { publicTrust: 12, youthTension: -10, federalRelationship: -3 },
         factionImpact: { civilSocietyMedia: 18, informalEconomy: 10, federalGovt: -5 },
-        constituencyImpact: { periphery: 8, alimosho: 6 },
+        constituencyImpact: { ikorodu: 8, alimosho: 6 },
       },
       {
         id: 'internal-police-discipline',
@@ -2159,7 +2159,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         description: 'Pay the ₦1.1bn immediately and deploy vaccines via LASG logistics. Strike ends in 48 hours. Cash -1.1. Trust +10. Civil society applauds.',
         immediate: { cashReserve: -1.1, publicTrust: 10, youthTension: -5 },
         factionImpact: { civilSocietyMedia: 12, informalEconomy: 8 },
-        constituencyImpact: { periphery: 8, alimosho: 6, makoko: 8 },
+        constituencyImpact: { ikorodu: 8, alimosho: 6, lagosMainland: 8 },
       },
       {
         id: 'phc-emergency-committee',
@@ -2237,7 +2237,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         description: 'Release strategic grain and tomato reserves through LASAA distribution points. Cash -3. Trust +8 in affected areas. Youth Tension -5. Informal economy stabilizes.',
         immediate: { cashReserve: -3.0, publicTrust: 8, youthTension: -5 },
         factionImpact: { informalEconomy: 12, civilSocietyMedia: 8, lgChairmen: 8 },
-        constituencyImpact: { surulere: 6, oshodi: 6, alimosho: 5 },
+        constituencyImpact: { surulere: 6, oshodiIsolo: 6, alimosho: 5 },
       },
       {
         id: 'haulage-levy-suspension',
@@ -2310,7 +2310,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         description: 'Open 14 state-run reception and skills centres. Cash -4. Youth Tension -10. Civil society praises. Federal government notes the action (positive). Long-term integration pathway.',
         immediate: { cashReserve: -4.0, youthTension: -10, publicTrust: 6 },
         factionImpact: { civilSocietyMedia: 12, federalGovt: 5, informalEconomy: 5 },
-        constituencyImpact: { oshodi: 5, alimosho: 5, periphery: 6 },
+        constituencyImpact: { oshodiIsolo: 5, alimosho: 5, ikorodu: 6 },
       },
       {
         id: 'return-almajiri-northern',
@@ -2427,7 +2427,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         description: 'Open three state emergency shelter centres. Cash -2. Trust +8. Youth Tension -5. Civil society coordinates through your emergency office.',
         immediate: { cashReserve: -2.0, publicTrust: 8, youthTension: -5 },
         factionImpact: { civilSocietyMedia: 10, informalEconomy: 6 },
-        constituencyImpact: { lagosIsland: 8, makoko: 4 },
+        constituencyImpact: { lagosIsland: 8, lagosMainland: 4 },
       },
       {
         id: 'fire-safety-enforcement-surge',
@@ -2500,7 +2500,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         description: 'Enforce the deadline regardless of disruption. Youth Tension +12. Informal Economy -18. Long-term: 28,000 unsafe vehicles off the road. Infrastructure +4.',
         immediate: { youthTension: 12, infrastructureScore: 4 },
         factionImpact: { informalEconomy: -18, businessCommunity: 5, civilSocietyMedia: 3 },
-        constituencyImpact: { alimosho: -10, oshodi: -8, periphery: -8 },
+        constituencyImpact: { alimosho: -10, oshodiIsolo: -8, ikorodu: -8 },
       },
       {
         id: 'subsidised-molue-replacement',

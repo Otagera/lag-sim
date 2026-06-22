@@ -11,16 +11,20 @@ describe('calculateVoteShare', () => {
   it('clamps output between 20 and 80', () => {
     const perfect = base({
       constituencyApproval: {
-        lagosIsland: 100, victoriaIsland: 100, lekki: 100,
-        surulere: 100, oshodi: 100, alimosho: 100, periphery: 100, makoko: 100,
+        lagosIsland: 100, etiOsa: 100, ibejuLekki: 100, surulere: 100, amuwoOdofin: 100,
+        apapa: 100, oshodiIsolo: 100, mushin: 100, shomolu: 100, kosofe: 100,
+        lagosMainland: 100, ikeja: 100, alimosho: 100, agege: 100, ifakoIjaye: 100,
+        badagry: 100, epe: 100, ikorodu: 100, ojo: 100, ajeromiIfelodun: 100,
       },
     })
     expect(calculateVoteShare(perfect)).toBeLessThanOrEqual(80)
 
     const terrible = base({
       constituencyApproval: {
-        lagosIsland: 0, victoriaIsland: 0, lekki: 0,
-        surulere: 0, oshodi: 0, alimosho: 0, periphery: 0, makoko: 0,
+        lagosIsland: 0, etiOsa: 0, ibejuLekki: 0, surulere: 0, amuwoOdofin: 0,
+        apapa: 0, oshodiIsolo: 0, mushin: 0, shomolu: 0, kosofe: 0,
+        lagosMainland: 0, ikeja: 0, alimosho: 0, agege: 0, ifakoIjaye: 0,
+        badagry: 0, epe: 0, ikorodu: 0, ojo: 0, ajeromiIfelodun: 0,
       },
     })
     expect(calculateVoteShare(terrible)).toBeGreaterThanOrEqual(20)

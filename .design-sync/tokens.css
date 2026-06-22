@@ -1,0 +1,118 @@
+/* Federal Gazette design tokens — Lagos Governor Sim */
+/* Fonts loaded at runtime from Google Fonts CDN */
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Archivo+Narrow:wght@400;500;600&display=swap");
+
+:root {
+  /* Neutral ramp (seed hue 155, muted) */
+  --neutral-1: #fcfdfc;
+  --neutral-2: #f8f9f8;
+  --neutral-3: #eef1ef;
+  --neutral-4: #e5e9e6;
+  --neutral-5: #dae0dc;
+  --neutral-6: #cdd4cf;
+  --neutral-7: #bec6c0;
+  --neutral-8: #a4aea7;
+  --neutral-9: #afbbb2;
+  --neutral-10: #9da8a0;
+  --neutral-11: #5f6561;
+  --neutral-12: #2b2f2c;
+
+  /* Nigerian green accent ramp */
+  --accent-1: #fafefb;
+  --accent-2: #f4fbf6;
+  --accent-3: #e6f5ea;
+  --accent-4: #d9eedf;
+  --accent-5: #c9e7d2;
+  --accent-6: #b7ddc3;
+  --accent-7: #a2d1b1;
+  --accent-8: #82ba95;
+  --accent-9: #84ca9c;
+  --accent-10: #74b68b;
+  --accent-11: #486d55;
+  --accent-12: #203326;
+  --accent-on-solid: #061009;
+
+  /* Semantic — error/success/warning/info */
+  --error-3: #ffebe9;
+  --error-9: #c56c65;
+  --error-11: #86534f;
+  --success-3: #e6f6e6;
+  --success-9: #84cc86;
+  --success-11: #486e49;
+  --warning-3: #f6f0e4;
+  --warning-9: #ceb47e;
+  --warning-11: #6f6144;
+  --info-3: #e7f2fa;
+  --info-9: #7aabce;
+  --info-11: #4c677a;
+
+  /* Semantic aliases */
+  --background: var(--neutral-1);
+  --surface: var(--neutral-2);
+  --surface-hover: var(--neutral-3);
+  --surface-active: var(--neutral-4);
+  --border-subtle: var(--neutral-6);
+  --border: var(--neutral-7);
+  --border-strong: var(--neutral-8);
+  --text-secondary: var(--neutral-11);
+  --text: var(--neutral-12);
+  --accent-bg-subtle: var(--accent-3);
+  --accent-solid: var(--accent-9);
+  --accent-solid-hover: var(--accent-10);
+  --accent-text: var(--accent-11);
+}
+
+/* Dark mode — applied via .dark class on <html> */
+.dark {
+  --neutral-1: #0d1310;
+  --neutral-2: #141a16;
+  --neutral-3: #1b231d;
+  --neutral-4: #232e26;
+  --neutral-5: #2b3830;
+  --neutral-6: #35443d;
+  --neutral-7: #3f5047;
+  --neutral-8: #516059;
+  --neutral-11: #8fa08c;
+  --neutral-12: #dce8de;
+
+  --accent-3: #0a1f11;
+  --accent-11: #84ca9c;
+
+  --error-3: #2c1412;
+  --error-9: #d97070;
+  --error-11: #e8958f;
+  --success-3: #0f1f12;
+  --success-9: #6dc972;
+  --success-11: #8ed492;
+  --warning-3: #211a0a;
+  --warning-9: #cfad5f;
+  --warning-11: #dfc278;
+  --info-3: #0d1922;
+  --info-9: #6aa0c0;
+  --info-11: #8ab8d4;
+}
+
+/* Base */
+body {
+  background-color: var(--background);
+  color: var(--text);
+  font-family: 'Archivo Narrow', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography helpers */
+.font-display {
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+}
+
+/* Section label: 10px Archivo Narrow ALL CAPS + tracked — used everywhere for stat names, faction names, section headers */
+.label-caps {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}

@@ -48,7 +48,7 @@ export const crisisEvents: EventCard[] = [
           informalEconomy: -20,
           civilSocietyMedia: -25,
         },
-        constituencyImpact: { makoko: -30 },
+        constituencyImpact: { lagosMainland: -30 },
         setFlags: { 'makoko-demolished': true },
       },
       {
@@ -171,7 +171,7 @@ export const crisisEvents: EventCard[] = [
           'Construct a proper estate with roads, power, and water. InfrastructureScore +8, CashReserve -8, Trust +10, PublicTrust +5. Godfathers furious (they wanted the land).',
         immediate: { cashReserve: -8, infrastructureScore: 8, publicTrust: 5 },
         factionImpact: { partyGodfathers: -12, civilSocietyMedia: 15 },
-        constituencyImpact: { makoko: 20, periphery: 10 },
+        constituencyImpact: { lagosMainland: 20, ikorodu: 10 },
         delayed: {
           weekOffset: 16,
           delta: { igr: 0.4 },
@@ -185,7 +185,7 @@ export const crisisEvents: EventCard[] = [
           'Pay each family ₦1.5m cash. CashReserve -12, Trust +4. BusinessCommunity +8 (prime waterfront freed). Civil Society angry at inadequate compensation.',
         immediate: { cashReserve: -12, publicTrust: 4 },
         factionImpact: { businessCommunity: 8, partyGodfathers: 10, civilSocietyMedia: -12 },
-        constituencyImpact: { makoko: -5 },
+        constituencyImpact: { lagosMainland: -5 },
       },
       {
         id: 'mixed-approach',
@@ -194,7 +194,7 @@ export const crisisEvents: EventCard[] = [
           'Build basic housing, provide partial cash. CashReserve -4, InfrastructureScore +4, PoliticalCapital -15. Everyone moderately unhappy.',
         immediate: { cashReserve: -4, infrastructureScore: 4, politicalCapital: -15 },
         factionImpact: {},
-        constituencyImpact: { makoko: 8, periphery: 5 },
+        constituencyImpact: { lagosMainland: 8, ikorodu: 5 },
         delayed: {
           weekOffset: 12,
           delta: { publicTrust: 4 },

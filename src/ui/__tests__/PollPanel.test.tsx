@@ -9,25 +9,26 @@ beforeEach(() => {
 })
 
 describe('PollPanel', () => {
-  it('renders constituency labels', () => {
+  it('renders LGA labels', () => {
     render(<PollPanel />)
     expect(screen.getByText('Lagos Isl.')).toBeInTheDocument()
-    expect(screen.getByText('VI')).toBeInTheDocument()
+    expect(screen.getByText('Eti Osa')).toBeInTheDocument()
     expect(screen.getByText('Alimosho')).toBeInTheDocument()
-    expect(screen.getByText('Makoko')).toBeInTheDocument()
+    expect(screen.getByText('Ikorodu')).toBeInTheDocument()
   })
 
   it('renders starting approval values', () => {
     render(<PollPanel />)
-    expect(screen.getByText('60%')).toBeInTheDocument()
-    expect(screen.getByText('38%')).toBeInTheDocument()
-    expect(screen.getByText('30%')).toBeInTheDocument()
-    expect(screen.getByText('35%')).toBeInTheDocument()
+    expect(screen.getByText('60%')).toBeInTheDocument()   // lagosIsland
+    expect(screen.getByText('30%')).toBeInTheDocument()   // lagosMainland
+    expect(screen.getByText('33%')).toBeInTheDocument()   // ajeromiIfelodun
+    // multiple LGAs share 38% (alimosho + epe), so use getAllByText
+    expect(screen.getAllByText('38%').length).toBeGreaterThanOrEqual(1)
   })
 
   it('updates when store changes', () => {
     useGameStore.setState({
-      constituencyApproval: { ...STARTING_STATE.constituencyApproval, makoko: 55 },
+      constituencyApproval: { ...STARTING_STATE.constituencyApproval, ikorodu: 55 },
     })
     render(<PollPanel />)
     const results = screen.getAllByText('55%')

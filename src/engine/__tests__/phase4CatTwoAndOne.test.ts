@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { STARTING_STATE } from '../../data/startingState'
 import { phase4Events } from '../../data/events/phase4'
 import { ALL_EVENTS, resolveEvent } from '../eventEngine'
@@ -182,12 +182,15 @@ describe('tickSuspension: passive drain and act progression', () => {
   })
 
   it('drains cashReserve during suspension', () => {
-    const base = stateWith({ emergencySuspensionWeeks: 2 })
+    // Neutralise FAAC variance so both ticks are deterministic.
+    // Math.random() = 0.5 → faacVariance = (0.5 - 0.5) * 0.3 * 8.7 = 0
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
+    const pin = { activeEvent: findEvent('federal-emergency-declared') }
+    const base = stateWith({ emergencySuspensionWeeks: 2, ...pin })
     const after = tick(base)
-    // cashReserve changes from revenue/expenditure + suspension drain (-1.5)
-    // We just verify it's lower than without suspension
-    const baseNoSuspension = stateWith({ emergencySuspensionWeeks: 0 })
+    const baseNoSuspension = stateWith({ emergencySuspensionWeeks: 0, ...pin })
     const afterNoSuspension = tick(baseNoSuspension)
+    vi.restoreAllMocks()
     expect(after.stats.cashReserve).toBeLessThan(afterNoSuspension.stats.cashReserve)
   })
 

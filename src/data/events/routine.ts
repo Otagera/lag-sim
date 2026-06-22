@@ -408,7 +408,7 @@ This is the moment your administration acquires a public character — the story
         label: 'Visit with Full Entourage',
         description: 'Constituency +5 (random mainland zone), Trust +2. Costs Political Capital (expectations raised).',
         immediate: { publicTrust: 2, politicalCapital: -3 },
-        constituencyImpact: { alimosho: 5, oshodi: 5, surulere: 3 },
+        constituencyImpact: { alimosho: 5, oshodiIsolo: 5, surulere: 3 },
         factionImpact: { lgChairmen: 3 },
       },
       {
@@ -416,7 +416,7 @@ This is the moment your administration acquires a public character — the story
         label: 'Quick Stopover',
         description: 'Constituency +2. Respectful but perfunctory. Shows you care without over-promising.',
         immediate: {},
-        constituencyImpact: { alimosho: 2, oshodi: 2 },
+        constituencyImpact: { alimosho: 2, oshodiIsolo: 2 },
         factionImpact: {},
       },
       {

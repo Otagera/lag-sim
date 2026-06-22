@@ -126,7 +126,7 @@ With campaign season approaching in twelve months, this is the last window for a
         description: 'Full deployment: 4,000 police officers redeployed, rapid response units, intelligence investment. Cash -3. Security Index +12. Political Capital -15. Makes national news — a visible reckoning before campaign season.',
         immediate: { cashReserve: -3, securityIndex: 12, politicalCapital: -15 },
         factionImpact: { businessCommunity: 6, civilSocietyMedia: 4 },
-        constituencyImpact: { alimosho: 5, oshodi: 5, periphery: 5, surulere: 4 },
+        constituencyImpact: { alimosho: 5, oshodiIsolo: 5, ikorodu: 5, surulere: 4 },
       },
       {
         id: 'targeted-redeployment',
@@ -134,7 +134,7 @@ With campaign season approaching in twelve months, this is the last window for a
         description: 'Focus resources on the three crisis LGAs. Slower but more durable. Cash -1.5. Security Index +6. Political Capital -8. Periphery +6 (most affected area sees direct action).',
         immediate: { cashReserve: -1.5, securityIndex: 6, politicalCapital: -8 },
         factionImpact: { businessCommunity: 3 },
-        constituencyImpact: { periphery: 6, alimosho: 4, makoko: 4 },
+        constituencyImpact: { ikorodu: 6, alimosho: 4, lagosMainland: 4 },
       },
       {
         id: 'manage-the-narrative',

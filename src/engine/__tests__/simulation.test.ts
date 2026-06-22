@@ -43,14 +43,10 @@ const FACTIONS: FactionKey[] = [
 ]
 
 const CONSTITUENCIES: ConstituencyKey[] = [
-  'lagosIsland',
-  'victoriaIsland',
-  'lekki',
-  'surulere',
-  'oshodi',
-  'alimosho',
-  'periphery',
-  'makoko',
+  'lagosIsland', 'etiOsa', 'ibejuLekki', 'surulere', 'amuwoOdofin',
+  'apapa', 'oshodiIsolo', 'mushin', 'shomolu', 'kosofe',
+  'lagosMainland', 'ikeja', 'alimosho', 'agege', 'ifakoIjaye',
+  'badagry', 'epe', 'ikorodu', 'ojo', 'ajeromiIfelodun',
 ]
 
 function invariants(state: GameState, week: number) {

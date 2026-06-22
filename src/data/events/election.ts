@@ -17,7 +17,7 @@ export const electionEvents: EventCard[] = [
           'Show up where your approval is lowest. Alimosho +8, Periphery +6. Lekki/VI see it as pandering. Trust +4.',
         immediate: { publicTrust: 4 },
         factionImpact: { informalEconomy: 8, civilSocietyMedia: 5 },
-        constituencyImpact: { alimosho: 8, periphery: 6, lagosIsland: -3 },
+        constituencyImpact: { alimosho: 8, ikorodu: 6, lagosIsland: -3 },
       },
       {
         id: 'rally-lagos-island',
@@ -26,7 +26,7 @@ export const electionEvents: EventCard[] = [
           'Energise your base. Business Community +8. Periphery sees it as abandonment. Political Capital -10.',
         immediate: { politicalCapital: -10 },
         factionImpact: { businessCommunity: 8, lgChairmen: -4 },
-        constituencyImpact: { lagosIsland: 10, victoriaIsland: 8, alimosho: -4, makoko: -5 },
+        constituencyImpact: { lagosIsland: 10, etiOsa: 8, alimosho: -4, lagosMainland: -5 },
       },
       {
         id: 'rally-surulere',
@@ -35,7 +35,7 @@ export const electionEvents: EventCard[] = [
           'Target the undecideds. Balanced approach. Trust +3, Surulere +8. Lower ceiling, safer floor.',
         immediate: { publicTrust: 3 },
         factionImpact: { civilSocietyMedia: 4 },
-        constituencyImpact: { surulere: 8, oshodi: 5 },
+        constituencyImpact: { surulere: 8, oshodiIsolo: 5 },
       },
     ],
   },
@@ -53,7 +53,7 @@ export const electionEvents: EventCard[] = [
           'Trust +8, Alimosho/Periphery/Makoko +6 each. Business Community -3 (tax implications). Costs real money if you win.',
         immediate: { publicTrust: 8 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: -3 },
-        constituencyImpact: { alimosho: 6, periphery: 6, makoko: 6 },
+        constituencyImpact: { alimosho: 6, ikorodu: 6, lagosMainland: 6 },
       },
       {
         id: 'promise-infrastructure',
@@ -62,7 +62,7 @@ export const electionEvents: EventCard[] = [
           'Infrastructure +3, Business Community +8. Lekki and Lagos Island +6. Looks aspirational. Peripheral communities unmoved.',
         immediate: { infrastructureScore: 3 },
         factionImpact: { businessCommunity: 8, federalGovt: 5 },
-        constituencyImpact: { lekki: 6, lagosIsland: 6, victoriaIsland: 5 },
+        constituencyImpact: { ibejuLekki: 6, lagosIsland: 6, etiOsa: 5 },
       },
       {
         id: 'promise-youth-jobs',
@@ -71,7 +71,7 @@ export const electionEvents: EventCard[] = [
           'Youth Tension -12. Dayo loses traction. Trust +5. Costs more than the budget can absorb. Informal Economy +8.',
         immediate: { publicTrust: 5, youthTension: -12 },
         factionImpact: { informalEconomy: 8, civilSocietyMedia: 6 },
-        constituencyImpact: { alimosho: 5, oshodi: 5, makoko: 5 },
+        constituencyImpact: { alimosho: 5, oshodiIsolo: 5, lagosMainland: 5 },
       },
     ],
   },

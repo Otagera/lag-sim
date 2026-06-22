@@ -208,13 +208,13 @@ describe('resolveEvent', () => {
           description: 'D',
           immediate: {},
           factionImpact: {},
-          constituencyImpact: { makoko: 10, lekki: -5 },
+          constituencyImpact: { lagosMainland: 10, ibejuLekki: -5 },
         },
       ],
     }
     const result = resolveEvent(state, event, 'c1')
-    expect(result.constituencyApproval.makoko).toBe(40)
-    expect(result.constituencyApproval.lekki).toBe(50)
+    expect(result.constituencyApproval.lagosMainland).toBe(40)
+    expect(result.constituencyApproval.ibejuLekki).toBe(50)
   })
 
   it('deducts political capital when cost is specified', () => {
@@ -478,14 +478,14 @@ describe('firePendingDelayed', () => {
           delta: {},
           eventText: 'Impact',
           factionImpact: { partyGodfathers: -5, civilSocietyMedia: 3 },
-          constituencyImpact: { makoko: -8 },
+          constituencyImpact: { lagosMainland: -8 },
         },
       },
     ]
     const { state: result } = firePendingDelayed(state)
     expect(result.factions.partyGodfathers).toBe(60)
     expect(result.factions.civilSocietyMedia).toBe(47)
-    expect(result.constituencyApproval.makoko).toBe(22)
+    expect(result.constituencyApproval.lagosMainland).toBe(22)
   })
 
   it('adds timeline entry for each fired delayed consequence', () => {

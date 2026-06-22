@@ -18,6 +18,7 @@ import { transportEvents } from '../data/events/transport'
 import type { EventCard, GameState, PendingEvent, StatKey, TimelineEntry } from '../state/types'
 import { applyConstituencyImpact } from './constituencyEngine'
 import { applyFactionDelta } from './factionEngine'
+import { createProject } from './projectEngine'
 import { getSeasonModifier } from './seasonEngine'
 import { applyDelta } from './statEngine'
 
@@ -190,6 +191,12 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
 
   if (choice.launchInitiative) {
     next = { ...next, activeInitiative: choice.launchInitiative }
+  }
+
+  if (choice.launchProject) {
+    const p = choice.launchProject
+    const project = createProject(p.name, p.location, p.totalCost, p.weeklyDraw, p.weeksRemaining, p.contractorId)
+    next = { ...next, capitalProjects: [...next.capitalProjects, project] }
   }
 
   if (choice.setSuspensionWeeks !== undefined) {
