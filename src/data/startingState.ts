@@ -113,6 +113,13 @@ export const STARTING_STATE: GameState = {
   offCycleElection: false,
   // Deck management
   choiceUseCounts: {},
+  approvalHistory: {
+    lagosIsland: [], etiOsa: [], ibejuLekki: [], surulere: [],
+    amuwoOdofin: [], apapa: [], oshodiIsolo: [], mushin: [],
+    shomolu: [], kosofe: [], lagosMainland: [], ikeja: [],
+    alimosho: [], agege: [], ifakoIjaye: [], badagry: [],
+    epe: [], ikorodu: [], ojo: [], ajeromiIfelodun: [],
+  },
   // Term tracking
   currentTerm: 1,
   // Run metadata

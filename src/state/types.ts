@@ -355,6 +355,8 @@ export type GameState = {
   choiceUseCounts: Record<string, number>  // key: `${eventId}:${choiceId}` — tracks repeat selections
   // Term tracking
   currentTerm: number  // 1 = first term, 2 = second term after re-election
+  // Per-LGA approval sliding window (last 8 weeks)
+  approvalHistory: Record<ConstituencyKey, number[]>
   // Run metadata — diagnostic only, no gameplay effect
   runMeta: RunMeta
 }

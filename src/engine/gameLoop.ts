@@ -275,6 +275,14 @@ export function tick(state: GameState): GameState {
   // Youth tension: passive +0.4/week — the city always generates new pressure
   next = applyDelta(next, { infrastructureScore: -infraDecay, youthTension: 0.4 })
 
+  // Append this week's per-LGA approval to rolling 8-week window
+  const updatedHistory = {} as Record<ConstituencyKey, number[]>
+  for (const key of Object.keys(next.constituencyApproval) as ConstituencyKey[]) {
+    const prev = next.approvalHistory[key] ?? []
+    updatedHistory[key] = [...prev, next.constituencyApproval[key]].slice(-8)
+  }
+  next = { ...next, approvalHistory: updatedHistory }
+
   return next
 }
 
