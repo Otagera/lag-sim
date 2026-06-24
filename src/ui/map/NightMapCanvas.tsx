@@ -11,6 +11,7 @@ import { createGeneratorsLayer } from './layers/generatorsLayer'
 import { createTrafficLayer }    from './layers/trafficLayer'
 import { createBoatsLayer }      from './layers/boatsLayer'
 import { createLabelsLayer }     from './layers/labelsLayer'
+import { createLandmarksLayer }  from './layers/landmarksLayer'
 import { createLightsLayer }     from './layers/lightsLayer'
 
 interface Props { lens: MapLens }
@@ -61,6 +62,7 @@ export function NightMapCanvas({ lens }: Props) {
         createGeneratorsLayer(),  // D1: street-level generator glows
         createTrafficLayer(),     // D2: danfo / BRT / headlight streams
         createBoatsLayer(),       // D3: ferries, canoes, cargo
+        createLandmarksLayer(),   // Iconic Lagos structures + bridge lights
         createLabelsLayer(),      // LGA name labels on hover
         createLightsLayer(),      // B + D4: windows, glow, reflection
       ]

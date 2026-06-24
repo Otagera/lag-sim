@@ -1,29 +1,36 @@
 // Layer 1 — Ground: LGA polygons from real GeoJSON projected into iso space.
-// The 20 Lagos LGA polygons drawn as filled land shapes over a water background.
-// LGA boundaries are faintly visible via subtle per-LGA shade variation.
-// Lagoon and Atlantic are rendered as water between/around the LGA shapes.
+// The 20 Lagos LGA polygons drawn as filled land shapes over a deep blue-black
+// water background. Lagoon and Atlantic rendered with animated shimmer so the
+// water splits the city recognizably into mainland + islands at a glance.
 
-import { Container, Graphics } from 'pixi.js'
+import { Container, Graphics, Sprite, Texture } from 'pixi.js'
 import type { MapLayer } from '../types'
 import type { MapState } from '../../../state/mapSelectors'
-import { isoToScreen } from '../projection'
+import { isoToScreen, TILE_H } from '../projection'
 import { getLGAGeometry, getProjectedBounds } from '../geoProjection'
 
-// ── Zone ground colors (dark night palette, slightly varied so boundaries read) ──
-// Each zone gets a base shade; individual LGA polygons within it shift ±1–2.
+// ── Water palette (deep blue-black, reads unmistakably as night water) ────
+// Land is warm dark-brown-grey; water is saturated cool blue-black. The
+// contrast at the land-water edge is what makes the lagoon visible.
+const WATER_BASE  = 0x051825   // entire grid water fill
+const ATLANTIC    = 0x041220   // deep ocean
+const LAGOON_FILL = 0x0a1e30   // shallower inland lagoon
+const LAGOON_EDGE = 0x1a5880   // coastline / lagoon edge stroke
+
+// ── Zone ground colors (warm dark brown-grey to contrast with cool blue water) ──
 const ZONE_SHADES: Record<string, number> = {
-  mainland:   0x1a1d24,
-  ikorodu:    0x1c1f26,
-  alimosho:   0x181b22,
-  apapa:      0x1e2128,
-  lagosIsland:0x161922,
-  viIkoyi:    0x14171e,
-  lekki:      0x191c23,
-  makoko:     0x13161c,
+  mainland:   0x1e1c1a,
+  ikorodu:    0x201e1c,
+  alimosho:   0x1c1a18,
+  apapa:      0x22201e,
+  lagosIsland:0x1a1816,
+  viIkoyi:    0x181614,
+  lekki:      0x1c1a18,
+  makoko:     0x161412,
 }
 
 function lgaFill(key: string, zoneId: string): number {
-  const base = ZONE_SHADES[zoneId] ?? 0x1a1d24
+  const base = ZONE_SHADES[zoneId] ?? 0x1e1c1a
   const hash = key.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
   const dr = ((hash & 3) - 1) * 2
   const dg = (((hash >> 2) & 3) - 1) * 2
@@ -50,13 +57,28 @@ function atlanticPolygon(isoBounds: { aMin: number; aMax: number; bMin: number; 
   ]
 }
 
+// ── Ray-cast point-in-polygon for shimmer placement ────────────────────────
+function pointInPolygon(a: number, b: number, polygon: [number, number][]): boolean {
+  let inside = false
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [ai, bi] = polygon[i]; const [aj, bj] = polygon[j]
+    if ((bi > b) !== (bj > b) && a < (aj - ai) * (b - bi) / (bj - bi) + ai) inside = !inside
+  }
+  return inside
+}
+
 export function createGroundLayer(): MapLayer {
-  const container = new Container()
-  const g = new Graphics()
+  const container    = new Container()
+  const g            = new Graphics()
+  const shimmerC     = new Container()
   container.addChild(g)
+  container.addChild(shimmerC)
 
   let _w = 0, _h = 0
   let _ox = 0, _oy = 0
+  let _t = 0
+  interface Shimmer { sprite: Sprite; phase: number; speed: number }
+  const _shimmers: Shimmer[] = []
 
   function draw() {
     g.clear()
@@ -75,36 +97,36 @@ export function createGroundLayer(): MapLayer {
       isoToScreen(isoBounds.aMax + 5, isoBounds.bMax + 5, _ox, _oy),
       isoToScreen(isoBounds.aMax + 5, isoBounds.bMin, _ox, _oy),
     ]
-    g.poly(gridCorners.flatMap(p => [p.x, p.y])).fill(0x0c1a2c)
+    g.poly(gridCorners.flatMap(p => [p.x, p.y])).fill(WATER_BASE)
 
-    // ── Atlantic Ocean (darker deep water) ────────────────────────────────
+    // ── Atlantic Ocean (deeper, darker) ──────────────────────────────────
     const atlPts = atlanticPolygon(isoBounds).map(([a, b]) => isoToScreen(a, b, _ox, _oy))
-    g.poly(atlPts.flatMap(p => [p.x, p.y])).fill(0x081220)
+    g.poly(atlPts.flatMap(p => [p.x, p.y])).fill(ATLANTIC)
 
-    // ── Lagoon (shallower, slightly lighter) ──────────────────────────────
+    // ── Lagoon (shallower, slightly lighter — the key geographic feature) ─
     const lagPts = LAGOON.map(([a, b]) => isoToScreen(a, b, _ox, _oy))
-    g.poly(lagPts.flatMap(p => [p.x, p.y])).fill(0x0f1f2e)
-    g.poly(lagPts.flatMap(p => [p.x, p.y])).stroke({ color: 0x1a4870, width: 1, alpha: 0.4 })
+    g.poly(lagPts.flatMap(p => [p.x, p.y])).fill(LAGOON_FILL)
+    g.poly(lagPts.flatMap(p => [p.x, p.y])).stroke({ color: LAGOON_EDGE, width: 1.5, alpha: 0.50 })
 
-    // ── LGA land polygons ─────────────────────────────────────────────────
+    // ── LGA land polygons (warm dark brown-grey — contrast with cool water) ─
     for (const lga of lgas) {
       const pts = lga.isoPolygon.map(([a, b]) => isoToScreen(a, b, _ox, _oy))
       const fill = lgaFill(lga.key, lga.zoneId)
       g.poly(pts.flatMap(p => [p.x, p.y])).fill(fill)
     }
 
-    // ── LGA boundary strokes (subtle LGA-to-LGA borders) ─────────────────
+    // ── LGA boundary strokes ──────────────────────────────────────────────
     for (const lga of lgas) {
       const pts = lga.isoPolygon.map(([a, b]) => isoToScreen(a, b, _ox, _oy))
       g.poly(pts.flatMap(p => [p.x, p.y]))
         .stroke({ color: 0x0e1828, width: 0.8, alpha: 0.35 })
     }
 
-    // ── Coastline (land-water edge, brighter) ─────────────────────────────
+    // ── Coastline (land-water edge — brighter to separate land from water) ─
     for (const lga of lgas) {
       const pts = lga.isoPolygon.map(([a, b]) => isoToScreen(a, b, _ox, _oy))
       g.poly(pts.flatMap(p => [p.x, p.y]))
-        .stroke({ color: 0x1a4870, width: 1, alpha: 0.45 })
+        .stroke({ color: LAGOON_EDGE, width: 1.2, alpha: 0.50 })
     }
 
     // ── Faint iso grid lines ──────────────────────────────────────────────
@@ -123,15 +145,64 @@ export function createGroundLayer(): MapLayer {
     }
   }
 
+  function buildShimmer() {
+    shimmerC.removeChildren()
+    _shimmers.length = 0
+    const isoBounds = getProjectedBounds()
+    const atl = atlanticPolygon(isoBounds)
+
+    // Inject 80 shimmer points into lagoon and 40 into Atlantic
+    const allWater = [LAGOON, atl]
+    const counts = [80, 40]
+    for (let wi = 0; wi < allWater.length; wi++) {
+      const poly = allWater[wi]
+      let aMin = Infinity, aMax = -Infinity, bMin = Infinity, bMax = -Infinity
+      for (const [a, b] of poly) {
+        if (a < aMin) aMin = a; if (a > aMax) aMax = a
+        if (b < bMin) bMin = b; if (b > bMax) bMax = b
+      }
+      const N = counts[wi]
+      let placed = 0
+      for (let attempt = 0; attempt < N * 30 && placed < N; attempt++) {
+        const a = aMin + Math.random() * (aMax - aMin)
+        const b = bMin + Math.random() * (bMax - bMin)
+        if (!pointInPolygon(a, b, poly)) continue
+        const { x, y } = isoToScreen(a, b, _ox, _oy)
+        const sp = new Sprite(Texture.WHITE)
+        sp.width = 4
+        sp.height = 1
+        sp.anchor.set(0.5, 0.5)
+        sp.x = x
+        sp.y = y + TILE_H
+        sp.tint = 0x88bbee
+        sp.alpha = 0
+        shimmerC.addChild(sp)
+        _shimmers.push({ sprite: sp, phase: Math.random() * Math.PI * 2, speed: 0.3 + Math.random() * 0.5 })
+        placed++
+      }
+    }
+  }
+
   return {
     container,
     init(_state: MapState, w: number, h: number) {
       _w = w; _h = h
       _ox = w / 2 - 10
       _oy = (h - 324) / 2 + 4
+      _t = 0
       draw()
+      buildShimmer()
     },
-    update() {},
-    destroy() { container.destroy({ children: true }) },
+    update(_state: MapState, dt: number) {
+      _t += dt / 1000
+      for (const sh of _shimmers) {
+        const a = 0.03 + 0.10 * (0.5 + 0.5 * Math.sin(_t * sh.speed + sh.phase))
+        sh.sprite.alpha = a
+      }
+    },
+    destroy() {
+      container.destroy({ children: true })
+      _shimmers.length = 0
+    },
   }
 }

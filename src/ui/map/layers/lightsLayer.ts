@@ -160,7 +160,7 @@ function drawZoneGlow(
   const steps = 6
   for (let i = 0; i < steps; i++) {
     const r = radius * (1 - i / steps)
-    const a = intensity * ((i + 1) / steps) * 0.22   // 2× brighter than Stage A
+    const a = intensity * ((i + 1) / steps) * 0.10   // soft halo, no white blowout
     g.circle(cx, cy, r).fill({ color, alpha: a })
   }
 }
