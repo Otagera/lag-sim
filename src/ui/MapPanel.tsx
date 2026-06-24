@@ -12,6 +12,9 @@ import {
   buildProjectsGeoJSON,
 } from './lagosGeoJSON'
 import { CONSTITUENCIES } from '../data/constituencies'
+import { DistrictCanvas } from './DistrictCanvas'
+import { NightMapCanvas } from './map/NightMapCanvas'
+import type { MapLens } from '../state/mapSelectors'
 
 // Hex values matching tokens.css — Maplibre can't consume CSS vars
 const STATUS_FILL   = { stable: '#84cc86', warning: '#ceb47e', crisis: '#c56c65' }
@@ -52,6 +55,7 @@ export function MapPanel() {
   const [mapReady, setMapReady]   = useState(false)
   const [hoveredLGA, setHoveredLGA] = useState<ConstituencyKey | null>(null)
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null)
+  const [mapMode, setMapMode] = useState<'overview' | 'district' | 'night'>('overview')
 
   // Initialize Maplibre once on mount
   useEffect(() => {
@@ -168,12 +172,14 @@ export function MapPanel() {
         },
       })
 
-      // Click on any LGA → select it directly
+      // Click on any LGA → switch to illustrated district view
       map.on('click', 'lga-fill', (e) => {
         const lgaName = e.features?.[0]?.properties?.shapeName as string | undefined
         if (!lgaName) return
         const lgaKey = SHAPE_TO_LGA[lgaName]
-        if (lgaKey) setSelected((prev) => (prev === lgaKey ? null : lgaKey))
+        if (!lgaKey) return
+        setSelected(lgaKey)
+        setMapMode('district')
       })
       map.on('mouseenter', 'lga-fill', () => { map.getCanvas().style.cursor = 'pointer' })
 
@@ -228,6 +234,11 @@ export function MapPanel() {
     src?.setData(buildProjectsGeoJSON(capitalProjects))
   }, [mapReady, constituencyApproval, layer, selected, infraScore, securityIndex, youthTension, capitalProjects])
 
+  function returnToOverview() {
+    setMapMode('overview')
+    setSelected(null)
+  }
+
   const layers = Object.entries(LAYER_CONFIG) as [MapLayer, typeof LAYER_CONFIG[MapLayer]][]
 
   const selectedInfo    = selected ? CONSTITUENCIES.find((c) => c.key === selected) : null
@@ -278,10 +289,129 @@ export function MapPanel() {
             {cfg.label}
           </button>
         ))}
+
+        {/* View mode toggle — Night City */}
+        <div style={{ marginLeft: 'auto' }}>
+          <button
+            type="button"
+            onClick={() => setMapMode(mapMode === 'night' ? 'overview' : 'night')}
+            className="px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide transition-colors"
+            style={{
+              color: mapMode === 'night' ? 'var(--text)' : 'var(--text-secondary)',
+              borderBottom: mapMode === 'night' ? '2px solid #3a6fa8' : '2px solid transparent',
+            }}
+          >
+            Night City
+          </button>
+        </div>
       </div>
 
-      {/* Maplibre container */}
-      <div ref={mapContainerRef} style={{ width: '100%', height: 340 }} />
+      {/* Map viewport — overview: Maplibre | district: illustrated image */}
+      <div style={{ position: 'relative', width: '100%', height: 340, overflow: 'hidden' }}>
+
+        {/* Maplibre canvas — always mounted, hidden in district/night modes */}
+        <div
+          ref={mapContainerRef}
+          style={{ width: '100%', height: '100%', display: mapMode === 'overview' ? 'block' : 'none' }}
+        />
+
+        {/* Night isometric city — perpetual dark Lagos */}
+        {mapMode === 'night' && (() => {
+          // Map the Maplibre layer tab to the night-map colour lens
+          const nightLens: MapLens =
+            layer === 'youthTension' ? 'youth' : (layer ?? 'approval')
+          return (
+            <div style={{ position: 'absolute', inset: 0 }}>
+              <NightMapCanvas lens={nightLens} />
+            </div>
+          )
+        })()}
+
+        {/* Illustrated district view */}
+        {mapMode === 'district' && selected && (() => {
+          const lgaProjects = capitalProjects.filter(
+            (p) => p.location === selected && (p.status === 'active' || p.status === 'stalled'),
+          )
+          const info = CONSTITUENCIES.find((c) => c.key === selected)
+          const approval = constituencyApproval[selected] ?? 50
+          const st = approvalStatus(approval)
+          const PIN_SLOTS = [
+            { x: 22, y: 38 }, { x: 58, y: 28 }, { x: 72, y: 52 },
+            { x: 38, y: 62 }, { x: 50, y: 42 }, { x: 18, y: 65 },
+          ]
+          return (
+            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+              {/* Procedural isometric district scene */}
+              <DistrictCanvas
+                lgaKey={selected}
+                approval={approval}
+                infraScore={infraScore}
+                youthTension={youthTension}
+                activeProjects={lgaProjects}
+              />
+
+              {/* Dark gradient vignette at top for legibility */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 40%)',
+                pointerEvents: 'none',
+              }} />
+
+              {/* District name + approval badge */}
+              <div style={{ position: 'absolute', top: 10, left: 48, zIndex: 10 }}>
+                <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#fff', lineHeight: 1.1, textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
+                  {info?.label ?? selected}
+                </p>
+                <span style={{
+                  display: 'inline-block', marginTop: 3,
+                  padding: '1px 6px', fontSize: 10, fontWeight: 600,
+                  backgroundColor: STATUS_FILL[st], color: '#fff',
+                }}>
+                  {approval.toFixed(0)}% approval
+                </span>
+              </div>
+
+              {/* Capital project pins */}
+              {lgaProjects.map((p, i) => {
+                const slot = PIN_SLOTS[i % PIN_SLOTS.length]
+                const pinColor = p.status === 'stalled' ? '#c56c65' : '#e8a040'
+                return (
+                  <div
+                    key={p.id}
+                    title={`${p.name} — ${p.status === 'stalled' ? 'Stalled' : `${p.weeksRemaining}w left`}`}
+                    style={{
+                      position: 'absolute',
+                      left: `${slot.x}%`, top: `${slot.y}%`,
+                      transform: 'translate(-50%, -100%)',
+                      zIndex: 10, cursor: 'default',
+                      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
+                    }}
+                  >
+                    <svg width="26" height="34" viewBox="0 0 26 34" fill="none">
+                      <path d="M13 0C5.82 0 0 5.82 0 13C0 22.75 13 34 13 34C13 34 26 22.75 26 13C26 5.82 20.18 0 13 0Z" fill={pinColor} />
+                      <circle cx="13" cy="13" r="6" fill="white" opacity="0.92" />
+                    </svg>
+                  </div>
+                )
+              })}
+
+              {/* ← Overview button */}
+              <button
+                type="button"
+                onClick={returnToOverview}
+                style={{
+                  position: 'absolute', top: 8, left: 8, zIndex: 10,
+                  padding: '3px 10px', fontSize: 10, fontWeight: 600,
+                  backgroundColor: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.25)',
+                  color: '#fff', cursor: 'pointer', letterSpacing: '0.05em', backdropFilter: 'blur(4px)',
+                }}
+              >
+                ← Overview
+              </button>
+            </div>
+          )
+        })()}
+      </div>
 
       {/* Hover tooltip — suppressed when LGA is selected (dossier shows full detail) */}
       {hoveredLGA && hoveredLGA !== selected && tooltipPos && (() => {

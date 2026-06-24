@@ -25,7 +25,11 @@ function getWorker(): Worker {
 
 const TIMEOUT_MS = 45_000
 
+// Set to true to re-enable on-device LLM news generation (heavy — slows dev).
+const LLM_ENABLED = false
+
 export async function generateNewsText(prompt: string): Promise<string | null> {
+  if (!LLM_ENABLED) return Promise.resolve(null)
   return new Promise<string | null>((resolve) => {
     currentResolve = resolve
     getWorker().postMessage({ prompt })

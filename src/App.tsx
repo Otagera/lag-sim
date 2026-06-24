@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Moon, Sun } from 'lucide-react'
 
 // Apply stored theme before first render to avoid flash
@@ -46,6 +46,10 @@ function App() {
   const activeGodfatherMessage = useGameStore((s) => s.activeGodfatherMessage)
   const newspaperHeadline = useGameStore((s) => s.newspaperHeadline)
 
+  // Tracks headlines already processed by the LLM effect so it never re-fires
+  // for the same headline (prevents infinite loop when LLM is disabled/returns null).
+  const llmAttempted = useRef(new Set<string>())
+
   const [showLoadPrompt, setShowLoadPrompt] = useState(false)
   const [showWelcome, setShowWelcome] = useState(false)
   const [showArchetypeSelect, setShowArchetypeSelect] = useState(false)
@@ -79,6 +83,9 @@ function App() {
   // LLM enrichment: when a new newspaperHeadline appears, fire the worker
   useEffect(() => {
     if (!newspaperHeadline || newspaperHeadline.llmGenerated || newspaperHeadline.llmPending) return
+    if (llmAttempted.current.has(newspaperHeadline.headline)) return
+
+    llmAttempted.current.add(newspaperHeadline.headline)
 
     useGameStore.setState((s) => ({
       newspaperHeadline: s.newspaperHeadline

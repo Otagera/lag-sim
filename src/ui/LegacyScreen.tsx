@@ -66,6 +66,10 @@ export function LegacyScreen() {
   const workerRef = useRef<Worker | null>(null)
 
   useEffect(() => {
+    // Set to true to re-enable on-device LLM generation (heavy — slows dev).
+    const LLM_ENABLED = false
+    if (!LLM_ENABLED) return
+
     setLlmLoading(true)
     const worker = new Worker(new URL('../workers/llmWorker.ts', import.meta.url), {
       type: 'module',
