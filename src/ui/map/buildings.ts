@@ -93,26 +93,33 @@ const LGA_DENSITY: Record<string, number> = {
 export function generateBuildings(): Building[] {
   const buildings: Building[] = []
   const BUDGET = 3600
+  // Real LGA polygons are smaller than the old oversized rectangles.
+  // With half-grid (0.5-step) positions and this density multiplier, we hit
+  // the full budget of 3600 buildings distributed across the 20 real LGAs.
+  const DENSITY_MULT = 1.25
   const lgas = getLGAGeometry()
 
+  outer:
   for (const lga of lgas) {
     const type = LGA_TYPE[lga.key] ?? 'dense-low'
-    const density = LGA_DENSITY[lga.key] ?? 0.3
+    const density = Math.min(0.95, (LGA_DENSITY[lga.key] ?? 0.3) * DENSITY_MULT)
     const rng = mulberry32(lga.key.split('').reduce((a, c) => a + c.charCodeAt(0), 0))
     const [minF, maxF] = floorRange(type)
 
     const { aMin, aMax, bMin, bMax } = lga.bounds
-    for (let a = Math.floor(aMin); a <= Math.ceil(aMax); a++) {
-      for (let b = Math.floor(bMin); b <= Math.ceil(bMax); b++) {
-        if (buildings.length >= BUDGET) break
-        if (!pointInPolygon(a + 0.5, b + 0.5, lga.isoPolygon)) continue
+    const aLo = Math.floor(aMin * 2), aHi = Math.ceil(aMax * 2)
+    const bLo = Math.floor(bMin * 2), bHi = Math.ceil(bMax * 2)
+    for (let ai = aLo; ai <= aHi; ai++) {
+      for (let bi = bLo; bi <= bHi; bi++) {
+        if (buildings.length >= BUDGET) break outer
+        const aa = ai / 2, bb = bi / 2
+        if (!pointInPolygon(aa, bb, lga.isoPolygon)) continue
         if (rng() > density) continue
         const fp = footprint(type, rng)
         const floors = minF + Math.floor(rng() * (maxF - minF + 1))
         const z = lgaToZone(lga.key)
-        buildings.push({ a, b, floors, fp, type, zoneId: z.zoneId, zoneIdx: z.zoneIdx, lgaKey: lga.key })
+        buildings.push({ a: aa, b: bb, floors, fp, type, zoneId: z.zoneId, zoneIdx: z.zoneIdx, lgaKey: lga.key })
       }
-      if (buildings.length >= BUDGET) break
     }
   }
 

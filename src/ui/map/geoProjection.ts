@@ -138,7 +138,12 @@ export function projectGeoJSON(
       ([lng, lat]: number[]) => lngLatToIso(lng, lat, span, gridRange),
     )
 
-    const isoPolygon = simplifyRing(rawPts, simplifyThreshold)
+    // CRITICAL: GeoJSON rings are closed (first === last). Strip the closing
+    // vertex before simplification, then re-close. Otherwise simplifyRing
+    // sees a zero-length segment and returns a degenerate 2-vertex polygon.
+    const openPts = rawPts.slice(0, -1)
+    const simplified = simplifyRing(openPts, simplifyThreshold)
+    const isoPolygon: [number, number][] = [...simplified, simplified[0]]
 
     // Compute centroid (vertex average)
     let ca = 0, cb = 0
