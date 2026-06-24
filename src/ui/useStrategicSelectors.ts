@@ -26,12 +26,13 @@ export function useStrategicSelectors() {
   const capitalProjects = useGameStore((s) => s.capitalProjects)
   const activeLoans = useGameStore((s) => s.activeLoans)
 
+  const isInsolvent = cashReserve < 0
   const revenue = lastRevenue?.total ?? igrTotal
   const expenditure = lastExpenditure?.total ?? expendTotal
   const netFlow = revenue - expenditure
   const isSurplus = netFlow >= 0
   const burnRate = Math.max(0.1, Math.abs(netFlow))
-  const weeksOfCashLeft = isSurplus ? Infinity : cashReserve / burnRate
+  const weeksOfCashLeft = isInsolvent ? -1 : isSurplus ? Infinity : cashReserve / burnRate
 
   const initiative = activeInitiative
     ? {
@@ -72,6 +73,7 @@ export function useStrategicSelectors() {
     cashReserve,
     netFlow,
     isSurplus,
+    isInsolvent,
     weeksOfCashLeft,
     initiative,
     activeProjects,

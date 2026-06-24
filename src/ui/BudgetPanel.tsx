@@ -34,9 +34,26 @@ export function BudgetPanel() {
   const revenue = useGameStore((s) => s.lastWeekRevenue)
   const expBreakdown = useGameStore((s) => s.lastWeekExpenditure)
 
+  const stats = useGameStore((s) => s.stats)
+  const resolvedEvents = useGameStore((s) => s.resolvedEvents)
+
   const net = igr - expenditure
   const revenueGap = FIXED_EXPENDITURE_FLOOR - igr
   const atFloor = igr < FIXED_EXPENDITURE_FLOOR
+
+  const payeDone = resolvedEvents.includes('paye-enforcement-result')
+  const payeActive = activeInitiative?.id === 'paye-enforcement'
+  const lucAtMax = stats.landUseChargeEnforcement >= 3
+  const overheadsCut = stats.baseOverheads <= -3 && stats.subventionCutRate >= 0.3
+  const grantDone = resolvedEvents.includes('world-bank-grant-result')
+  const grantActive = activeInitiative?.id === 'grants-mobilisation'
+
+  const levers = []
+  if (!payeActive && !payeDone) levers.push('grow PAYE')
+  if (!lucAtMax) levers.push('enforce Land Use Charge')
+  if (!overheadsCut) levers.push('reform overheads')
+  if (stats.grantsCompliance < 0.9 && !grantActive && !grantDone)
+    levers.push('secure World Bank grant')
 
   return (
     <div className="p-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
@@ -122,8 +139,9 @@ export function BudgetPanel() {
             <div className="p-1.5 mt-1 border" style={{ borderColor: 'var(--error-9)', backgroundColor: 'var(--error-3)' }}>
               <p className="text-[9px] font-semibold" style={{ color: 'var(--error-11)' }}>Revenue Gap</p>
               <p className="text-[9px] mt-0.5" style={{ color: 'var(--error-11)' }}>
-                You need ₦{revenueGap.toFixed(1)}bn more per week just to cover fixed commitments.
-                Grow PAYE, enforce Land Use Charge, and reform overheads.
+                {levers.length > 0
+                  ? `You need ₦${revenueGap.toFixed(1)}bn more per week. ${levers.join(', ')}.`
+                  : `You've pulled every lever available — the remaining gap needs spending cuts or new debt.`}
               </p>
             </div>
           )}

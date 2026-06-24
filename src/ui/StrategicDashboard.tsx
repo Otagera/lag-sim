@@ -8,7 +8,7 @@ const colorVar = {
 }
 
 function BankruptcyClock() {
-  const { cashReserve, netFlow, isSurplus, weeksOfCashLeft } = useStrategicSelectors()
+  const { cashReserve, netFlow, isSurplus, isInsolvent, weeksOfCashLeft } = useStrategicSelectors()
 
   const clockColor =
     weeksOfCashLeft === Infinity
@@ -27,7 +27,11 @@ function BankruptcyClock() {
           {naira(cashReserve)}
         </span>
       </div>
-      {isSurplus ? (
+      {isInsolvent ? (
+        <p className="text-[11px] font-semibold" style={{ color: colorVar.error }}>
+          Overdrawn — no credit remaining
+        </p>
+      ) : isSurplus ? (
         <p className="text-[11px] font-semibold" style={{ color: colorVar.success }}>
           Surplus · building reserves
         </p>
@@ -118,7 +122,7 @@ function InitiativeTracker() {
 }
 
 function QuarterForecast() {
-  const { forecast, bankruptcyWeek, isSurplus, netFlow } = useStrategicSelectors()
+  const { forecast, bankruptcyWeek, isSurplus, isInsolvent, netFlow } = useStrategicSelectors()
 
   if (isSurplus) return null
 
@@ -172,7 +176,11 @@ function QuarterForecast() {
             ))}
           </div>
 
-          {finalCash < 0 && (
+          {isInsolvent ? (
+            <p className="text-[9px] font-semibold" style={{ color: colorVar.error }}>
+              Already insolvent — emergency loan or bankruptcy imminent
+            </p>
+          ) : finalCash < 0 && (
             <p className="text-[9px] font-semibold" style={{ color: colorVar.error }}>
               Projected bankruptcy:
               {bankruptcyWeek ? ` week ${bankruptcyWeek}` : ' this quarter'}
