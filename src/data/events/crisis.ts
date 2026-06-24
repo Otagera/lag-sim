@@ -62,7 +62,7 @@ export const crisisEvents: EventCard[] = [
         delayed: {
           weekOffset: 12,
           delta: { cashReserve: -12 },
-          eventText: `Your resettlement plan for Makoko is due. The ₦12bn cost is now on the table.`,
+          eventText: `Chief Fashemu's building contractor was seen measuring plots in Makoko yesterday. The demolition order you gave is now a bill of sale — and the water on the lagoon hasn't even receded yet.`,
           followUpEventId: 'makoko-resettlement-choice',
         },
       },
@@ -94,7 +94,7 @@ export const crisisEvents: EventCard[] = [
           weekOffset: 6,
           delta: { publicTrust: -8, infrastructureScore: -5 },
           factionImpact: { civilSocietyMedia: -5 },
-          eventText: `The LASBCA audit has uncovered 40+ buildings with compromised approvals. A wave of enforcement actions has begun.`,
+          eventText: `The LASBCA audit landed on your desk at midnight. Forty-three buildings — including two on the same Lekki corridor as the collapse. Each one is a political grenade you now have to defuse one by one.`,
         },
       },
       {
@@ -108,7 +108,7 @@ export const crisisEvents: EventCard[] = [
           weekOffset: 8,
           delta: { publicTrust: -10, corruptionPressure: 5 },
           factionImpact: { civilSocietyMedia: -10 },
-          eventText: `The investigation into the Lekki building collapse has traced the bribes higher — much higher. The scapegoat story has fallen apart.`,
+          eventText: `The scapegoat held for exactly one press cycle. Then he started naming names. The Permanent Secretary's WhatsApp backup is now in a lawyer's safe. You don't know what else is in there.`,
         },
       },
       {
@@ -175,7 +175,7 @@ export const crisisEvents: EventCard[] = [
         delayed: {
           weekOffset: 16,
           delta: { igr: 0.4 },
-          eventText: `The Makoko resettlement estate is complete. New economic activity in the periphery is generating ₦400m weekly in additional IGR.`,
+          eventText: `The new estate on the mainland edge is finished. The families from Makoko call it 'exile' — but the market that has sprung up at its gate generates ₦400m a week in IGR. Everyone makes peace with the name.`,
         },
       },
       {
@@ -198,7 +198,7 @@ export const crisisEvents: EventCard[] = [
         delayed: {
           weekOffset: 12,
           delta: { publicTrust: 4 },
-          eventText: `The phased Makoko resettlement is progressing. Not perfect, but no one is actively protesting.`,
+          eventText: `The phased resettlement is messy, slow, and still displacing people one street at a time. No one is burning tyres yet. In Lagos, that counts as 'on track.'`,
         },
       },
     ],

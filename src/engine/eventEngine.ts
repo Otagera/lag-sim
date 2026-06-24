@@ -15,6 +15,7 @@ import { riotEvents } from '../data/events/riot'
 import { routineEvents } from '../data/events/routine'
 import { socialEvents } from '../data/events/social'
 import { transportEvents } from '../data/events/transport'
+import { narrateConsequence } from './consequenceNarrator'
 import type { EventCard, GameState, PendingEvent, StatKey, TimelineEntry } from '../state/types'
 import { applyConstituencyImpact } from './constituencyEngine'
 import { applyFactionDelta } from './factionEngine'
@@ -285,6 +286,8 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     choiceUseCounts = { ...choiceUseCounts, [drKey]: drUses + 1 }
   }
 
+  const consequenceBeat = narrateConsequence(choice, event, state, next, `${event.id}:${choice.id}:${state.week}`)
+
   return {
     ...next,
     activeEvent: null,
@@ -296,6 +299,7 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     timeline: [...next.timeline, timelineEntry],
     campaignDecisions,
     choiceUseCounts,
+    lastConsequenceBeat: consequenceBeat,
   }
 }
 

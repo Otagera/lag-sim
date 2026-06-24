@@ -186,7 +186,7 @@ export const phase4Events: EventCard[] = [
           weekOffset: 12,
           delta: {},
           eventText:
-            'The assembly members you bought off have been re-approached by the opposition with a better offer. The threat of a quorum maneuver has resurfaced.',
+            'The opposition offered a better price. Three of the five \'secured\' votes are now bargaining again. The Speaker\'s office reports that envelopes are changing hands in the assembly complex washrooms.',
         },
       },
       {
@@ -495,7 +495,7 @@ export const phase4Events: EventCard[] = [
           weekOffset: 2,
           delta: {},
           eventText:
-            'The Presidency has signed the Section 305 emergency declaration. A Sole Administrator has been sworn in at Alausa Government House.',
+            'The Presidency\'s press release landed at 7pm on a Friday — the classic bury. Section 305 has been invoked. A retired general has been sworn in at Alausa. Your security details have been stood down. The flag on the Government House mast is no longer yours.',
           followUpEventId: 'federal-emergency-declared',
         },
       },

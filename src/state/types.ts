@@ -297,6 +297,16 @@ export type GodfatherAsk = {
   onRefuse: StatDelta & { factionImpact?: FactionDelta }
 }
 
+export type ConsequenceBeat = {
+  text: string
+  tone: 'grim' | 'tense' | 'hopeful' | 'hollow' | 'neutral'
+  choiceLabel: string
+  choiceDescription: string
+  immediate: StatDelta
+  factionImpact: FactionDelta
+  politicalCapitalCost?: number
+}
+
 export type InitiativeState = {
   id: string
   name: string
@@ -377,4 +387,6 @@ export type GameState = {
   runMeta: RunMeta
   // Goal tracking
   selectedGoalId: string | null
+  // Phase B — consequence beat after choice resolution
+  lastConsequenceBeat: ConsequenceBeat | null
 }

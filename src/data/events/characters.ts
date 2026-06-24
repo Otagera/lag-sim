@@ -39,7 +39,7 @@ export const removalResolutionEvent: EventCard = {
         weekOffset: 4,
         delta: { politicalCapital: -10 },
         factionImpact: { civilSocietyMedia: -8 },
-        eventText: 'The concessions promised during the removal vote have come due. Assembly members are collecting.',
+        eventText: 'The promises you made to survive the removal vote are now coming due. A commissioner slot in the next cabinet, accelerated contracts for three assembly members\' cousins, waivers on two land use charges. The price of staying in office is payable in instalments.',
       },
     },
     {
@@ -172,7 +172,7 @@ export const characterEvents: EventCard[] = [
           weekOffset: 3,
           delta: { publicTrust: -6, corruptionPressure: 3 },
           factionImpact: { civilSocietyMedia: -8 },
-          eventText: `The journalist's follow-up press conference, armed with your legal team's stonewalling, has driven the corruption narrative for three straight days.`,
+          eventText: `Your lawyer's letter — all 12 pages of legal threats — was the journalist's best material. She read it aloud on live radio. The Senate has now invited the Commissioner for Works to appear. The corruption narrative has been given a second life.`,
         },
       },
       {
@@ -292,7 +292,7 @@ export const characterEvents: EventCard[] = [
           weekOffset: 6,
           delta: { publicTrust: 4 },
           factionImpact: { civilSocietyMedia: 4 },
-          eventText: `A public dispute over protest tactics has fractured the opposition coalition. The alliance is effectively over.`,
+          eventText: `The coalition fractured on live television. The Labour Party faction accused the PDP wing of 'hijacking the protest agenda.' Your political team's planted social media campaign amplified every crack until the alliance was unrecognisable.`,
         },
       },
       {
@@ -617,7 +617,7 @@ export const characterEvents: EventCard[] = [
           weekOffset: 8,
           delta: { publicTrust: 4 },
           factionImpact: { civilSocietyMedia: 5 },
-          eventText: 'The Adeyemi-Shaw inquiry concluded with a caution. The cloud has lifted, but the story defined two months of your administration.',
+          eventText: 'The inquiry cleared your deputy — technically. The report used phrases like \'no direct evidence\' and \'insufficient to establish wrongdoing.\' The cloud lifted, but for two months, every policy announcement was met with the same question: \'Is this the one your deputy took a cut from?\'',
         },
       },
     ],

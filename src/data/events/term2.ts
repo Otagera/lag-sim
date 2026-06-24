@@ -29,7 +29,7 @@ export const term2Events: EventCard[] = [
         delayed: {
           weekOffset: 12,
           delta: { infrastructureScore: 15 },
-          eventText: 'Piling works for the Fourth Mainland Bridge have commenced. The macro infrastructure scorecard surges, though displaced communities are protesting outside Alausa.',
+          eventText: 'Piling has begun on the Fourth Mainland Bridge. The infrastructure scorecard surges. Outside Alausa, the families displaced from the claimed land have set up a protest camp. Your security chief calls it \'a nuisance.\' The Channels TV reporter calls it \'a human cost.\'',
         },
       },
       {
@@ -48,7 +48,7 @@ export const term2Events: EventCard[] = [
         delayed: {
           weekOffset: 8,
           delta: { infrastructureScore: 8, cashReserve: 18.0 },
-          eventText: 'The ₦20bn Lagos Bridge Sukuk has been fully subscribed. Ground-breaking ceremony scheduled for next month.',
+          eventText: 'The sukuk closed at N20bn — fully subscribed within 48 hours. The Lagos financial community is calling it \'a vote of confidence.\' Your Finance Minister calls it \'expensive money.\' The ground-breaking is scheduled for next month. The real digging starts when the cameras leave.',
         },
       },
     ],
@@ -197,7 +197,7 @@ export const term2Events: EventCard[] = [
         delayed: {
           weekOffset: 3,
           delta: { cashReserve: 10.0 },
-          eventText: 'The domestic banking cartel has unfrozen the state treasury accounts following the aggressive subvention reallocation.',
+          eventText: 'The banks blinked. The accounts are unfrozen. The price: the state\'s credit rating has been downgraded by two notches. Future borrowing will cost more. But the civil servants got paid this month. You tell yourself that was the right choice.',
         },
       },
       {
@@ -314,7 +314,7 @@ He controls the party secretariat and has three of your commissioners openly cam
         delayed: {
           weekOffset: 6,
           delta: { igr: 2.0 },
-          eventText: 'The LIRS digital platform has been fully restored by the international contractor. Revenue collection is back to normal, though some taxpayers who shifted to informal avoidance during the outage have not fully returned.',
+          eventText: 'The LIRS system is back online. The international contractor charged emergency rates. Revenue collection has returned to 87% of pre-outage levels — the remaining 13% discovered the joys of cash transactions during the blackout and are reluctant to come back.',
         },
       },
       {
@@ -555,7 +555,7 @@ The Lagos Island commercial corridor is now directly threatened by northward spr
         delayed: {
           weekOffset: 12,
           delta: { securityIndex: 8, youthTension: -7 },
-          eventText: 'The Ajegunle reconciliation programme has achieved a formal ceasefire between two of the three factions. Eko Boys remain active but diminished.',
+          eventText: 'The ceasefire held for six weeks. Two factions signed. The third — the Eko Boys — sent word that they would \'observe.\' In Ajegunle, observation is not peace. But the market reopened, and children went back to school on the street where the last shooting happened.',
         },
       },
       {
@@ -636,7 +636,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
           weekOffset: 10,
           delta: { infrastructureScore: 5 },
           factionImpact: { businessCommunity: 10 },
-          eventText: 'The Eko Bridge rehabilitation is complete. The Federal Government has co-funded 40% of the repair costs in a rare cooperative intervention.',
+          eventText: 'The Eko Bridge rehabilitation is done. The Federal Government co-funded 40% — a rare moment of cooperation that your Chief of Staff wants you to mention in every speech for the next month. Traffic flows. The engineers say the bridge is good for 25 years. You hope you are not here to test that claim.',
         },
       },
       {
@@ -648,7 +648,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
         delayed: {
           weekOffset: 16,
           delta: { infrastructureScore: 3 },
-          eventText: 'The partial rehabilitation has completed. Span 7 is stabilized but engineers warn it will need full replacement within three years.',
+          eventText: 'Span 7 is stabilized — \'safe for now,\' the engineers say. The phrase \'for now\' appears seven times in their report. They recommend full replacement within three years. Three years is a second term away. A problem for a future governor, unless that future governor is still you.',
         },
       },
       {
@@ -660,7 +660,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
         delayed: {
           weekOffset: 20,
           delta: { publicTrust: -15, infrastructureScore: -10 },
-          eventText: 'A concrete panel fell onto a truck on the Eko Bridge today. There are no fatalities but the near-miss has become a national scandal. Every newspaper has printed your 2-year-old infrastructure inspection report.',
+          eventText: 'A concrete panel the size of a car door fell onto a Toyota Hiace on Eko Bridge at 8:47am. No one died — a miracle the newspapers are calling \'divine intervention.\' Every front page carries the inspection report you ordered buried two years ago. The headline in Punch: \'He Knew.\'',
         },
       },
     ],
@@ -857,7 +857,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
         delayed: {
           weekOffset: 8,
           delta: { infrastructureScore: 5, igr: 1.5 },
-          eventText: 'Local material mandating has stabilized project costs and created 12,000 direct supply chain jobs in Lagos manufacturing.',
+          eventText: 'The local content mandate is working. Project costs are stable. 12,000 new jobs in Lagos manufacturing — a number your information commissioner has already turned into a press release, a documentary, and a jingle.',
         },
       },
       {
@@ -869,7 +869,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
         delayed: {
           weekOffset: 6,
           delta: { cashReserve: 15.0 },
-          eventText: 'RMAFC has approved a ₦15bn devaluation compensation top-up to Lagos State. Your diplomatic persistence paid off.',
+          eventText: 'RMAFC approved the N15bn top-up. The Southwest Governors Forum — the ones who watched you lobby alone for weeks — have all sent congratulatory messages. None of them offered to share your compensation.',
         },
       },
     ],
@@ -988,7 +988,7 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
         delayed: {
           weekOffset: 3,
           delta: { politicalCapital: -15 },
-          eventText: 'The Godfather caucus has confirmed they know who leaked the delegate management request. Three of your remaining loyal commissioners have received hostile calls.',
+          eventText: 'The godfathers know. They always know. Three of your commissioners — the ones who stayed loyal — have received late-night calls. The messages are polite. The meaning is not. \'Your governor leaked our private arrangement. We will remember this.\'',
         },
       },
     ],
@@ -1233,7 +1233,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         delayed: {
           weekOffset: 10,
           delta: { infrastructureScore: 5, cashReserve: 10.0 },
-          eventText: 'The public shaming worked. Under pressure from business associations, the Assembly has passed a reduced ₦14bn version of the supplementary budget.',
+          eventText: 'Public pressure worked faster than any backroom deal could. The Assembly passed a reduced N14bn budget. The Speaker\'s office issued a statement praising \'the spirit of democratic collaboration.\' Your Chief of Staff has framed the quote.',
         },
       },
       {
@@ -1339,7 +1339,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         delayed: {
           weekOffset: 3,
           delta: { politicalCapital: 10 },
-          eventText: 'The re-run ward congresses in Alimosho, Agege, and Ikorodu completed under police supervision. Delegate slots have been restored.',
+          eventText: 'The re-run congresses were quiet. Armed police at every polling station buys a certain kind of peace. Alimosho, Agege, Ikorodu — the three most contested wards — have returned their delegate slates. The old slates. The same faces, validated by force.',
         },
       },
       {
@@ -1867,7 +1867,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         delayed: {
           weekOffset: 8,
           delta: { infrastructureScore: 6, publicTrust: 3 },
-          eventText: 'The Surulere emergency drainage project is complete. The Bode Thomas corridor now has a 150-year-return-period capacity culvert system.',
+          eventText: 'The Bode Thomas drainage is done. A 150-year-capacity culvert system runs beneath the road now. The market women who lost their stalls in the flood came to the commissioning — not to celebrate, but to see if the water would go somewhere else this time.',
         },
       },
       {
@@ -1879,7 +1879,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         delayed: {
           weekOffset: 6,
           delta: { infrastructureScore: 4, publicTrust: 4 },
-          eventText: 'The citywide drainage audit has flagged 47 critical failure points. Emergency works have begun on the top 12.',
+          eventText: 'The audit reveals what everyone who lives in Lagos already knows: the drainage system was designed for a city half this size. 47 critical points. The top 12 are under emergency works. Points 13 through 47 will wait — like everything else in a city that grows faster than it can fix.',
         },
       },
       {
@@ -1954,7 +1954,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         delayed: {
           weekOffset: 10,
           delta: { infrastructureScore: 15, publicTrust: 10 },
-          eventText: 'The Lagos Metro Red Line has opened end-to-end. Agege to Marina in 22 minutes. 80,000 commuters on day one. This is your administration\'s signature achievement.',
+          eventText: 'The Red Line opened on a Tuesday. Agege to Marina in 22 minutes — a trip that used to take two hours. 80,000 commuters on day one. Your administration\'s signature achievement. The ribbon-cutting photo will be in every campaign ad. The contractor\'s final payment cleared the same morning.',
         },
       },
       {
@@ -1966,7 +1966,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         delayed: {
           weekOffset: 18,
           delta: { infrastructureScore: 10, publicTrust: 6 },
-          eventText: 'After months of negotiation, the Red Line extension opened to Agege. Not the triumphant opening you planned, but done.',
+          eventText: 'The Red Line opened quietly — no ribbon, no press conference, no presidential tweet. Just the trains running. Agege to Ikeja in 11 minutes. The extension to Marina is still months away. The contractor has threatened to leave again. \'Complete a year late\' becomes your legacy.',
         },
       },
       {

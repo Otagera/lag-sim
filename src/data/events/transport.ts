@@ -47,7 +47,7 @@ export const transportEvents: EventCard[] = [
         delayed: {
           weekOffset: 8,
           delta: { infrastructureScore: 15 },
-          eventText: `The Third Mainland Bridge reopened today after emergency repairs. The 8-week closure cost Lagos billions in lost productivity but the bridge is structurally sound again.`,
+          eventText: `The bridge is open. The structural engineers have signed off — 'safe for another 20 years,' they say. But the 8-week closure cost Lagos an estimated ₦4.2bn in lost productivity. The taxi driver who takes you across tells you: 'Na only God save us. Nobody fit run from that bridge if e collapse.'`,
         },
       },
       {

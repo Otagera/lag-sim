@@ -20,6 +20,7 @@ export interface GameStore extends GameState {
   setDeputy: (key: DeputyKey) => void
   fastForward: (n: number, options?: SimulateOptions) => SimulateResult
   appointCommissioner: (role: CommissionerRole, candidate: CommissionerState) => void
+  dismissConsequenceBeat: () => void
   clearNewspaperHeadline: () => void
   enrichNewspaperHeadline: (headline: string, deck: string) => void
 }
@@ -87,6 +88,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       { politicalCapital: -pcCost },
     ))
   },
+  dismissConsequenceBeat: () => set({ lastConsequenceBeat: null }),
   clearNewspaperHeadline: () => {
     set({ newspaperHeadline: undefined })
   },

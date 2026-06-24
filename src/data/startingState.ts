@@ -127,4 +127,6 @@ export const STARTING_STATE: GameState = {
   runMeta: { archetype: null, simStrategy: null, simSeed: null, simWeeksSkipped: null },
   // Goal tracking
   selectedGoalId: null,
+  // Phase B
+  lastConsequenceBeat: null,
 }

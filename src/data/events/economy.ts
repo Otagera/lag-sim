@@ -84,7 +84,7 @@ export const economyEvents: EventCard[] = [
         delayed: {
           weekOffset: 6,
           delta: { igr: -1.2 },
-          eventText: `The agberos have made good on their threat — a wildcat strike has shut down transport across the city. Lagos has lost ₦1.2bn in productivity this week.`,
+          eventText: `The strike hit on a Monday morning. Oshodi motor park is empty. Mile 12 market is closed. The agbero leadership you arrested has been replaced by younger, hungrier men who are not interested in negotiating.`,
         },
       },
       {
@@ -122,7 +122,7 @@ export const economyEvents: EventCard[] = [
         delayed: {
           weekOffset: 6,
           delta: { infrastructureScore: -5 },
-          eventText: `Contractors have downed tools on three major infrastructure projects. Deferred payments have caught up with you.`,
+          eventText: `The contractors' association sent a single photo to your office: an idle grader on the Ikorodu road, rusting in the rain. 'We wait,' the caption read. Three other projects have stopped. The political cost of restarting them will be higher than the cost of paying on time would have been.`,
         },
       },
       {

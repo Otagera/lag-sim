@@ -27,7 +27,7 @@ export const chainEvents: EventCard[] = [
           weekOffset: 8,
           delta: { publicTrust: 5 },
           factionImpact: { civilSocietyMedia: 5 },
-          eventText: 'The labour court ruled in the state\'s favour. The ghost worker purge stands.',
+          eventText: 'The labour court judge read the ruling without looking up. "No prima facie case," she said. The union\'s lawyers are already filing an appeal. But for today, the purge stands.',
         },
       },
       {
@@ -163,7 +163,7 @@ export const chainEvents: EventCard[] = [
           weekOffset: 10,
           delta: { publicTrust: 12 },
           factionImpact: { civilSocietyMedia: 8 },
-          eventText: 'The Makoko land inquiry has published its findings. Partial accountability established.',
+          eventText: 'The inquiry named three party financiers as beneficiaries of the land reallocation. All three are contributors to your campaign. The report is public. The names are in print. The party chairman wants to know "what you intend to do about it."',
         },
       },
     ],
