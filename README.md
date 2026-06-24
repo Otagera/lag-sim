@@ -387,7 +387,7 @@ Four year-anchored events create a narrative spine through the middle of the gam
 
 ## For Developers and Contributors
 
-See **AGENTS.md** for the technical contract: engine patterns, type shapes, tick order, event card rules, and the verification checklist. That file is kept short and agent-focused.
+Technical reference docs are in `docs/`. Start with `docs/architecture.md` for the engine contract, then see specific docs for events, state, and systems.
 
 ### Adding an Event Card
 
@@ -396,11 +396,12 @@ See **AGENTS.md** for the technical contract: engine patterns, type shapes, tick
 3. No choice should be obviously correct
 4. Body text must have Lagos texture — reference real places and dynamics
 5. Every `immediate` field uses `StatDelta` key names (not `statDelta`, not `amount`)
-6. Run `npx vitest run` — all 475 tests must stay green
+6. Run `npx vitest run` — all tests must stay green
+7. See `docs/event-rules.md` for full card writing rules and inventory
 
 ### Adding a New Stat
 
-Consult before doing this — new stats affect `applyDelta`, `BOUNDS` in `statEngine.ts`, `simulation.test.ts`, and `startingState.ts`. See AGENTS.md for the pattern.
+Consult before doing this — new stats affect `applyDelta`, `BOUNDS` in `statEngine.ts`, `simulation.test.ts`, and `startingState.ts`. See `docs/state-reference.md` and `docs/architecture.md`.
 
 ### Debugging a Specific Effect
 
