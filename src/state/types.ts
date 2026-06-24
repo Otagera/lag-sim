@@ -375,4 +375,6 @@ export type GameState = {
   newspaperHeadline?: NewsArticle
   // Run metadata — diagnostic only, no gameplay effect
   runMeta: RunMeta
+  // Goal tracking
+  selectedGoalId: string | null
 }

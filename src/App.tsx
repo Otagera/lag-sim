@@ -10,7 +10,7 @@ import { useGameStore } from './state/gameStore'
 import { clearSave, hasSavedGame, loadGame } from './state/persistence'
 import { SAVE_VERSION } from './version'
 import { ArchetypeSelectionScreen } from './ui/ArchetypeSelectionScreen'
-import { HandoverNotesModal, hasSeenHandover } from './ui/HandoverNotesModal'
+import { HandoverNotesModal } from './ui/HandoverNotesModal'
 import { LagosHerald } from './ui/LagosHerald'
 import { BudgetPanel } from './ui/BudgetPanel'
 import { Dashboard, YEARS } from './ui/Dashboard'
@@ -21,9 +21,11 @@ import { GodfatherInbox } from './ui/GodfatherInbox'
 import { NPCPanel } from './ui/NPCPanel'
 import { LegacyScreen } from './ui/LegacyScreen'
 import { StrategicDashboard } from './ui/StrategicDashboard'
+import { GoalSelectionScreen } from './ui/GoalSelectionScreen'
 import { PollPanel } from './ui/PollPanel'
 import { TimelinePanel } from './ui/TimelinePanel'
 import { WelcomeModal, hasSeenIntro } from './ui/WelcomeModal'
+import { WelcomeScreen } from './ui/WelcomeScreen'
 import { formatGameMonth } from './utils/calendar'
 import { CabinetPanel } from './ui/CabinetPanel'
 import { DeputyPanel } from './ui/DeputyPanel'
@@ -50,11 +52,15 @@ function App() {
   // for the same headline (prevents infinite loop when LLM is disabled/returns null).
   const llmAttempted = useRef(new Set<string>())
 
-  const [showLoadPrompt, setShowLoadPrompt] = useState(false)
+  const [screen, setScreen] = useState<'welcome' | 'game'>(
+    () => window.location.pathname === '/game' ? 'game' : 'welcome'
+  )
   const [showWelcome, setShowWelcome] = useState(false)
   const [showArchetypeSelect, setShowArchetypeSelect] = useState(false)
   const [showDeputySelect, setShowDeputySelect] = useState(false)
   const [showHandover, setShowHandover] = useState(false)
+  const [showGoalSelect, setShowGoalSelect] = useState(false)
+  const [goalSelectContext, setGoalSelectContext] = useState<'new-game' | 'migration'>('new-game')
   const [selectedArchetype, setSelectedArchetype] = useState<'technocrat' | 'loyalist' | 'outsider'>('technocrat')
   const [activeMobileTab, setActiveMobileTab] = useState<MobileTab>('event')
   const [theme, setTheme] = useState<'light' | 'dark'>(
@@ -72,13 +78,10 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    if (hasSavedGame()) {
-      setShowLoadPrompt(true)
-    } else if (!hasSeenIntro()) {
-      setShowWelcome(true)
-    }
-  }, [])
+  function navigate(to: 'welcome' | 'game') {
+    window.history.pushState({}, '', to === 'game' ? '/game' : '/')
+    setScreen(to)
+  }
 
   // LLM enrichment: when a new newspaperHeadline appears, fire the worker
   useEffect(() => {
@@ -107,23 +110,35 @@ function App() {
     })
   }, [newspaperHeadline?.headline, newspaperHeadline?.llmGenerated, newspaperHeadline?.llmPending])
 
-  function handleResume() {
-    const saved = loadGame()
-    if (saved) {
-      useGameStore.setState({ ...saved })
-    }
-    setShowLoadPrompt(false)
-  }
-
-  function handleNewGame() {
+  function handleStartNewGame() {
     clearSave()
     useGameStore.setState({ ...STARTING_STATE })
-    setShowLoadPrompt(false)
+    setShowGoalSelect(false)
+    navigate('game')
     if (!hasSeenIntro()) {
       setShowWelcome(true)
     } else {
       setShowArchetypeSelect(true)
     }
+  }
+
+  function handleContinue() {
+    const saved = loadGame()
+    if (saved) {
+      useGameStore.setState({ ...saved })
+      navigate('game')
+      const stored = useGameStore.getState()
+      if (stored.selectedGoalId === null && stored.week > 1) {
+        setShowGoalSelect(true)
+        setGoalSelectContext('migration')
+      }
+    }
+  }
+
+  function handleLegacyNewGame() {
+    clearSave()
+    useGameStore.setState({ ...STARTING_STATE })
+    navigate('welcome')
   }
 
   function handleExport() {
@@ -175,6 +190,10 @@ function App() {
     { id: 'data', label: 'Data' },
   ]
 
+  if (screen === 'welcome') {
+    return <WelcomeScreen onNewGame={handleStartNewGame} onContinue={handleContinue} canContinue={hasSavedGame()} />
+  }
+
   return (
     <div className="h-screen flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--background)', color: 'var(--text)' }}>
       {showWelcome && (
@@ -199,14 +218,24 @@ function App() {
           archetypeKey={selectedArchetype}
           onSelect={() => {
             setShowDeputySelect(false)
-            if (!hasSeenHandover()) setShowHandover(true)
+            setShowHandover(true)
           }}
         />
       )}
       {showHandover && !showDeputySelect && (
         <HandoverNotesModal
           archetypeKey={selectedArchetype}
-          onClose={() => setShowHandover(false)}
+          onClose={() => {
+            setShowHandover(false)
+            setShowGoalSelect(true)
+            setGoalSelectContext('new-game')
+          }}
+        />
+      )}
+      {showGoalSelect && (
+        <GoalSelectionScreen
+          context={goalSelectContext}
+          onSelect={() => setShowGoalSelect(false)}
         />
       )}
       {newspaperHeadline && (
@@ -281,39 +310,13 @@ function App() {
         </div>
       )}
 
-      {showLoadPrompt && (
-        <div className="shrink-0 mx-3 mt-2 border p-3 text-center" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
-          <p className="text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>
-            A saved game was found. Resume where you left off?
-          </p>
-          <div className="flex justify-center gap-2">
-            <button
-              type="button"
-              onClick={handleResume}
-              className="px-3 py-1 text-xs font-semibold"
-              style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
-            >
-              Resume
-            </button>
-            <button
-              type="button"
-              onClick={handleNewGame}
-              className="px-3 py-1 text-xs border"
-              style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)', backgroundColor: 'var(--surface)' }}
-            >
-              New Game
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Development panel, I want to run fast forwrads on the go */}
       {/* {import.meta.env.DEV && <DevPanel />} */}
       <DevPanel />
 
       {isGameOver && gameOverReason?.includes('term has ended') ? (
         <div className="flex-1 overflow-y-auto min-h-0">
-          <LegacyScreen />
+          <LegacyScreen onNewGame={handleLegacyNewGame} />
         </div>
       ) : (
         <div className="flex-1 overflow-hidden flex flex-col min-h-0">

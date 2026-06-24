@@ -58,6 +58,11 @@ function migrateV3toV4(raw: RawSaveData): RawSaveData {
   return { ...raw, currentTerm: 1, version: 4 }
 }
 
+function migrateV4toV5(raw: RawSaveData): RawSaveData {
+  // v5 adds goal tracking; existing saves have no goal selected
+  return { ...raw, selectedGoalId: null, version: 5 }
+}
+
 /**
  * Applies any needed migrations to bring a raw save up to SAVE_VERSION.
  * Exported so persistence tests can verify migration logic in isolation.
@@ -77,6 +82,7 @@ export function migrate(raw: RawSaveData): SerializableState {
   if (version < 2) data = migrateV1toV2(data)
   if (version < 3) data = migrateV2toV3(data)
   if (version < 4) data = migrateV3toV4(data)
+  if (version < 5) data = migrateV4toV5(data)
 
   return data as SerializableState
 }

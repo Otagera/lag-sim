@@ -1,16 +1,7 @@
 import { useGameStore } from '../state/gameStore'
+import { ALL_GOALS } from '../data/goals'
 import { NPC_ARCHETYPES } from '../data/npcs'
 import type { ArchetypeKey } from '../data/archetypes'
-
-const SEEN_KEY = 'lagos_handover_seen'
-
-export function hasSeenHandover(): boolean {
-  return localStorage.getItem(SEEN_KEY) === 'true'
-}
-
-function markHandoverSeen() {
-  localStorage.setItem(SEEN_KEY, 'true')
-}
 
 const ARCHETYPE_COS_NOTE: Record<ArchetypeKey, string> = {
   technocrat:
@@ -33,6 +24,9 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
 
   const weeklyFloor = 30.1
   const revenueGap = weeklyFloor - stats.igr
+  const insolventWeeks = stats.expenditure > stats.igr
+    ? Math.floor(stats.cashReserve / Math.max(0.1, stats.expenditure - stats.igr))
+    : Infinity
 
   const npcSlots = (['npc1', 'npc2', 'npc3'] as const).map((slot) => {
     const npc = activeNPCs[slot]
@@ -40,8 +34,23 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
     return { name: npc.name, role: def?.role ?? npc.archetypeKey }
   })
 
+  const stateIssues: { label: string; detail: string; severity: 'high' | 'medium' }[] = []
+  if (stats.cashReserve < 20)
+    stateIssues.push({ label: 'Thin treasury', detail: `₦${stats.cashReserve.toFixed(0)}bn reserve — ${insolventWeeks === Infinity ? 'deficit spending' : `~${insolventWeeks} weeks of runway`}`, severity: 'high' })
+  if (revenueGap > 0)
+    stateIssues.push({ label: 'Revenue shortfall', detail: `₦${revenueGap.toFixed(1)}bn/wk gap to fixed costs`, severity: 'high' })
+  if (factions.partyGodfathers < 40)
+    stateIssues.push({ label: 'Godfather relations', detail: `At ${factions.partyGodfathers} — removal arc may trigger below 10`, severity: 'high' })
+  if (stats.corruptionPressure > 45)
+    stateIssues.push({ label: 'Corruption pressure', detail: `${stats.corruptionPressure.toFixed(0)}% — grant freeze risk above 75%`, severity: 'medium' })
+  if (stats.youthTension > 50)
+    stateIssues.push({ label: 'Youth restlessness', detail: `Tension at ${stats.youthTension.toFixed(0)} — riot mode above 70`, severity: 'medium' })
+  if (stats.infrastructureScore < 35)
+    stateIssues.push({ label: 'Crumbling infrastructure', detail: `Score ${stats.infrastructureScore.toFixed(0)}/100`, severity: 'medium' })
+  if (stats.publicTrust < 35)
+    stateIssues.push({ label: 'Public trust crisis', detail: `Only ${stats.publicTrust.toFixed(0)}%`, severity: 'high' })
+
   function handleClose() {
-    markHandoverSeen()
     onClose()
   }
 
@@ -67,31 +76,56 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
 
         <div className="px-6 py-5 space-y-5">
           <section>
-            <h2 className="label-caps mb-2" style={{ color: 'var(--warning-11)' }}>1. Fiscal Situation</h2>
-            <div className="p-3 space-y-1.5 text-[11px] border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
-              <div className="flex justify-between">
-                <span style={{ color: 'var(--text-secondary)' }}>Current weekly revenue</span>
-                <span className="font-medium" style={{ color: 'var(--success-11)' }}>₦{stats.igr.toFixed(1)}bn</span>
+            <h2 className="label-caps mb-2" style={{ color: 'var(--error-11)' }}>State of the State — Critical Issues</h2>
+            {stateIssues.length > 0 ? (
+              <div className="space-y-1.5">
+                {stateIssues.map((issue) => (
+                  <div
+                    key={issue.label}
+                    className="flex items-center justify-between px-3 py-2 text-[11px] border"
+                    style={{
+                      borderColor: issue.severity === 'high' ? 'var(--error-9)' : 'var(--warning-9)',
+                      backgroundColor: issue.severity === 'high' ? 'var(--error-3)' : 'var(--warning-3)',
+                    }}
+                  >
+                    <span className="font-semibold" style={{ color: issue.severity === 'high' ? 'var(--error-11)' : 'var(--warning-11)' }}>
+                      {issue.label}
+                    </span>
+                    <span style={{ color: issue.severity === 'high' ? 'var(--error-11)' : 'var(--warning-11)' }}>
+                      {issue.detail}
+                    </span>
+                  </div>
+                ))}
               </div>
-              <div className="flex justify-between">
-                <span style={{ color: 'var(--text-secondary)' }}>Fixed commitments (floor)</span>
-                <span className="font-medium" style={{ color: 'var(--error-11)' }}>₦{weeklyFloor.toFixed(1)}bn</span>
-              </div>
-              <div className="flex justify-between font-semibold pt-1" style={{ borderTop: '1px solid var(--border)' }}>
-                <span style={{ color: 'var(--text)' }}>Weekly shortfall</span>
-                <span style={{ color: 'var(--error-11)' }}>₦{revenueGap.toFixed(1)}bn</span>
-              </div>
-            </div>
-            <p className="text-[11px] mt-2 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              The fixed cost floor — civil servant salaries, overhead, subventions — is ₦30bn per week.
-              Revenue must reach at least ₦35bn before this administration can invest freely.
-              Priority levers: PAYE enforcement, Land Use Charge compliance, and reducing overhead drag
-              through civil service reform.
-            </p>
+            ) : (
+              <p className="text-[11px]" style={{ color: 'var(--success-11)' }}>
+                No critical issues flagged — but Lagos always has surprises.
+              </p>
+            )}
           </section>
 
           <section>
-            <h2 className="label-caps mb-2" style={{ color: 'var(--info-11)' }}>2. Political Landscape</h2>
+            <h2 className="label-caps mb-2" style={{ color: 'var(--warning-11)' }}>Fiscal Snapshot</h2>
+            <div className="p-3 space-y-1.5 text-[11px] border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+              <div className="flex justify-between">
+                <span style={{ color: 'var(--text-secondary)' }}>Revenue</span>
+                <span className="font-medium" style={{ color: 'var(--success-11)' }}>₦{stats.igr.toFixed(1)}bn/wk</span>
+              </div>
+              <div className="flex justify-between">
+                <span style={{ color: 'var(--text-secondary)' }}>Fixed commitments</span>
+                <span className="font-medium" style={{ color: 'var(--error-11)' }}>₦{weeklyFloor.toFixed(1)}bn/wk</span>
+              </div>
+              <div className="flex justify-between font-semibold pt-1" style={{ borderTop: '1px solid var(--border)' }}>
+                <span style={{ color: 'var(--text)' }}>Net position</span>
+                <span style={{ color: revenueGap > 0 ? 'var(--error-11)' : 'var(--success-11)' }}>
+                  {revenueGap > 0 ? `−₦${revenueGap.toFixed(1)}bn` : 'balanced'}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h2 className="label-caps mb-2" style={{ color: 'var(--info-11)' }}>Political Landscape</h2>
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               {Object.entries(factions).map(([key, val]) => {
                 const label = key.replace(/([A-Z])/g, ' $1').trim()
@@ -103,24 +137,10 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
                 )
               })}
             </div>
-            {factions.partyGodfathers < 50 && (
-              <p className="text-[11px] mt-2" style={{ color: 'var(--error-11)' }}>
-                ⚠ Party Godfathers are already below 50. Expect early pressure from the machine.
-              </p>
-            )}
-            {factions.civilSocietyMedia < 40 && (
-              <p className="text-[11px] mt-2" style={{ color: 'var(--warning-11)' }}>
-                ⚠ Civil Society and media are lukewarm. You will not get the benefit of the doubt on early scandals.
-              </p>
-            )}
           </section>
 
           <section>
-            <h2 className="label-caps mb-2" style={{ color: 'var(--accent-text)' }}>3. Known Political Actors</h2>
-            <p className="text-[11px] mb-2" style={{ color: 'var(--text-secondary)' }}>
-              Intelligence has identified three individuals who will react to your decisions.
-              They are dormant now — but watching.
-            </p>
+            <h2 className="label-caps mb-2" style={{ color: 'var(--accent-text)' }}>Who Is Watching</h2>
             <div className="space-y-1.5">
               {npcSlots.map(({ name, role }) => (
                 <div key={name} className="flex items-start gap-2 px-3 py-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
@@ -135,19 +155,18 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
           </section>
 
           <section>
-            <h2 className="label-caps mb-2" style={{ color: 'var(--success-11)' }}>4. Cabinet Appointments</h2>
-            <div className="p-3 text-[11px] border space-y-2" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
-              <p style={{ color: 'var(--text)' }}>
-                Cabinet screening begins as early as <span className="font-semibold">Week 4</span>. 
-                You must allocate critical <span className="font-semibold">Ministry</span> slots to incoming <span className="font-semibold">Commissioners</span>.
-              </p>
-              <p>
-                There are no reshuffles here—appointments are permanent. Pick an incompetent loyalist or an untouchable godfather favorite, and you are stuck with them for the rest of your term.
-              </p>
-              <p style={{ color: 'var(--text-secondary)' }}>
-                Three ministries carry disproportionate fiscal weight: <span style={{ color: 'var(--text)' }}>Works, Finance, and Lands</span>.
-                Your Deputy's background influences which candidates will agree to serve.
-              </p>
+            <h2 className="label-caps mb-2" style={{ color: 'var(--success-11)' }}>What You Could Fight For</h2>
+            <p className="text-[11px] mb-2" style={{ color: 'var(--text-secondary)' }}>
+              The challenges above will shape your term. Some governors choose a defining mission.
+              The next screen will let you choose one — or govern without a fixed goal.
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {ALL_GOALS.map((g) => (
+                <div key={g.id} className="p-2 border text-[10px]" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+                  <p className="font-semibold" style={{ color: 'var(--text)' }}>{g.title}</p>
+                  <p className="mt-0.5 leading-tight" style={{ color: 'var(--text-secondary)' }}>{g.pitch}</p>
+                </div>
+              ))}
             </div>
           </section>
 
@@ -159,14 +178,17 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
           </section>
         </div>
 
-        <div className="px-6 py-4 flex justify-end" style={{ borderTop: '1px solid var(--border)' }}>
+        <div className="px-6 py-4 flex justify-between items-center" style={{ borderTop: '1px solid var(--border)' }}>
+          <p className="text-[10px]" style={{ color: 'var(--border-strong)' }}>
+            {stats.cashReserve < 0 ? 'Reserves: NEGATIVE' : `Reserves: ₦${stats.cashReserve.toFixed(0)}bn`}
+          </p>
           <button
             type="button"
             onClick={handleClose}
             className="px-6 py-2 text-sm font-semibold transition-colors"
             style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
           >
-            Begin Governing
+            Choose Your Mission
           </button>
         </div>
       </div>

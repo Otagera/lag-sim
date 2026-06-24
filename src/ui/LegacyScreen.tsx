@@ -3,7 +3,8 @@ import { buildLegacy } from '../data/legacy'
 import { STARTING_STATE } from '../data/startingState'
 import { useGameStore } from '../state/gameStore'
 import { clearSave } from '../state/persistence'
-import type { ConstituencyKey, FactionKey } from '../state/types'
+import type { ConstituencyKey, FactionKey, GameState } from '../state/types'
+import { getGoal, getGoalIsMet } from '../data/goals'
 import { formatGameDate } from '../utils/calendar'
 
 const FACTION_LABELS: Record<FactionKey, string> = {
@@ -57,7 +58,7 @@ function gradeColor(g: string): string {
   }
 }
 
-export function LegacyScreen() {
+export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
   const state = useGameStore((s) => s)
   const legacy = buildLegacy(state)
   const [btnHover, setBtnHover] = useState(false)
@@ -109,7 +110,7 @@ export function LegacyScreen() {
 
   function handleNewGame() {
     clearSave()
-    window.location.reload()
+    onNewGame()
   }
 
   return (
@@ -270,7 +271,7 @@ export function LegacyScreen() {
             </div>
           </div>
 
-          <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[10px]">
+          <div className="mt-3 grid grid-cols-4 gap-2 text-center text-[10px]">
             <div>
               <p className="label-caps">Cash</p>
               <p className="font-bold" style={{ color: state.stats.cashReserve >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}>
@@ -289,6 +290,10 @@ export function LegacyScreen() {
                 {state.godfatherComplianceCount}/{state.godfatherComplianceCount + state.godfatherRefusalCount}
               </p>
               <p style={{ color: 'var(--text-secondary)' }}>accepted</p>
+            </div>
+            <div>
+              <p className="label-caps">Personal Goal</p>
+              <GoalLegacyOutcome state={state} />
             </div>
           </div>
         </div>
@@ -354,5 +359,33 @@ export function LegacyScreen() {
         </div>
       </div>
     </div>
+  )
+}
+
+function GoalLegacyOutcome({ state }: { state: GameState }) {
+  if (!state.selectedGoalId) return (
+    <>
+      <p className="font-semibold" style={{ color: 'var(--text-secondary)' }}>—</p>
+      <p style={{ color: 'var(--text-secondary)' }}>not chosen</p>
+    </>
+  )
+
+  const goal = getGoal(state.selectedGoalId)
+  if (!goal) return (
+    <>
+      <p className="font-semibold" style={{ color: 'var(--text-secondary)' }}>—</p>
+      <p style={{ color: 'var(--text-secondary)' }}>unknown</p>
+    </>
+  )
+
+  const met = getGoalIsMet(goal, state)
+  return (
+    <>
+      <p className="font-bold" style={{ color: met ? 'var(--success-11)' : 'var(--error-11)' }}>
+        {met ? 'ACHIEVED' : 'NOT MET'}
+      </p>
+      <p style={{ color: 'var(--text-secondary)' }}>{goal.title}</p>
+      {met && <p className="text-[9px] italic mt-0.5" style={{ color: 'var(--success-9)' }}>{goal.flavorClosing}</p>}
+    </>
   )
 }
