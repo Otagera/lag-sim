@@ -294,7 +294,7 @@ export function DistrictCanvas({
     const groundBase = groundColorFor(profile.character)
     const rStyle     = roofStyleFor(profile.character)
     const landMask   = generateLandMask(profile, profile.seed)
-    const isEtiOsa   = lgaKey === 'etiOsa'
+    const isEtiOsa   = (lgaKey as string) === 'etiOsa'
 
     // ── Organic island base (bezier polygon, drawn before tiles) ────────────
     const islandPoly = buildIslandPoly(landMask, profile.seed, ox, oy)

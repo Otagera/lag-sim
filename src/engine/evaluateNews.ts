@@ -8,7 +8,7 @@ type AnalystResult = {
   dataPoints: NewsArticle['dataPoints']
 } | null
 
-const CONSTITUENCY_TRUST_WEIGHTS: Partial<Record<string, number>> = {
+const CONSTITUENCY_TRUST_WEIGHTS: Record<string, number> = {
   alimosho: 13, oshodiIsolo: 6, mushin: 5, kosofe: 6, surulere: 5,
   amuwoOdofin: 4, apapa: 3, lagosMainland: 5, ikeja: 5, agege: 5,
   ifakoIjaye: 4, ikorodu: 7, badagry: 5, ojo: 5, epe: 3,
@@ -121,8 +121,8 @@ function statAnalyst(prev: GameState, next: GameState): AnalystResult {
   }
 
   if (candidates.length === 0) return null
-  candidates.sort((a, b) => b.score - a.score)
-  return candidates[0]
+  const sorted = candidates.filter((c): c is NonNullable<typeof c> => true).sort((a, b) => b.score - a.score)
+  return sorted[0]
 }
 
 function trendAnalyst(prev: GameState, next: GameState): AnalystResult {
@@ -142,7 +142,6 @@ function trendAnalyst(prev: GameState, next: GameState): AnalystResult {
   const candidates: AnalystResult[] = []
 
   if (gainers.length >= 3) {
-    const labels = gainers.slice(0, 3).map((d) => d.key)
     candidates.push({
       score: 5,
       headline: `${gainers.length} LGAs Show Strong Approval Gains`,
@@ -200,8 +199,8 @@ function trendAnalyst(prev: GameState, next: GameState): AnalystResult {
   }
 
   if (candidates.length === 0) return null
-  candidates.sort((a, b) => b.score - a.score)
-  return candidates[0]
+  const sorted2 = candidates.filter((c): c is NonNullable<typeof c> => true).sort((a, b) => b.score - a.score)
+  return sorted2[0]
 }
 
 function compositeAnalyst(prev: GameState, next: GameState): AnalystResult {
@@ -325,8 +324,8 @@ function compositeAnalyst(prev: GameState, next: GameState): AnalystResult {
   }
 
   if (candidates.length === 0) return null
-  candidates.sort((a, b) => b.score - a.score)
-  return candidates[0]
+  const sorted3 = candidates.filter((c): c is NonNullable<typeof c> => true).sort((a, b) => b.score - a.score)
+  return sorted3[0]
 }
 
 function timelineAnalyst(prev: GameState, next: GameState): AnalystResult {

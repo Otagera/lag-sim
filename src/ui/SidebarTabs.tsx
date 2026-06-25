@@ -4,12 +4,12 @@ import { BudgetPanel } from './BudgetPanel'
 import { CabinetPanel } from './CabinetPanel'
 import { DeputyPanel } from './DeputyPanel'
 import { FactionPanel } from './FactionPanel'
-import { GodfatherInbox } from './GodfatherInbox'
+import { Inbox } from './Inbox'
 import { NPCPanel } from './NPCPanel'
 import { PollPanel } from './PollPanel'
 import { TimelinePanel } from './TimelinePanel'
 
-type Tab = 'factions' | 'people' | 'finance' | 'history'
+type Tab = 'inbox' | 'factions' | 'people' | 'finance' | 'history'
 
 interface TabDef {
   id: Tab
@@ -18,14 +18,17 @@ interface TabDef {
 }
 
 export function SidebarTabs() {
-  const [activeTab, setActiveTab] = useState<Tab>('factions')
+  const [activeTab, setActiveTab] = useState<Tab>('inbox')
   const factions = useGameStore((s) => s.factions)
-  const activeGodfatherMessage = useGameStore((s) => s.activeGodfatherMessage)
+  const inbox = useGameStore((s) => s.inbox)
+  const unreadCount = inbox.filter((m) => !m.read).length
+  const hasPendingGodfather = inbox.some((m) => m.isGodfatherAsk && !m.actioned)
 
   const tabs: TabDef[] = [
+    { id: 'inbox', label: `Inbox${unreadCount > 0 ? ` (${unreadCount})` : ''}`, alert: hasPendingGodfather },
     { id: 'factions', label: 'Factions', alert: Object.values(factions).some((v) => v <= 25) },
     { id: 'people', label: 'People' },
-    { id: 'finance', label: 'Finance', alert: activeGodfatherMessage !== null },
+    { id: 'finance', label: 'Finance' },
     { id: 'history', label: 'History' },
   ]
 
@@ -54,25 +57,29 @@ export function SidebarTabs() {
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto min-h-0 p-2 space-y-2" style={{ backgroundColor: 'var(--background)' }}>
+      <div className="flex-1 overflow-y-auto min-h-0" style={{ backgroundColor: 'var(--background)' }}>
+        {activeTab === 'inbox' && (
+          <div className="p-2">
+            <Inbox />
+          </div>
+        )}
         {activeTab === 'factions' && (
-          <>
+          <div className="p-2 space-y-2">
             <FactionPanel />
             <PollPanel />
-          </>
+          </div>
         )}
         {activeTab === 'people' && (
-          <>
+          <div className="p-2 space-y-2">
             <DeputyPanel />
             <NPCPanel />
             <CabinetPanel />
-          </>
+          </div>
         )}
         {activeTab === 'finance' && (
-          <>
-            <GodfatherInbox />
+          <div className="p-2 space-y-2">
             <BudgetPanel />
-          </>
+          </div>
         )}
         {activeTab === 'history' && <TimelinePanel />}
       </div>

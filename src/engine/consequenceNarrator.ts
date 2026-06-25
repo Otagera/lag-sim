@@ -399,7 +399,7 @@ function changeToFamily(
   key: string,
   delta: number,
   dir: 'gain' | 'loss',
-  state: GameState,
+  _state: GameState,
   nextState: GameState,
   choice: Choice,
 ): string | null {

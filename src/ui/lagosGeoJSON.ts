@@ -1,5 +1,6 @@
 import type { CapitalProject, ConstituencyKey } from '../state/types'
 import type { MapLayer } from './mapData'
+import type { FeatureCollection } from 'geojson'
 import { LAYER_CONFIG, getLayerValue } from './mapData'
 
 // Bijective: geoBoundaries shapeName → game LGA key.
@@ -80,7 +81,7 @@ export const LGA_CENTROIDS: Record<ConstituencyKey, [number, number]> = {
   ajeromiIfelodun: [3.335, 6.470],
 }
 
-export function buildProjectsGeoJSON(projects: CapitalProject[]): GeoJSON.FeatureCollection {
+export function buildProjectsGeoJSON(projects: CapitalProject[]): FeatureCollection {
   const visible = projects.filter((p) => p.status === 'active' || p.status === 'stalled')
   return {
     type: 'FeatureCollection',

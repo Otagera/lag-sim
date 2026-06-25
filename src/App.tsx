@@ -17,7 +17,7 @@ import { Dashboard, YEARS } from './ui/Dashboard'
 import { DeputySelectionScreen } from './ui/DeputySelectionScreen'
 import { EventCard } from './ui/EventCard'
 import { FactionPanel } from './ui/FactionPanel'
-import { GodfatherInbox } from './ui/GodfatherInbox'
+import { Inbox } from './ui/Inbox'
 import { NPCPanel } from './ui/NPCPanel'
 import { LegacyScreen } from './ui/LegacyScreen'
 import { StrategicDashboard } from './ui/StrategicDashboard'
@@ -347,7 +347,7 @@ function App() {
                   <Dashboard />
                   <StrategicDashboard />
                   <EventCard />
-                  <GodfatherInbox />
+                  <Inbox />
                 </div>
               )}
               {activeMobileTab === 'factions' && (

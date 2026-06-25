@@ -26,7 +26,8 @@ function pickGeneralAsk(state: GameState): (typeof generalGodfatherPool)[number]
 }
 
 export function shouldDrawGodfather(state: GameState): boolean {
-  if (state.activeGodfatherMessage) return false
+  // Check inbox for pending godfather ask (Phase D unified inbox)
+  if (state.inbox.some((m) => m.isGodfatherAsk && !m.actioned)) return false
   if (state.fashemuPhase === 'dead') return false
   if (state.week < 3) return false
 
@@ -84,6 +85,7 @@ export function resolveGodfather(
   state: GameState,
   message: GodfatherMessage,
   accepted: boolean,
+  inboxMessageId?: string,
 ): GameState {
   const choice = accepted ? message.ask.onAccept : message.ask.onRefuse
   const { factionImpact, ...statDelta } = choice
@@ -105,6 +107,12 @@ export function resolveGodfather(
     usedGodfatherAskIds: [...newState.usedGodfatherAskIds, message.id],
     lastGodfatherWeek: state.week,
     activeGodfatherMessage: null,
+    inbox: newState.inbox.map((m) =>
+      (inboxMessageId !== undefined && m.id === inboxMessageId) ||
+      (inboxMessageId === undefined && m.isGodfatherAsk && !m.actioned)
+        ? { ...m, read: true, actioned: true }
+        : m,
+    ),
   }
 
   if (accepted) {

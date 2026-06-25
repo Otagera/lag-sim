@@ -129,4 +129,8 @@ export const STARTING_STATE: GameState = {
   selectedGoalId: null,
   // Phase B
   lastConsequenceBeat: null,
+  // Phase C
+  economyCooldowns: {},
+  // Phase D
+  inbox: [],
 }

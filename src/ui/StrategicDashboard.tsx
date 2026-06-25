@@ -1,5 +1,6 @@
 import { useStrategicSelectors } from './useStrategicSelectors'
 import { GoalTracker } from './GoalTracker'
+import { EconomyPanel } from './EconomyPanel'
 
 const naira = (v: number) => `₦${v.toFixed(1)}bn`
 const colorVar = {
@@ -202,6 +203,7 @@ export function StrategicDashboard() {
   return (
     <div className="space-y-2">
       <BankruptcyClock />
+      <EconomyPanel />
       <InitiativeTracker />
       <GoalTracker />
       <QuarterForecast />

@@ -2,6 +2,19 @@
 
 The `'winning'` simulation strategy (`src/engine/simulateEngine.ts`) uses `WINNING_STRATEGY` — a single config object at the top of the file with all thresholds and weights. This strategy wins ≥ 60% of runs across 15 seeds (3 archetypes × 5 seeds; current best: 10/15 = 67%).
 
+## Scope (post Phases A–D)
+
+The simulation covers:
+- Event card choices (scored by `scoreWinningChoice`)
+- Godfather accept/refuse decisions (`shouldAcceptGodfather`)
+
+The simulation does **not** cover:
+- **Phase C proactive economy actions** (cut subventions, reduce overheads, raise LUC, take loans, launch initiatives). These are player-initiated only. The simulation cannot call them because they require game-loop cooldown state and are designed for human-paced play. If the player never uses Phase C levers, the simulation is a faithful model of that play style.
+- **Phase A goal selection**. The simulation runs without a selected goal — `selectedGoalId` stays null. Goal progress does not affect simulation scoring.
+- **Phase D inbox management**. Inbox messages accumulate during simulation but are never marked read. Godfather ask messages are correctly actioned via the fallback path in `resolveGodfather` (marks `isGodfatherAsk && !actioned` messages as actioned), so `shouldDrawGodfather` is not blocked.
+
+To test the winning strategy impact of Phase C levers, benchmark scripts would need to call economy actions at optimal cooldown points — a separate tuning effort if needed.
+
 ## When to Re-Tune
 
 - Revenue/expenditure formula changes (game balance)

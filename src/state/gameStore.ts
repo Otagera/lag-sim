@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { STARTING_STATE } from '../data/startingState'
 import { DEPUTY_PROFILES } from '../data/deputies'
+import { takeLoan as takeLoanAction } from '../engine/debtEngine'
 import { resolveEvent as resolveEventAction } from '../engine/eventEngine'
 import { tick as gameLoopTick } from '../engine/gameLoop'
 import { resolveGodfather } from '../engine/godfatherEngine'
@@ -8,8 +9,9 @@ import { simulateWeeks, type SimulateOptions, type SimulateResult } from '../eng
 import { evaluateSkipNews } from '../engine/evaluateNews'
 import { applyDelta } from '../engine/statEngine'
 import { applyFactionDelta } from '../engine/factionEngine'
+import { generateCommissionerMessage } from '../engine/inboxEngine'
 import { saveGame } from './persistence'
-import type { CommissionerRole, CommissionerState, DeputyKey, GameState } from './types'
+import type { CommissionerRole, CommissionerState, DeputyKey, GameState, LoanSource } from './types'
 
 export interface GameStore extends GameState {
   tick: () => void
@@ -23,6 +25,14 @@ export interface GameStore extends GameState {
   dismissConsequenceBeat: () => void
   clearNewspaperHeadline: () => void
   enrichNewspaperHeadline: (headline: string, deck: string) => void
+  economyCutSubventions: () => void
+  economyReduceOverheads: () => void
+  economyRaiseLuc: () => void
+  economyLaunchInitiative: (id: string, name: string, totalWeeks: number, completionEventId: string, pcCost: number, factionImpact: Record<string, number>, statDelta: Record<string, number>) => void
+  economyTakeLoan: (amount: number, source: LoanSource) => void
+  // Phase D — inbox
+  inboxMarkRead: (id: string) => void
+  inboxMarkAllRead: () => void
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -33,12 +43,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
   acceptGodfather: () => {
     const state = get()
     if (!state.activeGodfatherMessage) return
-    set(resolveGodfather(state, state.activeGodfatherMessage, true))
+    const pendingInbox = state.inbox.find((m) => m.isGodfatherAsk && !m.actioned)
+    set(resolveGodfather(state, state.activeGodfatherMessage, true, pendingInbox?.id))
   },
   refuseGodfather: () => {
     const state = get()
     if (!state.activeGodfatherMessage) return
-    set(resolveGodfather(state, state.activeGodfatherMessage, false))
+    const pendingInbox = state.inbox.find((m) => m.isGodfatherAsk && !m.actioned)
+    set(resolveGodfather(state, state.activeGodfatherMessage, false, pendingInbox?.id))
   },
   resolveEvent: (choiceId: string) => {
     const state = get()
@@ -83,12 +95,74 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const state = get()
     const pcCost = 8
     if (state.stats.politicalCapital < pcCost) return
-    set(applyDelta(
+    const afterAppoint = applyDelta(
       { ...state, commissioners: { ...state.commissioners, [role]: candidate } },
       { politicalCapital: -pcCost },
-    ))
+    )
+    const msg = generateCommissionerMessage(afterAppoint, role, candidate, 'appointed')
+    set(msg ? { ...afterAppoint, inbox: [...afterAppoint.inbox, msg] } : afterAppoint)
   },
   dismissConsequenceBeat: () => set({ lastConsequenceBeat: null }),
+  economyCutSubventions: () => {
+    const s = get()
+    if (s.stats.politicalCapital < 10) return
+    if (s.stats.subventionCutRate >= 0.4) return
+    const cooldownKey = 'cut-subventions'
+    if ((s.economyCooldowns[cooldownKey] ?? 0) > s.week) return
+    const newRate = Math.min(0.4, s.stats.subventionCutRate + 0.2)
+    const afterStat = applyDelta(
+      { ...s, economyCooldowns: { ...s.economyCooldowns, [cooldownKey]: s.week + 8 } },
+      { subventionCutRate: newRate, politicalCapital: -10, publicTrust: -5 },
+    )
+    set({ ...afterStat, factions: applyFactionDelta(afterStat.factions, { informalEconomy: -8 }) })
+  },
+  economyReduceOverheads: () => {
+    const s = get()
+    if (s.stats.politicalCapital < 15) return
+    const cooldownKey = 'reduce-overheads'
+    if ((s.economyCooldowns[cooldownKey] ?? 0) > s.week) return
+    const afterStat = applyDelta(
+      { ...s, economyCooldowns: { ...s.economyCooldowns, [cooldownKey]: s.week + 8 } },
+      { baseOverheads: -3, politicalCapital: -15 },
+    )
+    set({ ...afterStat, factions: applyFactionDelta(afterStat.factions, { partyGodfathers: -6, lgChairmen: -5 }) })
+  },
+  economyRaiseLuc: () => {
+    const s = get()
+    if (s.stats.politicalCapital < 10) return
+    if (s.stats.landUseChargeEnforcement >= 3) return
+    const cooldownKey = 'raise-luc'
+    if ((s.economyCooldowns[cooldownKey] ?? 0) > s.week) return
+    const newLuc = Math.min(3, s.stats.landUseChargeEnforcement + 0.5)
+    const afterStat = applyDelta(
+      { ...s, economyCooldowns: { ...s.economyCooldowns, [cooldownKey]: s.week + 12 } },
+      { landUseChargeEnforcement: newLuc, politicalCapital: -10 },
+    )
+    set({ ...afterStat, factions: applyFactionDelta(afterStat.factions, { businessCommunity: -6 }) })
+  },
+  economyLaunchInitiative: (id, name, totalWeeks, completionEventId, pcCost, factionImpact, statDelta) => {
+    const s = get()
+    if (s.activeInitiative) return
+    if (s.stats.politicalCapital < pcCost) return
+    const delta = { ...statDelta, politicalCapital: -pcCost } as Record<string, number>
+    let next = applyDelta(s, delta)
+    if (Object.keys(factionImpact).length > 0) {
+      next = { ...next, factions: applyFactionDelta(next.factions, factionImpact as any) }
+    }
+    set({
+      ...next,
+      activeInitiative: { id, name, weeksRemaining: totalWeeks, totalWeeks, completionEventId },
+    })
+  },
+  economyTakeLoan: (amount: number, source: LoanSource) => {
+    const s = get()
+    let pcCost = 5
+    if (source === 'bond_issuance') pcCost = 10
+    if (source === 'federal_govt') pcCost = 15
+    if (s.stats.politicalCapital < pcCost) return
+    const afterPc = applyDelta(s, { politicalCapital: -pcCost })
+    set(takeLoanAction(afterPc, amount, source))
+  },
   clearNewspaperHeadline: () => {
     set({ newspaperHeadline: undefined })
   },
@@ -97,6 +171,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
       newspaperHeadline: s.newspaperHeadline
         ? { ...s.newspaperHeadline, headline, deck, llmGenerated: true, llmPending: false }
         : undefined,
+    }))
+  },
+  inboxMarkRead: (id: string) => {
+    set((s) => ({
+      inbox: s.inbox.map((m) => (m.id === id ? { ...m, read: true } : m)),
+    }))
+  },
+  inboxMarkAllRead: () => {
+    set((s) => ({
+      inbox: s.inbox.map((m) => ({ ...m, read: true })),
     }))
   },
 }))

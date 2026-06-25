@@ -1,4 +1,4 @@
-import type { GameState, NPCKey } from '../state/types'
+import type { ConstituencyKey, GameState, NPCKey } from '../state/types'
 import { NPC_ARCHETYPES } from '../data/npcs'
 import { NPC_DECK_BY_ARCHETYPE } from '../data/events/npcDecks'
 import { calculateHiddenDrag } from './dragEngine'
@@ -7,6 +7,7 @@ import { ALL_EVENTS, drawNextEvent, firePendingDelayed } from './eventEngine'
 import { calculateWeeklyExpenditure } from './expenditureEngine'
 import { applyFactionDeltaState, drift } from './factionEngine'
 import { applyFashemuPhaseTransition, drawGodfatherAsk, shouldDrawGodfather } from './godfatherEngine'
+import { generateChiefOfStaffBriefing, generateDeputyMessage, generateGodfatherAskMessage, generateGodfatherPhaseMessage, generateNPCActivationMessage } from './inboxEngine'
 import { emergencyBridgeLoan } from './debtEngine'
 import { primaryContestLossEvent, removalResolutionEvent } from '../data/events/characters'
 import { processProjects } from './projectEngine'
@@ -224,10 +225,29 @@ export function tick(state: GameState): GameState {
   }
 
   // Deputy resentment accumulation
+  const prevDeputyResentment = next.deputy?.resentment ?? 0
   next = tickDeputyResentment(next)
+  // When resentment first crosses 60, send an inbox message
+  if (
+    next.deputy &&
+    !next.deputy.revealed &&
+    prevDeputyResentment < 60 &&
+    next.deputy.resentment >= 60
+  ) {
+    const msg = generateDeputyMessage(next, next.deputy.key)
+    if (msg) next = { ...next, inbox: [...next.inbox, msg] }
+  }
 
   // Activate NPCs based on conditions, tick pressure, apply goal effects, and check escalation
   next = activateNPCs(next)
+  // Generate inbox messages for newly activated NPCs
+  for (const slot of NPC_SLOTS) {
+    const npc = next.activeNPCs[slot]
+    if (npc.isActive && npc.activeWeek === next.week) {
+      const msg = generateNPCActivationMessage(next, slot, npc)
+      if (msg) next = { ...next, inbox: [...next.inbox, msg] }
+    }
+  }
   next = tickNPCPressure(next)
   next = applyNPCGoalEffects(next)
   next = checkNPCEscalation(next)
@@ -236,7 +256,12 @@ export function tick(state: GameState): GameState {
   next = tickInitiative(next)
 
   // Fashemu phase transitions
+  const oldPhase = next.fashemuPhase
   next = applyFashemuPhaseTransition(next)
+  if (next.fashemuPhase !== oldPhase) {
+    const msg = generateGodfatherPhaseMessage(next, oldPhase, next.fashemuPhase)
+    if (msg) next = { ...next, inbox: [...next.inbox, msg] }
+  }
 
   // Emergency suspension tick (must run before checkGameOver so suspension suppresses federal takeover)
   next = tickSuspension(next)
@@ -266,7 +291,12 @@ export function tick(state: GameState): GameState {
     if (shouldDrawGodfather(next)) {
       const message = drawGodfatherAsk(next)
       if (message) {
-        next = { ...next, activeGodfatherMessage: message }
+        const inboxMsg = generateGodfatherAskMessage(next, message.text, message.ask.description)
+        next = {
+          ...next,
+          activeGodfatherMessage: message,
+          inbox: [...next.inbox, inboxMsg],
+        }
       }
     }
   }
@@ -286,6 +316,12 @@ export function tick(state: GameState): GameState {
 
   const article = evaluateNews(state, next)
   next = article ? { ...next, newspaperHeadline: article } : next
+
+  // Phase D — Chief of Staff briefing every 4 weeks
+  if (next.week % 4 === 0) {
+    const briefing = generateChiefOfStaffBriefing(next)
+    next = { ...next, inbox: [...next.inbox, briefing] }
+  }
 
   return next
 }

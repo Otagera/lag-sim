@@ -167,7 +167,7 @@ export function createBoatsLayer(): MapLayer {
   return {
     container,
 
-    init(state: MapState, w: number, h: number) {
+    init(_state: MapState, w: number, h: number) {
       _ox = w / 2 - 10
       _oy = (h - 324) / 2 + 4
       buildPool(_ox, _oy)

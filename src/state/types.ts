@@ -297,6 +297,27 @@ export type GodfatherAsk = {
   onRefuse: StatDelta & { factionImpact?: FactionDelta }
 }
 
+// ── Phase D — Inbox ─────────────────────────────────────────
+
+export type CharacterId = 'fashemu' | 'chief-of-staff' | 'neo' | 'dayo' | 'smj' | 'commissioner' | 'deputy'
+
+export type InboxMessageTone = 'warm' | 'cold' | 'threatening' | 'neutral' | 'urgent'
+
+export type InboxMessage = {
+  id: string
+  from: CharacterId
+  fromLabel: string
+  week: number
+  subject: string
+  body: string
+  tone: InboxMessageTone
+  read: boolean
+  linkedEventId?: string
+  isGodfatherAsk?: boolean
+  godfatherAskDescription?: string
+  actioned?: boolean
+}
+
 export type ConsequenceBeat = {
   text: string
   tone: 'grim' | 'tense' | 'hopeful' | 'hollow' | 'neutral'
@@ -389,4 +410,8 @@ export type GameState = {
   selectedGoalId: string | null
   // Phase B — consequence beat after choice resolution
   lastConsequenceBeat: ConsequenceBeat | null
+  // Phase C — economy action cooldowns (action key → week available)
+  economyCooldowns: Record<string, number>
+  // Phase D — unified inbox
+  inbox: InboxMessage[]
 }

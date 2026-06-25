@@ -249,8 +249,6 @@ export function MapPanel() {
     warning: { bg: 'var(--warning-3)', text: 'var(--warning-11)' },
     crisis:  { bg: 'var(--error-3)',   text: 'var(--error-11)' },
   }[status]
-  const selectedShapeName = selected ? LGA_TO_SHAPE[selected] : null
-
   return (
     <div style={{ border: '1px solid var(--border)', backgroundColor: 'var(--surface)', position: 'relative' }}>
       {/* Header: layer tabs */}
