@@ -154,6 +154,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (Object.keys(factionImpact).length > 0) {
       next = { ...next, factions: applyFactionDelta(next.factions, factionImpact as any) }
     }
+    if (id === 'grants-mobilisation') {
+      next = { ...next, stateFlags: { ...next.stateFlags, 'world-bank-grant-submitted': true } }
+    }
     set({
       ...next,
       activeInitiative: { id, name, weeksRemaining: totalWeeks, totalWeeks, completionEventId },

@@ -52,7 +52,7 @@ const INITIATIVES: Record<string, InitiativeDef> = {
     completionEventId: 'paye-enforcement-result',
     pcCost: 5,
     factionImpact: { businessCommunity: -8, civilSocietyMedia: 3 },
-    statDelta: {},
+    statDelta: { cashReserve: -2 },
     description: 'Crackdown on PAYE evasion',
     payoff: '₦2bn+/wk IGR boost',
   },
@@ -63,7 +63,7 @@ const INITIATIVES: Record<string, InitiativeDef> = {
     completionEventId: 'luc-audit-result',
     pcCost: 8,
     factionImpact: { businessCommunity: -6 },
-    statDelta: {},
+    statDelta: { cashReserve: -1.5 },
     description: 'Full assessment of under-registered properties',
     payoff: 'Up to ₦0.6bn/wk LUC uplift',
   },
@@ -74,7 +74,7 @@ const INITIATIVES: Record<string, InitiativeDef> = {
     completionEventId: 'world-bank-grant-result',
     pcCost: 5,
     factionImpact: { civilSocietyMedia: 4 },
-    statDelta: {},
+    statDelta: { cashReserve: -0.5 },
     description: 'Apply for World Bank urban development grant',
     payoff: '₦0.8bn+/wk grant income',
   },
@@ -85,7 +85,7 @@ const INITIATIVES: Record<string, InitiativeDef> = {
     completionEventId: 'civil-service-reform-result',
     pcCost: 10,
     factionImpact: { lgChairmen: -4, civilSocietyMedia: 5 },
-    statDelta: { youthTension: 8 },
+    statDelta: { cashReserve: -3, youthTension: 8 },
     description: 'Biometric verification, remove ghost workers',
     payoff: 'Reduces ghostWorkerRate long-term',
   },
@@ -382,6 +382,7 @@ export function EconomyPanel() {
             pcCost={15}
             cooldownWeeks={cooldownWeeks('reduce-overheads')}
             onCooldown={isOnCooldown('reduce-overheads')}
+            disabledReason={stats.baseOverheads <= -3 ? 'overheads at floor' : undefined}
             onStart={() => initiateConfirm('reduce-overheads')}
             confirming={confirming === 'reduce-overheads'}
             onConfirm={() => { reduceOverheads(); cancelConfirm() }}

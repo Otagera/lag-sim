@@ -178,7 +178,7 @@ export function tick(state: GameState): GameState {
   }
 
   next.stats.ghostWorkerRate = Math.min(0.2, next.stats.ghostWorkerRate + drag.ghostRegenRate)
-  next.stats.baseOverheads += drag.overheadCreep
+  next = applyDelta(next, { baseOverheads: drag.overheadCreep })
   next.stats.contractorBacklog = Math.max(
     0,
     next.stats.contractorBacklog + 0.1 - expenditure.contractorPayment,
