@@ -5,7 +5,15 @@ export function GoalTracker() {
   const selectedGoalId = useGameStore((s) => s.selectedGoalId)
   const state = useGameStore((s) => s)
 
-  if (!selectedGoalId) return null
+  if (!selectedGoalId) {
+    return (
+      <div className="p-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+        <p className="text-[9px]" style={{ color: 'var(--text-secondary)' }}>
+          No goal selected. Choose one from the Legacy screen.
+        </p>
+      </div>
+    )
+  }
 
   const goal = getGoal(selectedGoalId)
   if (!goal) return null

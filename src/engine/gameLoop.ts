@@ -1,4 +1,4 @@
-import type { ConstituencyKey, GameState, NPCKey } from '../state/types'
+import type { ConstituencyKey, GameState, NPCKey, TimelineEntry } from '../state/types'
 import { NPC_ARCHETYPES } from '../data/npcs'
 import { NPC_DECK_BY_ARCHETYPE } from '../data/events/npcDecks'
 import { calculateHiddenDrag } from './dragEngine'
@@ -16,6 +16,7 @@ import { getSeasonModifier } from './seasonEngine'
 import { applyDelta } from './statEngine'
 import { evaluateNews } from './evaluateNews'
 import { tickResearchNodes } from './researchEngine'
+import { getGoal, getGoalIsMet, getGoalProgress } from '../data/goals'
 
 const CONSTITUENCY_TRUST_WEIGHTS: Partial<Record<string, number>> = {
   alimosho:        13,
@@ -785,10 +786,27 @@ function checkGameOver(state: GameState): GameState {
     }
   }
 
+  // Append goal outcome to any non-game-over return (captured in the term-end branches above)
+  // For intermediate ticks, nothing to do — goals only matter at the end.
+
   // Second term end: week 416 is 208 weeks × 2 terms
   if (next.week > 416 && next.currentTerm === 2) {
+    let nextWithGoal = { ...next }
+    if (nextWithGoal.selectedGoalId) {
+      const goal = getGoal(nextWithGoal.selectedGoalId)
+      if (goal) {
+        const met = getGoalIsMet(goal, nextWithGoal)
+        const progress = getGoalProgress(goal, nextWithGoal)
+        nextWithGoal.timeline = [...nextWithGoal.timeline, {
+          week: next.week,
+          type: 'milestone' as const,
+          title: met ? 'Personal Goal: Achieved' : 'Personal Goal: Unfulfilled',
+          description: met ? goal.flavorClosing : `You set out to "${goal.title}" but reached only ${progress.toFixed(0)}% of your targets. The ambition was real — the execution fell short.`,
+        }]
+      }
+    }
     return {
-      ...next,
+      ...nextWithGoal,
       isGameOver: true,
       gameOverReason: 'Your second term has ended. Your legacy is now sealed.',
     }
@@ -811,6 +829,21 @@ function checkGameOver(state: GameState): GameState {
 
     if (reElected) {
       // Continue into second term instead of ending the game
+      const goalTimeline: TimelineEntry[] = []
+      if (next.selectedGoalId) {
+        const goal = getGoal(next.selectedGoalId)
+        if (goal) {
+          const met = getGoalIsMet(goal, next)
+          goalTimeline.push({
+            week: next.week,
+            type: 'milestone' as const,
+            title: met ? 'Personal Goal: On Track' : 'Personal Goal: Carried Forward',
+            description: met
+              ? `Your ${goal.title} goal is on track — hold this to term end.`
+              : `Your ${goal.title} goal is ${getGoalProgress(goal, next).toFixed(0)}% complete. Second term is the chance to finish it.`,
+          })
+        }
+      }
       return {
         ...next,
         electionResult,
@@ -828,12 +861,27 @@ function checkGameOver(state: GameState): GameState {
             title: 'Re-Election Victory — Second Term Begins',
             description: `${electionResult.toFixed(1)}% of the vote. The people have given you another mandate. Second term begins — the stakes are higher, the margin for error is smaller.`,
           },
+          ...goalTimeline,
         ],
       }
     }
 
+    let nextWithGoal = { ...next }
+    if (nextWithGoal.selectedGoalId) {
+      const goal = getGoal(nextWithGoal.selectedGoalId)
+      if (goal) {
+        const met = getGoalIsMet(goal, nextWithGoal)
+        const progress = getGoalProgress(goal, nextWithGoal)
+        nextWithGoal.timeline = [...nextWithGoal.timeline, {
+          week: next.week,
+          type: 'milestone' as const,
+          title: met ? 'Personal Goal: Achieved' : 'Personal Goal: Unfulfilled',
+          description: met ? goal.flavorClosing : `You set out to "${goal.title}" but reached only ${progress.toFixed(0)}% of your targets. The ambition was real — the execution fell short.`,
+        }]
+      }
+    }
     return {
-      ...next,
+      ...nextWithGoal,
       electionResult,
       reElected,
       fashemuEndingPath,

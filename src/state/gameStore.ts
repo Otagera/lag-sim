@@ -34,6 +34,8 @@ export interface GameStore extends GameState {
   // Phase D — inbox
   inboxMarkRead: (id: string) => void
   inboxMarkAllRead: () => void
+  // Goal tracking
+  setGoal: (id: string | null) => void
   // Phase E — research tree
   commissionResearchNode: (nodeId: string) => void
 }
@@ -186,6 +188,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       inbox: s.inbox.map((m) => ({ ...m, read: true })),
     }))
   },
+  setGoal: (id: string | null) => set({ selectedGoalId: id }),
   commissionResearchNode: (nodeId: string) => {
     const state = get()
     const node = state.researchNodeStatuses[nodeId]

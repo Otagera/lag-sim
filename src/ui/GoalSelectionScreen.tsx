@@ -9,9 +9,10 @@ type Props = {
 
 export function GoalSelectionScreen({ onSelect, context }: Props) {
   const state = useGameStore.getState()
+  const setGoal = useGameStore((s) => s.setGoal)
 
   function handleSelect(id: string | null) {
-    useGameStore.setState({ selectedGoalId: id })
+    setGoal(id)
     onSelect()
   }
 
