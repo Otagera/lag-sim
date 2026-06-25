@@ -1,4 +1,4 @@
-import type { ConstituencyKey, GameState, NPCKey, TimelineEntry } from '../state/types'
+import type { ConstituencyKey, GameState, GameOverType, NPCKey, TimelineEntry } from '../state/types'
 import { NPC_ARCHETYPES } from '../data/npcs'
 import { NPC_DECK_BY_ARCHETYPE } from '../data/events/npcDecks'
 import { calculateHiddenDrag } from './dragEngine'
@@ -18,6 +18,7 @@ import { evaluateNews } from './evaluateNews'
 import { tickResearchNodes } from './researchEngine'
 import { selectPublicationForArticle, pickFramingVariant } from './publicationEngine'
 import { getGoal, getGoalIsMet, getGoalProgress } from '../data/goals'
+import { buildEndingNarrative } from './endingNarrator'
 
 const CONSTITUENCY_TRUST_WEIGHTS: Partial<Record<string, number>> = {
   alimosho:        13,
@@ -676,6 +677,11 @@ function tickLitigation(state: GameState): GameState {
   return next
 }
 
+function endGame(state: GameState, gameOverType: GameOverType, gameOverReason: string): GameState {
+  const narrative = buildEndingNarrative(state, gameOverType)
+  return { ...state, isGameOver: true, gameOverType, gameOverReason, endingNarrative: narrative }
+}
+
 function checkGameOver(state: GameState): GameState {
   if (state.isGameOver) return state
 
@@ -703,11 +709,7 @@ function checkGameOver(state: GameState): GameState {
     }
     next.consecutiveBankruptWeeks++
     if (next.consecutiveBankruptWeeks >= 3) {
-      return {
-        ...next,
-        isGameOver: true,
-        gameOverReason: 'Bankruptcy: Lagos State is insolvent. Civil servants cannot be paid.',
-      }
+      return endGame(next, 'bankruptcy', 'Bankruptcy: Lagos State is insolvent. Civil servants cannot be paid.')
     }
   } else {
     next.consecutiveBankruptWeeks = 0
@@ -719,19 +721,11 @@ function checkGameOver(state: GameState): GameState {
     next.stats.infrastructureScore < 25 &&
     next.emergencySuspensionWeeks === 0
   ) {
-    return {
-      ...next,
-      isGameOver: true,
-      gameOverReason: 'Federal Government has taken over Lagos State administration.',
-    }
+    return endGame(next, 'federalTakeover', 'Federal Government has taken over Lagos State administration.')
   }
 
   if (next.stats.publicTrust < 15 && next.stats.youthTension > 85) {
-    return {
-      ...next,
-      isGameOver: true,
-      gameOverReason: 'Mass uprising has overwhelmed the state government.',
-    }
+    return endGame(next, 'massUprising', 'Mass uprising has overwhelmed the state government.')
   }
 
   // Impeachment arc — check game-over paths first regardless of current godfather level
@@ -742,10 +736,8 @@ function checkGameOver(state: GameState): GameState {
     const conceded = next.stateFlags['conceded-to-assembly'] === true
     if (defied || conceded) {
       return {
-        ...next,
+        ...endGame(next, 'impeachment', 'The Lagos State House of Assembly voted to remove you from office.'),
         impeachmentStage: 2,
-        isGameOver: true,
-        gameOverReason: 'The Lagos State House of Assembly voted to remove you from office.',
       }
     }
   }
@@ -802,12 +794,7 @@ function checkGameOver(state: GameState): GameState {
 
   // Primary loss game-over — fires after player resolves the loss event (term1 only)
   if (next.stateFlags['primary-lost'] && next.currentTerm === 1) {
-    return {
-      ...next,
-      isGameOver: true,
-      gameOverReason:
-        'You lost the party primary to Hon. Seun Majekodunmi. Your re-election bid ends here.',
-    }
+    return endGame(next, 'primaryLoss', 'You lost the party primary to Hon. Seun Majekodunmi. Your re-election bid ends here.')
   }
 
   // Append goal outcome to any non-game-over return (captured in the term-end branches above)
@@ -829,11 +816,7 @@ function checkGameOver(state: GameState): GameState {
         }]
       }
     }
-    return {
-      ...nextWithGoal,
-      isGameOver: true,
-      gameOverReason: 'Your second term has ended. Your legacy is now sealed.',
-    }
+    return endGame(nextWithGoal, 'secondTermEnd', 'Your second term has ended. Your legacy is now sealed.')
   }
 
   if (next.week > 208 && next.currentTerm === 1) {
@@ -905,12 +888,10 @@ function checkGameOver(state: GameState): GameState {
       }
     }
     return {
-      ...nextWithGoal,
+      ...endGame(nextWithGoal, 'termEndLoss', 'Your term has ended. Check your final scorecard.'),
       electionResult,
       reElected,
       fashemuEndingPath,
-      isGameOver: true,
-      gameOverReason: 'Your term has ended. Check your final scorecard.',
     }
   }
 

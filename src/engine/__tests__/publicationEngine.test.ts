@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { STARTING_STATE } from '../../data/startingState'
-import type { GameState, NewsArticle } from '../../state/types'
+import type { GameState } from '../../state/types'
 import { selectPublicationForArticle, pickFramingVariant } from '../publicationEngine'
 import { PUBLICATIONS } from '../../data/publications'
 

@@ -2,13 +2,13 @@
 
 ## Overview
 
-The news engine generates newspaper-style articles from week-to-week state changes. It's purely cosmetic — no gameplay effect, no mechanical consequences. Two systems work together:
+The news engine generates newspaper-style articles from week-to-week state changes. Each article is published by one of six competing publications, each with its own editorial slant and small gameplay effects. Three systems work together:
 
 1. **`evaluateNews`**: Generates articles for normal tick-by-tick play
 2. **`evaluateSkipNews`**: Generates a summary article after fast-forward/simulation
 3. **`llmNews`** (optional): Uses a web worker + local LLM to generate dynamic text (currently disabled)
 
-Both are pure functions: `(prev: GameState, next: GameState) => NewsArticle | null`.
+Both `evaluateNews` and `evaluateSkipNews` are pure functions: `(prev: GameState, next: GameState) => NewsArticle | null`.
 
 ## Article Categories
 
@@ -18,6 +18,10 @@ type NewsArticle = {
   deck: string
   category: 'fiscal' | 'political' | 'crisis' | 'milestone' | 'background'
   dataPoints: Array<{ label, value, delta?, positive? }>
+  // Set by publicationEngine — adds editorial framing
+  publicationId?: string
+  framingCaption?: string
+  framingEditorialNote?: string
 }
 ```
 
@@ -84,10 +88,47 @@ Architecture:
 - 45-second timeout
 - When enabled: potentially heavy — generates one sentence per readable article
 
+## Publication System (`src/data/publications.ts` + `src/engine/publicationEngine.ts`)
+
+After an article is selected by `evaluateNews`, the game loop selects a publication and attaches framing.
+
+### Six Publications
+
+| Publication | Bias | Coverage | Gameplay Effect |
+|---|---|---|---|
+| **Punch** | Hostile-sensational | crisis, political, background | −0.7 trust |
+| **Vanguard** | Aligned-broad | ALL categories | +0.5 trust |
+| **The Nation** | Loyalist | crisis, political, background | +0.3 trust, +0.5 godfathers |
+| **Guardian** | Skeptical | crisis, political, fiscal | −0.3 trust |
+| **Business Day** | Neutral-fiscal | fiscal | +1 business community |
+| **Daily Trust** | Neutral-broad | crisis, political, background | none |
+
+### State-Weighted Selection
+
+Publication weights are modified by game conditions:
+- **Riot active**: Punch ×3, Guardian ×2
+- **Emergency suspension**: Punch ×4, Guardian ×2, Daily Trust ×1.5
+- **Corruption > 60**: Punch ×2, Daily Trust ×2
+- **Cash < −10**: Business Day ×2.5
+- **Trust < 30**: Vanguard ×1.8, The Nation ×2
+
+If no publication covers an article's category, Vanguard (covers all) is the fallback.
+
+### Framing Variants
+
+Each publication has 2–3 (caption, editorialNote) pairs per covered category. `pickFramingVariant` selects randomly. The caption appears as a colored badge above the headline; the editorial note appears as italic text below the deck.
+
+### Cooldown
+
+A 2-week minimum gap is enforced between non-crisis, non-milestone articles. The `lastNewsWeek` field on `GameState` tracks the most recent publication week. Crisis and milestone articles always bypass the cooldown.
+
 ## Data Flow
 
 1. `gameLoop.ts:tick()` evaluates news after all state changes
 2. `evaluateNews(prev, next)` produces `NewsArticle | null`
-3. Result stored in `state.newspaperHeadline`
-4. UI reads it from Zustand store (rendered as a sidebar or notification)
-5. After fast-forward: `evaluateSkipNews()` produces guaranteed article with stat summary
+3. If article exists and passes cooldown check, `selectPublicationForArticle` picks a publication
+4. `pickFramingVariant` attaches caption + editorial note
+5. Publication's gameplay effect is applied via `applyDelta`/`applyFactionDeltaState`
+6. Article stored in `state.newspaperHeadline`, `state.lastNewsWeek` updated to current week
+7. UI reads from Zustand store; LagosHerald component renders publication name/color, caption badge, and editorial note
+8. After fast-forward: `evaluateSkipNews()` produces guaranteed article with stat summary

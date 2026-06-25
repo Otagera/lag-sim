@@ -24,6 +24,51 @@ While `emergencySuspensionWeeks > 0`, federal takeover is disabled — the suspe
 ### Bankruptcy Escape
 Emergency bridge loans auto-disburse when `cashReserve < 0`. First loan: 35% APR; each subsequent loan escalates APR. Capped at 3 emergency loans (`emergencyLoansTaken`).
 
+## Ending Narrator (`src/engine/endingNarrator.ts`)
+
+Every game-over state now produces a state-derived narrative ending (not grey text). The `endGame()` helper in `gameLoop.ts` pre-computes `endingNarrative` and sets `gameOverType` at the moment of game over.
+
+### Eight Exit Types
+
+| Type | Game State Trigger | Narrative Register |
+|---|---|---|
+| `bankruptcy` | 3 consecutive weeks cash < 0 | Tragic — diagnoses the financial cause (overheads, debt service), names achievements, goal progress, retry closing |
+| `federalTakeover` | fedRel < -40 AND infra < 25 | Bitter — the constitutional mechanism explained, what you built before it |
+| `massUprising` | trust < 15 AND youthTension > 85 | Tragic — the withdrawal of consent, what you built before the streets turned |
+| `impeachment` | Assembly removal vote triggers | Tense — defiance vs concession path detected from timeline, the godfather machine |
+| `primaryLoss` | scenario B primary lost | Wistful — why (grassroots or civil society failure), what you built |
+| `termEndLoss` | week > 208 AND vote ≤ 50% | Wistful — why you lost diagnosed from worst faction + worst constituency swing |
+| `termEndWin` | week > 208 AND vote > 50% (re-elected) | Hopeful — mandate confirmed, second term ahead |
+| `secondTermEnd` | week > 416 | Hopeful/mixed — full 8-year arc |
+
+### Narrative Assembly
+
+1. **Fragment families**: Each exit type has 3+ variant slots (diagnosis, achievements, closing) selected deterministically via `hashInt(exit + state.snapshot)` — replay produces variety
+2. **State-aware specifics**: Reads `lastWeekExpenditure` for overheads % diagnosis, real stat values (trust, infra, security), worst/best LGA, faction standings
+3. **Goal integration**: Reads `selectedGoalId`, computes `getGoalProgress`/`getGoalIsMet`, weaves result into narrative
+4. **Key moments from timeline**: Scores timeline entries by type weight (godfather=10, milestone=6, crisis bonus=8), delta magnitude, recency. Picks top 2-4.
+5. **Verdict headline**: A short epitaph per exit type (e.g., "The Governor Who Ran Out of Road", "A Single-Term Record")
+
+### UI Display
+
+All exit types render the enhanced `LegacyScreen`, which shows:
+
+1. **Masthead** — exit type label, date, weeks served
+2. **Narrative passage** — italic blockquote in tone-colored left border (red for tragic, yellow for tense, green for hopeful)
+3. **Verdict headline** — centered epitaph
+4. **Key moments** — top timeline moments with week and type
+5. **Legacy scorecard** — stat grades, factions, constituencies, goal outcome (always shown)
+6. **Term-end-only** — legacy headlines, governor's final address, election journey (hidden for mid-game failures)
+
+### Game Over Type on State
+
+```typescript
+type GameOverType = 'bankruptcy' | 'federalTakeover' | 'massUprising' | 'impeachment'
+  | 'primaryLoss' | 'termEndLoss' | 'termEndWin' | 'secondTermEnd'
+```
+
+Set on `state.gameOverType` at game-over time. `state.endingNarrative` is pre-computed string.
+
 ## Term Transition
 
 ### Term 1 → Term 2 (week 208)

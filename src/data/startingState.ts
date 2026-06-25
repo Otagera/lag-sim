@@ -84,6 +84,8 @@ export const STARTING_STATE: GameState = {
   riotModeActive: false,
   activeInitiative: null,
   isGameOver: false,
+  gameOverType: undefined,
+  endingNarrative: undefined,
   mode: 'simple',
   deputy: null,
   fashemuRelationship: 50,

@@ -39,7 +39,6 @@ type MobileTab = 'event' | 'factions' | 'gov' | 'data'
 function App() {
   const tick = useGameStore((s) => s.tick)
   const isGameOver = useGameStore((s) => s.isGameOver)
-  const gameOverReason = useGameStore((s) => s.gameOverReason)
   const week = useGameStore((s) => s.week)
   const mode = useGameStore((s) => s.mode)
   const setMode = useGameStore((s) => s.setMode)
@@ -326,19 +325,12 @@ function App() {
         <ResearchTree onClose={() => setShowResearchTree(false)} />
       )}
 
-      {isGameOver && gameOverReason?.includes('term has ended') ? (
+      {isGameOver ? (
         <div className="flex-1 overflow-y-auto min-h-0">
           <LegacyScreen onNewGame={handleLegacyNewGame} />
         </div>
       ) : (
         <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-          {isGameOver && (
-            <div className="shrink-0 mx-3 mt-2 border p-2 text-center" style={{ borderColor: 'var(--error-9)', backgroundColor: 'var(--error-3)' }}>
-              <h2 className="text-sm font-bold" style={{ color: 'var(--error-11)' }}>Game Over</h2>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--error-11)' }}>{gameOverReason}</p>
-            </div>
-          )}
-
           {/* Desktop layout — two columns with tabbed sidebar */}
           <div className="hidden lg:flex flex-1 gap-2 p-2 overflow-hidden min-h-0">
             <div className="flex-1 space-y-2 overflow-y-auto min-h-0">

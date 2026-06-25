@@ -6,6 +6,7 @@ import { clearSave } from '../state/persistence'
 import type { ConstituencyKey, FactionKey, GameState } from '../state/types'
 import { getGoal, getGoalIsMet } from '../data/goals'
 import { formatGameDate } from '../utils/calendar'
+import { pickVerdictHeadline, pickKeyMomentsForLegacy } from '../engine/endingNarrator'
 
 const FACTION_LABELS: Record<FactionKey, string> = {
   businessCommunity: 'Business Community',
@@ -99,6 +100,20 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
 
   const endDate = formatGameDate(state.week)
   const totalEvents = state.resolvedEvents.length
+  const isTermEnd = state.gameOverType === 'termEndLoss' || state.gameOverType === 'secondTermEnd'
+  const verdictHeadline = state.gameOverType ? pickVerdictHeadline(state, state.gameOverType) : ''
+  const keyMoments = pickKeyMomentsForLegacy(state)
+
+  const exitReasons: Partial<Record<string, string>> = {
+    bankruptcy: 'State Insolvency — Term Cut Short',
+    federalTakeover: 'Federal Takeover — Term Ended',
+    massUprising: 'Mass Uprising — Government Overwhelmed',
+    impeachment: 'Removal by Assembly',
+    primaryLoss: 'Primary Defeat — Re-Election Ended',
+    termEndLoss: 'Term Ended — Not Re-Elected',
+    secondTermEnd: 'Two Terms Complete — Legacy Sealed',
+  }
+  const exitLabel = state.gameOverType ? (exitReasons[state.gameOverType] ?? 'Game Over') : 'Game Over'
 
   const monologueStyle = legacy.monologueStyle
   const monologueLabel =
@@ -117,19 +132,19 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
     <div className="min-h-screen py-8 px-4 overflow-y-auto" style={{ backgroundColor: 'var(--background)', color: 'var(--text)' }}>
       <div className="max-w-2xl mx-auto space-y-8">
 
-        {/* Masthead — accent-solid bottom rule mirrors modal header treatment */}
+        {/* Masthead */}
         <div className="pb-4 text-center" style={{ borderBottom: '2px solid var(--accent-solid)' }}>
           <p className="label-caps mb-1">
-            Lagos State Government — {state.currentTerm === 2 ? 'Second Term End Report' : 'Term End Report'}
+            Lagos State Government — {exitLabel}
           </p>
           <h1 className="font-display text-2xl font-semibold" style={{ color: 'var(--text)' }}>
-            {state.currentTerm === 2
+            {state.currentTerm === 2 && isTermEnd
               ? 'Two Terms: Legacy Sealed'
               : state.reElected
                 ? 'Re-Election Victory'
-                : state.reElected === false
+                : state.gameOverType === 'termEndLoss'
                   ? 'Term Ended — Defeat'
-                  : 'End of Term'}
+                  : ''}
           </h1>
           <p className="text-[11px] mt-1" style={{ color: 'var(--text-secondary)' }}>
             {endDate} &middot; {totalEvents} major decisions &middot; {state.week} weeks in office
@@ -141,60 +156,119 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
           )}
         </div>
 
-        {/* Headlines */}
-        <div className="space-y-4">
-          <h2 className="label-caps">The Record — As History Will Judge It</h2>
-          {legacy.headlines.map((headline, i) => (
-            <div key={headline.key} style={{ borderLeft: '2px solid var(--border)', paddingLeft: '16px' }}>
-              <p className="text-[9px] mb-0.5" style={{ color: 'var(--border-strong)' }}>
-                VANGUARD / PUNCH / THE NATION #{i + 1}
-              </p>
-              <h3 className="font-display text-sm font-semibold leading-snug" style={{ color: 'var(--text)' }}>
-                {headline.headline}
-              </h3>
-              <p className="text-[11px] mt-1 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                {headline.subhead}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Governor's Final Address */}
-        <div
-          className="p-4 border transition-all"
-          style={{
-            borderColor: llmLoading ? 'var(--accent-solid)' : 'var(--border)',
-            backgroundColor: 'var(--surface)',
-            animation: llmLoading ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none',
-          }}
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <p className="label-caps">Governor's Final Press Address</p>
-            <span
-              className="text-[9px] px-1.5 py-0.5"
-              style={{ backgroundColor: 'var(--neutral-4)', color: 'var(--text-secondary)' }}
-            >
-              {llmLoading ? 'composing…' : llmMonologue ? 'AI-generated' : monologueLabel}
-            </span>
+        {/* Narrative Passage — the ending story */}
+        {state.endingNarrative && (
+          <div
+            className="p-5 border-l-4"
+            style={{
+              borderLeftColor: (() => {
+                switch (state.gameOverType) {
+                  case 'bankruptcy': case 'massUprising': return 'var(--error-9)'
+                  case 'impeachment': case 'federalTakeover': return 'var(--warning-9)'
+                  case 'primaryLoss': case 'termEndLoss': return 'var(--warning-7)'
+                  case 'termEndWin': case 'secondTermEnd': return 'var(--success-9)'
+                  default: return 'var(--accent-solid)'
+                }
+              })(),
+              backgroundColor: 'var(--surface)',
+              borderTopRightRadius: '4px',
+              borderBottomRightRadius: '4px',
+            }}
+          >
+            <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text)', lineHeight: '1.7' }}>
+              {state.endingNarrative.split('\n\n').map((p, i) => (
+                <span key={i}>{p}<br /><br /></span>
+              ))}
+            </p>
           </div>
-          {llmLoading ? (
-            <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text-secondary)' }}>
-              Composing the address…
-            </p>
-          ) : (
-            <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text)' }}>
-              "{llmMonologue ?? legacy.monologue}"
-            </p>
-          )}
-        </div>
+        )}
 
-        {/* Election Journey */}
-        {(state.electionResult !== null || state.stateFlags['primary-lost']) && (
+        {/* Verdict Headline */}
+        {verdictHeadline && (
+          <div className="text-center">
+            <p className="text-[10px] label-caps mb-1" style={{ color: 'var(--text-secondary)' }}>VERDICT</p>
+            <h2 className="font-display text-lg font-semibold" style={{ color: 'var(--accent-text)' }}>
+              {verdictHeadline}
+            </h2>
+          </div>
+        )}
+
+        {/* Key Moments */}
+        {keyMoments.length > 0 && (
+          <div className="space-y-3">
+            <h2 className="label-caps">Key Moments</h2>
+            <div className="space-y-2">
+              {keyMoments.map((m, i) => (
+                <div key={i} style={{ borderLeft: '2px solid var(--border)', paddingLeft: '12px' }}>
+                  <p className="text-[9px] mb-0.5 label-caps" style={{ color: 'var(--border-strong)' }}>
+                    Week {m.week} &middot; {m.type.toUpperCase()}
+                  </p>
+                  <p className="text-xs font-semibold" style={{ color: 'var(--text)' }}>{m.title}</p>
+                  <p className="text-[10px] mt-0.5 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{m.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Headlines — only for term-end */}
+        {isTermEnd && (
+          <div className="space-y-4">
+            <h2 className="label-caps">The Record — As History Will Judge It</h2>
+            {legacy.headlines.map((headline, i) => (
+              <div key={headline.key} style={{ borderLeft: '2px solid var(--border)', paddingLeft: '16px' }}>
+                <p className="text-[9px] mb-0.5" style={{ color: 'var(--border-strong)' }}>
+                  VANGUARD / PUNCH / THE NATION #{i + 1}
+                </p>
+                <h3 className="font-display text-sm font-semibold leading-snug" style={{ color: 'var(--text)' }}>
+                  {headline.headline}
+                </h3>
+                <p className="text-[11px] mt-1 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                  {headline.subhead}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Governor's Final Address — only for term-end */}
+        {isTermEnd && (
+          <div
+            className="p-4 border transition-all"
+            style={{
+              borderColor: llmLoading ? 'var(--accent-solid)' : 'var(--border)',
+              backgroundColor: 'var(--surface)',
+              animation: llmLoading ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none',
+            }}
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <p className="label-caps">Governor's Final Press Address</p>
+              <span
+                className="text-[9px] px-1.5 py-0.5"
+                style={{ backgroundColor: 'var(--neutral-4)', color: 'var(--text-secondary)' }}
+              >
+                {llmLoading ? 'composing\u2026' : llmMonologue ? 'AI-generated' : monologueLabel}
+              </span>
+            </div>
+            {llmLoading ? (
+              <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text-secondary)' }}>
+                Composing the address\u2026
+              </p>
+            ) : (
+              <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text)' }}>
+                "{llmMonologue ?? legacy.monologue}"
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Election Journey — only for term-end */}
+        {isTermEnd && (state.electionResult !== null || state.stateFlags['primary-lost']) && (
           <div className="space-y-3">
             <h2 className="label-caps">The Road to the Election</h2>
             <div style={{ borderLeft: '2px solid var(--accent-solid)', paddingLeft: '16px' }}>
               <p className="text-[9px] mb-0.5 label-caps" style={{ color: 'var(--border-strong)' }}>
-                {legacy.primaryNarrative.path === 'lost' ? 'PRIMARY — DEFEATED' : `PRIMARY PATH — SCENARIO ${legacy.primaryNarrative.path.toUpperCase()}`}
+                {legacy.primaryNarrative.path === 'lost' ? 'PRIMARY \u2014 DEFEATED' : `PRIMARY PATH \u2014 SCENARIO ${legacy.primaryNarrative.path.toUpperCase()}`}
               </p>
               <h3 className="font-display text-sm font-semibold" style={{ color: 'var(--text)' }}>
                 {legacy.primaryNarrative.title}

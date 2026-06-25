@@ -2,7 +2,9 @@
 
 ## Overview
 
-The legacy system ranks the player's top 10 most consequential decisions and builds an LLM prompt to generate a valedictory address. It's purely cosmetic — used on the LegacyScreen after game over or term end.
+The legacy system ranks the player's top 10 most consequential decisions and builds an LLM prompt to generate a valedictory address. It's used on the LegacyScreen after game over or term end.
+
+**As of the ending redesign, all game-over states (not just term-end) show a state-derived narrative ending.** See `src/engine/endingNarrator.ts` and `docs/game-over.md#ending-narrator`.
 
 Source: `src/engine/legacyRanker.ts`
 
@@ -64,10 +66,19 @@ There are ~30 defined labels in `FLAG_LABELS` covering: infrastructure, election
 
 ## Data Flow
 
-1. `checkGameOver` detects term end / game over
-2. `buildLegacy(state)` is called from `src/data/legacy.ts`
-3. LegacyScreen renders: ranked decisions, flag-based narrative, and the LLM valedictory text if generated
-4. If LLM text generation fails (or is disabled), the flag-based narrative + stat summary is shown instead
+### Ending Path (all game-over types)
+
+1. `checkGameOver` detects exit condition → `endGame(next, gameOverType, reason)` called
+2. `buildEndingNarrative(state, gameOverType)` pre-computes the evocative passage from state + timeline
+3. `gameOverType` and `endingNarrative` set on state
+4. App.tsx renders `LegacyScreen` for any `isGameOver === true`
+5. LegacyScreen shows: narrative passage → verdict headline → key moments → scorecard
+
+### Legacy Path (term-end only, within LegacyScreen)
+
+1. `buildLegacy(state)` is called from `src/data/legacy.ts`
+2. LegacyScreen renders: legacy headlines (flag-based), governor's final address (LLM or fallback monologue), election journey
+3. If LLM text generation fails (or is disabled), the flag-based narrative + stat summary is shown instead
 
 ## LLM Integration (Optional)
 

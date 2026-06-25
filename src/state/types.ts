@@ -257,6 +257,18 @@ export type PrimaryScenario = 'A' | 'B' | 'C'
 export type FashemuPhase = 'dormant' | 'active' | 'warning' | 'break' | 'reconciled' | 'dead'
 export type FashemuEndingPath = 'A' | 'B' | 'C' | 'D'
 
+export type GameOverType =
+  | 'bankruptcy'
+  | 'federalTakeover'
+  | 'massUprising'
+  | 'impeachment'
+  | 'primaryLoss'
+  | 'termEndLoss'
+  | 'termEndWin'
+  | 'secondTermEnd'
+
+export type EndingNarrative = string
+
 export type RunArchetype = 'technocrat' | 'loyalist' | 'outsider'
 export type RunSimStrategy = 'first' | 'random' | 'weighted' | 'winning'
 
@@ -417,6 +429,8 @@ export type GameState = {
   activeInitiative: InitiativeState | null
   isGameOver: boolean
   gameOverReason?: string
+  gameOverType?: GameOverType
+  endingNarrative?: EndingNarrative
   mode: 'simple' | 'detailed'
   // Phase 2
   deputy: DeputyState | null
