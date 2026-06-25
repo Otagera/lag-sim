@@ -179,15 +179,16 @@ function AftermathPanel({ beat, onDismiss }: { beat: ConsequenceBeat; onDismiss:
 
 export function EventCard() {
   const activeEvent = useGameStore((s) => s.activeEvent)
-  const lastConsequenceBeat = useGameStore((s) => s.lastConsequenceBeat)
+  const consequenceBeats = useGameStore((s) => s.consequenceBeats)
   const resolveEvent = useGameStore((s) => s.resolveEvent)
   const dismissConsequenceBeat = useGameStore((s) => s.dismissConsequenceBeat)
 
-  // Aftermath view
-  if (!activeEvent && lastConsequenceBeat) {
+  // Aftermath view — show first beat in queue
+  if (!activeEvent && consequenceBeats.length > 0) {
+    const beat = consequenceBeats[0]
     return (
       <AftermathPanel
-        beat={lastConsequenceBeat}
+        beat={beat}
         onDismiss={dismissConsequenceBeat}
       />
     )

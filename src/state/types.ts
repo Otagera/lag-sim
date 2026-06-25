@@ -450,8 +450,8 @@ export type GameState = {
   runMeta: RunMeta
   // Goal tracking
   selectedGoalId: string | null
-  // Phase B — consequence beat after choice resolution
-  lastConsequenceBeat: ConsequenceBeat | null
+  // Phase B — consequence beat queue (after choice resolution, research payoff, etc.)
+  consequenceBeats: ConsequenceBeat[]
   // Phase C — economy action cooldowns (action key → week available)
   economyCooldowns: Record<string, number>
   // Phase D — unified inbox

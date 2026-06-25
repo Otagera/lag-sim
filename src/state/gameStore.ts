@@ -107,7 +107,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const msg = generateCommissionerMessage(afterAppoint, role, candidate, 'appointed')
     set(msg ? { ...afterAppoint, inbox: [...afterAppoint.inbox, msg] } : afterAppoint)
   },
-  dismissConsequenceBeat: () => set({ lastConsequenceBeat: null }),
+  dismissConsequenceBeat: () => set((s) => ({ consequenceBeats: s.consequenceBeats.slice(1) })),
   economyCutSubventions: () => {
     const s = get()
     if (s.stats.politicalCapital < 10) return

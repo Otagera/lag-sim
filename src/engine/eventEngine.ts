@@ -299,7 +299,7 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     timeline: [...next.timeline, timelineEntry],
     campaignDecisions,
     choiceUseCounts,
-    lastConsequenceBeat: consequenceBeat,
+    consequenceBeats: [...state.consequenceBeats, consequenceBeat],
   }
 }
 

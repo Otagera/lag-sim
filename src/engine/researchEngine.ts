@@ -191,10 +191,11 @@ export function tickResearchNodes(state: GameState): GameState {
 
       inbox.push(researchInboxMessage(next, node, outcome.resultText, true))
 
-      if (!next.lastConsequenceBeat) {
-        next = {
-          ...next,
-          lastConsequenceBeat: {
+      next = {
+        ...next,
+        consequenceBeats: [
+          ...next.consequenceBeats,
+          {
             text: outcome.resultText,
             tone: toneForKind(outcome.kind),
             choiceLabel: node.title,
@@ -202,7 +203,7 @@ export function tickResearchNodes(state: GameState): GameState {
             immediate: outcome.payoff,
             factionImpact: outcome.factionImpact ?? {},
           },
-        }
+        ],
       }
     }
   }
