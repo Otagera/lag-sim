@@ -97,13 +97,13 @@ function goalLine(state: GameState): string {
   return `You set out to "${goal.title}". You reached ${progress.toFixed(0)}% of the way. ${goal.flavorClosing}`
 }
 
-function pickProject(state: GameState, seed: string): string {
+function pickProject(state: GameState, seed: string): string | null {
   const projectFlags = Object.keys(state.stateFlags).filter(
     (f) => f.includes('hub') || f.includes('construction') || f.includes('built') || f.includes('completed') || f.includes('commissioned') || f.includes('laboratory') || f.includes('forensic') || f.includes('hospital') || f.includes('school') || f.includes('road') || f.includes('market') || f.includes('terminal') || f.includes('plant') || f.includes('dump') || f.includes('bus') || f.includes('rail') || f.includes('metro'),
   )
   if (projectFlags.length === 0) {
     const projects = state.capitalProjects.filter((p) => p.status === 'completed')
-    if (projects.length === 0) return ''
+    if (projects.length === 0) return null
     const idx = hashInt(seed + 'project') % projects.length
     return projects[idx].name
   }
@@ -131,7 +131,7 @@ const BANKRUPTCY_OPENINGS = [
 const BANKRUPTCY_ACHIEVEMENTS = [
   'But this is also true: trust stood at {trust}. Security at {security}. Infrastructure at {infra}. {project} — you built that. Civil society {csDescription}.',
   'The story is not only the fall. Trust was {trust}. Security reached {security}. {project} was your doing, and it worked. The books do not tell the whole story.',
-  'Before the collapse, you had built something. {project} was commissioned and running. Trust at {trust}. Security at {security}. The city was safer than you found it.',
+  'Before the collapse, you had built something. {project} — proof that something worked. Trust at {trust}. Security at {security}. The city was safer than you found it.',
 ]
 
 const BANKRUPTCY_CLOSINGS = [
@@ -394,7 +394,7 @@ export function buildEndingNarrative(state: GameState, exit: GameOverType): stri
       .replace(/\{youth\}/g, youth)
       .replace(/\{fedRel\}/g, fedRel)
       .replace(/\{corruption\}/g, corruption)
-      .replace(/\{project\}/g, project || 'the work you did')
+      .replace(/\{project\}/g, project ?? 'your work')
       .replace(/\{goalFragment\}/g, goalFrag)
       .replace(/\{voteShare\}/g, voteShare)
       .replace(/\{csDescription\}/g, csDescription)
