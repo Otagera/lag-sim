@@ -14,6 +14,7 @@ import { HandoverNotesModal } from './ui/HandoverNotesModal'
 import { LagosHerald } from './ui/LagosHerald'
 import { BudgetPanel } from './ui/BudgetPanel'
 import { Dashboard, YEARS } from './ui/Dashboard'
+import { ResearchTree } from './ui/ResearchTree'
 import { DeputySelectionScreen } from './ui/DeputySelectionScreen'
 import { EventCard } from './ui/EventCard'
 import { FactionPanel } from './ui/FactionPanel'
@@ -62,6 +63,7 @@ function App() {
   const [showGoalSelect, setShowGoalSelect] = useState(false)
   const [goalSelectContext, setGoalSelectContext] = useState<'new-game' | 'migration'>('new-game')
   const [selectedArchetype, setSelectedArchetype] = useState<'technocrat' | 'loyalist' | 'outsider'>('technocrat')
+  const [showResearchTree, setShowResearchTree] = useState(false)
   const [activeMobileTab, setActiveMobileTab] = useState<MobileTab>('event')
   const [theme, setTheme] = useState<'light' | 'dark'>(
     () => (localStorage.getItem('theme') as 'light' | 'dark') ?? 'light'
@@ -267,6 +269,14 @@ function App() {
           </button>
           <button
             type="button"
+            onClick={() => setShowResearchTree(true)}
+            className="hidden sm:block px-2 py-1 text-[10px] font-medium transition-colors border"
+            style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--accent-solid)', color: 'var(--accent-text)' }}
+          >
+            Commission Future
+          </button>
+          <button
+            type="button"
             onClick={toggleTheme}
             className="p-1.5 border transition-colors flex items-center justify-center"
             style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
@@ -313,6 +323,10 @@ function App() {
       {/* Development panel, I want to run fast forwrads on the go */}
       {/* {import.meta.env.DEV && <DevPanel />} */}
       <DevPanel />
+
+      {showResearchTree && (
+        <ResearchTree onClose={() => setShowResearchTree(false)} />
+      )}
 
       {isGameOver && gameOverReason?.includes('term has ended') ? (
         <div className="flex-1 overflow-y-auto min-h-0">

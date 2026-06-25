@@ -10,6 +10,7 @@ import { evaluateSkipNews } from '../engine/evaluateNews'
 import { applyDelta } from '../engine/statEngine'
 import { applyFactionDelta } from '../engine/factionEngine'
 import { generateCommissionerMessage } from '../engine/inboxEngine'
+import { commissionNode } from '../engine/researchEngine'
 import { saveGame } from './persistence'
 import type { CommissionerRole, CommissionerState, DeputyKey, GameState, LoanSource } from './types'
 
@@ -33,6 +34,8 @@ export interface GameStore extends GameState {
   // Phase D — inbox
   inboxMarkRead: (id: string) => void
   inboxMarkAllRead: () => void
+  // Phase E — research tree
+  commissionResearchNode: (nodeId: string) => void
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -182,6 +185,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set((s) => ({
       inbox: s.inbox.map((m) => ({ ...m, read: true })),
     }))
+  },
+  commissionResearchNode: (nodeId: string) => {
+    const state = get()
+    const node = state.researchNodeStatuses[nodeId]
+    if (node === 'commissioned' || node === 'completed') return
+    set(commissionNode(nodeId, state))
   },
 }))
 

@@ -1,3 +1,5 @@
+import { useGameStore } from '../state/gameStore'
+import { RESEARCH_TREE } from '../data/researchTree'
 import { useStrategicSelectors } from './useStrategicSelectors'
 import { GoalTracker } from './GoalTracker'
 import { EconomyPanel } from './EconomyPanel'
@@ -56,8 +58,11 @@ function BankruptcyClock() {
 
 function InitiativeTracker() {
   const { initiative, activeProjects } = useStrategicSelectors()
+  const week = useGameStore((s) => s.week)
+  const commissionedNodes = useGameStore((s) => s.commissionedResearchNodes)
 
-  if (!initiative && activeProjects.length === 0) return null
+  const hasAny = initiative || activeProjects.length > 0 || commissionedNodes.length > 0
+  if (!hasAny) return null
 
   return (
     <div className="p-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
@@ -88,6 +93,45 @@ function InitiativeTracker() {
               On completion: {initiative.payoff}
             </p>
           )}
+        </div>
+      )}
+
+      {commissionedNodes.length > 0 && (
+        <div className="space-y-1.5 mb-2">
+          {commissionedNodes.map((crn) => {
+            const node = RESEARCH_TREE.find((n) => n.id === crn.nodeId)
+            if (!node) return null
+            const weeksLeft = Math.max(0, crn.completionWeek - week)
+            const total = node.weeksToComplete
+            const elapsed = total - weeksLeft
+            const progress = total > 0 ? elapsed / total : 0
+            const hasOutcomes = !!node.outcomes
+            return (
+              <div key={crn.nodeId} className="p-1.5 border text-[10px]" style={{ borderColor: 'var(--accent-solid)', backgroundColor: 'var(--accent-bg-subtle)' }}>
+                <div className="flex justify-between mb-1">
+                  <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
+                    {node.title}
+                  </span>
+                  <span style={{ color: 'var(--text-secondary)' }}>
+                    {weeksLeft}w left
+                  </span>
+                </div>
+                <div className="w-full h-1 mb-1" style={{ backgroundColor: 'var(--neutral-4)' }}>
+                  <div
+                    className="h-full"
+                    style={{
+                      width: `${(progress * 100).toFixed(0)}%`,
+                      backgroundColor: hasOutcomes ? 'var(--warning-9)' : 'var(--accent-solid)',
+                      transition: 'width 0.3s ease',
+                    }}
+                  />
+                </div>
+                <p className="text-[9px] font-medium" style={{ color: 'var(--accent-text)' }}>
+                  {node.domain} · {hasOutcomes ? 'uncertain outcome' : 'reliable progress'}
+                </p>
+              </div>
+            )
+          })}
         </div>
       )}
 

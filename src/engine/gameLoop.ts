@@ -15,6 +15,7 @@ import { calculateWeeklyRevenue } from './revenueEngine'
 import { getSeasonModifier } from './seasonEngine'
 import { applyDelta } from './statEngine'
 import { evaluateNews } from './evaluateNews'
+import { tickResearchNodes } from './researchEngine'
 
 const CONSTITUENCY_TRUST_WEIGHTS: Partial<Record<string, number>> = {
   alimosho:        13,
@@ -254,6 +255,9 @@ export function tick(state: GameState): GameState {
 
   // Initiative tick
   next = tickInitiative(next)
+
+  // Phase E — research tree tick
+  next = tickResearchNodes(next)
 
   // Fashemu phase transitions
   const oldPhase = next.fashemuPhase

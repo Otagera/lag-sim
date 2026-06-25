@@ -297,6 +297,48 @@ export type GodfatherAsk = {
   onRefuse: StatDelta & { factionImpact?: FactionDelta }
 }
 
+// ── Phase E — Research Tree ─────────────────────────────────
+
+export type Domain = 'security' | 'agriculture' | 'innovation' | 'administration' | 'climate' | string
+
+export interface Prerequisite {
+  type: 'node' | 'state'
+  nodeId?: string
+  predicate?: (s: GameState) => boolean
+  label: string
+}
+
+export interface PathOutcome {
+  kind: 'success' | 'partial' | 'stalled' | 'captured' | 'complication'
+  weight: number
+  weightModifier?: (s: GameState) => number
+  payoff: StatDelta
+  factionImpact?: FactionDelta
+  unlocks?: string[]
+  resultText: string
+  scope: 'local' | 'state'
+}
+
+export interface ResearchNode {
+  id: string
+  domain: Domain
+  title: string
+  pitch: string
+  framing: 'localImplementation' | 'innovation'
+  cost: number
+  weeksToComplete: number
+  prerequisites: Prerequisite[]
+  stepEffect?: StatDelta
+  outcomes?: PathOutcome[]
+}
+
+export type ResearchNodeStatus = 'locked' | 'available' | 'commissioned' | 'completed'
+
+export interface CommissionedResearchNode {
+  nodeId: string
+  completionWeek: number
+}
+
 // ── Phase D — Inbox ─────────────────────────────────────────
 
 export type CharacterId = 'fashemu' | 'chief-of-staff' | 'neo' | 'dayo' | 'smj' | 'commissioner' | 'deputy'
@@ -414,4 +456,7 @@ export type GameState = {
   economyCooldowns: Record<string, number>
   // Phase D — unified inbox
   inbox: InboxMessage[]
+  // Phase E — research tree
+  researchNodeStatuses: Record<string, ResearchNodeStatus>
+  commissionedResearchNodes: CommissionedResearchNode[]
 }

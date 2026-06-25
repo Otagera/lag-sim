@@ -80,6 +80,20 @@ function invariants(state: GameState, week: number) {
 
   expect(state.stats.corruptionPressure).toBeGreaterThanOrEqual(15)
   expect(state.stats.corruptionPressure).toBeLessThanOrEqual(80)
+
+  // Phase E: research node statuses are valid
+  if (state.researchNodeStatuses) {
+    for (const [, status] of Object.entries(state.researchNodeStatuses)) {
+      expect(['locked', 'available', 'commissioned', 'completed']).toContain(status)
+    }
+  }
+  if (state.commissionedResearchNodes) {
+    for (const crn of state.commissionedResearchNodes) {
+      expect(typeof crn.nodeId).toBe('string')
+      expect(typeof crn.completionWeek).toBe('number')
+      expect(crn.completionWeek).toBeGreaterThan(0)
+    }
+  }
 }
 
 /**

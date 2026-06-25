@@ -133,4 +133,7 @@ export const STARTING_STATE: GameState = {
   economyCooldowns: {},
   // Phase D
   inbox: [],
+  // Phase E
+  researchNodeStatuses: {},
+  commissionedResearchNodes: [],
 }
