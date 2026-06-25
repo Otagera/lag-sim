@@ -53,7 +53,7 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
   const cashReserve = useGameStore((s) => s.stats.cashReserve)
   const stats = useGameStore((s) => s.stats)
   const state = useGameStore((s) => s)
-  const commissionNode = useGameStore((s) => s.commissionResearchNode)
+  const commissionResearchNodeAction = useGameStore((s) => s.commissionResearchNode)
   const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
@@ -85,7 +85,7 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
 
   function handleCommission() {
     if (!selectedNodeId) return
-    commissionNode(selectedNodeId)
+    commissionResearchNodeAction(selectedNodeId)
     setConfirming(false)
     setSelectedNodeId(null)
     onClose()

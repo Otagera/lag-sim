@@ -320,9 +320,7 @@ function App() {
         </div>
       )}
 
-      {/* Development panel, I want to run fast forwrads on the go */}
-      {/* {import.meta.env.DEV && <DevPanel />} */}
-      <DevPanel />
+      {import.meta.env.DEV && <DevPanel />}
 
       {showResearchTree && (
         <ResearchTree onClose={() => setShowResearchTree(false)} />
