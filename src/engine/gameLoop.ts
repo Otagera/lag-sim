@@ -16,6 +16,7 @@ import { getSeasonModifier } from './seasonEngine'
 import { applyDelta } from './statEngine'
 import { evaluateNews } from './evaluateNews'
 import { tickResearchNodes } from './researchEngine'
+import { selectPublicationForArticle, pickFramingVariant } from './publicationEngine'
 import { getGoal, getGoalIsMet, getGoalProgress } from '../data/goals'
 
 const CONSTITUENCY_TRUST_WEIGHTS: Partial<Record<string, number>> = {
@@ -320,7 +321,30 @@ export function tick(state: GameState): GameState {
   next = { ...next, approvalHistory: updatedHistory }
 
   const article = evaluateNews(state, next)
-  next = article ? { ...next, newspaperHeadline: article } : next
+  if (article) {
+    const pub = selectPublicationForArticle(next, article.category)
+    if (pub) {
+      const framing = pickFramingVariant(pub, article.category)
+      let afterPublication: GameState = {
+        ...next,
+        newspaperHeadline: {
+          ...article,
+          publicationId: pub.id,
+          framingCaption: framing?.caption,
+          framingEditorialNote: framing?.editorialNote,
+        },
+      }
+      if (pub.gameplayEffect.statDelta && Object.keys(pub.gameplayEffect.statDelta).length > 0) {
+        afterPublication = applyDelta(afterPublication, pub.gameplayEffect.statDelta)
+      }
+      if (pub.gameplayEffect.factionDelta && Object.keys(pub.gameplayEffect.factionDelta).length > 0) {
+        afterPublication = applyFactionDeltaState(afterPublication, pub.gameplayEffect.factionDelta)
+      }
+      next = { ...afterPublication, lastNewsWeek: next.week }
+    } else {
+      next = { ...next, newspaperHeadline: article }
+    }
+  }
 
   // Phase D — Chief of Staff briefing every 4 weeks
   if (next.week % 4 === 0) {

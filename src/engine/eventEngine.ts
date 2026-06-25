@@ -287,6 +287,9 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
   }
 
   const consequenceBeat = narrateConsequence(choice, event, state, next, `${event.id}:${choice.id}:${state.week}`)
+  const updatedBeats = consequenceBeat
+    ? [...state.consequenceBeats, consequenceBeat]
+    : state.consequenceBeats
 
   return {
     ...next,
@@ -299,7 +302,7 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     timeline: [...next.timeline, timelineEntry],
     campaignDecisions,
     choiceUseCounts,
-    consequenceBeats: [...state.consequenceBeats, consequenceBeat],
+    consequenceBeats: updatedBeats,
   }
 }
 

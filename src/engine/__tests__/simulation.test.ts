@@ -81,6 +81,10 @@ function invariants(state: GameState, week: number) {
   expect(state.stats.corruptionPressure).toBeGreaterThanOrEqual(15)
   expect(state.stats.corruptionPressure).toBeLessThanOrEqual(80)
 
+  // Newspaper: lastNewsWeek is within valid range
+  expect(state.lastNewsWeek).toBeGreaterThanOrEqual(0)
+  expect(state.lastNewsWeek).toBeLessThanOrEqual(state.week)
+
   // Phase E: research node statuses are valid
   if (state.researchNodeStatuses) {
     for (const [, status] of Object.entries(state.researchNodeStatuses)) {

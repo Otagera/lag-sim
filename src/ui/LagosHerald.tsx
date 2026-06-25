@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useGameStore } from '../state/gameStore'
 import { CONSTITUENCIES } from '../data/constituencies'
 import { formatGameDate } from '../utils/calendar'
+import { getPublication } from '../data/publications'
 import type { ConstituencyKey } from '../state/types'
 
 function deltaStr(v: number): string {
@@ -55,6 +56,8 @@ export function LagosHerald() {
 
   if (!newspaperHeadline) return null
 
+  const publication = newspaperHeadline.publicationId ? getPublication(newspaperHeadline.publicationId) : undefined
+
   const prevWeek = week - 1
 
   const netFlow = lastWeekRevenue && lastWeekSpend
@@ -86,12 +89,19 @@ export function LagosHerald() {
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8 overflow-y-auto" style={{ backgroundColor: 'rgba(43,47,44,0.85)' }}>
       <div className="w-full max-w-2xl border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
         {/* Masthead */}
-        <div className="px-6 py-4" style={{ borderBottom: '2px solid var(--accent-solid)' }}>
-          <p className="label-caps" style={{ color: 'var(--text-secondary)' }}>
-            ISSUE {prevWeek === 0 ? 1 : prevWeek}
-          </p>
-          <h1 className="font-display text-xl font-bold mt-0.5" style={{ color: 'var(--text)' }}>
-            THE LAGOS HERALD
+        <div className="px-6 py-4" style={{ borderBottom: `2px solid ${publication?.color ?? 'var(--accent-solid)'}` }}>
+          <div className="flex items-center justify-between">
+            <p className="label-caps" style={{ color: 'var(--text-secondary)' }}>
+              ISSUE {prevWeek === 0 ? 1 : prevWeek}
+            </p>
+            {publication && (
+              <span className="text-[9px] font-semibold uppercase tracking-wider" style={{ color: publication.color }}>
+                {publication.description}
+              </span>
+            )}
+          </div>
+          <h1 className="font-display text-xl font-bold mt-0.5" style={{ color: publication?.color ?? 'var(--text)' }}>
+            {publication?.masthead ?? 'THE LAGOS HERALD'}
           </h1>
           <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>
             {formatGameDate(week)}
@@ -104,6 +114,18 @@ export function LagosHerald() {
             <span className="label-caps" style={{ color: CATEGORY_COLOR[newspaperHeadline.category] ?? 'var(--text-secondary)' }}>
               {CATEGORY_LABEL[newspaperHeadline.category] ?? 'NEWS'}
             </span>
+            {newspaperHeadline.framingCaption && (
+              <div
+                className="mt-2 mb-1.5 px-2 py-0.5 inline-block text-[9px] font-bold uppercase tracking-widest"
+                style={{
+                  color: publication?.color ?? 'var(--accent-text)',
+                  backgroundColor: publication ? `${publication.color}20` : 'var(--accent-bg-subtle)',
+                  borderLeft: `2px solid ${publication?.color ?? 'var(--accent-solid)'}`,
+                }}
+              >
+                {newspaperHeadline.framingCaption}
+              </div>
+            )}
             <h2 className="font-display text-base font-semibold leading-snug mt-1" style={{ color: 'var(--text)' }}>
               {newspaperHeadline.headline}
             </h2>
@@ -119,6 +141,11 @@ export function LagosHerald() {
                     polishing&hellip;
                   </span>
                 )}
+              </p>
+            )}
+            {newspaperHeadline.framingEditorialNote && (
+              <p className="text-[10px] mt-2 leading-relaxed italic" style={{ color: 'var(--text-secondary)', borderTop: '1px solid var(--border-subtle)', paddingTop: '6px' }}>
+                &mdash; {newspaperHeadline.framingEditorialNote}
               </p>
             )}
           </section>

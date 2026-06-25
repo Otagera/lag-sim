@@ -279,6 +279,9 @@ export type NewsArticle = {
   }>
   llmGenerated?: boolean
   llmPending?: boolean
+  publicationId?: string
+  framingCaption?: string
+  framingEditorialNote?: string
 }
 
 // --- End Phase 2 Types ---
@@ -446,6 +449,7 @@ export type GameState = {
   approvalHistory: Record<ConstituencyKey, number[]>
   // News engine — set after tick when something newsworthy happens
   newspaperHeadline?: NewsArticle
+  lastNewsWeek: number
   // Run metadata — diagnostic only, no gameplay effect
   runMeta: RunMeta
   // Goal tracking

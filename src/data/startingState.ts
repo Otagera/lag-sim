@@ -121,6 +121,7 @@ export const STARTING_STATE: GameState = {
     epe: [], ikorodu: [], ojo: [], ajeromiIfelodun: [],
   },
   newspaperHeadline: undefined,
+  lastNewsWeek: 0,
   // Term tracking
   currentTerm: 1,
   // Run metadata
