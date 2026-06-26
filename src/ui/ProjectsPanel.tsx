@@ -1,42 +1,70 @@
 import { useState, useMemo } from 'react'
-import { X, Wrench, Lock, Clock, CheckCircle } from 'lucide-react'
+import { X, Wrench, Lock, Clock, CheckCircle, CircleDollarSign } from 'lucide-react'
 import { useGameStore } from '../state/gameStore'
 import { PROJECTS } from '../data/projects'
 import { getProjectDef, getProjectStatus } from '../engine/projectsEngine'
-import type { ResearchNodeStatus } from '../state/types'
+import type { GameState } from '../state/types'
 
 const CATEGORY_ORDER = ['transport', 'power', 'water', 'health', 'education', 'security', 'housing', 'environment'] as const
 
 const CATEGORY_COLORS: Record<string, { solid: string; bg: string; text: string }> = {
-  transport:    { solid: '#2563eb', bg: '#1e3a5f', text: '#93c5fd' },
-  power:        { solid: '#d97706', bg: '#3a2a1a', text: '#fde68a' },
-  water:        { solid: '#0891b2', bg: '#0a2e3a', text: '#67e8f9' },
-  health:       { solid: '#16a34a', bg: '#1a3a2a', text: '#86efac' },
-  education:    { solid: '#7c3aed', bg: '#2e1a5e', text: '#c4b5fd' },
-  security:     { solid: '#dc2626', bg: '#3a1a1a', text: '#fca5a5' },
-  housing:      { solid: '#ea580c', bg: '#3a1f0a', text: '#fdba74' },
-  environment:  { solid: '#059669', bg: '#0a2a1a', text: '#6ee7b7' },
+  transport:    { solid: '#5899D2', bg: '#1a2a3a', text: '#a0c4e8' },
+  power:        { solid: '#D4A820', bg: '#2a2410', text: '#e8d488' },
+  water:        { solid: '#3DA8C0', bg: '#0a2a30', text: '#88d0e0' },
+  health:       { solid: '#3Aa85A', bg: '#0a2a18', text: '#80d8a0' },
+  education:    { solid: '#8A6AE8', bg: '#1a1040', text: '#c0a8f0' },
+  security:     { solid: '#D85040', bg: '#2a1010', text: '#e8a098' },
+  housing:      { solid: '#D08030', bg: '#2a1a08', text: '#e8c088' },
+  environment:  { solid: '#40A880', bg: '#082818', text: '#88d8b8' },
 }
 
-function categoryStatusColor(status: ResearchNodeStatus, category: string): string {
+type CardState = 'available' | 'unaffordable' | 'locked' | 'commissioned' | 'completed'
+
+function computeCardState(projectId: string, state: GameState): CardState {
+  const base = getProjectStatus(projectId, state)
+  if (base !== 'available' && base !== 'locked') return base
+
+  const def = getProjectDef(projectId)
+  if (!def) return 'locked'
+
+  for (const prereq of def.prerequisites ?? []) {
+    if (prereq.type === 'node' && prereq.nodeId) {
+      const p = state.projectStatuses[prereq.nodeId]
+      if (p === 'commissioned' || p === 'completed') continue
+      const r = state.researchNodeStatuses[prereq.nodeId]
+      if (r !== 'completed') return 'locked'
+    }
+    if (prereq.type === 'state' && prereq.predicate) {
+      if (!prereq.predicate(state)) return 'locked'
+    }
+  }
+
+  if (state.stats.cashReserve < def.cost || state.stats.politicalCapital < def.pcCost) return 'unaffordable'
+
+  return 'available'
+}
+
+function cardBorderColor(state: CardState, category: string): string {
   const c = CATEGORY_COLORS[category]
-  switch (status) {
+  switch (state) {
     case 'available':    return c?.solid ?? '#666'
+    case 'unaffordable': return c?.solid ?? '#555'
     case 'commissioned': return '#a855f7'
     case 'completed':    return '#16a34a'
-    case 'locked':       return '#555'
-    default:             return '#555'
+    case 'locked':       return '#444'
+    default:             return '#444'
   }
 }
 
-function categoryBackgroundColor(status: ResearchNodeStatus, category: string): string {
+function cardBackground(state: CardState, category: string): string {
   const c = CATEGORY_COLORS[category]
-  switch (status) {
-    case 'available':    return c?.bg ?? '#222'
-    case 'commissioned': return '#3b1a6e'
-    case 'completed':    return '#1a3a1a'
-    case 'locked':       return '#1a1a1a'
-    default:             return '#1a1a1a'
+  switch (state) {
+    case 'available':    return c?.bg ?? '#1a1a2a'
+    case 'unaffordable': return '#181818'
+    case 'commissioned': return '#1a0a30'
+    case 'completed':    return '#0a2010'
+    case 'locked':       return '#111'
+    default:             return '#111'
   }
 }
 
@@ -63,20 +91,20 @@ export function ProjectsPanel({ onClose }: { onClose: () => void }) {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [confirming, setConfirming] = useState(false)
 
-  const projectStatuses = useMemo(() => {
-    const map = new Map<string, ResearchNodeStatus>()
+  const cardStates = useMemo(() => {
+    const map = new Map<string, CardState>()
     for (const project of PROJECTS) {
-      map.set(project.id, getProjectStatus(project.id, state))
+      map.set(project.id, computeCardState(project.id, state))
     }
     return map
   }, [state])
 
   const selectedProject = selectedProjectId ? getProjectDef(selectedProjectId) : null
-  const selectedStatus = selectedProjectId ? projectStatuses.get(selectedProjectId) : null
+  const selectedState = selectedProjectId ? cardStates.get(selectedProjectId) : null
 
   function handleClick(projectId: string) {
-    const status = projectStatuses.get(projectId)
-    if (status === 'available' || status === 'locked') {
+    const st = cardStates.get(projectId)
+    if (st === 'available' || st === 'unaffordable' || st === 'locked') {
       setSelectedProjectId(projectId)
       setConfirming(false)
     }
@@ -148,16 +176,20 @@ export function ProjectsPanel({ onClose }: { onClose: () => void }) {
               <div key={category}>
                 <h3
                   className="text-[11px] font-semibold uppercase tracking-wider mb-2"
-                  style={{ color: dc?.solid ?? '#666' }}
+                  style={{ color: dc?.solid ?? '#aaa' }}
                 >
                   {category}
                 </h3>
                 <div className="space-y-2">
                   {projects.map((project) => {
-                    const status = projectStatuses.get(project.id) ?? 'locked'
-                    const bc = categoryStatusColor(status, category)
-                    const bg = categoryBackgroundColor(status, category)
-                    const isClickable = status === 'available' || status === 'locked'
+                    const cs = cardStates.get(project.id) ?? 'locked'
+                    const bc = cardBorderColor(cs, category)
+                    const bg = cardBackground(cs, category)
+                    const clickable = cs === 'available' || cs === 'unaffordable' || cs === 'locked'
+                    const iconColor = cs === 'locked' ? '#555' : '#888'
+                    const titleColor = cs === 'available' ? '#f0f0f0' : cs === 'unaffordable' ? '#ccc' : '#999'
+                    const descColor = cs === 'available' ? '#ccc' : '#999'
+                    const metaColor = cs === 'available' ? (dc?.text ?? '#aaa') : '#888'
 
                     return (
                       <button
@@ -168,57 +200,56 @@ export function ProjectsPanel({ onClose }: { onClose: () => void }) {
                         style={{
                           borderColor: bc,
                           backgroundColor: bg,
-                          opacity: status === 'locked' ? 0.6 : 1,
-                          cursor: isClickable ? 'pointer' : 'default',
+                          cursor: clickable ? 'pointer' : 'default',
                           borderRadius: '6px',
                         }}
-                        disabled={!isClickable}
+                        disabled={!clickable}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 mb-0.5">
-                              {status === 'locked' && <Lock width={10} height={10} stroke="#666" />}
-                              {status === 'commissioned' && <Clock width={10} height={10} stroke="#a855f7" />}
-                              {status === 'completed' && <CheckCircle width={10} height={10} stroke="#16a34a" />}
-                              <span className="font-semibold" style={{ color: status === 'locked' ? '#999' : '#e0e0e0' }}>
+                              {cs === 'locked' && <Lock width={10} height={10} stroke={iconColor} />}
+                              {cs === 'unaffordable' && <CircleDollarSign width={10} height={10} stroke="#d97706" />}
+                              {cs === 'commissioned' && <Clock width={10} height={10} stroke="#a855f7" />}
+                              {cs === 'completed' && <CheckCircle width={10} height={10} stroke="#16a34a" />}
+                              <span className="font-semibold" style={{ color: titleColor }}>
                                 {project.title}
                               </span>
                             </div>
-                            <p className="text-[10px] mt-0.5 leading-relaxed" style={{ color: status === 'locked' ? '#888' : '#bbb' }}>
+                            <p className="text-[10px] mt-0.5 leading-relaxed" style={{ color: descColor }}>
                               {project.pitch}
                             </p>
-                            {status === 'available' && (
-                              <p className="text-[9px] mt-1" style={{ color: dc?.text ?? '#888' }}>
+                            {(cs === 'available' || cs === 'unaffordable') && (
+                              <p className="text-[9px] mt-1" style={{ color: metaColor }}>
                                 ₦{project.cost.toFixed(1)}bn · PC:{project.pcCost} · {project.weeksToComplete}w
                                 {project.goalRelevance && project.goalRelevance.length > 0 && (
                                   <span className="ml-2 opacity-70">· advances {project.goalRelevance.join(', ')}</span>
                                 )}
                               </p>
                             )}
-                            {status === 'locked' && (
-                              <p className="text-[9px] mt-1" style={{ color: '#666' }}>
-                                {project.prerequisites && project.prerequisites.length > 0
-                                  ? `Needs: ${project.prerequisites.map((p) => p.label).join(', ')}`
-                                  : `₦${project.cost.toFixed(1)}bn · PC:${project.pcCost} needed`}
+                            {cs === 'locked' && (
+                              <p className="text-[9px] mt-1" style={{ color: '#888' }}>
+                                Needs: {project.prerequisites && project.prerequisites.length > 0
+                                  ? project.prerequisites.map((p) => p.label).join(', ')
+                                  : 'Research or project dependency'}
                               </p>
                             )}
-                            {status === 'commissioned' && (
+                            {cs === 'commissioned' && (
                               <span className="text-[9px]" style={{ color: '#a855f7' }}>In progress...</span>
                             )}
-                            {status === 'completed' && (
+                            {cs === 'completed' && (
                               <span className="text-[9px]" style={{ color: '#16a34a' }}>Completed</span>
                             )}
                           </div>
                           <span
                             className="text-[8px] font-semibold uppercase shrink-0 px-1.5 py-0.5"
                             style={{
-                              color: categoryStatusColor(status, category),
-                              border: `1px solid ${categoryStatusColor(status, category)}`,
+                              color: cs === 'available' ? bc : cs === 'unaffordable' ? '#d97706' : cs === 'commissioned' ? '#a855f7' : cs === 'completed' ? '#16a34a' : '#555',
+                              border: `1px solid ${cs === 'available' ? bc : cs === 'unaffordable' ? '#d97706' : cs === 'commissioned' ? '#a855f7' : cs === 'completed' ? '#16a34a' : '#444'}`,
                               borderRadius: '2px',
-                              opacity: status === 'locked' ? 0.4 : 1,
                             }}
                           >
-                            {status}
+                            {cs}
                           </span>
                         </div>
                       </button>
@@ -232,7 +263,7 @@ export function ProjectsPanel({ onClose }: { onClose: () => void }) {
       </div>
 
       {/* Commission panel (overlay within the overlay) */}
-      {selectedProject && (selectedStatus === 'available' || selectedStatus === 'locked') && (
+      {selectedProject && (selectedState === 'available' || selectedState === 'unaffordable' || selectedState === 'locked') && (
         <div
           className="absolute inset-0 flex items-center justify-center z-10 p-4"
           style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
@@ -242,7 +273,7 @@ export function ProjectsPanel({ onClose }: { onClose: () => void }) {
             className="w-full max-w-md border rounded-lg p-4 space-y-3"
             style={{
               backgroundColor: 'var(--surface)',
-              borderColor: selectedStatus === 'available' ? 'var(--accent-solid)' : 'var(--border)',
+              borderColor: selectedState === 'available' ? 'var(--accent-solid)' : 'var(--border)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -305,7 +336,7 @@ export function ProjectsPanel({ onClose }: { onClose: () => void }) {
             )}
 
             <div className="flex gap-2 pt-1">
-              {selectedStatus === 'available' && !confirming && (
+              {selectedState === 'available' && !confirming && (
                 <button
                   type="button"
                   onClick={() => setConfirming(true)}
@@ -335,14 +366,26 @@ export function ProjectsPanel({ onClose }: { onClose: () => void }) {
                   </button>
                 </>
               )}
-              {selectedStatus === 'locked' && (
+              {selectedState === 'unaffordable' && (
                 <button
                   type="button"
                   disabled
                   className="flex-1 py-2 text-[11px] font-semibold"
-                  style={{ backgroundColor: '#333', color: '#999', cursor: 'not-allowed' }}
+                  style={{ backgroundColor: '#222', color: '#d97706', cursor: 'not-allowed', border: '1px solid #d97706' }}
                 >
-                  Locked — prerequisites not met
+                  {stats.cashReserve < selectedProject.cost
+                    ? `Need ₦${(selectedProject.cost - stats.cashReserve).toFixed(1)}bn more cash`
+                    : `Need ${selectedProject.pcCost - stats.politicalCapital} more PC`}
+                </button>
+              )}
+              {selectedState === 'locked' && (
+                <button
+                  type="button"
+                  disabled
+                  className="flex-1 py-2 text-[11px] font-semibold"
+                  style={{ backgroundColor: '#222', color: '#888', cursor: 'not-allowed', border: '1px solid #555' }}
+                >
+                  Requires: {selectedProject.prerequisites?.map((p) => p.label).join(', ') ?? 'prerequisites'}
                 </button>
               )}
               <button
