@@ -57,12 +57,12 @@ function StatusBar({
 
   return (
     <header
-      className="themed"
+      className="themed status-bar"
       style={{
         display:         'flex',
         alignItems:      'center',
-        gap:             '16px',
-        padding:         '8px 16px',
+        gap:             'var(--status-bar-gap, 16px)',
+        padding:         'var(--status-bar-padding, 8px 16px)',
         background:      'var(--surface)',
         borderBottom:    '1px solid var(--border)',
         boxShadow:       'var(--shadow-sm)',
@@ -83,15 +83,15 @@ function StatusBar({
         </div>
       </div>
 
-      <div style={{ flex: 1 }} />
+      <div className="status-bar-spacer" style={{ flex: 1 }} />
 
-      <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+      <div className="status-bar-stats" style={{ display: 'flex', gap: 'var(--status-bar-stats-gap, 20px)', alignItems: 'center' }}>
         <Stat label="Treasury"  value={cashReserve}      format="currency" warn={cashWarn}  danger={cashReserve < 8} />
         <Stat label="Trust"     value={publicTrust}      format="percent"  warn={trustWarn} danger={publicTrust < 25} />
         <Stat label="Pol. Cap"  value={politicalCapital} warn={pcWarn}     danger={politicalCapital < 10} />
       </div>
 
-      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+      <div className="status-bar-actions" style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
         <button
           type="button"
           onClick={onResearch}
@@ -99,7 +99,7 @@ function StatusBar({
             background:   'transparent',
             border:       '1px solid var(--accent-solid)',
             borderRadius: '2px',
-            padding:      '4px 10px',
+            padding:      '4px var(--status-bar-action-pad-x, 10px)',
             fontSize:     '11px',
             fontFamily:   "'Archivo Narrow', sans-serif",
             color:        'var(--accent-text)',
@@ -117,7 +117,7 @@ function StatusBar({
             background:   'transparent',
             border:       '1px solid var(--accent-solid)',
             borderRadius: '2px',
-            padding:      '4px 10px',
+            padding:      '4px var(--status-bar-action-pad-x, 10px)',
             fontSize:     '11px',
             fontFamily:   "'Archivo Narrow', sans-serif",
             color:        'var(--accent-text)',
@@ -137,7 +137,7 @@ function StatusBar({
               color:        'var(--accent-on-solid)',
               border:       'none',
               borderRadius: '2px',
-              padding:      '6px 16px',
+              padding:      '6px var(--status-bar-next-pad-x, 16px)',
               fontSize:     '12px',
               fontWeight:   600,
               fontFamily:   "'Archivo Narrow', sans-serif",
