@@ -229,6 +229,7 @@ export function EconomyPanel() {
   const raiseLuc = useGameStore((s) => s.economyRaiseLuc)
   const launchInitiative = useGameStore((s) => s.economyLaunchInitiative)
   const takeLoan = useGameStore((s) => s.economyTakeLoan)
+  const courtGodfathers = useGameStore((s) => s.courtGodfathers)
 
   const [confirming, setConfirming] = useState<string | null>(null)
   const [loanAmount, setLoanAmount] = useState<number>(0)
@@ -403,6 +404,24 @@ export function EconomyPanel() {
         </div>
 
         <div className="h-1.5" />
+
+        {/* ── Political Capital ── */}
+        {pc < 25 && (
+          <div style={sectionStyle}>
+            <div style={sectionHeaderStyle}>Political Capital</div>
+            <ActionRow
+              label="Mend Fences with Godfathers"
+              description="Court the party machine · +10 PC, +5 Godfathers · −3 Trust, +3 Corruption"
+              pcCost={0}
+              cooldownWeeks={cooldownWeeks('court-godfathers')}
+              onCooldown={isOnCooldown('court-godfathers')}
+              onStart={() => initiateConfirm('court-godfathers')}
+              confirming={confirming === 'court-godfathers'}
+              onConfirm={() => { courtGodfathers(); cancelConfirm() }}
+              onCancel={cancelConfirm}
+            />
+          </div>
+        )}
 
         {/* ── Financing ── */}
         <div style={sectionStyle}>

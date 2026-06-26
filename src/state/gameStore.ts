@@ -32,6 +32,7 @@ export interface GameStore extends GameState {
   economyRaiseLuc: () => void
   economyLaunchInitiative: (id: string, name: string, totalWeeks: number, completionEventId: string, pcCost: number, factionImpact: Record<string, number>, statDelta: Record<string, number>) => void
   economyTakeLoan: (amount: number, source: LoanSource) => void
+  courtGodfathers: () => void
   // Phase D — inbox
   inboxMarkRead: (id: string) => void
   inboxMarkAllRead: () => void
@@ -173,6 +174,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (s.stats.politicalCapital < pcCost) return
     const afterPc = applyDelta(s, { politicalCapital: -pcCost })
     set(takeLoanAction(afterPc, amount, source))
+  },
+  courtGodfathers: () => {
+    const s = get()
+    if (s.stats.politicalCapital >= 25) return
+    const cooldownKey = 'court-godfathers'
+    if ((s.economyCooldowns[cooldownKey] ?? 0) > s.week) return
+    const afterStat = applyDelta(
+      { ...s, economyCooldowns: { ...s.economyCooldowns, [cooldownKey]: s.week + 6 } },
+      { politicalCapital: 10, publicTrust: -3, corruptionPressure: 3 },
+    )
+    set({ ...afterStat, factions: applyFactionDelta(afterStat.factions, { partyGodfathers: 5 }) })
   },
   clearNewspaperHeadline: () => {
     set({ newspaperHeadline: undefined })
