@@ -13,6 +13,7 @@ export function Tab({ icon, label, badge, active, onClick }: TabProps) {
 
   return (
     <button
+      type="button"
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
@@ -41,15 +42,35 @@ export function Tab({ icon, label, badge, active, onClick }: TabProps) {
         <div style={{ fontSize: '18px', lineHeight: 1 }}>{icon}</div>
       )}
       <div style={{
-        fontSize:    '10px',
-        fontFamily:  "'Archivo Narrow', sans-serif",
-        fontWeight:  active ? 600 : 400,
-        letterSpacing: '0.04em',
-        whiteSpace:  'nowrap',
+        display:        'inline-flex',
+        alignItems:     'center',
+        justifyContent: 'center',
+        gap:            '4px',
+        fontSize:       '10px',
+        fontFamily:     "'Archivo Narrow', sans-serif",
+        fontWeight:     active ? 600 : 400,
+        letterSpacing:  '0.04em',
+        whiteSpace:     'nowrap',
       }}>
-        {label}
+        <span>{label}</span>
+        {!icon && !!badge && badge > 0 && (
+          <span style={{
+            background:  'var(--error-9)',
+            color:       '#fff',
+            fontSize:    '9px',
+            fontWeight:  600,
+            fontFamily:  "'Archivo Narrow', sans-serif",
+            lineHeight:  1,
+            padding:     '2px 4px',
+            borderRadius:'6px',
+            minWidth:    '14px',
+            textAlign:   'center',
+          }}>
+            {badge > 9 ? '9+' : badge}
+          </span>
+        )}
       </div>
-      {!!badge && badge > 0 && (
+      {icon && !!badge && badge > 0 && (
         <span style={{
           position:    'absolute',
           top:         '4px',

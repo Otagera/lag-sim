@@ -296,3 +296,48 @@ body {
   background: rgba(128,128,128,.22);
   border-radius: 3px;
 }
+
+/* ── Responsive game chrome ─────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .status-bar {
+    --status-bar-gap: 8px;
+    --status-bar-padding: 8px 10px;
+    flex-wrap: wrap;
+  }
+
+  .status-bar-spacer {
+    display: none;
+  }
+
+  .status-bar-stats {
+    --status-bar-stats-gap: 10px;
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+
+  .status-bar-actions {
+    order: 3;
+    flex: 1 0 100%;
+    width: 100%;
+  }
+
+  .status-bar-actions > button {
+    --status-bar-action-pad-x: 8px;
+    --status-bar-next-pad-x: 8px;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .status-bar-stats {
+    flex-basis: 100%;
+    justify-content: space-between;
+    order: 2;
+  }
+
+  .status-bar-actions {
+    order: 3;
+  }
+}
