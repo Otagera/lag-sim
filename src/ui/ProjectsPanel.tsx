@@ -180,11 +180,11 @@ export function ProjectsPanel({ onClose }: { onClose: () => void }) {
                               {status === 'locked' && <Lock width={10} height={10} stroke="#666" />}
                               {status === 'commissioned' && <Clock width={10} height={10} stroke="#a855f7" />}
                               {status === 'completed' && <CheckCircle width={10} height={10} stroke="#16a34a" />}
-                              <span className="font-semibold" style={{ color: status === 'locked' ? '#888' : 'var(--text)' }}>
+                              <span className="font-semibold" style={{ color: status === 'locked' ? '#999' : '#e0e0e0' }}>
                                 {project.title}
                               </span>
                             </div>
-                            <p className="text-[10px] mt-0.5 leading-relaxed" style={{ color: status === 'locked' ? '#666' : '#aaa' }}>
+                            <p className="text-[10px] mt-0.5 leading-relaxed" style={{ color: status === 'locked' ? '#888' : '#bbb' }}>
                               {project.pitch}
                             </p>
                             {status === 'available' && (
@@ -340,7 +340,7 @@ export function ProjectsPanel({ onClose }: { onClose: () => void }) {
                   type="button"
                   disabled
                   className="flex-1 py-2 text-[11px] font-semibold"
-                  style={{ backgroundColor: '#333', color: '#666', cursor: 'not-allowed' }}
+                  style={{ backgroundColor: '#333', color: '#999', cursor: 'not-allowed' }}
                 >
                   Locked — prerequisites not met
                 </button>

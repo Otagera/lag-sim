@@ -268,7 +268,7 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
                         style={{
                           fontSize: '11px',
                           fontWeight: 700,
-                          color: status === 'locked' ? '#666' : '#e0e0e0',
+                          color: status === 'locked' ? '#888' : '#e0e0e0',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -280,7 +280,7 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
 
                       {/* Row 3: Meta */}
                       {status === 'available' && (
-                        <span style={{ fontSize: '9px', color: '#888', marginTop: '2px' }}>
+                        <span style={{ fontSize: '9px', color: '#aaa', marginTop: '2px' }}>
                           {naira(node.cost)} · {node.weeksToComplete}w
                           {node.outcomes ? ' · uncertain' : ' · reliable'}
                         </span>
@@ -296,7 +296,7 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
                         </span>
                       )}
                       {status === 'locked' && (
-                        <span style={{ fontSize: '8px', color: '#666', marginTop: '2px' }}>
+                        <span style={{ fontSize: '8px', color: '#888', marginTop: '2px' }}>
                           {node.prerequisites.length > 0
                             ? `Needs: ${node.prerequisites[0].label}`
                             : `${naira(node.cost)} needed`}
@@ -345,7 +345,7 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
                         }}
                       >
                         <div className="flex justify-between items-center">
-                          <span className="font-semibold" style={{ color: status === 'locked' ? '#666' : 'var(--text)' }}>
+                          <span className="font-semibold" style={{ color: status === 'locked' ? '#888' : '#e0e0e0' }}>
                             {node.title}
                           </span>
                           <span className="text-[9px] font-medium uppercase" style={{ color: bc }}>
@@ -359,7 +359,7 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
                           </span>
                         )}
                         {status === 'locked' && (
-                          <span className="text-[9px]" style={{ color: '#666' }}>
+                          <span className="text-[9px]" style={{ color: '#888' }}>
                             {node.prerequisites.length > 0 ? `Needs: ${node.prerequisites.map(p => p.label).join(', ')}` : 'Insufficient funds'}
                           </span>
                         )}
