@@ -20,6 +20,8 @@ export interface Goal {
   flavorClosing: string
   targets: GoalTarget[]
   relevantFactions: FactionKey[]
+  recommendedProjectCategories?: string[]
+  recommendedResearchDomains?: string[]
 }
 
 function overallProgress(goal: Goal, s: GameState): number {
@@ -84,6 +86,8 @@ export const ALL_GOALS: Goal[] = [
       },
     ],
     relevantFactions: ['partyGodfathers', 'civilSocietyMedia'],
+    recommendedProjectCategories: ['security', 'health'],
+    recommendedResearchDomains: ['security'],
   },
   {
     id: 'make-the-promise-real',
@@ -133,6 +137,8 @@ export const ALL_GOALS: Goal[] = [
       },
     ],
     relevantFactions: ['businessCommunity', 'civilSocietyMedia'],
+    recommendedProjectCategories: ['transport', 'power', 'water', 'health', 'education', 'housing', 'environment'],
+    recommendedResearchDomains: ['innovation'],
   },
   {
     id: 'lights-on',
@@ -172,6 +178,8 @@ export const ALL_GOALS: Goal[] = [
       },
     ],
     relevantFactions: ['businessCommunity', 'federalGovt'],
+    recommendedProjectCategories: ['power', 'transport', 'water', 'environment'],
+    recommendedResearchDomains: ['innovation', 'climate'],
   },
 ]
 
@@ -190,4 +198,14 @@ export function getGoalIsMet(goal: Goal, state: GameState): boolean {
 
 export function getGoalBlocking(goal: Goal, state: GameState): string | null {
   return blockingLine(goal, state)
+}
+
+export function getGoalRelevance(goalId: string):
+  { projectCategories: string[]; researchDomains: string[] } | null {
+  const goal = getGoal(goalId)
+  if (!goal) return null
+  return {
+    projectCategories: goal.recommendedProjectCategories ?? [],
+    researchDomains: goal.recommendedResearchDomains ?? [],
+  }
 }

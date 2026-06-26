@@ -139,4 +139,7 @@ export const STARTING_STATE: GameState = {
   // Phase E
   researchNodeStatuses: {},
   commissionedResearchNodes: [],
+  // Projects
+  projectStatuses: {},
+  commissionedProjects: [],
 }

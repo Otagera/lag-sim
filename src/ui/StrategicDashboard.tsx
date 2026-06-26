@@ -1,5 +1,6 @@
 import { useGameStore } from '../state/gameStore'
 import { RESEARCH_TREE } from '../data/researchTree'
+import { PROJECTS } from '../data/projects'
 import { useStrategicSelectors } from './useStrategicSelectors'
 import { GoalTracker } from './GoalTracker'
 import { EconomyPanel } from './EconomyPanel'
@@ -60,8 +61,9 @@ function InitiativeTracker() {
   const { initiative, activeProjects } = useStrategicSelectors()
   const week = useGameStore((s) => s.week)
   const commissionedNodes = useGameStore((s) => s.commissionedResearchNodes)
+  const commissionedProjects = useGameStore((s) => s.commissionedProjects)
 
-  const hasAny = initiative || activeProjects.length > 0 || commissionedNodes.length > 0
+  const hasAny = initiative || activeProjects.length > 0 || commissionedNodes.length > 0 || commissionedProjects.length > 0
   if (!hasAny) return null
 
   return (
@@ -128,6 +130,44 @@ function InitiativeTracker() {
                 </div>
                 <p className="text-[9px] font-medium" style={{ color: 'var(--accent-text)' }}>
                   {node.domain} · {hasOutcomes ? 'uncertain outcome' : 'reliable progress'}
+                </p>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {commissionedProjects.length > 0 && (
+        <div className="space-y-1.5 mb-2">
+          {commissionedProjects.map((cp) => {
+            const def = PROJECTS.find((p) => p.id === cp.id)
+            if (!def) return null
+            const weeksLeft = Math.max(0, cp.completionWeek - week)
+            const total = def.weeksToComplete
+            const elapsed = total - weeksLeft
+            const progress = total > 0 ? elapsed / total : 0
+            return (
+              <div key={cp.id} className="p-1.5 border text-[10px]" style={{ borderColor: 'var(--success-9)', backgroundColor: 'var(--accent-bg-subtle)' }}>
+                <div className="flex justify-between mb-1">
+                  <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
+                    {def.title}
+                  </span>
+                  <span style={{ color: 'var(--text-secondary)' }}>
+                    {weeksLeft}w left
+                  </span>
+                </div>
+                <div className="w-full h-1 mb-1" style={{ backgroundColor: 'var(--neutral-4)' }}>
+                  <div
+                    className="h-full"
+                    style={{
+                      width: `${(progress * 100).toFixed(0)}%`,
+                      backgroundColor: 'var(--success-9)',
+                      transition: 'width 0.3s ease',
+                    }}
+                  />
+                </div>
+                <p className="text-[9px] font-medium" style={{ color: 'var(--success-11)' }}>
+                  {def.category} · reliable progress
                 </p>
               </div>
             )

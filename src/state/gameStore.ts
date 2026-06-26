@@ -11,6 +11,7 @@ import { applyDelta } from '../engine/statEngine'
 import { applyFactionDelta } from '../engine/factionEngine'
 import { generateCommissionerMessage } from '../engine/inboxEngine'
 import { commissionNode } from '../engine/researchEngine'
+import { commissionProject as commissionProjectAction } from '../engine/projectsEngine'
 import { saveGame } from './persistence'
 import type { CommissionerRole, CommissionerState, DeputyKey, GameState, LoanSource } from './types'
 
@@ -38,6 +39,8 @@ export interface GameStore extends GameState {
   setGoal: (id: string | null) => void
   // Phase E — research tree
   commissionResearchNode: (nodeId: string) => void
+  // Projects
+  commissionProject: (projectId: string) => void
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -197,6 +200,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const node = state.researchNodeStatuses[nodeId]
     if (node === 'commissioned' || node === 'completed') return
     set(commissionNode(nodeId, state))
+  },
+  commissionProject: (projectId: string) => {
+    const state = get()
+    const status = state.projectStatuses[projectId]
+    if (status === 'commissioned' || status === 'completed') return
+    set(commissionProjectAction(projectId, state))
   },
 }))
 

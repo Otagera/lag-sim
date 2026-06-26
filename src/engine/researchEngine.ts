@@ -276,18 +276,11 @@ export function computeNodeLayout(): NodeLayout[] {
 
   for (const [, group] of domainNodes) group.sort((a, b) => a.depth - b.depth || a.node.id.localeCompare(b.node.id))
 
-  const COLUMN_WIDTH = 220
-  const COLUMN_GAP = 40
-  const ROW_HEIGHT = 110
+  const COLUMN_WIDTH = 240
+  const COLUMN_GAP = 50
+  const ROW_HEIGHT = 140
   const PADDING_X = 30
   const PADDING_Y = 30
-
-  const domainCounts = new Map<string, number>()
-  for (const [, group] of domainNodes) {
-    for (const { depth } of group) {
-      domainCounts.set(String(depth), (domainCounts.get(String(depth)) ?? 0) + 1)
-    }
-  }
 
   const layouts: NodeLayout[] = []
   for (const [domain, group] of domainNodes) {
@@ -300,7 +293,7 @@ export function computeNodeLayout(): NodeLayout[] {
       const key = String(depth)
       const offset = depthOffsets.get(key) ?? 0
       depthOffsets.set(key, offset + 1)
-      const y = PADDING_Y + depth * ROW_HEIGHT + offset * 28
+      const y = PADDING_Y + depth * ROW_HEIGHT + offset * 32
       layouts.push({ nodeId: node.id, x, y })
     }
   }

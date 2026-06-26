@@ -11,6 +11,7 @@ import { generateChiefOfStaffBriefing, generateDeputyMessage, generateGodfatherA
 import { emergencyBridgeLoan } from './debtEngine'
 import { primaryContestLossEvent, removalResolutionEvent } from '../data/events/characters'
 import { processProjects } from './projectEngine'
+import { tickProjects } from './projectsEngine'
 import { calculateWeeklyRevenue } from './revenueEngine'
 import { getSeasonModifier } from './seasonEngine'
 import { applyDelta } from './statEngine'
@@ -261,6 +262,9 @@ export function tick(state: GameState): GameState {
 
   // Phase E — research tree tick
   next = tickResearchNodes(next)
+
+  // Projects tick
+  next = tickProjects(next)
 
   // Fashemu phase transitions
   const oldPhase = next.fashemuPhase

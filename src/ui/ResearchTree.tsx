@@ -13,6 +13,9 @@ const DOMAIN_COLORS: Record<string, { solid: string; bg: string; text: string; l
   climate:    { solid: '#0891b2', bg: '#0a2e3a', text: '#67e8f9', line: '#06b6d4' },
 }
 
+const NODE_WIDTH = 220
+const NODE_HEIGHT = 72
+
 function nodeStatusColor(status: ResearchNodeStatus, domain: string): string {
   const domainColor = DOMAIN_COLORS[domain]
   switch (status) {
@@ -24,14 +27,14 @@ function nodeStatusColor(status: ResearchNodeStatus, domain: string): string {
   }
 }
 
-function nodeBackgroundColor(status: ResearchNodeStatus, domain: string, isDark: boolean): string {
+function nodeBackgroundColor(status: ResearchNodeStatus, domain: string): string {
   const c = DOMAIN_COLORS[domain]
   switch (status) {
-    case 'available':    return isDark ? (c?.bg ?? '#222') : '#f0f9ff'
-    case 'commissioned': return isDark ? '#3b1a6e' : '#f3e8ff'
-    case 'completed':    return isDark ? '#1a3a1a' : '#f0fdf4'
-    case 'locked':       return isDark ? '#1a1a1a' : '#f5f5f5'
-    default:             return isDark ? '#1a1a1a' : '#f5f5f5'
+    case 'available':    return c?.bg ?? '#222'
+    case 'commissioned': return '#3b1a6e'
+    case 'completed':    return '#1a3a1a'
+    case 'locked':       return '#1a1a1a'
+    default:             return '#1a1a1a'
   }
 }
 
@@ -54,7 +57,6 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
   const stats = useGameStore((s) => s.stats)
   const state = useGameStore((s) => s)
   const commissionResearchNodeAction = useGameStore((s) => s.commissionResearchNode)
-  const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
   const [confirming, setConfirming] = useState(false)
@@ -94,13 +96,13 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
   function svgWidth() {
     const xs = layouts.map((l) => l.x)
     const maxX = Math.max(...xs, 0)
-    return Math.max(800, maxX + 250)
+    return Math.max(800, maxX + NODE_WIDTH + 50)
   }
 
   function svgHeight() {
     const ys = layouts.map((l) => l.y)
     const maxY = Math.max(...ys, 0)
-    return Math.max(300, maxY + 100)
+    return Math.max(300, maxY + NODE_HEIGHT + 40)
   }
 
   const netFlow = (stats.igr - stats.expenditure)
@@ -121,7 +123,6 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
           <h2 className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Commission the Future</h2>
         </div>
         <div className="flex items-center gap-3">
-          {/* Cash context — always visible during planning */}
           <span className="text-[10px] font-medium" style={{ color: cashReserve < 0 ? 'var(--error-11)' : 'var(--text-secondary)' }}>
             Cash: {naira(cashReserve)}
           </span>
@@ -165,14 +166,14 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
               return (
                 <line
                   key={`${line.from}-${line.to}`}
-                  x1={from.x + 100}
-                  y1={from.y + 30}
-                  x2={to.x + 100}
+                  x1={from.x + NODE_WIDTH / 2}
+                  y1={from.y + NODE_HEIGHT}
+                  x2={to.x + NODE_WIDTH / 2}
                   y2={to.y}
                   stroke={line.crossDomain ? '#888' : (DOMAIN_COLORS[RESEARCH_TREE.find(n => n.id === line.from)?.domain ?? '']?.line ?? '#666')}
                   strokeWidth={line.crossDomain ? 1 : 2}
                   strokeDasharray={line.crossDomain ? '5,3' : 'none'}
-                  opacity={0.5}
+                  opacity={0.4}
                 />
               )
             })}
@@ -183,11 +184,8 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
               if (!node) return null
               const status = nodeStatuses.get(layout.nodeId) ?? 'locked'
               const borderColor = nodeStatusColor(status, node.domain)
-              const bgColor = nodeBackgroundColor(status, node.domain, isDark)
+              const bgColor = nodeBackgroundColor(status, node.domain)
               const isClickable = status === 'available' || status === 'locked'
-              const width = 200
-              const height = 60
-
               const domainColor = DOMAIN_COLORS[node.domain]
 
               return (
@@ -196,112 +194,116 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
                   onClick={() => handleNodeClick(layout.nodeId)}
                   style={{ cursor: isClickable ? 'pointer' : 'default' }}
                 >
+                  {/* Card background */}
                   <rect
                     x={layout.x}
                     y={layout.y}
-                    width={width}
-                    height={height}
+                    width={NODE_WIDTH}
+                    height={NODE_HEIGHT}
                     rx={6}
                     fill={bgColor}
                     stroke={borderColor}
                     strokeWidth={status === 'available' ? 2 : 1}
                     opacity={status === 'locked' ? 0.5 : 1}
                   />
+
+                  {/* Progress bar for commissioned */}
                   {status === 'commissioned' && (
                     <rect
                       x={layout.x + 2}
-                      y={layout.y + height - 4}
-                      width={width - 4}
+                      y={layout.y + NODE_HEIGHT - 4}
+                      width={NODE_WIDTH - 4}
                       height={3}
                       rx={1.5}
-                      fill="#333"
-                    >
-                    </rect>
-                  )}
-
-                  {/* Domain badge */}
-                  <text
-                    x={layout.x + 8}
-                    y={layout.y + 12}
-                    fill={domainColor?.text ?? '#666'}
-                    fontSize={8}
-                    fontWeight={600}
-                    textAnchor="start"
-                    textRendering="geometricPrecision"
-                  >
-                    {node.domain.toUpperCase()}
-                  </text>
-
-                  {/* Icon */}
-                  {status === 'locked' && (
-                    <Lock x={layout.x + 8} y={layout.y + 20} width={12} height={12} fill="none" stroke="#666" />
-                  )}
-                  {status === 'completed' && (
-                    <CheckCircle x={layout.x + width - 20} y={layout.y + 8} width={14} height={14} fill="none" stroke="#16a34a" />
-                  )}
-                  {status === 'commissioned' && (
-                    <Clock x={layout.x + width - 20} y={layout.y + 8} width={14} height={14} fill="none" stroke="#a855f7" />
-                  )}
-
-                  {/* Title */}
-                  <text
-                    x={layout.x + (status === 'locked' ? 24 : 8)}
-                    y={layout.y + 30}
-                    fill={status === 'locked' ? '#666' : 'var(--text)'}
-                    fontSize={11}
-                    fontWeight={700}
-                    textAnchor="start"
-                  >
-                    {node.title.length > 22 ? node.title.slice(0, 20) + '…' : node.title}
-                  </text>
-
-                  {/* Bottom line: cost or weeks for available/commissioned */}
-                  {status === 'available' && (
-                    <text
-                      x={layout.x + 8}
-                      y={layout.y + 52}
-                      fill="#888"
-                      fontSize={9}
-                      textAnchor="start"
-                    >
-                      {naira(node.cost)} · {node.weeksToComplete}w
-                    </text>
-                  )}
-                  {status === 'commissioned' && (
-                    <text
-                      x={layout.x + 8}
-                      y={layout.y + 52}
                       fill="#a855f7"
-                      fontSize={9}
-                      textAnchor="start"
-                    >
-                      In progress...
-                    </text>
+                    />
                   )}
-                  {status === 'completed' && (
-                    <text
-                      x={layout.x + 8}
-                      y={layout.y + 52}
-                      fill="#16a34a"
-                      fontSize={9}
-                      textAnchor="start"
+
+                  {/* foreignObject for proper HTML rendering */}
+                  <foreignObject
+                    x={layout.x}
+                    y={layout.y}
+                    width={NODE_WIDTH}
+                    height={NODE_HEIGHT}
+                  >
+                    <div
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        padding: '8px 10px',
+                        boxSizing: 'border-box',
+                        fontFamily: "'Archivo Narrow', sans-serif",
+                        overflow: 'hidden',
+                      }}
+                      title={node.title}
                     >
-                      Complete
-                    </text>
-                  )}
-                  {status === 'locked' && (
-                    <text
-                      x={layout.x + 24}
-                      y={layout.y + 52}
-                      fill="#666"
-                      fontSize={8}
-                      textAnchor="start"
-                    >
-                      {node.prerequisites.length > 0
-                        ? `Needs: ${node.prerequisites[0].label}`
-                        : `₦${node.cost.toFixed(1)}bn needed`}
-                    </text>
-                  )}
+                      {/* Row 1: Domain + Status icon */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                        <span
+                          style={{
+                            fontSize: '8px',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.08em',
+                            color: domainColor?.text ?? '#666',
+                          }}
+                        >
+                          {node.domain.toUpperCase()}
+                        </span>
+                        {status === 'completed' && (
+                          <CheckCircle width={12} height={12} stroke="#16a34a" />
+                        )}
+                        {status === 'commissioned' && (
+                          <Clock width={12} height={12} stroke="#a855f7" />
+                        )}
+                        {status === 'locked' && (
+                          <Lock width={12} height={12} stroke="#666" />
+                        )}
+                      </div>
+
+                      {/* Row 2: Title */}
+                      <span
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          color: status === 'locked' ? '#666' : '#e0e0e0',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {node.title}
+                      </span>
+
+                      {/* Row 3: Meta */}
+                      {status === 'available' && (
+                        <span style={{ fontSize: '9px', color: '#888', marginTop: '2px' }}>
+                          {naira(node.cost)} · {node.weeksToComplete}w
+                          {node.outcomes ? ' · uncertain' : ' · reliable'}
+                        </span>
+                      )}
+                      {status === 'commissioned' && (
+                        <span style={{ fontSize: '9px', color: '#a855f7', marginTop: '2px' }}>
+                          In progress...
+                        </span>
+                      )}
+                      {status === 'completed' && (
+                        <span style={{ fontSize: '9px', color: '#16a34a', marginTop: '2px' }}>
+                          Complete
+                        </span>
+                      )}
+                      {status === 'locked' && (
+                        <span style={{ fontSize: '8px', color: '#666', marginTop: '2px' }}>
+                          {node.prerequisites.length > 0
+                            ? `Needs: ${node.prerequisites[0].label}`
+                            : `${naira(node.cost)} needed`}
+                        </span>
+                      )}
+                    </div>
+                  </foreignObject>
                 </g>
               )
             })}
@@ -312,7 +314,7 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
         <div className={`${showMobileList ? 'flex' : 'hidden'} lg:hidden flex-1 overflow-y-auto p-3 flex-col gap-3`}
           style={{ backgroundColor: 'var(--background)' }}
         >
-          {['security', 'agriculture', 'innovation'].map((domain) => {
+          {['security', 'agriculture', 'innovation', 'administration', 'climate'].map((domain) => {
             const domainNodes = RESEARCH_TREE.filter((n) => n.domain === domain)
             if (domainNodes.length === 0) return null
             const dc = DOMAIN_COLORS[domain]
@@ -328,7 +330,7 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
                   {domainNodes.map((node) => {
                     const status = nodeStatuses.get(node.id) ?? 'locked'
                     const bc = nodeStatusColor(status, domain)
-                    const bg = nodeBackgroundColor(status, domain, isDark)
+                    const bg = nodeBackgroundColor(status, domain)
                     return (
                       <button
                         key={node.id}
@@ -413,7 +415,6 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
               </span>
             </div>
 
-            {/* Prerequisites */}
             {selectedNode.prerequisites.length > 0 && (
               <div className="space-y-0.5">
                 <span className="text-[9px] font-semibold uppercase" style={{ color: 'var(--text-secondary)' }}>
@@ -437,7 +438,6 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
               </div>
             )}
 
-            {/* Payoff prospects — only for payoff nodes */}
             {selectedNode.outcomes && (
               <div className="p-2 border text-[10px] leading-relaxed" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--accent-bg-subtle)' }}>
                 <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
@@ -449,7 +449,6 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
               </div>
             )}
 
-            {/* Commission button */}
             <div className="flex gap-2 pt-1">
               {selectedStatus === 'available' && !confirming && (
                 <button

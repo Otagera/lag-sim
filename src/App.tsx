@@ -9,6 +9,7 @@ import { clearSave } from './state/persistence'
 import { LagosHerald } from './ui/LagosHerald'
 import { BudgetPanel } from './ui/BudgetPanel'
 import { ResearchTree } from './ui/ResearchTree'
+import { ProjectsPanel } from './ui/ProjectsPanel'
 import { EventCard } from './ui/EventCard'
 import { FactionPanel } from './ui/FactionPanel'
 import { Inbox } from './ui/Inbox'
@@ -37,13 +38,14 @@ const DOCK_TABS: { id: DockTab; label: string; Icon: LucideIcon }[] = [
 
 // ─── Status bar ───────────────────────────────────────────────────────────────
 function StatusBar({
-  termLabel, monthLabel, onTick, canTick, onResearch,
+  termLabel, monthLabel, onTick, canTick, onResearch, onProjects,
 }: {
   termLabel:   string
   monthLabel:  string
   onTick:      () => void
   canTick:     boolean
   onResearch:  () => void
+  onProjects:  () => void
 }) {
   const cashReserve       = useGameStore((s) => s.stats.cashReserve)
   const publicTrust       = useGameStore((s) => s.stats.publicTrust)
@@ -107,6 +109,24 @@ function StatusBar({
           title="Commission the Future"
         >
           Research
+        </button>
+        <button
+          type="button"
+          onClick={onProjects}
+          style={{
+            background:   'transparent',
+            border:       '1px solid var(--accent-solid)',
+            borderRadius: '2px',
+            padding:      '4px 10px',
+            fontSize:     '11px',
+            fontFamily:   "'Archivo Narrow', sans-serif",
+            color:        'var(--accent-text)',
+            cursor:       'pointer',
+            whiteSpace:   'nowrap',
+          }}
+          title="Build / Govern"
+        >
+          Projects
         </button>
         {canTick && (
           <button
@@ -226,6 +246,7 @@ export default function GameApp() {
 
   const llmAttempted = useRef(new Set<string>())
   const [showResearch, setShowResearch] = useState(false)
+  const [showProjects, setShowProjects] = useState(false)
   const [activePanel,  setActivePanel]  = useState<DockTab | null>(null)
 
   useEffect(() => {
@@ -272,6 +293,7 @@ export default function GameApp() {
     <>
       {newspaperHeadline && <LagosHerald />}
       {showResearch && <ResearchTree onClose={() => setShowResearch(false)} />}
+      {showProjects && <ProjectsPanel onClose={() => setShowProjects(false)} />}
 
       <div
         className="themed"
@@ -290,6 +312,7 @@ export default function GameApp() {
           onTick={tick}
           canTick={!isGameOver}
           onResearch={() => setShowResearch(true)}
+          onProjects={() => setShowProjects(true)}
         />
 
         <div style={{ height: '2px', background: 'var(--border-subtle)', flexShrink: 0 }}>

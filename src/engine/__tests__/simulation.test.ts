@@ -98,6 +98,20 @@ function invariants(state: GameState, week: number) {
       expect(crn.completionWeek).toBeGreaterThan(0)
     }
   }
+
+  // Projects
+  if (state.projectStatuses) {
+    for (const [, status] of Object.entries(state.projectStatuses)) {
+      expect(['locked', 'available', 'commissioned', 'completed']).toContain(status)
+    }
+  }
+  if (state.commissionedProjects) {
+    for (const cp of state.commissionedProjects) {
+      expect(typeof cp.id).toBe('string')
+      expect(typeof cp.completionWeek).toBe('number')
+      expect(cp.completionWeek).toBeGreaterThan(0)
+    }
+  }
 }
 
 /**

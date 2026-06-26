@@ -14,6 +14,19 @@ export const RESEARCH_TREE: ResearchNode[] = [
     stepEffect: { securityIndex: 3 },
   },
   {
+    id: 'digital-forensics',
+    domain: 'security',
+    title: 'Digital Forensics',
+    pitch: 'A dedicated digital forensics unit within the lab — cyber evidence, mobile device analysis, financial trail tracing. The Lagos State DNA & Forensic Centre already exists; expand its mandate into the digital domain where modern crime lives.',
+    framing: 'localImplementation',
+    cost: 10,
+    weeksToComplete: 10,
+    prerequisites: [
+      { type: 'node', nodeId: 'forensics-lab', label: 'Forensics Lab' },
+    ],
+    stepEffect: { securityIndex: 3, corruptionPressure: -1 },
+  },
+  {
     id: 'evidence-database',
     domain: 'security',
     title: 'Evidence Database',
@@ -22,7 +35,7 @@ export const RESEARCH_TREE: ResearchNode[] = [
     cost: 12,
     weeksToComplete: 10,
     prerequisites: [
-      { type: 'node', nodeId: 'forensics-lab', label: 'Forensics Lab' },
+      { type: 'node', nodeId: 'digital-forensics', label: 'Digital Forensics' },
     ],
     stepEffect: { securityIndex: 2, corruptionPressure: -1 },
   },
@@ -183,6 +196,19 @@ export const RESEARCH_TREE: ResearchNode[] = [
     stepEffect: { igr: 0.3 },
   },
   {
+    id: 'lasric-grants',
+    domain: 'innovation',
+    title: 'LASRIC Grants',
+    pitch: 'The Lagos State Science, Research and Innovation Council already funds research — N900m granted to 155 researchers and startups. Scale it. Target applied research that solves Lagos problems: waste-to-energy, traffic AI, urban agritech. A bet on local ideas.',
+    framing: 'innovation',
+    cost: 6,
+    weeksToComplete: 8,
+    prerequisites: [
+      { type: 'node', nodeId: 'revive-the-hub', label: 'Revive the Hub' },
+    ],
+    stepEffect: { igr: 0.4, youthTension: -2 },
+  },
+  {
     id: 'startup-incubator',
     domain: 'innovation',
     title: 'Startup Incubator',
@@ -191,9 +217,22 @@ export const RESEARCH_TREE: ResearchNode[] = [
     cost: 8,
     weeksToComplete: 10,
     prerequisites: [
-      { type: 'node', nodeId: 'revive-the-hub', label: 'Revive the Hub' },
+      { type: 'node', nodeId: 'lasric-grants', label: 'LASRIC Grants' },
     ],
-    stepEffect: { igr: 0.5 },
+    stepEffect: { igr: 0.5, youthTension: -2 },
+  },
+  {
+    id: 'digital-skills',
+    domain: 'innovation',
+    title: 'Digital Skills Pipeline',
+    pitch: 'A state-run digital skills programme targeting 10,000 young Lagosians — software engineering, data analytics, cybersecurity. Not another coding crash course; a proper pipeline from training to placement in the growing tech ecosystem the incubator is building.',
+    framing: 'innovation',
+    cost: 8,
+    weeksToComplete: 10,
+    prerequisites: [
+      { type: 'node', nodeId: 'startup-incubator', label: 'Startup Incubator' },
+    ],
+    stepEffect: { youthTension: -5, igr: 0.3 },
   },
   {
     id: 'it-tax-base',
@@ -204,7 +243,7 @@ export const RESEARCH_TREE: ResearchNode[] = [
     cost: 10,
     weeksToComplete: 16,
     prerequisites: [
-      { type: 'node', nodeId: 'startup-incubator', label: 'Startup Incubator' },
+      { type: 'node', nodeId: 'digital-skills', label: 'Digital Skills Pipeline' },
     ],
     outcomes: [
       {
@@ -244,6 +283,91 @@ export const RESEARCH_TREE: ResearchNode[] = [
         payoff: { igr: 0.2, corruptionPressure: 3 },
         factionImpact: { partyGodfathers: 5, businessCommunity: -4 },
         resultText: 'The incubator is running. A "consultant" collects rent from every desk. A "connection fee" opens the right doors. The tech scene — already fragile, already sceptical — watches another government initiative become another godfather revenue stream. The ones who can leave, leave. The others adapt. Lagos adapts to everything, even its own broken promises.',
+        scope: 'state',
+      },
+    ],
+  },
+
+  // ── ADMINISTRATION (e-governance) ─────────────────────────
+  {
+    id: 'e-governance-platform',
+    domain: 'administration',
+    title: 'E-Governance Platform',
+    pitch: 'A single digital portal for all Lagos State services — business registration, tax filing, permit applications, land title searches. No more queues at the Secretariat. No more "the file is with the director." Transparent, trackable, digital.',
+    framing: 'localImplementation',
+    cost: 6,
+    weeksToComplete: 8,
+    prerequisites: [],
+    stepEffect: { igr: 0.4, corruptionPressure: -1 },
+  },
+  {
+    id: 'records-digitalization',
+    domain: 'administration',
+    title: 'Records Digitalization',
+    pitch: 'Digitise every land title, every business registration, every court record currently rotting in basement archives. The e-governance platform is useless without clean data behind it. This is the boring, expensive, essential work that makes everything else possible.',
+    framing: 'localImplementation',
+    cost: 10,
+    weeksToComplete: 12,
+    prerequisites: [
+      { type: 'node', nodeId: 'e-governance-platform', label: 'E-Governance Platform' },
+    ],
+    stepEffect: { igr: 0.6, corruptionPressure: -2 },
+  },
+
+  // ── CLIMATE (coastal resilience) ──────────────────────────
+  {
+    id: 'coastal-erosion-model',
+    domain: 'climate',
+    title: 'Coastal Erosion Model',
+    pitch: 'A satellite-linked coastal erosion monitoring system for Lagos\'s 180km of coastline. The Atlantic is taking metres every year in some areas. Without data, every seawall is a guess. With data, every naira spent is a naira that might actually hold.',
+    framing: 'localImplementation',
+    cost: 8,
+    weeksToComplete: 10,
+    prerequisites: [],
+    stepEffect: { infrastructureScore: 1 },
+  },
+  {
+    id: 'drainage-master-plan',
+    domain: 'climate',
+    title: 'Drainage Master Plan',
+    pitch: 'A comprehensive flood management plan for Lagos — modelled on the coastal erosion data, targeting the worst-hit LGAs. Agege, Alimosho, and Badagry flood every rainy season. Not because the water is unavoidable. Because the drainage is a colonial relic. Build the model. Build the plan. Then build.',
+    framing: 'localImplementation',
+    cost: 12,
+    weeksToComplete: 14,
+    prerequisites: [
+      { type: 'node', nodeId: 'coastal-erosion-model', label: 'Coastal Erosion Model' },
+    ],
+    outcomes: [
+      {
+        kind: 'success',
+        weight: 40,
+        payoff: { infrastructureScore: 5, publicTrust: 4, youthTension: -4 },
+        factionImpact: { informalEconomy: 3, civilSocietyMedia: 4 },
+        resultText: 'The first dry season after the Drainage Master Plan, the canals in Alimosho do not overflow. Market stalls that have flooded every October since anyone can remember stay dry. The traders do not applaud — they just open for business without bailing water. That is the point. A city that works is a city that does not make headlines.',
+        scope: 'state',
+      },
+      {
+        kind: 'partial',
+        weight: 35,
+        payoff: { infrastructureScore: 2, publicTrust: 1 },
+        resultText: 'The plan is sound. The implementation is patchy. Some LGAs get new drainage; others get promises. The rainy season still floods the usual places — just not as badly. Progress is measured in centimetres, not kilometres.',
+        scope: 'state',
+      },
+      {
+        kind: 'stalled',
+        weight: 15,
+        weightModifier: (s) => s.stats.cashReserve < 0 ? 2 : 1,
+        payoff: {},
+        resultText: 'The plan is published. The contracts are awarded. The contractor disappears with the mobilisation fee. The canals remain clogged. The next rainy season, the water rises again — higher than before, because now the city has been promised a fix that did not come. Broken trust drains faster than floodwater.',
+        scope: 'state',
+      },
+      {
+        kind: 'captured',
+        weight: 10,
+        weightModifier: (s) => s.stats.corruptionPressure > 55 ? 1.5 : 1,
+        payoff: { infrastructureScore: 1, corruptionPressure: 2 },
+        factionImpact: { partyGodfathers: 3, civilSocietyMedia: -2 },
+        resultText: 'The drainage contracts went to the usual firms. The canals are dug — shallow, narrow, cheap. They will silt up in a year. But the godfathers made their margin. The water will find its level. In Lagos, it always does.',
         scope: 'state',
       },
     ],

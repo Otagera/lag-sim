@@ -63,6 +63,11 @@ function migrateV4toV5(raw: RawSaveData): RawSaveData {
   return { ...raw, selectedGoalId: null, version: 5 }
 }
 
+function migrateV5toV6(raw: RawSaveData): RawSaveData {
+  // v6 adds projectStatuses + commissionedProjects for the Projects system
+  return { ...raw, projectStatuses: {}, commissionedProjects: [], version: 6 }
+}
+
 /**
  * Applies any needed migrations to bring a raw save up to SAVE_VERSION.
  * Exported so persistence tests can verify migration logic in isolation.
@@ -83,6 +88,7 @@ export function migrate(raw: RawSaveData): SerializableState {
   if (version < 3) data = migrateV2toV3(data)
   if (version < 4) data = migrateV3toV4(data)
   if (version < 5) data = migrateV4toV5(data)
+  if (version < 6) data = migrateV5toV6(data)
 
   return data as SerializableState
 }

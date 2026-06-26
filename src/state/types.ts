@@ -312,6 +312,27 @@ export type GodfatherAsk = {
   onRefuse: StatDelta & { factionImpact?: FactionDelta }
 }
 
+// ── Projects ─────────────────────────────────────────────────
+
+export interface ProjectDef {
+  id: string
+  category: 'transport' | 'power' | 'water' | 'health' | 'education' | 'security' | 'housing' | 'environment'
+  title: string
+  pitch: string
+  cost: number
+  pcCost: number
+  weeksToComplete: number
+  prerequisites?: Prerequisite[]
+  effect: StatDelta
+  factionImpact?: FactionDelta
+  goalRelevance?: string[]
+}
+
+export interface CommissionedProject {
+  id: string
+  completionWeek: number
+}
+
 // ── Phase E — Research Tree ─────────────────────────────────
 
 export type Domain = 'security' | 'agriculture' | 'innovation' | 'administration' | 'climate' | string
@@ -477,4 +498,7 @@ export type GameState = {
   // Phase E — research tree
   researchNodeStatuses: Record<string, ResearchNodeStatus>
   commissionedResearchNodes: CommissionedResearchNode[]
+  // Projects
+  projectStatuses: Record<string, ResearchNodeStatus>
+  commissionedProjects: CommissionedProject[]
 }
