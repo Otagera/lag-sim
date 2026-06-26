@@ -113,12 +113,18 @@ function AftermathPanel({ beat, onDismiss }: { beat: ConsequenceBeat; onDismiss:
     requestAnimationFrame(() => setVisible(true))
   }, [])
 
+  useEffect(() => {
+    const timer = setTimeout(onDismiss, 2500)
+    return () => clearTimeout(timer)
+  }, [onDismiss])
+
   const tone = TONE_STYLE[beat.tone] ?? TONE_STYLE.neutral
   const pills = buildPillsFromBeat(beat)
 
   return (
     <div
       className="border p-4"
+      onClick={onDismiss}
       style={{
         borderColor: 'var(--border)',
         borderTopWidth: '2px',
@@ -126,6 +132,7 @@ function AftermathPanel({ beat, onDismiss }: { beat: ConsequenceBeat; onDismiss:
         backgroundColor: 'var(--surface)',
         opacity: visible ? 1 : 0,
         transition: 'opacity 0.4s ease',
+        cursor: 'pointer',
       }}
     >
       <div className="mb-1">
@@ -160,14 +167,9 @@ function AftermathPanel({ beat, onDismiss }: { beat: ConsequenceBeat; onDismiss:
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={onDismiss}
-        className="mt-3 px-3 py-1 text-[10px] font-semibold transition-colors"
-        style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
-      >
-        Continue
-      </button>
+      <div className="mt-3 text-[9px] text-center" style={{ color: 'var(--text-secondary)' }}>
+        Click anywhere or wait to dismiss
+      </div>
     </div>
   )
 }
