@@ -1,5 +1,5 @@
-import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/react-router'
-import { useNavigate } from '@tanstack/react-router'
+import { createRootRoute, createRoute, createRouter, Outlet, useNavigate } from '@tanstack/react-router'
+import { useState, useEffect } from 'react'
 import { ThemeProvider } from './ui/design/ThemeProvider'
 import { DevPanel } from './ui/DevPanel'
 import { WelcomeScreen } from './ui/WelcomeScreen'
@@ -153,10 +153,31 @@ const goalRoute = createRoute({
 })
 
 // ─── /game → main game ───────────────────────────────────────────────────────
+function GameRouteGuard() {
+  const navigate = useNavigate()
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    if (hasSavedGame()) {
+      const state = useGameStore.getState()
+      // Store at pure STARTING_STATE defaults means it wasn't loaded from save
+      // This happens when user refreshes on /game directly
+      if (state.week === 1 && state.runMeta.archetype === null && state.selectedGoalId === null) {
+        navigate({ to: '/' })
+        return
+      }
+    }
+    setReady(true)
+  }, [navigate])
+
+  if (!ready) return null
+  return <GameApp />
+}
+
 const gameRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/game',
-  component: GameApp,
+  component: GameRouteGuard,
 })
 
 // ─── /style-lab → design sandbox ─────────────────────────────────────────────
