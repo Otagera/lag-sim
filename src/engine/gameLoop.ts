@@ -321,7 +321,8 @@ export function tick(state: GameState): GameState {
   }
   next = { ...next, approvalHistory: updatedHistory }
 
-  const article = evaluateNews(state, next)
+  const NEWS_COOLDOWN = 3
+  const article = (next.week - next.lastNewsWeek >= NEWS_COOLDOWN) ? evaluateNews(state, next) : null
   if (article) {
     const pub = selectPublicationForArticle(next, article.category)
     if (pub) {

@@ -6,7 +6,7 @@
  *   D — Inbox (inboxEngine.ts + gameStore)
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { ALL_GOALS, getGoal, getGoalProgress, getGoalIsMet, getGoalBlocking } from '../../data/goals'
 import { narrateConsequence } from '../../engine/consequenceNarrator'
 import {
@@ -18,7 +18,7 @@ import {
   generateCommissionerMessage,
 } from '../../engine/inboxEngine'
 import { STARTING_STATE } from '../../data/startingState'
-import type { Choice, GameState, FashemuPhase, NPCState } from '../../state/types'
+import type { Choice, GameState, NPCState } from '../../state/types'
 
 // ── helpers ──────────────────────────────────────────────────
 
@@ -322,6 +322,14 @@ describe('Phase D — inboxEngine', () => {
       const state = makeState({ week: 8, stats: { ...STARTING_STATE.stats, publicTrust: 20 } })
       const msg = generateChiefOfStaffBriefing(state)
       expect(msg.body).toContain('20')
+    })
+
+    it('formats trust and political capital as rounded integers (no floating decimals)', () => {
+      // Regression: engine drift produces values like 63.521679999... which should appear as "64%" not "63.52%"
+      const state = makeState({ week: 4, stats: { ...STARTING_STATE.stats, publicTrust: 63.5216799, politicalCapital: 47.8834 } })
+      const msg = generateChiefOfStaffBriefing(state)
+      expect(msg.body).not.toMatch(/\d+\.\d+%/)      // no "63.52%" in body
+      expect(msg.body).not.toMatch(/\d+\.\d+\/200/)  // no "47.88/200" in body
     })
   })
 

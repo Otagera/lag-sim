@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { ARCHETYPES, ARCHETYPE_KEY_ORDER, getArchetypeState } from '../data/archetypes'
 import type { ArchetypeKey } from '../data/archetypes'
 import { useGameStore } from '../state/gameStore'
+import { Button } from './components'
 
 const DAY_ONE: Record<ArchetypeKey, string> = {
   technocrat: 'The party machine will test you in the first 8 weeks. With zero political capital, even small confrontations cost you double.',
@@ -19,6 +21,8 @@ type Props = {
 }
 
 export function ArchetypeSelectionScreen({ onSelect }: Props) {
+  const [hoveredKey, setHoveredKey] = useState<ArchetypeKey | null>(null)
+
   function handleSelect(key: ArchetypeKey) {
     const base = getArchetypeState(key)
     useGameStore.setState({ ...base, runMeta: { ...base.runMeta, archetype: key } })
@@ -28,7 +32,7 @@ export function ArchetypeSelectionScreen({ onSelect }: Props) {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center py-8 px-4" style={{ backgroundColor: 'var(--background)' }}>
       <div className="w-full max-w-3xl">
-        <div className="text-center mb-8">
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <p className="label-caps" style={{ color: 'var(--accent-text)' }}>Choose your path</p>
           <h1 className="font-display text-2xl font-semibold mt-1" style={{ color: 'var(--text)' }}>Who Are You?</h1>
           <p className="text-sm mt-2 max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
@@ -44,7 +48,17 @@ export function ArchetypeSelectionScreen({ onSelect }: Props) {
               <div
                 key={key}
                 className="border p-4 flex flex-col gap-3"
-                style={{ borderColor: BORDER_COLOR[key], borderTopWidth: '2px', backgroundColor: 'var(--surface)' }}
+                style={{
+                  borderColor: BORDER_COLOR[key],
+                  borderTopWidth: '2px',
+                  backgroundColor: 'var(--surface)',
+                  cursor: 'pointer',
+                  transform: hoveredKey === key ? 'translateY(-2px)' : 'none',
+                  transition: 'transform 200ms ease, box-shadow 200ms ease',
+                  boxShadow: hoveredKey === key ? 'var(--shadow-md)' : 'none',
+                }}
+                onMouseEnter={() => setHoveredKey(key)}
+                onMouseLeave={() => setHoveredKey(null)}
               >
                 <div>
                   <div className="label-caps" style={{ color: BORDER_COLOR[key] }}>{arch.shortName}</div>
@@ -54,7 +68,7 @@ export function ArchetypeSelectionScreen({ onSelect }: Props) {
 
                 <p className="text-[11px] leading-relaxed flex-1" style={{ color: 'var(--text)' }}>{arch.description}</p>
 
-                <div className="space-y-1 text-[11px]" style={{ borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
+                <div style={{ fontSize: '11px', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
                   {arch.statPreview.map((s) => (
                     <div key={s.label} className="flex justify-between">
                       <span style={{ color: 'var(--text-secondary)' }}>{s.label}</span>
@@ -65,7 +79,7 @@ export function ArchetypeSelectionScreen({ onSelect }: Props) {
                   ))}
                 </div>
 
-                <div className="space-y-1 text-[11px]">
+                <div style={{ fontSize: '11px' }}>
                   <div>
                     <span className="font-semibold" style={{ color: 'var(--success-11)' }}>Strength: </span>
                     <span style={{ color: 'var(--text)' }}>{arch.strength}</span>
@@ -83,14 +97,14 @@ export function ArchetypeSelectionScreen({ onSelect }: Props) {
                   {DAY_ONE[key]}
                 </p>
 
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
+                  fullWidth
                   onClick={() => handleSelect(key)}
-                  className="w-full py-2 text-[11px] font-semibold transition-colors"
-                  style={{ backgroundColor: BORDER_COLOR[key], color: 'var(--neutral-1)' }}
+                  style={{ background: BORDER_COLOR[key] }}
                 >
                   Play as {arch.shortName}
-                </button>
+                </Button>
               </div>
             )
           })}

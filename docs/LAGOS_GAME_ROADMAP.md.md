@@ -533,3 +533,37 @@ Each later strand (climate, education, health) scoped when reached.
 STILL TO SCOPE (per designer — this is the logical next step after Phase E ships)
 
 When the Phase A framework + Phase E tree are proven by play, the next scoping job is the FIRST goal-expansion strand. Recommended first strand to scope: either the cheap Tier-1 additions (Self-Sufficient Lagos, The Safe City, Creative Capital) as a quick batch, OR the Feed Lagos + Agriculture vertical strand as the first goal↔research integration. Decide based on what play reveals is missing. Write the strand instruction then, the same way each phase was scoped.
+
+CAPTURED FUTURE STRANDS (preservation — not for now)
+
+Modernize the public-voice feedback (social media, video, podcasts)
+
+Insight: a NEWSPAPER is a 20th-century way for a city to react to its governor. Real Lagos in 2026 reacts on social video, X/Twitter, TikTok, podcasts, WhatsApp. The public's voice — central to a governance game — currently arrives only through LagosHerald. This is a realism gap AND a design opportunity. Capture now, build later (it's new scope; do not build during art-direction /finishing work).
+
+The vision: decision feedback arrives through MULTIPLE media, each with different SPEED and TONE (the medium becomes part of the information):
+
+Viral short-form video (TikTok-style) — the pothole you didn't fix goes viral. NOTE: the engine ALREADY has a "Viral Pothole Video" event — it's gesturing at this. Build on it.
+
+X/Twitter-style — a hashtag ablaze after you cross the godfather; fast, emotional, can spiral.
+
+Podcast clip — commentators dissect your budget; analysis register, slower, considered.
+
+WhatsApp broadcast — a rumor spreading faster than you can correct it; uncontrollable.
+
+The newspaper (LagosHerald) stays — but reframed as the ESTABLISHMENT voice: slow, formal, authoritative; ONE channel among many, not the only one.
+
+Why it's good design (not just fresher): different media react at different SPEEDS and TONES → new mechanics. Social = fast/emotional/spirals; newspaper = slow/formal/authoritative; podcast = analysis; WhatsApp = rumor you can't control. Speed-and-tone-of-reaction becomes gameplay.
+
+DESIGN CONSTRAINT (designer's explicit want): these should be designed to feel as CLOSE TO THE REAL platforms as possible WITHOUT infringing copyright/trademark. I.e. evoke TikTok/X/WhatsApp/ podcast UIs convincingly (the format, the feel, the interaction) using ORIGINAL, non-infringing styling — no real logos, names, or trademarked UI. "Looks like the real thing, legally isn't."
+
+Status: NEW SCOPE. Captured for preservation. Build as a future strand after the game ships its core. Do not build during the current art-direction + finishing work.
+
+Recorded UI/architecture decisions (for the integration pass)
+
+Information surfacing = "relevant now," NOT a simple/detailed toggle. The main screen surfaces vital signs + what's relevant THIS week (stats near a threshold, goal-blocking stats, an angry faction). Deep/complete data lives in the dock panels (full budget in Economy, all factions in Factions, etc.). Add ONE "State of the State" full-dashboard DESTINATION tab for players who want every stat — a place you GO, not a toggle that floods the main view. Kill the simple/detailed toggle.
+
+The art direction is a SYSTEM and must propagate EVERYWHERE once locked — welcome/start flow, archetype/deputy selection, handover notes, ALL modals, newspapers, legacy/ending screens, goal selection. No orphan screens in the old style. Coherence is the point.
+
+Election season expresses through CONTENT/elements, not a color wash — e.g. an "INEC / Election 2027" background watermark/motif + campaign tracker + polling surfacing + event tone. (Election was the one situational state that didn't fit the weather metaphor; handle it as content when campaign content is built.)
+
+Art direction LOCKED: atmospheric variant, light coastal base, calm/crisis(red)/storm(+rain) states working, coat-of-arms seal, decisions central, bottom-tab dock. (Election tint dropped.)

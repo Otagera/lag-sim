@@ -1,5 +1,6 @@
 import { DEPUTY_PROFILES } from '../data/deputies'
 import { useGameStore } from '../state/gameStore'
+import { Button, Surface } from './components'
 import type { ArchetypeKey } from '../data/archetypes'
 import type { DeputyKey } from '../state/types'
 
@@ -82,8 +83,8 @@ export function DeputySelectionScreen({ onSelect, archetypeKey }: Props) {
       <div className="w-full max-w-3xl">
         <div className="text-center mb-8">
           <p className="label-caps" style={{ color: 'var(--accent-text)' }}>Your running mate</p>
-          <h1 className="font-display text-2xl font-semibold mt-1" style={{ color: 'var(--text)' }}>Choose Your Deputy Governor</h1>
-          <p className="text-sm mt-2 max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
+          <h1 className="font-display font-semibold mt-1" style={{ fontSize: '30px', color: 'var(--text)' }}>Choose Your Deputy Governor</h1>
+          <p className="mt-2 max-w-xl mx-auto" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
             Your Deputy shapes how the administration governs and who you can appoint to the cabinet.
             This decision cannot be undone.
           </p>
@@ -104,28 +105,36 @@ export function DeputySelectionScreen({ onSelect, archetypeKey }: Props) {
             ].filter(({ v }) => v !== 0 && v !== undefined)
 
             return (
-              <div
+              <Surface
                 key={key}
-                className="border p-4 flex flex-col gap-3"
-                style={{ borderColor: 'var(--border)', borderTopWidth: '2px', borderTopColor: 'var(--accent-solid)', backgroundColor: 'var(--surface)' }}
+                elevation="raised"
+                padding="16px"
+                style={{ borderTop: '2px solid var(--accent-solid)', display: 'flex', flexDirection: 'column', gap: '12px' }}
               >
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="label-caps" style={{ color: 'var(--accent-text)' }}>{profile.shortName}</div>
                     {recommended && (
                       <span
-                        className="text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5"
-                        style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
+                        style={{
+                          fontSize: '9px',
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.06em',
+                          padding: '2px 6px',
+                          backgroundColor: 'var(--accent-solid)',
+                          color: 'var(--accent-on-solid)',
+                        }}
                       >
                         Suits your path
                       </span>
                     )}
                   </div>
-                  <h2 className="text-[13px] font-semibold mt-0.5" style={{ color: 'var(--text)' }}>{profile.name}</h2>
-                  <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>{profile.title}</p>
+                  <h2 style={{ fontSize: '13px', fontWeight: 600, marginTop: '2px', color: 'var(--text)' }}>{profile.name}</h2>
+                  <p style={{ fontSize: '11px', marginTop: '2px', color: 'var(--text-secondary)' }}>{profile.title}</p>
                 </div>
 
-                <p className="text-[11px] leading-relaxed flex-1" style={{ color: 'var(--text)' }}>
+                <p style={{ fontSize: '11px', lineHeight: 1.7, color: 'var(--text)', flex: 1 }}>
                   {profile.description}
                 </p>
 
@@ -136,8 +145,9 @@ export function DeputySelectionScreen({ onSelect, archetypeKey }: Props) {
                       {allBonuses.map(({ k, v }) => (
                         <span
                           key={k}
-                          className="text-[10px] px-1.5 py-0.5"
                           style={{
+                            fontSize: '10px',
+                            padding: '2px 6px',
                             backgroundColor: isGoodEffect(k, v) ? 'var(--success-3)' : 'var(--error-3)',
                             color: isGoodEffect(k, v) ? 'var(--success-11)' : 'var(--error-11)',
                           }}
@@ -150,13 +160,13 @@ export function DeputySelectionScreen({ onSelect, archetypeKey }: Props) {
                 )}
 
                 {visitLine && (
-                  <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                     <span className="label-caps" style={{ display: 'inline', marginRight: '4px' }}>Per visit:</span>
                     {visitLine}
                   </p>
                 )}
 
-                <div className="space-y-1 text-[11px]" style={{ borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
+                <div style={{ fontSize: '11px', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
                   <div>
                     <span className="font-semibold" style={{ color: 'var(--success-11)' }}>Strength: </span>
                     <span style={{ color: 'var(--text)' }}>{profile.strength}</span>
@@ -167,20 +177,15 @@ export function DeputySelectionScreen({ onSelect, archetypeKey }: Props) {
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleSelect(key)}
-                  className="w-full py-2 text-[11px] font-semibold transition-colors"
-                  style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
-                >
+                <Button variant="primary" fullWidth onClick={() => handleSelect(key)}>
                   Select {profile.shortName}
-                </button>
-              </div>
+                </Button>
+              </Surface>
             )
           })}
         </div>
 
-        <p className="text-center text-[11px] mt-6" style={{ color: 'var(--border-strong)' }}>
+        <p className="text-center mt-6" style={{ fontSize: '11px', color: 'var(--border-strong)' }}>
           Your Deputy also influences which commissioners will agree to serve in your cabinet.
         </p>
       </div>

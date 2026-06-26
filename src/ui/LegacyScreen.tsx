@@ -3,6 +3,7 @@ import { buildLegacy } from '../data/legacy'
 import { STARTING_STATE } from '../data/startingState'
 import { useGameStore } from '../state/gameStore'
 import { clearSave } from '../state/persistence'
+import { Heading } from './components'
 import type { ConstituencyKey, FactionKey, GameState } from '../state/types'
 import { getGoal, getGoalIsMet } from '../data/goals'
 import { formatGameDate } from '../utils/calendar'
@@ -133,7 +134,8 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
       <div className="max-w-2xl mx-auto space-y-8">
 
         {/* Masthead */}
-        <div className="pb-4 text-center" style={{ borderBottom: '2px solid var(--accent-solid)' }}>
+        <div className="text-center">
+          <div style={{ height: '1px', background: 'linear-gradient(to right, transparent, var(--accent-solid) 30%, transparent)', border: 'none', marginBottom: '16px' }} />
           <p className="label-caps mb-1">
             Lagos State Government — {exitLabel}
           </p>
@@ -187,9 +189,9 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
         {verdictHeadline && (
           <div className="text-center">
             <p className="text-[10px] label-caps mb-1" style={{ color: 'var(--text-secondary)' }}>VERDICT</p>
-            <h2 className="font-display text-lg font-semibold" style={{ color: 'var(--accent-text)' }}>
+            <Heading level={1} display style={{ color: 'var(--accent-text)' }}>
               {verdictHeadline}
-            </h2>
+            </Heading>
           </div>
         )}
 

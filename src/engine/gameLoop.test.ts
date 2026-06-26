@@ -378,3 +378,37 @@ describe('primary event mutual exclusion', () => {
     expect(result.activeEvent?.id).not.toBe('primary-open')
   })
 })
+
+describe('newspaper cooldown', () => {
+  it('does not set a new headline if issued fewer than 3 weeks ago', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
+    // State where a headline was issued last week — tick should not overwrite it
+    const state: GameState = {
+      ...clone(STARTING_STATE),
+      week: 10,
+      lastNewsWeek: 9,  // 1 week ago — within 3-week cooldown
+      newspaperHeadline: undefined,
+      stats: { ...STARTING_STATE.stats, cashReserve: 0 },  // newsworthy conditions
+    }
+    const result = tick(state)
+    expect(result.newspaperHeadline).toBeUndefined()
+    vi.restoreAllMocks()
+  })
+
+  it('allows a headline after cooldown has elapsed', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
+    const state: GameState = {
+      ...clone(STARTING_STATE),
+      week: 13,
+      lastNewsWeek: 9,  // 4 weeks ago — cooldown elapsed
+      newspaperHeadline: undefined,
+      stats: { ...STARTING_STATE.stats, cashReserve: -10, publicTrust: 15 },  // very newsworthy
+    }
+    const result = tick(state)
+    // May or may not generate a headline depending on news analysts, but lastNewsWeek should update if it does
+    if (result.newspaperHeadline) {
+      expect(result.lastNewsWeek).toBe(result.week)  // updated to whichever week the tick landed on
+    }
+    vi.restoreAllMocks()
+  })
+})

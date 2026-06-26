@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useGameStore } from '../state/gameStore'
+import { Pill } from './components'
 import type { Choice, ConsequenceBeat } from '../state/types'
 
 const SEVERITY_TEXT: Record<string, { label: string; color: string }> = {
@@ -154,13 +155,7 @@ function AftermathPanel({ beat, onDismiss }: { beat: ConsequenceBeat; onDismiss:
       {pills.length > 0 && (
         <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-3 pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
           {pills.map((p, i) => (
-            <span
-              key={i}
-              className="text-[9px] font-semibold"
-              style={{ color: p.isGood ? 'var(--success-11)' : 'var(--error-11)' }}
-            >
-              {p.text}
-            </span>
+            <Pill key={i} text={p.text} isGood={p.isGood} />
           ))}
         </div>
       )}
@@ -219,22 +214,22 @@ export function EventCard() {
         backgroundColor: 'var(--surface)',
       }}
     >
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2 gap-2">
-          <h2
-            className="font-display text-[20px] font-semibold leading-snug"
-            style={{ color: 'var(--text)' }}
-          >
-            {activeEvent.title}
-          </h2>
-          <div className="shrink-0 text-right">
-            <span className="label-caps block" style={{ color: sev.color }}>{sev.label}</span>
-            <span className="label-caps block mt-px">{activeEvent.category}</span>
-          </div>
+      <div style={{ padding: '20px 24px' }}>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="label-caps" style={{ color: sev.color }}>{sev.label}</span>
+          <span className="label-caps" style={{ color: 'var(--text-secondary)' }}>{activeEvent.category}</span>
         </div>
-        <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text)' }}>
+
+        <div style={{ height: '1px', background: 'linear-gradient(to right, transparent, var(--accent-solid), transparent)', margin: '6px 0 10px' }} />
+
+        <h2 className="font-display font-semibold" style={{ fontSize: '26px', color: 'var(--text)', lineHeight: 1.25 }}>
+          {activeEvent.title}
+        </h2>
+
+        <p style={{ fontSize: '13px', lineHeight: 1.75, color: 'var(--text)', marginBottom: '16px' }}>
           {activeEvent.body}
         </p>
+
         <div className="space-y-2">
           {activeEvent.choices.map((choice) => {
             const pills = buildImpactPills(choice)
@@ -248,9 +243,9 @@ export function EventCard() {
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--surface-hover)')}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--background)')}
               >
-                <span className="text-[13px] font-semibold" style={{ color: 'var(--text)' }}>{choice.label}</span>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)' }}>{choice.label}</span>
                 {choice.description && (
-                  <p className="text-[11px] mt-1 leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                  <p style={{ fontSize: '11px', marginTop: '4px', lineHeight: 1.3, color: 'var(--text-secondary)' }}>
                     {choice.description}
                   </p>
                 )}
@@ -260,13 +255,7 @@ export function EventCard() {
                     style={{ borderTop: '1px solid var(--border-subtle)' }}
                   >
                     {pills.map((p, i) => (
-                      <span
-                        key={i}
-                        className="text-[9px] font-semibold"
-                        style={{ color: p.isGood ? 'var(--success-11)' : 'var(--error-11)' }}
-                      >
-                        {p.text}
-                      </span>
+                      <Pill key={i} text={p.text} isGood={p.isGood} />
                     ))}
                   </div>
                 )}

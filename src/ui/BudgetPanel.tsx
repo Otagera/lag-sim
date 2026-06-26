@@ -29,7 +29,6 @@ export function BudgetPanel() {
   const igr = useGameStore((s) => s.stats.igr)
   const expenditure = useGameStore((s) => s.stats.expenditure)
   const corruptionPressure = useGameStore((s) => s.stats.corruptionPressure)
-  const mode = useGameStore((s) => s.mode)
   const activeInitiative = useGameStore((s) => s.activeInitiative)
   const revenue = useGameStore((s) => s.lastWeekRevenue)
   const expBreakdown = useGameStore((s) => s.lastWeekExpenditure)
@@ -101,7 +100,7 @@ export function BudgetPanel() {
         </div>
       )}
 
-      {mode === 'detailed' && (
+      {(
         <div className="space-y-1 text-[10px]">
           <p className="label-caps mt-1">Income Breakdown</p>
           {REVENUE_LINES.map((line) => {

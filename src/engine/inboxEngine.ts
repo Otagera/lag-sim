@@ -199,15 +199,18 @@ export function generateChiefOfStaffBriefing(state: GameState): InboxMessage {
   else if (cash < 40) cashLine = `reserves at ₦${cash.toFixed(1)}bn — stable but lean`
   else cashLine = `reserves healthy at ₦${cash.toFixed(1)}bn`
 
+  const trustFmt = Math.round(trust)
+  const pcFmt    = Math.round(pc)
+
   let trustLine: string
-  if (trust < 25) trustLine = `public trust is dangerously low at ${trust}% — the streets are restless`
-  else if (trust < 45) trustLine = `trust sitting at ${trust}% — fragile`
-  else trustLine = `trust at ${trust}% — no alarm`
+  if (trust < 25) trustLine = `public trust is dangerously low at ${trustFmt}% — the streets are restless`
+  else if (trust < 45) trustLine = `trust sitting at ${trustFmt}% — fragile`
+  else trustLine = `trust at ${trustFmt}% — no alarm`
 
   let pcLine: string
-  if (pc < 20) pcLine = `political capital almost exhausted at ${pc}/200`
-  else if (pc < 50) pcLine = `we are running low on political capital (${pc}/200)`
-  else pcLine = `political capital at ${pc}/200 — room to manoeuvre`
+  if (pc < 20) pcLine = `political capital almost exhausted at ${pcFmt}/200`
+  else if (pc < 50) pcLine = `we are running low on political capital (${pcFmt}/200)`
+  else pcLine = `political capital at ${pcFmt}/200 — room to manoeuvre`
 
   /* DRAFT — VOICE PASS NEEDED */
   const variants = [

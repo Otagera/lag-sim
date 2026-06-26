@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useGameStore } from '../state/gameStore'
 import type { InboxMessage } from '../state/types'
 import { AvatarMonogram } from './AvatarMonogram'
+import { Tab } from './components'
 
 const TONE_COLORS: Record<string, string> = {
   warm: 'var(--success-9)',
@@ -204,10 +205,17 @@ export function Inbox() {
   const inboxMarkAllRead = useGameStore((s) => s.inboxMarkAllRead)
 
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all')
 
   const sorted = [...inbox].sort((a, b) => b.week - a.week)
   const unreadCount = inbox.filter((m) => !m.read).length
   const selected = selectedId ? inbox.find((m) => m.id === selectedId) ?? null : null
+
+  const filtered = sorted.filter((m) => {
+    if (filter === 'unread') return !m.read
+    if (filter === 'read') return m.read
+    return true
+  })
 
   function handleSelect(msg: InboxMessage) {
     setSelectedId(msg.id)
@@ -231,19 +239,9 @@ export function Inbox() {
         className="flex items-center justify-between px-2 py-1.5 shrink-0"
         style={{ borderBottom: '1px solid var(--border-subtle)' }}
       >
-        <div className="flex items-center gap-1.5">
-          <h2 className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text)' }}>
-            Inbox
-          </h2>
-          {unreadCount > 0 && (
-            <span
-              className="text-[9px] font-bold px-1 py-[1px] rounded-sm"
-              style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
-            >
-              {unreadCount}
-            </span>
-          )}
-        </div>
+        <h2 className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text)' }}>
+          Inbox
+        </h2>
         {unreadCount > 0 && (
           <button
             type="button"
@@ -256,18 +254,25 @@ export function Inbox() {
         )}
       </div>
 
+      {/* Tabs */}
+      <div className="flex" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+        <Tab label="All" active={filter === 'all'} onClick={() => setFilter('all')} />
+        <Tab label="Unread" badge={unreadCount} active={filter === 'unread'} onClick={() => setFilter('unread')} />
+        <Tab label="Read" active={filter === 'read'} onClick={() => setFilter('read')} />
+      </div>
+
       {/* Content */}
-      {sorted.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="flex-1 flex items-center justify-center p-4">
           <p className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
-            No messages yet.
+            {filter === 'unread' ? 'No unread messages.' : filter === 'read' ? 'No read messages.' : 'No messages yet.'}
           </p>
         </div>
       ) : selected ? (
         <MessageDetail msg={selected} onBack={() => setSelectedId(null)} />
       ) : (
         <div className="flex-1 overflow-y-auto">
-          {sorted.map((msg) => (
+          {filtered.map((msg) => (
             <MessageRow
               key={msg.id}
               msg={msg}

@@ -86,8 +86,8 @@ export function LagosHerald() {
     CONSTITUENCIES.find((c) => c.key === key)?.label ?? key
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8 overflow-y-auto" style={{ backgroundColor: 'rgba(43,47,44,0.85)' }}>
-      <div className="w-full max-w-2xl border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'var(--background)', overflowY: 'auto', padding: '32px 0' }}>
+      <div className="w-full max-w-2xl border mx-auto" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
         {/* Masthead */}
         <div className="px-6 py-4" style={{ borderBottom: `2px solid ${publication?.color ?? 'var(--accent-solid)'}` }}>
           <div className="flex items-center justify-between">

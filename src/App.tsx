@@ -1,102 +1,242 @@
 import { useEffect, useRef, useState } from 'react'
-import { Moon, Sun } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
+import { Inbox as InboxIcon, DollarSign, Users, BarChart3, Landmark } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
-// Apply stored theme before first render to avoid flash
-if (localStorage.getItem('theme') === 'dark') {
-  document.documentElement.classList.add('dark')
-}
 import { STARTING_STATE } from './data/startingState'
 import { useGameStore } from './state/gameStore'
-import { clearSave, hasSavedGame, loadGame } from './state/persistence'
-import { SAVE_VERSION } from './version'
-import { ArchetypeSelectionScreen } from './ui/ArchetypeSelectionScreen'
-import { HandoverNotesModal } from './ui/HandoverNotesModal'
+import { clearSave } from './state/persistence'
 import { LagosHerald } from './ui/LagosHerald'
 import { BudgetPanel } from './ui/BudgetPanel'
-import { Dashboard, YEARS } from './ui/Dashboard'
 import { ResearchTree } from './ui/ResearchTree'
-import { DeputySelectionScreen } from './ui/DeputySelectionScreen'
 import { EventCard } from './ui/EventCard'
 import { FactionPanel } from './ui/FactionPanel'
 import { Inbox } from './ui/Inbox'
 import { NPCPanel } from './ui/NPCPanel'
 import { LegacyScreen } from './ui/LegacyScreen'
-import { StrategicDashboard } from './ui/StrategicDashboard'
-import { GoalSelectionScreen } from './ui/GoalSelectionScreen'
-import { PollPanel } from './ui/PollPanel'
-import { TimelinePanel } from './ui/TimelinePanel'
-import { WelcomeModal, hasSeenIntro } from './ui/WelcomeModal'
-import { WelcomeScreen } from './ui/WelcomeScreen'
 import { formatGameMonth } from './utils/calendar'
 import { CabinetPanel } from './ui/CabinetPanel'
 import { DeputyPanel } from './ui/DeputyPanel'
-import { DevPanel } from './ui/DevPanel'
-import { SidebarTabs } from './ui/SidebarTabs'
 import { buildNewsPrompt, generateNewsText } from './engine/llmNews'
+import { DiagnosisBanner } from './ui/game/DiagnosisBanner'
+import { StateOfTheState } from './ui/game/StateOfTheState'
+import { Tab } from './ui/components/Tab'
+import { Stat } from './ui/components/Stat'
+import { Seal } from './ui/components/Seal'
 
-type MobileTab = 'event' | 'factions' | 'gov' | 'data'
+// ─── Dock destinations ────────────────────────────────────────────────────────
+type DockTab = 'inbox' | 'economy' | 'factions' | 'people' | 'state'
 
-function App() {
-  const tick = useGameStore((s) => s.tick)
-  const isGameOver = useGameStore((s) => s.isGameOver)
-  const week = useGameStore((s) => s.week)
-  const mode = useGameStore((s) => s.mode)
-  const setMode = useGameStore((s) => s.setMode)
-  const inCampaignMode = useGameStore((s) => s.inCampaignMode)
-  const currentTerm = useGameStore((s) => s.currentTerm)
-  const factions = useGameStore((s) => s.factions)
+const DOCK_TABS: { id: DockTab; label: string; Icon: LucideIcon }[] = [
+  { id: 'inbox',    label: 'Inbox',    Icon: InboxIcon  },
+  { id: 'economy',  label: 'Economy',  Icon: DollarSign },
+  { id: 'factions', label: 'Factions', Icon: Landmark   },
+  { id: 'people',   label: 'People',   Icon: Users      },
+  { id: 'state',    label: 'State',    Icon: BarChart3  },
+]
+
+// ─── Status bar ───────────────────────────────────────────────────────────────
+function StatusBar({
+  termLabel, monthLabel, onTick, canTick, onResearch,
+}: {
+  termLabel:   string
+  monthLabel:  string
+  onTick:      () => void
+  canTick:     boolean
+  onResearch:  () => void
+}) {
+  const cashReserve       = useGameStore((s) => s.stats.cashReserve)
+  const publicTrust       = useGameStore((s) => s.stats.publicTrust)
+  const politicalCapital  = useGameStore((s) => s.stats.politicalCapital)
+
+  const cashWarn  = cashReserve < 15
+  const trustWarn = publicTrust < 40
+  const pcWarn    = politicalCapital < 25
+
+  return (
+    <header
+      className="themed"
+      style={{
+        display:         'flex',
+        alignItems:      'center',
+        gap:             '16px',
+        padding:         '8px 16px',
+        background:      'var(--surface)',
+        borderBottom:    '1px solid var(--border)',
+        boxShadow:       'var(--shadow-sm)',
+        zIndex:          30,
+        flexShrink:      0,
+        transition:      'background-color var(--dur) ease, border-color var(--dur) ease',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+        <Seal size={28} />
+        <div>
+          <div className="font-display" style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)', lineHeight: 1.2 }}>
+            Lagos Governor Sim
+          </div>
+          <div className="label-caps" style={{ marginTop: '1px' }}>
+            {termLabel} · {monthLabel}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ flex: 1 }} />
+
+      <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+        <Stat label="Treasury"  value={cashReserve}      format="currency" warn={cashWarn}  danger={cashReserve < 8} />
+        <Stat label="Trust"     value={publicTrust}      format="percent"  warn={trustWarn} danger={publicTrust < 25} />
+        <Stat label="Pol. Cap"  value={politicalCapital} warn={pcWarn}     danger={politicalCapital < 10} />
+      </div>
+
+      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+        <button
+          type="button"
+          onClick={onResearch}
+          style={{
+            background:   'transparent',
+            border:       '1px solid var(--accent-solid)',
+            borderRadius: '2px',
+            padding:      '4px 10px',
+            fontSize:     '11px',
+            fontFamily:   "'Archivo Narrow', sans-serif",
+            color:        'var(--accent-text)',
+            cursor:       'pointer',
+            whiteSpace:   'nowrap',
+          }}
+          title="Commission the Future"
+        >
+          Research
+        </button>
+        {canTick && (
+          <button
+            type="button"
+            onClick={onTick}
+            style={{
+              background:   'var(--accent-solid)',
+              color:        'var(--accent-on-solid)',
+              border:       'none',
+              borderRadius: '2px',
+              padding:      '6px 16px',
+              fontSize:     '12px',
+              fontWeight:   600,
+              fontFamily:   "'Archivo Narrow', sans-serif",
+              letterSpacing:'0.03em',
+              cursor:       'pointer',
+              transition:   'background-color 200ms ease',
+              whiteSpace:   'nowrap',
+            }}
+          >
+            Next Week
+          </button>
+        )}
+      </div>
+    </header>
+  )
+}
+
+// ─── Panel overlay ────────────────────────────────────────────────────────────
+function PanelOverlay({
+  activeTab, onClose,
+}: {
+  activeTab: DockTab | null
+  onClose:   () => void
+}) {
+  if (!activeTab) return null
+
+  return (
+    <>
+      <div
+        onClick={onClose}
+        style={{
+          position:   'fixed', inset: 0, zIndex: 40,
+          background: 'rgba(0,0,0,.32)',
+          animation:  'backdrop-in 200ms ease forwards',
+        }}
+      />
+      <div
+        className="themed"
+        style={{
+          position:     'fixed', bottom: 0, left: 0, right: 0,
+          zIndex:       50,
+          background:   'var(--surface)',
+          borderTop:    '1px solid var(--border)',
+          borderRadius: '6px 6px 0 0',
+          maxHeight:    'min(80vh, 640px)',
+          display:      'flex',
+          flexDirection:'column',
+          animation:    'panel-up 280ms cubic-bezier(.16,1,.3,1) forwards',
+          boxShadow:    'var(--shadow-atm)',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 16px 0', flexShrink: 0 }}>
+          <div style={{ width: '32px', height: '4px', borderRadius: '2px', background: 'var(--border-strong)' }} />
+        </div>
+
+        <div style={{
+          display:        'flex',
+          alignItems:     'center',
+          justifyContent: 'space-between',
+          padding:        '8px 16px',
+          borderBottom:   '1px solid var(--border)',
+          flexShrink:     0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {(() => { const tab = DOCK_TABS.find((t) => t.id === activeTab); return tab ? <tab.Icon size={15} style={{ color: 'var(--accent-solid)' }} /> : null })()}
+            <span style={{ fontSize: '13px', fontWeight: 600, fontFamily: "'Archivo Narrow', sans-serif", color: 'var(--text)' }}>
+              {DOCK_TABS.find((t) => t.id === activeTab)?.label}
+            </span>
+          </div>
+          <button onClick={onClose} style={{
+            background: 'transparent', border: 'none', cursor: 'pointer',
+            color: 'var(--text-secondary)', fontSize: '20px', lineHeight: 1, padding: '0 4px',
+          }}>×</button>
+        </div>
+
+        <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+          {activeTab === 'inbox'    && <div style={{ padding: '12px' }}><Inbox /></div>}
+          {activeTab === 'economy'  && <div style={{ padding: '12px' }}><BudgetPanel /></div>}
+          {activeTab === 'factions' && <div style={{ padding: '12px' }}><FactionPanel /></div>}
+          {activeTab === 'people'   && (
+            <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <DeputyPanel />
+              <NPCPanel />
+              <CabinetPanel />
+            </div>
+          )}
+          {activeTab === 'state' && <StateOfTheState />}
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ─── Game layout (route /game) ────────────────────────────────────────────────
+export default function GameApp() {
+  const navigate        = useNavigate()
+  const tick            = useGameStore((s) => s.tick)
+  const isGameOver      = useGameStore((s) => s.isGameOver)
+  const week            = useGameStore((s) => s.week)
+  const currentTerm     = useGameStore((s) => s.currentTerm)
+  const factions        = useGameStore((s) => s.factions)
   const activeGodfatherMessage = useGameStore((s) => s.activeGodfatherMessage)
-  const newspaperHeadline = useGameStore((s) => s.newspaperHeadline)
+  const newspaperHeadline     = useGameStore((s) => s.newspaperHeadline)
+  const inCampaignMode  = useGameStore((s) => s.inCampaignMode)
+  const inbox           = useGameStore((s) => s.inbox)
 
-  // Tracks headlines already processed by the LLM effect so it never re-fires
-  // for the same headline (prevents infinite loop when LLM is disabled/returns null).
   const llmAttempted = useRef(new Set<string>())
+  const [showResearch, setShowResearch] = useState(false)
+  const [activePanel,  setActivePanel]  = useState<DockTab | null>(null)
 
-  const [screen, setScreen] = useState<'welcome' | 'game'>(
-    () => window.location.pathname === '/game' ? 'game' : 'welcome'
-  )
-  const [showWelcome, setShowWelcome] = useState(false)
-  const [showArchetypeSelect, setShowArchetypeSelect] = useState(false)
-  const [showDeputySelect, setShowDeputySelect] = useState(false)
-  const [showHandover, setShowHandover] = useState(false)
-  const [showGoalSelect, setShowGoalSelect] = useState(false)
-  const [goalSelectContext, setGoalSelectContext] = useState<'new-game' | 'migration'>('new-game')
-  const [selectedArchetype, setSelectedArchetype] = useState<'technocrat' | 'loyalist' | 'outsider'>('technocrat')
-  const [showResearchTree, setShowResearchTree] = useState(false)
-  const [activeMobileTab, setActiveMobileTab] = useState<MobileTab>('event')
-  const [theme, setTheme] = useState<'light' | 'dark'>(
-    () => (localStorage.getItem('theme') as 'light' | 'dark') ?? 'light'
-  )
-
-  function toggleTheme() {
-    const next = theme === 'light' ? 'dark' : 'light'
-    setTheme(next)
-    localStorage.setItem('theme', next)
-    if (next === 'dark') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }
-
-  function navigate(to: 'welcome' | 'game') {
-    window.history.pushState({}, '', to === 'game' ? '/game' : '/')
-    setScreen(to)
-  }
-
-  // LLM enrichment: when a new newspaperHeadline appears, fire the worker
   useEffect(() => {
     if (!newspaperHeadline || newspaperHeadline.llmGenerated || newspaperHeadline.llmPending) return
     if (llmAttempted.current.has(newspaperHeadline.headline)) return
-
     llmAttempted.current.add(newspaperHeadline.headline)
-
     useGameStore.setState((s) => ({
       newspaperHeadline: s.newspaperHeadline
         ? { ...s.newspaperHeadline, llmPending: true }
         : undefined,
     }))
-
     const prompt = buildNewsPrompt(newspaperHeadline, week, inCampaignMode, currentTerm)
     generateNewsText(prompt).then((llmText) => {
       if (llmText) {
@@ -111,299 +251,135 @@ function App() {
     })
   }, [newspaperHeadline?.headline, newspaperHeadline?.llmGenerated, newspaperHeadline?.llmPending])
 
-  function handleStartNewGame() {
-    clearSave()
-    useGameStore.setState({ ...STARTING_STATE })
-    setShowGoalSelect(false)
-    navigate('game')
-    if (!hasSeenIntro()) {
-      setShowWelcome(true)
-    } else {
-      setShowArchetypeSelect(true)
-    }
-  }
-
-  function handleContinue() {
-    const saved = loadGame()
-    if (saved) {
-      useGameStore.setState({ ...saved })
-      navigate('game')
-      const stored = useGameStore.getState()
-      if (stored.selectedGoalId === null && stored.week > 1) {
-        setShowGoalSelect(true)
-        setGoalSelectContext('migration')
-      }
-    }
-  }
-
   function handleLegacyNewGame() {
     clearSave()
     useGameStore.setState({ ...STARTING_STATE })
-    navigate('welcome')
-  }
-
-  function handleExport() {
-    const state = useGameStore.getState()
-    const exportData = {
-      version: SAVE_VERSION,
-      exportedAt: new Date().toISOString(),
-      week: state.week,
-      meta: {
-        archetype: state.runMeta.archetype,
-        simStrategy: state.runMeta.simStrategy,
-        simSeed: state.runMeta.simSeed,
-        simWeeksSkipped: state.runMeta.simWeeksSkipped,
-        currentTerm: state.currentTerm,
-      },
-      stats: state.stats,
-      factions: state.factions,
-      constituencyApproval: state.constituencyApproval,
-      budget: {
-        lastWeekRevenue: state.lastWeekRevenue,
-        lastWeekExpenditure: state.lastWeekExpenditure,
-      },
-      loans: state.activeLoans,
-      pendingDelayed: state.pendingDelayed,
-      timeline: state.timeline,
-      resolvedEvents: state.resolvedEvents,
-    }
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `lagos-save-week${state.week}.json`
-    a.click()
-    URL.revokeObjectURL(url)
+    navigate({ to: '/' })
   }
 
   const termBaseWeek = currentTerm === 2 ? week - 208 : week
-  const year = Math.ceil(termBaseWeek / 52)
-  const termLabel = currentTerm === 2 ? `Year ${year + 4}` : YEARS[Math.min(year - 1, YEARS.length - 1)]
-  const monthLabel = formatGameMonth(week)
+  const year         = Math.ceil(termBaseWeek / 52)
+  const YEARS        = ['Year 1', 'Year 2', 'Year 3', 'Year 4'] as const
+  const termLabel    = currentTerm === 2
+    ? `Year ${year + 4}`
+    : YEARS[Math.min(year - 1, YEARS.length - 1)]
+  const monthLabel   = formatGameMonth(week)
 
+  const inboxCount   = inbox.filter((m) => !m.read).length + (activeGodfatherMessage ? 1 : 0)
   const factionAlert = Object.values(factions).some((v) => v <= 25)
-  const godfatherAlert = activeGodfatherMessage !== null
-
-  const mobileTabs: { id: MobileTab; label: string; alert?: boolean }[] = [
-    { id: 'event', label: 'Event', alert: godfatherAlert },
-    { id: 'factions', label: 'Factions', alert: factionAlert },
-    { id: 'gov', label: 'Gov' },
-    { id: 'data', label: 'Data' },
-  ]
-
-  if (screen === 'welcome') {
-    return <WelcomeScreen onNewGame={handleStartNewGame} onContinue={handleContinue} canContinue={hasSavedGame()} />
-  }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--background)', color: 'var(--text)' }}>
-      {showWelcome && (
-        <WelcomeModal
-          onStart={() => {
-            setShowWelcome(false)
-            setShowArchetypeSelect(true)
-          }}
-        />
-      )}
-      {showArchetypeSelect && !showWelcome && (
-        <ArchetypeSelectionScreen
-          onSelect={(key) => {
-            setSelectedArchetype(key)
-            setShowArchetypeSelect(false)
-            setShowDeputySelect(true)
-          }}
-        />
-      )}
-      {showDeputySelect && !showArchetypeSelect && !showWelcome && (
-        <DeputySelectionScreen
-          archetypeKey={selectedArchetype}
-          onSelect={() => {
-            setShowDeputySelect(false)
-            setShowHandover(true)
-          }}
-        />
-      )}
-      {showHandover && !showDeputySelect && (
-        <HandoverNotesModal
-          archetypeKey={selectedArchetype}
-          onClose={() => {
-            setShowHandover(false)
-            setShowGoalSelect(true)
-            setGoalSelectContext('new-game')
-          }}
-        />
-      )}
-      {showGoalSelect && (
-        <GoalSelectionScreen
-          context={goalSelectContext}
-          onSelect={() => setShowGoalSelect(false)}
-        />
-      )}
-      {newspaperHeadline && (
-        <LagosHerald />
-      )}
+    <>
+      {newspaperHeadline && <LagosHerald />}
+      {showResearch && <ResearchTree onClose={() => setShowResearch(false)} />}
 
-      <header className="shrink-0 flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: 'var(--border)' }}>
-        <div>
-          <h1 className="font-display text-sm font-semibold" style={{ color: 'var(--text)' }}>Lagos Governor Sim</h1>
-          <p className="label-caps mt-px">{termLabel} · {monthLabel}</p>
+      <div
+        className="themed"
+        style={{
+          display:       'flex',
+          flexDirection: 'column',
+          height:        '100dvh',
+          overflow:      'hidden',
+          background:    'var(--background)',
+          color:         'var(--text)',
+        }}
+      >
+        <StatusBar
+          termLabel={termLabel}
+          monthLabel={monthLabel}
+          onTick={tick}
+          canTick={!isGameOver}
+          onResearch={() => setShowResearch(true)}
+        />
+
+        <div style={{ height: '2px', background: 'var(--border-subtle)', flexShrink: 0 }}>
+          <div style={{
+            height:     '100%',
+            width:      `${Math.min(((currentTerm === 2 ? week - 208 : week) / 208) * 100, 100)}%`,
+            background: 'var(--accent-solid)',
+            transition: 'width 600ms ease',
+          }} />
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleExport}
-            className="hidden sm:block px-2 py-1 text-[10px] font-medium transition-colors border"
-            style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
-            title="Download current game state as JSON"
-          >
-            Export
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode(mode === 'simple' ? 'detailed' : 'simple')}
-            className="px-2 py-1 text-[10px] font-medium transition-colors border"
-            style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
-          >
-            {mode === 'simple' ? 'Detailed' : 'Simple'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowResearchTree(true)}
-            className="hidden sm:block px-2 py-1 text-[10px] font-medium transition-colors border"
-            style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--accent-solid)', color: 'var(--accent-text)' }}
-          >
-            Commission Future
-          </button>
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="p-1.5 border transition-colors flex items-center justify-center"
-            style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
-            title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-          >
-            {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
-          </button>
-          {!isGameOver && (
-            <button
-              type="button"
-              onClick={tick}
-              className="px-3 py-1 text-[11px] font-semibold transition-colors"
-              style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
-            >
-              Next Week
-            </button>
-          )}
-        </div>
-      </header>
 
-      {/* Term progress strip — 2px hairline filling left-to-right over 208 weeks */}
-      <div className="shrink-0" style={{ height: '2px', backgroundColor: 'var(--neutral-4)' }}>
-        <div
-          style={{
-            height: '100%',
-            width: `${Math.min(((currentTerm === 2 ? week - 208 : week) / 208) * 100, 100)}%`,
-            backgroundColor: 'var(--accent-solid)',
-            transition: 'width 0.5s ease',
-          }}
-        />
-      </div>
+        <DiagnosisBanner />
 
-      {currentTerm === 2 && !isGameOver && (
-        <div className="shrink-0 mx-3 mt-1 border px-3 py-1 text-center text-[10px] font-semibold tracking-wide" style={{ borderColor: 'var(--accent-solid)', color: 'var(--accent-text)', backgroundColor: 'var(--accent-bg-subtle)' }}>
-          SECOND TERM — Week {week} · Years {year + 4} of 8
-        </div>
-      )}
-      {inCampaignMode && !isGameOver && (
-        <div className="shrink-0 mx-3 mt-1 border px-3 py-1 text-center text-[10px] font-semibold tracking-wide" style={{ borderColor: 'var(--accent-solid)', color: 'var(--accent-text)', backgroundColor: 'var(--accent-bg-subtle)' }}>
-          ELECTION CAMPAIGN MODE — Week 195+ · Every decision counts
-        </div>
-      )}
+        {(currentTerm === 2 || inCampaignMode) && !isGameOver && (
+          <div style={{
+            textAlign:     'center',
+            padding:       '4px 12px',
+            fontSize:      '10px',
+            fontFamily:    "'Archivo Narrow', sans-serif",
+            fontWeight:    600,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            background:    'var(--accent-bg-subtle)',
+            color:         'var(--accent-text)',
+            borderBottom:  '1px solid var(--border)',
+            flexShrink:    0,
+          }}>
+            {inCampaignMode
+              ? `Election Campaign — Week ${week} · Every decision counts`
+              : `Second Term · ${termLabel} · Week ${week}`
+            }
+          </div>
+        )}
 
-      {import.meta.env.DEV && <DevPanel />}
-
-      {showResearchTree && (
-        <ResearchTree onClose={() => setShowResearchTree(false)} />
-      )}
-
-      {isGameOver ? (
-        <div className="flex-1 overflow-y-auto min-h-0">
-          <LegacyScreen onNewGame={handleLegacyNewGame} />
-        </div>
-      ) : (
-        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-          {/* Desktop layout — two columns with tabbed sidebar */}
-          <div className="hidden lg:flex flex-1 gap-2 p-2 overflow-hidden min-h-0">
-            <div className="flex-1 space-y-2 overflow-y-auto min-h-0">
-              <Dashboard />
-              <StrategicDashboard />
+        <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+          {isGameOver ? (
+            <LegacyScreen onNewGame={handleLegacyNewGame} />
+          ) : (
+            <div style={{
+              maxWidth:      '720px',
+              margin:        '0 auto',
+              padding:       '16px 16px 80px',
+              display:       'flex',
+              flexDirection: 'column',
+              gap:           '12px',
+            }}>
               <EventCard />
             </div>
-            <div className="w-72 xl:w-80 shrink-0 flex flex-col min-h-0">
-              <SidebarTabs />
-            </div>
-          </div>
-
-          {/* Mobile layout — full width with bottom nav */}
-          <div className="lg:hidden flex-1 flex flex-col overflow-hidden min-h-0">
-            <div className="flex-1 overflow-y-auto min-h-0 p-2">
-              {activeMobileTab === 'event' && (
-                <div className="space-y-2">
-                  <Dashboard />
-                  <StrategicDashboard />
-                  <EventCard />
-                  <Inbox />
-                </div>
-              )}
-              {activeMobileTab === 'factions' && (
-                <div className="space-y-2">
-                  <FactionPanel />
-                  <PollPanel />
-                </div>
-              )}
-              {activeMobileTab === 'gov' && (
-                <div className="space-y-2">
-                  <DeputyPanel />
-                  <NPCPanel />
-                  <CabinetPanel />
-                </div>
-              )}
-              {activeMobileTab === 'data' && (
-                <div className="space-y-2">
-                  <BudgetPanel />
-                  <TimelinePanel />
-                </div>
-              )}
-            </div>
-
-            {/* Bottom nav */}
-            <div className="shrink-0 flex border-t" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
-              {mobileTabs.map(({ id, label, alert }) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setActiveMobileTab(id)}
-                  className="relative flex-1 py-2.5 text-[10px] font-semibold uppercase tracking-wide transition-colors"
-                  style={{
-                    color: activeMobileTab === id ? 'var(--text)' : 'var(--text-secondary)',
-                    borderTop: activeMobileTab === id ? '2px solid var(--accent-solid)' : '2px solid transparent',
-                    marginTop: '-1px',
-                  }}
-                >
-                  {label}
-                  {alert && (
-                    <span
-                      className="absolute top-1.5 right-1 w-1.5 h-1.5 rounded-full"
-                      style={{ backgroundColor: id === 'event' ? 'var(--warning-9)' : 'var(--error-9)' }}
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
-      )}
-    </div>
+
+        {!isGameOver && (
+          <div
+            className="themed"
+            style={{
+              position:      'fixed',
+              bottom:        0,
+              left:          0,
+              right:         0,
+              zIndex:        30,
+              display:       'flex',
+              background:    'var(--surface)',
+              borderTop:     '1px solid var(--border)',
+              boxShadow:     '0 -4px 20px rgba(0,0,0,.08)',
+              flexShrink:    0,
+              paddingBottom: 'env(safe-area-inset-bottom)',
+              transition:    'background-color var(--dur) ease, border-color var(--dur) ease',
+            }}
+          >
+            {DOCK_TABS.map(({ id, label, Icon }) => (
+              <Tab
+                key={id}
+                icon={<Icon size={18} />}
+                label={label}
+                active={activePanel === id}
+                badge={
+                  id === 'inbox'    ? inboxCount :
+                  id === 'factions' ? (factionAlert ? 1 : 0) : 0
+                }
+                onClick={() => setActivePanel(activePanel === id ? null : id)}
+              />
+            ))}
+          </div>
+        )}
+
+        <PanelOverlay
+          activeTab={activePanel}
+          onClose={() => setActivePanel(null)}
+        />
+      </div>
+    </>
   )
 }
-
-export default App

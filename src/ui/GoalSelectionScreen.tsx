@@ -1,5 +1,6 @@
 import { useGameStore } from '../state/gameStore'
 import { ALL_GOALS, getGoalProgress } from '../data/goals'
+import { Button, Surface, Heading } from './components'
 import type { Goal } from '../data/goals'
 
 type Props = {
@@ -23,12 +24,12 @@ export function GoalSelectionScreen({ onSelect, context }: Props) {
           <p className="label-caps" style={{ color: 'var(--accent-text)' }}>
             {context === 'migration' ? 'Your legacy' : 'Your mandate'}
           </p>
-          <h1 className="font-display text-2xl font-semibold mt-1" style={{ color: 'var(--text)' }}>
+          <Heading level={1} display>
             {context === 'migration'
               ? 'It Is Not Too Late'
               : 'What Will You Fight For?'}
-          </h1>
-          <p className="text-sm mt-2 max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
+          </Heading>
+          <p className="mt-2 max-w-xl mx-auto" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
             {context === 'migration'
               ? 'Your administration is already in motion. Choose what you want it to be remembered for — the targets adapt to where you stand today.'
               : 'Your inheritance is clear. The handover has shown you what you are walking into. Now decide what this administration will be remembered for.'}
@@ -51,17 +52,12 @@ export function GoalSelectionScreen({ onSelect, context }: Props) {
         </div>
 
         <div className="mt-4 text-center">
-          <button
-            type="button"
-            onClick={() => handleSelect(null)}
-            className="px-4 py-2 text-[11px] transition-colors border"
-            style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)', backgroundColor: 'var(--surface)' }}
-          >
+          <Button variant="ghost" onClick={() => handleSelect(null)}>
             Govern without a goal — every decision on instinct
-          </button>
+          </Button>
         </div>
 
-        <p className="text-center text-[11px] mt-6" style={{ color: 'var(--border-strong)' }}>
+        <p className="text-center mt-6" style={{ fontSize: '11px', color: 'var(--border-strong)' }}>
           {context === 'migration'
             ? 'You can review your goal at any time from the dashboard.'
             : 'Your goal can be tracked from the dashboard. It does not change the simulation — it is a personal commitment.'}
@@ -83,20 +79,21 @@ function GoalCard({
   onSelect: () => void
 }) {
   return (
-    <div
-      className="border p-4 flex flex-col gap-3"
-      style={{ borderColor: 'var(--border)', borderTopWidth: '2px', borderTopColor: 'var(--accent-solid)', backgroundColor: 'var(--surface)' }}
+    <Surface
+      elevation="raised"
+      padding="16px"
+      style={{ borderTop: '2px solid var(--accent-solid)', display: 'flex', flexDirection: 'column', gap: '12px' }}
     >
       <div>
-        <h2 className="text-[13px] font-semibold" style={{ color: 'var(--text)' }}>
+        <h2 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)' }}>
           {goal.title}
         </h2>
-        <p className="text-[11px] mt-0.5 italic" style={{ color: 'var(--text-secondary)' }}>
+        <p style={{ fontSize: '11px', marginTop: '2px', fontStyle: 'italic', color: 'var(--text-secondary)' }}>
           {goal.pitch}
         </p>
       </div>
 
-      <p className="text-[11px] leading-relaxed flex-1" style={{ color: 'var(--text)' }}>
+      <p style={{ fontSize: '11px', lineHeight: 1.7, color: 'var(--text)', flex: 1 }}>
         {goal.description}
       </p>
 
@@ -104,7 +101,7 @@ function GoalCard({
         <p className="label-caps mb-1">Targets</p>
         <ul className="space-y-1">
           {goal.targets.map((t, i) => (
-            <li key={i} className="text-[10px] flex items-start gap-1.5" style={{ color: 'var(--text-secondary)' }}>
+            <li key={i} style={{ fontSize: '10px', display: 'flex', alignItems: 'flex-start', gap: '6px', color: 'var(--text-secondary)' }}>
               <span style={{ color: 'var(--accent-solid)' }}>•</span>
               <span>{t.label}</span>
             </li>
@@ -114,7 +111,7 @@ function GoalCard({
 
       {context === 'migration' && (
         <div>
-          <div className="flex justify-between text-[10px] mb-0.5">
+          <div className="flex justify-between mb-0.5" style={{ fontSize: '10px' }}>
             <span style={{ color: 'var(--text-secondary)' }}>Current progress</span>
             <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>{progress.toFixed(0)}%</span>
           </div>
@@ -130,14 +127,9 @@ function GoalCard({
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={onSelect}
-        className="w-full py-2 text-[11px] font-semibold transition-colors"
-        style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
-      >
+      <Button variant="primary" fullWidth onClick={onSelect}>
         Make it my goal
-      </button>
-    </div>
+      </Button>
+    </Surface>
   )
 }

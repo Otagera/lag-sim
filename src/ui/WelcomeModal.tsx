@@ -1,5 +1,6 @@
 import { BarChart3, Landmark, Network, Zap } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { Button } from './components'
 
 const INTRO_KEY = 'lagos-intro-seen'
 
@@ -32,20 +33,20 @@ export function WelcomeModal({ onStart }: { onStart: () => void }) {
           style={{ borderBottom: '2px solid var(--accent-solid)' }}
         >
           <p className="label-caps" style={{ color: 'var(--accent-text)' }}>Lagos, Nigeria — 2024</p>
-          <h1 className="font-display text-2xl font-semibold mt-1" style={{ color: 'var(--text)' }}>Lagos Governor Sim</h1>
+          <h1 className="font-display font-semibold mt-1" style={{ fontSize: '26px', color: 'var(--text)' }}>Lagos Governor Sim</h1>
         </div>
         <div className="p-6 space-y-5">
-          <p className="text-sm leading-relaxed" style={{ color: 'var(--text)' }}>
+          <p style={{ fontSize: '13px', lineHeight: 1.7, color: 'var(--text)' }}>
             You've just been sworn in as Governor of Lagos State. 22 million people. ₦45bn in the
             bank. Your party called in every favour to get you here.
           </p>
-          <p className="text-sm italic" style={{ color: 'var(--text-secondary)' }}>Now they want returns.</p>
+          <p style={{ fontSize: '13px', fontStyle: 'italic', color: 'var(--text-secondary)' }}>Now they want returns.</p>
 
           <div style={{ borderTop: '1px solid var(--border)' }} />
 
           <div className="space-y-2">
             <p className="label-caps">How to play</p>
-            <ol className="space-y-2 text-sm">
+            <ol className="space-y-2" style={{ fontSize: '13px' }}>
               {[
                 'Click "Next Week" in the top-right to advance time.',
                 'Read the event card and choose how to respond. There are no obviously right answers.',
@@ -76,8 +77,8 @@ export function WelcomeModal({ onStart }: { onStart: () => void }) {
                     <Icon className="w-4 h-4" strokeWidth={1.5} style={{ color }} />
                   </span>
                   <div>
-                    <p className="text-[12px] font-semibold" style={{ color: 'var(--text)' }}>{label}</p>
-                    <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>{desc}</p>
+                    <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text)' }}>{label}</p>
+                    <p style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{desc}</p>
                   </div>
                 </div>
               ))}
@@ -87,17 +88,12 @@ export function WelcomeModal({ onStart }: { onStart: () => void }) {
           <div style={{ borderTop: '1px solid var(--border)' }} />
 
           <div className="text-center space-y-3">
-            <p className="text-[11px] italic" style={{ color: 'var(--text-secondary)' }}>
+            <p style={{ fontSize: '11px', fontStyle: 'italic', color: 'var(--text-secondary)' }}>
               Everyone thinks Lagos is easy to fix. Let's see what you do with it.
             </p>
-            <button
-              type="button"
-              onClick={handleStart}
-              className="w-full py-2.5 text-sm font-semibold transition-colors"
-              style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
-            >
+            <Button variant="primary" fullWidth onClick={handleStart}>
               Start Governing
-            </button>
+            </Button>
           </div>
         </div>
       </div>
