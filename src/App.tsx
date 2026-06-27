@@ -16,6 +16,8 @@ import { Inbox } from './ui/Inbox'
 import { NPCPanel } from './ui/NPCPanel'
 import { LegacyScreen } from './ui/LegacyScreen'
 import { HelpReference } from './ui/HelpReference'
+import { ToastHint } from './ui/ToastHint'
+import { ALL_HINTS } from './data/hints'
 import { formatGameMonth } from './utils/calendar'
 import { CabinetPanel } from './ui/CabinetPanel'
 import { DeputyPanel } from './ui/DeputyPanel'
@@ -270,11 +272,27 @@ export default function GameApp() {
   const inCampaignMode  = useGameStore((s) => s.inCampaignMode)
   const inbox           = useGameStore((s) => s.inbox)
 
+  const hintQueue       = useGameStore((s) => s.hintQueue)
+  const dismissHint     = useGameStore((s) => s.dismissHint)
   const llmAttempted = useRef(new Set<string>())
   const [showResearch,  setShowResearch]  = useState(false)
   const [showProjects,  setShowProjects]  = useState(false)
   const [showReference, setShowReference] = useState(false)
   const [activePanel,   setActivePanel]   = useState<DockTab | null>(null)
+  const [currentHint,   setCurrentHint]   = useState<string | null>(null)
+
+  // Pop next hint from queue when none is showing
+  useEffect(() => {
+    if (currentHint || hintQueue.length === 0) return
+    const nextId = hintQueue[0]
+    setCurrentHint(nextId)
+  }, [currentHint, hintQueue])
+
+  function handleDismissHint() {
+    if (!currentHint) return
+    dismissHint(currentHint)
+    setCurrentHint(null)
+  }
 
   useEffect(() => {
     if (!newspaperHeadline || newspaperHeadline.llmGenerated || newspaperHeadline.llmPending) return
@@ -316,9 +334,12 @@ export default function GameApp() {
   const inboxCount   = inbox.filter((m) => !m.read).length + (activeGodfatherMessage ? 1 : 0)
   const factionAlert = Object.values(factions).some((v) => v <= 25)
 
+  const hintDef = currentHint ? ALL_HINTS.find((h) => h.id === currentHint) : null
+
   return (
     <>
       {newspaperHeadline && <LagosHerald />}
+      {hintDef && <ToastHint text={hintDef.text} onDismiss={handleDismissHint} />}
       {showResearch && <ResearchTree onClose={() => setShowResearch(false)} />}
       {showProjects && <ProjectsPanel onClose={() => setShowProjects(false)} />}
 

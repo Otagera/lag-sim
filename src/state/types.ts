@@ -501,4 +501,7 @@ export type GameState = {
   // Projects
   projectStatuses: Record<string, ResearchNodeStatus>
   commissionedProjects: CommissionedProject[]
+  // Onboarding hints
+  seenHints: string[]
+  hintQueue: string[]
 }

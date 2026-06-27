@@ -142,4 +142,6 @@ export const STARTING_STATE: GameState = {
   // Projects
   projectStatuses: {},
   commissionedProjects: [],
+  seenHints: [],
+  hintQueue: [],
 }

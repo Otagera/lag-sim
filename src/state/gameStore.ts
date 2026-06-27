@@ -36,6 +36,8 @@ export interface GameStore extends GameState {
   // Phase D — inbox
   inboxMarkRead: (id: string) => void
   inboxMarkAllRead: () => void
+  // Onboarding hints
+  dismissHint: (id: string) => void
   // Goal tracking
   setGoal: (id: string | null) => void
   // Phase E — research tree
@@ -204,6 +206,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
   inboxMarkAllRead: () => {
     set((s) => ({
       inbox: s.inbox.map((m) => ({ ...m, read: true })),
+    }))
+  },
+  dismissHint: (id: string) => {
+    set((s) => ({
+      seenHints: [...s.seenHints, id],
+      hintQueue: s.hintQueue.filter((h) => h !== id),
     }))
   },
   setGoal: (id: string | null) => set({ selectedGoalId: id }),

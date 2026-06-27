@@ -20,6 +20,7 @@ import { tickResearchNodes } from './researchEngine'
 import { selectPublicationForArticle, pickFramingVariant } from './publicationEngine'
 import { getGoal, getGoalIsMet, getGoalProgress } from '../data/goals'
 import { buildEndingNarrative } from './endingNarrator'
+import { ALL_HINTS } from '../data/hints'
 
 const CONSTITUENCY_TRUST_WEIGHTS: Partial<Record<string, number>> = {
   alimosho:        13,
@@ -356,6 +357,14 @@ export function tick(state: GameState): GameState {
   if (next.week % 4 === 0) {
     const briefing = generateChiefOfStaffBriefing(next)
     next = { ...next, inbox: [...next.inbox, briefing] }
+  }
+
+  // Onboarding hints — check triggers against previous state
+  for (const hint of ALL_HINTS) {
+    if (next.seenHints.includes(hint.id) || next.hintQueue.includes(hint.id)) continue
+    if (hint.trigger(state, next)) {
+      next = { ...next, hintQueue: [...next.hintQueue, hint.id] }
+    }
   }
 
   return next
