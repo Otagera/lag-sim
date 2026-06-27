@@ -1,16 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useGameStore } from '../state/gameStore'
 import { Pill } from './components'
-import { STAT_ICONS, FACTION_ICONS } from '../data/icons'
+import { STAT_ICONS, FACTION_ICONS, SEVERITY_GLYPH } from '../data/icons'
 import type { LucideIcon } from 'lucide-react'
 import type { Choice, ConsequenceBeat } from '../state/types'
-
-const SEVERITY_TEXT: Record<string, { label: string; color: string }> = {
-  low: { label: 'Low', color: 'var(--success-11)' },
-  medium: { label: 'Medium', color: 'var(--warning-11)' },
-  high: { label: 'High', color: 'var(--error-11)' },
-  critical: { label: 'Critical', color: 'var(--error-9)' },
-}
 
 const STAT_WHITELIST = new Set<string>([
   'cashReserve', 'publicTrust', 'politicalCapital', 'corruptionPressure',
@@ -42,11 +35,15 @@ const FACTION_LABELS: Record<string, string> = {
 
 type ImpactPill = { text: string; isGood: boolean; icon?: LucideIcon }
 
+function dirArrow(isGood: boolean): string {
+  return isGood ? '▲' : '▼'
+}
+
 function buildImpactPills(choice: Choice): ImpactPill[] {
   const pills: ImpactPill[] = []
 
   if (choice.politicalCapitalCost && choice.politicalCapitalCost > 0) {
-    pills.push({ text: `-${choice.politicalCapitalCost} Pol. Cap`, isGood: false, icon: STAT_ICONS.politicalCapital?.icon })
+    pills.push({ text: `${dirArrow(false)} -${choice.politicalCapitalCost} Pol. Cap`, isGood: false, icon: STAT_ICONS.politicalCapital?.icon })
   }
 
   for (const [key, value] of Object.entries(choice.immediate)) {
@@ -56,17 +53,18 @@ function buildImpactPills(choice: Choice): ImpactPill[] {
     const sign = value > 0 ? '+' : '-'
     const label = STAT_LABELS[key] ?? key
     const formatted = (key === 'cashReserve' || key === 'igr')
-      ? `${sign}₦${absVal.toFixed(1)}bn ${label}`
-      : `${sign}${absVal < 1 ? absVal.toFixed(1) : absVal.toFixed(0)} ${label}`
+      ? `${dirArrow(isGood)} ${sign}₦${absVal.toFixed(1)}bn ${label}`
+      : `${dirArrow(isGood)} ${sign}${absVal < 1 ? absVal.toFixed(1) : absVal.toFixed(0)} ${label}`
     pills.push({ text: formatted, isGood, icon: STAT_ICONS[key]?.icon })
   }
 
   for (const [key, value] of Object.entries(choice.factionImpact)) {
     if (!value) continue
+    const isGood = (value as number) > 0
     const sign = value > 0 ? '+' : ''
     const label = FACTION_LABELS[key] ?? key
     const ficon = FACTION_ICONS[key as keyof typeof FACTION_ICONS]
-    pills.push({ text: `${sign}${(value as number).toFixed(0)} ${label}`, isGood: (value as number) > 0, icon: ficon?.icon })
+    pills.push({ text: `${dirArrow(isGood)} ${sign}${(value as number).toFixed(0)} ${label}`, isGood, icon: ficon?.icon })
   }
 
   return pills
@@ -76,7 +74,7 @@ function buildPillsFromBeat(beat: ConsequenceBeat): ImpactPill[] {
   const pills: ImpactPill[] = []
 
   if (beat.politicalCapitalCost && beat.politicalCapitalCost > 0) {
-    pills.push({ text: `-${beat.politicalCapitalCost} Pol. Cap`, isGood: false, icon: STAT_ICONS.politicalCapital?.icon })
+    pills.push({ text: `${dirArrow(false)} -${beat.politicalCapitalCost} Pol. Cap`, isGood: false, icon: STAT_ICONS.politicalCapital?.icon })
   }
 
   for (const [key, value] of Object.entries(beat.immediate)) {
@@ -86,17 +84,18 @@ function buildPillsFromBeat(beat: ConsequenceBeat): ImpactPill[] {
     const sign = value > 0 ? '+' : '-'
     const label = STAT_LABELS[key] ?? key
     const formatted = (key === 'cashReserve' || key === 'igr')
-      ? `${sign}₦${absVal.toFixed(1)}bn ${label}`
-      : `${sign}${absVal < 1 ? absVal.toFixed(1) : absVal.toFixed(0)} ${label}`
+      ? `${dirArrow(isGood)} ${sign}₦${absVal.toFixed(1)}bn ${label}`
+      : `${dirArrow(isGood)} ${sign}${absVal < 1 ? absVal.toFixed(1) : absVal.toFixed(0)} ${label}`
     pills.push({ text: formatted, isGood, icon: STAT_ICONS[key]?.icon })
   }
 
   for (const [key, value] of Object.entries(beat.factionImpact)) {
     if (!value) continue
+    const isGood = (value as number) > 0
     const sign = value > 0 ? '+' : ''
     const label = FACTION_LABELS[key] ?? key
     const ficon = FACTION_ICONS[key as keyof typeof FACTION_ICONS]
-    pills.push({ text: `${sign}${(value as number).toFixed(0)} ${label}`, isGood: (value as number) > 0, icon: ficon?.icon })
+    pills.push({ text: `${dirArrow(isGood)} ${sign}${(value as number).toFixed(0)} ${label}`, isGood, icon: ficon?.icon })
   }
 
   return pills
@@ -208,7 +207,9 @@ export function EventCard() {
   }
 
   // Active event view
-  const sev = SEVERITY_TEXT[activeEvent.severity] ?? { label: activeEvent.severity, color: 'var(--text-secondary)' }
+  const severityKey = activeEvent.severity
+  const sevLabel = SEVERITY_GLYPH[severityKey] ?? { glyph: '•', color: 'var(--text-secondary)' }
+  const sevColor = sevLabel.color
   const isGodfather = activeEvent.category === 'godfather'
   const godfatherColor = '#8b0000'
   const accentColor = isGodfather ? godfatherColor : 'var(--accent-solid)'
@@ -229,7 +230,9 @@ export function EventCard() {
           {isGodfather ? (
             <span className="label-caps" style={{ color: godfatherColor }}>Chief Fashemu</span>
           ) : (
-            <span className="label-caps" style={{ color: sev.color }}>{sev.label}</span>
+            <span className="label-caps" style={{ color: sevColor }}>
+              {sevLabel.glyph} {sevLabel.label}
+            </span>
           )}
           <span className="label-caps" style={{ color: 'var(--text-secondary)' }}>{activeEvent.category}</span>
         </div>

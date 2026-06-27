@@ -43,9 +43,9 @@ export const FACTION_ICONS: Record<FactionKey, { icon: LucideIcon; label: string
   lgChairmen:         { icon: MapPin,       label: 'LG Chairmen',   color: '#16a34a' },
 }
 
-export const SEVERITY_GLYPH: Record<string, { glyph: string; color: string }> = {
-  low:      { glyph: '•',  color: 'var(--success-11)' },
-  medium:   { glyph: '▲',  color: 'var(--warning-11)' },
-  high:     { glyph: '⚠',  color: 'var(--error-11)' },
-  critical: { glyph: '❗', color: 'var(--error-9)' },
+export const SEVERITY_GLYPH: Record<string, { glyph: string; label: string; color: string }> = {
+  low:      { glyph: '•',  label: 'Low',     color: 'var(--success-11)' },
+  medium:   { glyph: '▲',  label: 'Medium',  color: 'var(--warning-11)' },
+  high:     { glyph: '⚠',  label: 'High',    color: 'var(--error-11)' },
+  critical: { glyph: '❗', label: 'Critical', color: 'var(--error-9)' },
 }

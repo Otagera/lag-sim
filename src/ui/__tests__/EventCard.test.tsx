@@ -88,6 +88,6 @@ describe('EventCard', () => {
     useGameStore.setState({ activeEvent: criticalEvent })
 
     render(<EventCard />)
-    expect(screen.getByText('Critical')).toBeInTheDocument()
+    expect(screen.getByText(/❗ Critical/)).toBeInTheDocument()
   })
 })

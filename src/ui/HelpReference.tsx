@@ -1,6 +1,6 @@
 import { X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { STAT_ICONS, FACTION_ICONS } from '../data/icons'
+import { STAT_ICONS, FACTION_ICONS, SEVERITY_GLYPH } from '../data/icons'
 
 const STAT_ROW_KEYS: Record<string, keyof typeof STAT_ICONS> = {
   'Cash Reserve': 'cashReserve',
@@ -53,6 +53,14 @@ const SECTIONS = [
       { condition: 'Civil Society / Media', threshold: 'Below 20 = public trust erosion accelerates', recovery: 'Transparency, press engagement, anti-corruption signals' },
       { condition: 'LG Chairmen', threshold: 'Below 20 = local tax collection stalls', recovery: 'Devolve funds, consult on local decisions' },
     ],
+  },
+  {
+    label: 'Severity',
+    rows: Object.entries(SEVERITY_GLYPH).map(([, val]) => ({
+      condition: `${val.glyph} ${val.label}`,
+      threshold: '',
+      recovery: '',
+    })),
   },
 ]
 
@@ -116,6 +124,7 @@ export function HelpReference({ onClose }: { onClose: () => void }) {
               {section.rows.map((row) => {
                 const isStats = section.label === 'Key Stats'
                 const isFactions = section.label === 'Factions'
+                const isSeverity = section.label === 'Severity'
                 const hasIcon = isStats || isFactions
                 let IconComp: LucideIcon | undefined
                 if (isStats) IconComp = STAT_ICONS[STAT_ROW_KEYS[row.condition]]?.icon
@@ -125,7 +134,7 @@ export function HelpReference({ onClose }: { onClose: () => void }) {
                     key={row.condition}
                     style={{
                       display:             'grid',
-                      gridTemplateColumns: hasIcon ? '18px 130px 1fr' : '130px 1fr',
+                      gridTemplateColumns: isSeverity ? '1fr' : hasIcon ? '18px 130px 1fr' : '130px 1fr',
                       gap:                 '8px',
                       padding:             '6px 8px',
                       background:          'var(--surface)',
@@ -142,18 +151,20 @@ export function HelpReference({ onClose }: { onClose: () => void }) {
                     <span style={{
                       fontFamily: "'Archivo Narrow', sans-serif",
                       fontWeight: 600,
-                      color:      'var(--text)',
+                      color:      isSeverity ? 'var(--text-secondary)' : 'var(--text)',
                     }}>
-                      {row.condition}
+                      {isSeverity ? row.condition : row.condition}
                     </span>
-                    <span style={{
-                      fontFamily: 'Georgia, serif',
-                      color:      'var(--text-secondary)',
-                    }}>
-                      {row.recovery
-                        ? `${row.threshold} — ${row.recovery}`
-                        : row.threshold}
-                    </span>
+                    {!isSeverity && (
+                      <span style={{
+                        fontFamily: 'Georgia, serif',
+                        color:      'var(--text-secondary)',
+                      }}>
+                        {row.recovery
+                          ? `${row.threshold} — ${row.recovery}`
+                          : row.threshold}
+                      </span>
+                    )}
                   </div>
                 )
               })}
