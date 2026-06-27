@@ -1,6 +1,5 @@
 import { useGameStore } from '../state/gameStore'
 import { ALL_GOALS } from '../data/goals'
-import { NPC_ARCHETYPES } from '../data/npcs'
 import { ARCHETYPES } from '../data/archetypes'
 import type { ArchetypeKey } from '../data/archetypes'
 
@@ -60,7 +59,6 @@ type Props = {
 export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
   const stats     = useGameStore((s) => s.stats)
   const factions  = useGameStore((s) => s.factions)
-  const activeNPCs = useGameStore((s) => s.activeNPCs)
 
   const archetype     = ARCHETYPES[archetypeKey]
   const weeklyFloor   = 30.1
@@ -69,12 +67,6 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
   const insolventWeeks = net < 0
     ? Math.floor(stats.cashReserve / Math.max(0.1, Math.abs(net)))
     : null
-
-  const npcSlots = (['npc1', 'npc2', 'npc3'] as const).map((slot) => {
-    const npc = activeNPCs[slot]
-    const def = NPC_ARCHETYPES[npc.archetypeKey]
-    return { name: npc.name, role: def?.role ?? npc.archetypeKey, relationship: npc.relationship }
-  })
 
   const stateIssues: { label: string; detail: string; severity: 'critical' | 'elevated' }[] = []
   if (stats.cashReserve < 20)
@@ -143,9 +135,7 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
           }}>
             "{ARCHETYPE_COS_NOTE[archetypeKey]}"
           </p>
-          <p className="label-caps" style={{ marginTop: '8px', color: 'var(--accent-text)' }}>
-            Chief of Staff — Week 1 Brief
-          </p>
+  
         </div>
 
         {/* ── Critical issues ─────────────────────────────────────────── */}
@@ -233,39 +223,7 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
           </div>
         </section>
 
-        {/* ── Who is watching ─────────────────────────────────────────── */}
-        <section style={{ marginBottom: '32px' }}>
-          <SectionHeader label="Who Is Watching" color="var(--text-secondary)" />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {npcSlots.map(({ name, role, relationship }) => (
-              <div key={name} style={{
-                display:    'flex',
-                alignItems: 'center',
-                gap:        '12px',
-                padding:    '10px 12px',
-                background: 'var(--surface)',
-                border:     '1px solid var(--border)',
-                borderRadius: '2px',
-              }}>
-                <div style={{
-                  width:       '6px',
-                  height:      '6px',
-                  borderRadius:'50%',
-                  flexShrink:  0,
-                  background:  relationship >= 60 ? 'var(--success-9)' : relationship <= 30 ? 'var(--error-9)' : 'var(--border-strong)',
-                }} />
-                <div>
-                  <span style={{ fontFamily: "'Archivo Narrow', sans-serif", fontSize: '13px', fontWeight: 600, color: 'var(--text)' }}>
-                    {name}
-                  </span>
-                  <span style={{ fontFamily: 'Georgia, serif', fontSize: '12px', color: 'var(--text-secondary)', marginLeft: '8px' }}>
-                    — {role}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+
 
         {/* ── Goals preview ───────────────────────────────────────────── */}
         <section style={{ marginBottom: '40px' }}>
@@ -273,21 +231,20 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
           <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.7, color: 'var(--text-secondary)', marginBottom: '14px' }}>
             Some governors define their term by a single mission. You can choose one on the next screen — or govern without a fixed goal.
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '8px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {ALL_GOALS.map((g) => (
-              <div key={g.id} style={{
-                padding:    '10px 12px',
+              <span key={g.id} style={{
+                fontFamily: "'Archivo Narrow', sans-serif",
+                fontSize:   '12px',
+                fontWeight: 600,
+                padding:    '5px 10px',
                 background: 'var(--surface)',
                 border:     '1px solid var(--border)',
                 borderRadius: '2px',
+                color:      'var(--text-secondary)',
               }}>
-                <p style={{ fontFamily: "'Archivo Narrow', sans-serif", fontSize: '12px', fontWeight: 600, color: 'var(--text)', margin: '0 0 3px' }}>
-                  {g.title}
-                </p>
-                <p style={{ fontFamily: 'Georgia, serif', fontSize: '11px', lineHeight: 1.5, color: 'var(--text-secondary)', margin: 0 }}>
-                  {g.pitch}
-                </p>
-              </div>
+                {g.title}
+              </span>
             ))}
           </div>
         </section>
@@ -313,9 +270,7 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
           >
             Choose Your Mission →
           </button>
-          <p className="label-caps" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-            Week 1 · Lagos State Government House · Alausa, Ikeja
-          </p>
+
         </div>
 
       </div>
