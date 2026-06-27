@@ -1,7 +1,7 @@
 import { useGameStore } from '../state/gameStore'
 import { ALL_GOALS } from '../data/goals'
 import { ARCHETYPES } from '../data/archetypes'
-import { STAT_ICONS } from '../data/icons'
+import { STAT_ICONS, FACTION_ICONS } from '../data/icons'
 import type { LucideIcon } from 'lucide-react'
 import type { ArchetypeKey } from '../data/archetypes'
 
@@ -29,12 +29,14 @@ function factionColor(val: number): string {
   return 'var(--error-11)'
 }
 
-function FactionBar({ label, value }: { label: string; value: number }) {
+function FactionBar({ label, value, factionKey }: { label: string; value: number; factionKey?: string }) {
   const color = factionColor(value)
+  const FcIcon = factionKey ? FACTION_ICONS[factionKey as keyof typeof FACTION_ICONS]?.icon : undefined
   const danger = value < 35
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px 12px', alignItems: 'center' }}>
-      <div style={{ fontSize: '12px', fontFamily: 'Georgia, serif', color: danger ? 'var(--error-11)' : 'var(--text-secondary)' }}>
+      <div style={{ fontSize: '12px', fontFamily: 'Georgia, serif', color: danger ? 'var(--error-11)' : 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+        {FcIcon && <FcIcon size={10} style={{ flexShrink: 0 }} />}
         {label}
       </div>
       <div style={{ fontSize: '12px', fontWeight: 600, fontFamily: "'Archivo Narrow', sans-serif", color, minWidth: '28px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
@@ -220,7 +222,7 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
           <SectionHeader label="Political Landscape" color="var(--warning-11)" />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {Object.entries(factions).map(([key, val]) => (
-              <FactionBar key={key} label={FACTION_LABELS[key] ?? key} value={val as number} />
+              <FactionBar key={key} label={FACTION_LABELS[key] ?? key} value={val as number} factionKey={key} />
             ))}
           </div>
         </section>

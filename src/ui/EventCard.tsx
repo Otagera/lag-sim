@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useGameStore } from '../state/gameStore'
 import { Pill } from './components'
+import { STAT_ICONS, FACTION_ICONS } from '../data/icons'
+import type { LucideIcon } from 'lucide-react'
 import type { Choice, ConsequenceBeat } from '../state/types'
 
 const SEVERITY_TEXT: Record<string, { label: string; color: string }> = {
@@ -38,13 +40,13 @@ const FACTION_LABELS: Record<string, string> = {
   lgChairmen: 'LG',
 }
 
-type ImpactPill = { text: string; isGood: boolean }
+type ImpactPill = { text: string; isGood: boolean; icon?: LucideIcon }
 
 function buildImpactPills(choice: Choice): ImpactPill[] {
   const pills: ImpactPill[] = []
 
   if (choice.politicalCapitalCost && choice.politicalCapitalCost > 0) {
-    pills.push({ text: `-${choice.politicalCapitalCost} Pol. Cap`, isGood: false })
+    pills.push({ text: `-${choice.politicalCapitalCost} Pol. Cap`, isGood: false, icon: STAT_ICONS.politicalCapital?.icon })
   }
 
   for (const [key, value] of Object.entries(choice.immediate)) {
@@ -56,14 +58,15 @@ function buildImpactPills(choice: Choice): ImpactPill[] {
     const formatted = (key === 'cashReserve' || key === 'igr')
       ? `${sign}₦${absVal.toFixed(1)}bn ${label}`
       : `${sign}${absVal < 1 ? absVal.toFixed(1) : absVal.toFixed(0)} ${label}`
-    pills.push({ text: formatted, isGood })
+    pills.push({ text: formatted, isGood, icon: STAT_ICONS[key]?.icon })
   }
 
   for (const [key, value] of Object.entries(choice.factionImpact)) {
     if (!value) continue
     const sign = value > 0 ? '+' : ''
     const label = FACTION_LABELS[key] ?? key
-    pills.push({ text: `${sign}${(value as number).toFixed(0)} ${label}`, isGood: (value as number) > 0 })
+    const ficon = FACTION_ICONS[key as keyof typeof FACTION_ICONS]
+    pills.push({ text: `${sign}${(value as number).toFixed(0)} ${label}`, isGood: (value as number) > 0, icon: ficon?.icon })
   }
 
   return pills
@@ -73,7 +76,7 @@ function buildPillsFromBeat(beat: ConsequenceBeat): ImpactPill[] {
   const pills: ImpactPill[] = []
 
   if (beat.politicalCapitalCost && beat.politicalCapitalCost > 0) {
-    pills.push({ text: `-${beat.politicalCapitalCost} Pol. Cap`, isGood: false })
+    pills.push({ text: `-${beat.politicalCapitalCost} Pol. Cap`, isGood: false, icon: STAT_ICONS.politicalCapital?.icon })
   }
 
   for (const [key, value] of Object.entries(beat.immediate)) {
@@ -85,14 +88,15 @@ function buildPillsFromBeat(beat: ConsequenceBeat): ImpactPill[] {
     const formatted = (key === 'cashReserve' || key === 'igr')
       ? `${sign}₦${absVal.toFixed(1)}bn ${label}`
       : `${sign}${absVal < 1 ? absVal.toFixed(1) : absVal.toFixed(0)} ${label}`
-    pills.push({ text: formatted, isGood })
+    pills.push({ text: formatted, isGood, icon: STAT_ICONS[key]?.icon })
   }
 
   for (const [key, value] of Object.entries(beat.factionImpact)) {
     if (!value) continue
     const sign = value > 0 ? '+' : ''
     const label = FACTION_LABELS[key] ?? key
-    pills.push({ text: `${sign}${(value as number).toFixed(0)} ${label}`, isGood: (value as number) > 0 })
+    const ficon = FACTION_ICONS[key as keyof typeof FACTION_ICONS]
+    pills.push({ text: `${sign}${(value as number).toFixed(0)} ${label}`, isGood: (value as number) > 0, icon: ficon?.icon })
   }
 
   return pills
@@ -162,7 +166,7 @@ function AftermathPanel({ beat, onDismiss }: { beat: ConsequenceBeat; onDismiss:
       {pills.length > 0 && (
         <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-3 pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
           {pills.map((p, i) => (
-            <Pill key={i} text={p.text} isGood={p.isGood} />
+            <Pill key={i} text={p.text} isGood={p.isGood} icon={p.icon} />
           ))}
         </div>
       )}
@@ -265,7 +269,7 @@ export function EventCard() {
                     style={{ borderTop: '1px solid var(--border-subtle)' }}
                   >
                     {pills.map((p, i) => (
-                      <Pill key={i} text={p.text} isGood={p.isGood} />
+                      <Pill key={i} text={p.text} isGood={p.isGood} icon={p.icon} />
                     ))}
                   </div>
                 )}

@@ -2,7 +2,7 @@ import { useGameStore } from '../../state/gameStore'
 import { Surface } from '../components/Surface'
 import { Stat } from '../components/Stat'
 import { Kicker } from '../components/Typography'
-import { STAT_ICONS } from '../../data/icons'
+import { STAT_ICONS, FACTION_ICONS } from '../../data/icons'
 
 const FACTION_LABELS: Record<string, string> = {
   businessCommunity: 'Business Community',
@@ -13,10 +13,11 @@ const FACTION_LABELS: Record<string, string> = {
   lgChairmen:        'LG Chairmen',
 }
 
-function FactionBar({ label, value }: { label: string; value: number }) {
+function FactionBar({ label, value, factionKey }: { label: string; value: number; factionKey?: string }) {
   const danger = value <= 20
   const warn   = value <= 35
   const color  = danger ? 'var(--error-9)' : warn ? 'var(--warning-9)' : 'var(--accent-solid)'
+  const FcIcon = factionKey ? FACTION_ICONS[factionKey as keyof typeof FACTION_ICONS]?.icon : undefined
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
@@ -28,7 +29,10 @@ function FactionBar({ label, value }: { label: string; value: number }) {
         color:         danger ? 'var(--error-11)' : 'var(--text-secondary)',
         fontWeight:    danger ? 600 : 400,
       }}>
-        <span>{label}</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+          {FcIcon && <FcIcon size={10} style={{ flexShrink: 0 }} />}
+          {label}
+        </span>
         <span style={{ fontVariantNumeric: 'tabular-nums' }}>{Math.round(value)}</span>
       </div>
       <div style={{ height: '4px', background: 'var(--border-subtle)', borderRadius: '2px', overflow: 'hidden' }}>
@@ -112,7 +116,7 @@ export function StateOfTheState() {
         <Kicker accent>Factions</Kicker>
         <Surface elevation="flat" padding="12px" style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {Object.entries(s.factions).map(([key, value]) => (
-            <FactionBar key={key} label={FACTION_LABELS[key] ?? key} value={value as number} />
+            <FactionBar key={key} label={FACTION_LABELS[key] ?? key} value={value as number} factionKey={key} />
           ))}
         </Surface>
       </section>

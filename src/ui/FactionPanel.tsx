@@ -1,4 +1,5 @@
 import { useGameStore } from '../state/gameStore'
+import { FACTION_ICONS } from '../data/icons'
 import type { FactionKey } from '../state/types'
 
 const FACTION_LABELS: Record<FactionKey, string> = {
@@ -23,7 +24,10 @@ function FactionBar({ factionKey, value }: { factionKey: FactionKey; value: numb
   return (
     <div>
       <div className="flex justify-between mb-px">
-        <span className="label-caps truncate mr-1">{FACTION_LABELS[factionKey]}</span>
+        <span className="label-caps truncate mr-1" style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+          {(() => { const Ic = FACTION_ICONS[factionKey]?.icon; return Ic ? <Ic size={10} style={{ flexShrink: 0 }} /> : null })()}
+          {FACTION_LABELS[factionKey]}
+        </span>
         <span className="label-caps shrink-0" style={{ color: 'var(--text)' }}>{value}</span>
       </div>
       <div className="relative h-1.5 w-full overflow-hidden" style={{ backgroundColor: 'var(--neutral-4)' }}>

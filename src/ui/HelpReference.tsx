@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
-import { STAT_ICONS } from '../data/icons'
+import type { LucideIcon } from 'lucide-react'
+import { STAT_ICONS, FACTION_ICONS } from '../data/icons'
 
 const STAT_ROW_KEYS: Record<string, keyof typeof STAT_ICONS> = {
   'Cash Reserve': 'cashReserve',
@@ -8,6 +9,15 @@ const STAT_ROW_KEYS: Record<string, keyof typeof STAT_ICONS> = {
   'Infrastructure Score': 'infrastructureScore',
   'Corruption Pressure': 'corruptionPressure',
   'Youth Tension': 'youthTension',
+}
+
+const FACTION_ROW_KEYS: Record<string, keyof typeof FACTION_ICONS> = {
+  'Business Community': 'businessCommunity',
+  'Informal Economy': 'informalEconomy',
+  'Party Godfathers': 'partyGodfathers',
+  'Federal Government': 'federalGovt',
+  'Civil Society / Media': 'civilSocietyMedia',
+  'LG Chairmen': 'lgChairmen',
 }
 
 const SECTIONS = [
@@ -105,13 +115,17 @@ export function HelpReference({ onClose }: { onClose: () => void }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {section.rows.map((row) => {
                 const isStats = section.label === 'Key Stats'
-                const IconComp = isStats ? STAT_ICONS[STAT_ROW_KEYS[row.condition]]?.icon : undefined
+                const isFactions = section.label === 'Factions'
+                const hasIcon = isStats || isFactions
+                let IconComp: LucideIcon | undefined
+                if (isStats) IconComp = STAT_ICONS[STAT_ROW_KEYS[row.condition]]?.icon
+                if (isFactions) IconComp = FACTION_ICONS[FACTION_ROW_KEYS[row.condition]]?.icon
                 return (
                   <div
                     key={row.condition}
                     style={{
                       display:             'grid',
-                      gridTemplateColumns: isStats ? '18px 130px 1fr' : '130px 1fr',
+                      gridTemplateColumns: hasIcon ? '18px 130px 1fr' : '130px 1fr',
                       gap:                 '8px',
                       padding:             '6px 8px',
                       background:          'var(--surface)',
@@ -120,7 +134,7 @@ export function HelpReference({ onClose }: { onClose: () => void }) {
                       lineHeight:          1.5,
                     }}
                   >
-                    {isStats && (
+                    {hasIcon && (
                       <span style={{ display: 'flex', alignItems: 'center', color: 'var(--text-secondary)' }}>
                         {IconComp && <IconComp size={12} />}
                       </span>
