@@ -1,6 +1,5 @@
 import type { EventCard, GameState } from '../state/types'
 import { drawNextEvent, resolveEvent } from './eventEngine'
-import { resolveGodfather } from './godfatherEngine'
 import { tick } from './gameLoop'
 
 export type SimulateStrategy = 'first' | 'random' | 'weighted' | 'winning'
@@ -184,17 +183,20 @@ function shouldAcceptGodfather(state: GameState): boolean {
 function autoResolveWeek(state: GameState, strategy: SimulateStrategy, rng: () => number): GameState {
   let s = state
 
-  // Dismiss godfather message
-  if (s.activeGodfatherMessage) {
-    const accept = strategy === 'winning' ? shouldAcceptGodfather(s) : rng() > 0.5
-    s = resolveGodfather(s, s.activeGodfatherMessage, accept)
-  }
-
   // Resolve up to 2 events per week
   let safety = 0
   while (s.activeEvent && s.eventsResolvedThisWeek < 2 && safety < 10) {
     const event = s.activeEvent
-    const choiceId = pickChoiceId(event, strategy, rng, strategy === 'winning' ? s : undefined)
+
+    // Godfather events use dedicated strategy logic instead of generic choice scoring
+    let choiceId: string
+    if (event.category === 'godfather') {
+      const accept = strategy === 'winning' ? shouldAcceptGodfather(s) : rng() > 0.5
+      choiceId = accept ? event.choices[0].id : event.choices[1].id
+    } else {
+      choiceId = pickChoiceId(event, strategy, rng, strategy === 'winning' ? s : undefined)
+    }
+
     s = resolveEvent({ ...s, activeEvent: null }, event, choiceId)
     if (!s.activeEvent && s.eventsResolvedThisWeek < 2) {
       const next = drawNextEvent(s)

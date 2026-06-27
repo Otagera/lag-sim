@@ -86,9 +86,6 @@ function MessageDetail({
   msg: InboxMessage
   onBack: () => void
 }) {
-  const acceptGodfather = useGameStore((s) => s.acceptGodfather)
-  const refuseGodfather = useGameStore((s) => s.refuseGodfather)
-
   const borderColor = TONE_COLORS[msg.tone] ?? 'var(--border)'
 
   return (
@@ -146,33 +143,6 @@ function MessageDetail({
         >
           {msg.body}
         </div>
-
-        {/* Godfather ask — inline Accept/Refuse */}
-        {msg.isGodfatherAsk && !msg.actioned && msg.godfatherAskDescription && (
-          <div className="space-y-2">
-            <p className="text-[10px] font-medium" style={{ color: 'var(--text-secondary)' }}>
-              Demand: {msg.godfatherAskDescription}
-            </p>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={acceptGodfather}
-                className="flex-1 px-3 py-1.5 text-[11px] font-semibold transition-colors"
-                style={{ backgroundColor: 'var(--warning-9)', color: 'var(--accent-on-solid)' }}
-              >
-                Accept
-              </button>
-              <button
-                type="button"
-                onClick={refuseGodfather}
-                className="flex-1 px-3 py-1.5 text-[11px] border transition-colors"
-                style={{ borderColor: 'var(--border)', color: 'var(--text)', backgroundColor: 'var(--surface)' }}
-              >
-                Refuse
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Linked event — Respond button */}
         {msg.linkedEventId && (

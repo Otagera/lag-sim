@@ -6,8 +6,8 @@ import { calculateVoteShare } from './electionEngine'
 import { ALL_EVENTS, drawNextEvent, firePendingDelayed } from './eventEngine'
 import { calculateWeeklyExpenditure } from './expenditureEngine'
 import { applyFactionDeltaState, drift } from './factionEngine'
-import { applyFashemuPhaseTransition, drawGodfatherAsk, shouldDrawGodfather } from './godfatherEngine'
-import { generateChiefOfStaffBriefing, generateDeputyMessage, generateGodfatherAskMessage, generateGodfatherPhaseMessage, generateNPCActivationMessage } from './inboxEngine'
+import { applyFashemuPhaseTransition, drawGodfatherAsk, godfatherToEventCard, shouldDrawGodfather } from './godfatherEngine'
+import { generateChiefOfStaffBriefing, generateDeputyMessage, generateGodfatherPhaseMessage, generateNPCActivationMessage } from './inboxEngine'
 import { emergencyBridgeLoan } from './debtEngine'
 import { primaryContestLossEvent, removalResolutionEvent } from '../data/events/characters'
 import { processProjects } from './projectEngine'
@@ -303,11 +303,12 @@ export function tick(state: GameState): GameState {
     if (shouldDrawGodfather(next)) {
       const message = drawGodfatherAsk(next)
       if (message) {
-        const inboxMsg = generateGodfatherAskMessage(next, message.text, message.ask.description)
+        const event = godfatherToEventCard(message)
         next = {
           ...next,
-          activeGodfatherMessage: message,
-          inbox: [...next.inbox, inboxMsg],
+          usedGodfatherAskIds: [...next.usedGodfatherAskIds, message.id],
+          lastGodfatherWeek: next.week,
+          eventQueue: [...next.eventQueue, event],
         }
       }
     }

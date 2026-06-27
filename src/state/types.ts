@@ -190,7 +190,7 @@ export type EventCard = {
   maxTotalFirings?: number
   weight?: number
   severity: 'low' | 'medium' | 'high' | 'critical'
-  category: 'transport' | 'infrastructure' | 'political' | 'crisis' | 'economy' | 'social' | 'election' | 'riot'
+  category: 'transport' | 'infrastructure' | 'political' | 'crisis' | 'economy' | 'social' | 'election' | 'riot' | 'godfather'
   season?: 'wet' | 'dry'
   npcArchetype?: NPCArchetypeKey
   npcTier?: 'ally' | 'neutral' | 'hostile'

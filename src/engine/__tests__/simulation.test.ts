@@ -3,7 +3,6 @@ import { STARTING_STATE } from '../../data/startingState'
 import type { GameState, StatKey, FactionKey, ConstituencyKey } from '../../state/types'
 import { tick } from '../gameLoop'
 import { resolveEvent } from '../eventEngine'
-import { resolveGodfather } from '../godfatherEngine'
 
 const BOUNDS: Record<StatKey, { min: number; max: number }> = {
   cashReserve: { min: -Infinity, max: Infinity },
@@ -133,23 +132,24 @@ function runWithSeed(
     s = tick(s)
     invariants(s, w)
 
-    if (s.activeGodfatherMessage) {
-      const accept = godfatherStrategy === 'accept'
-        ? true
-        : godfatherStrategy === 'refuse'
-          ? false
-          : w % 2 === 0
-      s = resolveGodfather(s, s.activeGodfatherMessage, accept)
-      invariants(s, w)
-    }
-
     if (s.activeEvent) {
-      const choiceIdx = eventStrategy === 'first'
-        ? 0
-        : eventStrategy === 'last'
-          ? s.activeEvent.choices.length - 1
-          : w % 2
-      const choiceId = s.activeEvent.choices[choiceIdx]?.id
+      // Godfather events use dedicated strategy; other events use eventStrategy
+      let choiceId: string | undefined
+      if (s.activeEvent.category === 'godfather') {
+        const accept = godfatherStrategy === 'accept'
+          ? true
+          : godfatherStrategy === 'refuse'
+            ? false
+            : w % 2 === 0
+        choiceId = accept ? s.activeEvent.choices[0].id : s.activeEvent.choices[1].id
+      } else {
+        const choiceIdx = eventStrategy === 'first'
+          ? 0
+          : eventStrategy === 'last'
+            ? s.activeEvent.choices.length - 1
+            : w % 2
+        choiceId = s.activeEvent.choices[choiceIdx]?.id
+      }
       if (choiceId) {
         s = resolveEvent(s, s.activeEvent, choiceId)
         invariants(s, w)
@@ -244,14 +244,11 @@ describe('simulation — invariant fuzz', () => {
       invariants(s, w)
 
       if (s.activeEvent) {
-        // Pick a random choice index based on week
-        const idx = w % s.activeEvent.choices.length
-        s = resolveEvent(s, s.activeEvent, s.activeEvent.choices[idx].id)
-        invariants(s, w)
-      }
-
-      if (s.activeGodfatherMessage) {
-        s = resolveGodfather(s, s.activeGodfatherMessage, w % 3 !== 0)
+        // Godfather: refuse 2 out of 3; other events: pick choice by week
+        const choiceId = s.activeEvent.category === 'godfather'
+          ? s.activeEvent.choices[w % 3 === 0 ? 0 : 1].id
+          : s.activeEvent.choices[w % s.activeEvent.choices.length].id
+        s = resolveEvent(s, s.activeEvent, choiceId)
         invariants(s, w)
       }
     }
@@ -268,11 +265,10 @@ describe('simulation — invariant fuzz', () => {
       invariants(s, w)
 
       if (s.activeEvent) {
-        s = resolveEvent(s, s.activeEvent, s.activeEvent.choices[0].id)
-      }
-
-      if (s.activeGodfatherMessage) {
-        s = resolveGodfather(s, s.activeGodfatherMessage, false)
+        // Always refuse godfather events; pick first choice for everything else
+        const isGodfather = s.activeEvent.category === 'godfather'
+        const choiceId = isGodfather ? s.activeEvent.choices[1].id : s.activeEvent.choices[0].id
+        s = resolveEvent(s, s.activeEvent, choiceId)
       }
 
       invariants(s, w)

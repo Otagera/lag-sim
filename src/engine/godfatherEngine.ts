@@ -1,5 +1,5 @@
 import { fashemuAsks, generalGodfatherPool } from '../data/godfatherAsks'
-import type { FashemuPhase, GameState, GodfatherMessage, StatDelta } from '../state/types'
+import type { EventCard, FashemuPhase, GameState, GodfatherMessage, StatDelta } from '../state/types'
 import { applyFactionDelta } from './factionEngine'
 import { applyDelta } from './statEngine'
 
@@ -78,6 +78,32 @@ export function drawGodfatherAsk(state: GameState): GodfatherMessage | null {
       onAccept: template.onAccept,
       onRefuse: template.onRefuse,
     },
+  }
+}
+
+export function godfatherToEventCard(message: GodfatherMessage): EventCard {
+  return {
+    id: message.id,
+    title: 'A Request from Chief Fashemu',
+    body: message.text,
+    severity: 'high',
+    category: 'godfather',
+    choices: [
+      {
+        id: `${message.id}:accept`,
+        label: 'Accept',
+        description: message.ask.description,
+        immediate: message.ask.onAccept as any,
+        factionImpact: message.ask.onAccept.factionImpact ?? {},
+      },
+      {
+        id: `${message.id}:refuse`,
+        label: 'Refuse',
+        description: `Decline: ${message.ask.description}`,
+        immediate: message.ask.onRefuse as any,
+        factionImpact: message.ask.onRefuse.factionImpact ?? {},
+      },
+    ],
   }
 }
 
@@ -182,7 +208,7 @@ export function applyFashemuPhaseTransition(state: GameState): GameState {
   return { ...state, fashemuPhase: newPhase }
 }
 
-function applyEscalation(state: GameState, refusalCount: number): GameState {
+export function applyEscalation(state: GameState, refusalCount: number): GameState {
   switch (refusalCount) {
     case 1:
       return state

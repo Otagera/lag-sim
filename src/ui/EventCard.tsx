@@ -205,24 +205,32 @@ export function EventCard() {
 
   // Active event view
   const sev = SEVERITY_TEXT[activeEvent.severity] ?? { label: activeEvent.severity, color: 'var(--text-secondary)' }
+  const isGodfather = activeEvent.category === 'godfather'
+  const godfatherColor = '#8b0000'
+  const accentColor = isGodfather ? godfatherColor : 'var(--accent-solid)'
 
   return (
     <div
       className="border"
       style={{
-        borderColor: 'var(--border)',
+        borderColor: isGodfather ? godfatherColor : 'var(--border)',
         borderTopWidth: '2px',
-        borderTopColor: 'var(--accent-solid)',
+        borderTopColor: accentColor,
         backgroundColor: 'var(--surface)',
+        ...(isGodfather ? { boxShadow: 'inset 0 0 0 1px rgba(139,0,0,0.15)' } : {}),
       }}
     >
       <div style={{ padding: '20px 24px' }}>
         <div className="flex items-center gap-2 mb-2">
-          <span className="label-caps" style={{ color: sev.color }}>{sev.label}</span>
+          {isGodfather ? (
+            <span className="label-caps" style={{ color: godfatherColor }}>Chief Fashemu</span>
+          ) : (
+            <span className="label-caps" style={{ color: sev.color }}>{sev.label}</span>
+          )}
           <span className="label-caps" style={{ color: 'var(--text-secondary)' }}>{activeEvent.category}</span>
         </div>
 
-        <div style={{ height: '1px', background: 'linear-gradient(to right, transparent, var(--accent-solid), transparent)', margin: '6px 0 10px' }} />
+        <div style={{ height: '1px', background: `linear-gradient(to right, transparent, ${accentColor}, transparent)`, margin: '6px 0 10px' }} />
 
         <h2 className="font-display font-semibold" style={{ fontSize: '26px', color: 'var(--text)', lineHeight: 1.25 }}>
           {activeEvent.title}

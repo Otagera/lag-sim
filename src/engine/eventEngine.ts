@@ -16,6 +16,8 @@ import { routineEvents } from '../data/events/routine'
 import { socialEvents } from '../data/events/social'
 import { transportEvents } from '../data/events/transport'
 import { narrateConsequence } from './consequenceNarrator'
+import { fashemuAsks } from '../data/godfatherAsks'
+import { applyEscalation as applyGodfatherEscalation } from './godfatherEngine'
 import type { EventCard, GameState, PendingEvent, StatKey, TimelineEntry } from '../state/types'
 import { applyConstituencyImpact } from './constituencyEngine'
 import { applyFactionDelta } from './factionEngine'
@@ -290,6 +292,38 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
   const updatedBeats = consequenceBeat
     ? [...state.consequenceBeats, consequenceBeat]
     : state.consequenceBeats
+
+  // Godfather-specific bookkeeping (category-based, not inbox-ask)
+  if (event.category === 'godfather') {
+    const accepted = choiceId.endsWith(':accept')
+    const isFashemuAsk = fashemuAsks.some((a) => a.id === event.id)
+
+    next = {
+      ...next,
+      activeGodfatherMessage: null,
+    }
+
+    if (accepted) {
+      next = { ...next, godfatherComplianceCount: next.godfatherComplianceCount + 1 }
+      if (isFashemuAsk) {
+        next = {
+          ...next,
+          fashemuAskIndex: next.fashemuAskIndex + 1,
+          fashemuRelationship: Math.min(100, next.fashemuRelationship + 15),
+        }
+      }
+    } else {
+      next = { ...next, godfatherRefusalCount: next.godfatherRefusalCount + 1 }
+      if (isFashemuAsk) {
+        next = {
+          ...next,
+          fashemuAskIndex: next.fashemuAskIndex + 1,
+          fashemuRelationship: Math.max(0, next.fashemuRelationship - 20),
+        }
+      }
+      next = applyGodfatherEscalation(next, next.godfatherRefusalCount)
+    }
+  }
 
   return {
     ...next,
