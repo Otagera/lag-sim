@@ -1,4 +1,14 @@
 import { X } from 'lucide-react'
+import { STAT_ICONS } from '../data/icons'
+
+const STAT_ROW_KEYS: Record<string, keyof typeof STAT_ICONS> = {
+  'Cash Reserve': 'cashReserve',
+  'Public Trust': 'publicTrust',
+  'Political Capital': 'politicalCapital',
+  'Infrastructure Score': 'infrastructureScore',
+  'Corruption Pressure': 'corruptionPressure',
+  'Youth Tension': 'youthTension',
+}
 
 const SECTIONS = [
   {
@@ -93,37 +103,46 @@ export function HelpReference({ onClose }: { onClose: () => void }) {
               {section.label}
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              {section.rows.map((row) => (
-                <div
-                  key={row.condition}
-                  style={{
-                    display:             'grid',
-                    gridTemplateColumns: '130px 1fr',
-                    gap:                 '8px',
-                    padding:             '6px 8px',
-                    background:          'var(--surface)',
-                    borderRadius:        '2px',
-                    fontSize:            '12px',
-                    lineHeight:          1.5,
-                  }}
-                >
-                  <span style={{
-                    fontFamily: "'Archivo Narrow', sans-serif",
-                    fontWeight: 600,
-                    color:      'var(--text)',
-                  }}>
-                    {row.condition}
-                  </span>
-                  <span style={{
-                    fontFamily: 'Georgia, serif',
-                    color:      'var(--text-secondary)',
-                  }}>
-                    {row.recovery
-                      ? `${row.threshold} — ${row.recovery}`
-                      : row.threshold}
-                  </span>
-                </div>
-              ))}
+              {section.rows.map((row) => {
+                const isStats = section.label === 'Key Stats'
+                const IconComp = isStats ? STAT_ICONS[STAT_ROW_KEYS[row.condition]]?.icon : undefined
+                return (
+                  <div
+                    key={row.condition}
+                    style={{
+                      display:             'grid',
+                      gridTemplateColumns: isStats ? '18px 130px 1fr' : '130px 1fr',
+                      gap:                 '8px',
+                      padding:             '6px 8px',
+                      background:          'var(--surface)',
+                      borderRadius:        '2px',
+                      fontSize:            '12px',
+                      lineHeight:          1.5,
+                    }}
+                  >
+                    {isStats && (
+                      <span style={{ display: 'flex', alignItems: 'center', color: 'var(--text-secondary)' }}>
+                        {IconComp && <IconComp size={12} />}
+                      </span>
+                    )}
+                    <span style={{
+                      fontFamily: "'Archivo Narrow', sans-serif",
+                      fontWeight: 600,
+                      color:      'var(--text)',
+                    }}>
+                      {row.condition}
+                    </span>
+                    <span style={{
+                      fontFamily: 'Georgia, serif',
+                      color:      'var(--text-secondary)',
+                    }}>
+                      {row.recovery
+                        ? `${row.threshold} — ${row.recovery}`
+                        : row.threshold}
+                    </span>
+                  </div>
+                )
+              })}
             </div>
           </section>
         ))}

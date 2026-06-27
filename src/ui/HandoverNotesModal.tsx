@@ -1,6 +1,8 @@
 import { useGameStore } from '../state/gameStore'
 import { ALL_GOALS } from '../data/goals'
 import { ARCHETYPES } from '../data/archetypes'
+import { STAT_ICONS } from '../data/icons'
+import type { LucideIcon } from 'lucide-react'
 import type { ArchetypeKey } from '../data/archetypes'
 
 const ARCHETYPE_COS_NOTE: Record<ArchetypeKey, string> = {
@@ -180,9 +182,9 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
         <section style={{ marginBottom: '32px' }}>
           <SectionHeader label="Fiscal Position" color="var(--accent-text)" />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '12px' }}>
-            <FiscalStat label="Cash Reserve"      value={`₦${stats.cashReserve.toFixed(1)}bn`}  color={stats.cashReserve < 20 ? 'var(--error-11)' : 'var(--text)'} />
-            <FiscalStat label="Weekly Revenue"    value={`₦${stats.igr.toFixed(1)}bn`}           color="var(--success-11)" />
-            <FiscalStat label="Weekly Outgoings"  value={`₦${stats.expenditure.toFixed(1)}bn`}   color={net < 0 ? 'var(--error-11)' : 'var(--text)'} />
+            <FiscalStat label="Cash Reserve"      value={`₦${stats.cashReserve.toFixed(1)}bn`}  color={stats.cashReserve < 20 ? 'var(--error-11)' : 'var(--text)'} icon={STAT_ICONS.cashReserve.icon} />
+            <FiscalStat label="Weekly Revenue"    value={`₦${stats.igr.toFixed(1)}bn`}           color="var(--success-11)" icon={STAT_ICONS.igr.icon} />
+            <FiscalStat label="Weekly Outgoings"  value={`₦${stats.expenditure.toFixed(1)}bn`}   color={net < 0 ? 'var(--error-11)' : 'var(--text)'} icon={STAT_ICONS.expenditure.icon} />
           </div>
           <div style={{
             padding:    '10px 12px',
@@ -289,7 +291,7 @@ function SectionHeader({ label, color }: { label: string; color: string }) {
   )
 }
 
-function FiscalStat({ label, value, color }: { label: string; value: string; color: string }) {
+function FiscalStat({ label, value, color, icon: Icon }: { label: string; value: string; color: string; icon?: LucideIcon }) {
   return (
     <div style={{
       padding:    '10px 12px',
@@ -297,7 +299,7 @@ function FiscalStat({ label, value, color }: { label: string; value: string; col
       border:     '1px solid var(--border)',
       borderRadius: '2px',
     }}>
-      <div className="label-caps" style={{ marginBottom: '4px' }}>{label}</div>
+      <div className="label-caps" style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>{Icon && <Icon size={11} style={{ flexShrink: 0 }} />}{label}</div>
       <div style={{
         fontFamily: "'Archivo Narrow', sans-serif",
         fontSize:   '16px',

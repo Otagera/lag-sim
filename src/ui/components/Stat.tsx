@@ -1,3 +1,4 @@
+import { type LucideIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 interface StatProps {
@@ -9,6 +10,7 @@ interface StatProps {
   suffix?:    string
   decimals?:  number
   title?:     string   // native tooltip on hover
+  icon?:      LucideIcon
 }
 
 function useCountTo(target: number, dur = 700) {
@@ -43,7 +45,7 @@ function fmt(v: number, format: StatProps['format'], decimals = 0, suffix = '') 
   }
 }
 
-export function Stat({ label, value, format = 'number', warn, danger, suffix, decimals, title }: StatProps) {
+export function Stat({ label, value, format = 'number', warn, danger, suffix, decimals, title, icon: Icon }: StatProps) {
   const display = useCountTo(value)
 
   const color = danger ? 'var(--error-9)' :
@@ -52,7 +54,8 @@ export function Stat({ label, value, format = 'number', warn, danger, suffix, de
 
   return (
     <div title={title} style={{ display: 'flex', flexDirection: 'column', gap: '1px', minWidth: 0 }}>
-      <div className="label-caps" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+      <div className="label-caps" style={{ display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        {Icon && <Icon size={11} style={{ flexShrink: 0 }} />}
         {label}
       </div>
       <div
