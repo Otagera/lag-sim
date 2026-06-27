@@ -15,6 +15,7 @@ import { FactionPanel } from './ui/FactionPanel'
 import { Inbox } from './ui/Inbox'
 import { NPCPanel } from './ui/NPCPanel'
 import { LegacyScreen } from './ui/LegacyScreen'
+import { HelpReference } from './ui/HelpReference'
 import { formatGameMonth } from './utils/calendar'
 import { CabinetPanel } from './ui/CabinetPanel'
 import { DeputyPanel } from './ui/DeputyPanel'
@@ -38,7 +39,7 @@ const DOCK_TABS: { id: DockTab; label: string; Icon: LucideIcon }[] = [
 
 // ─── Status bar ───────────────────────────────────────────────────────────────
 function StatusBar({
-  termLabel, monthLabel, onTick, canTick, onResearch, onProjects,
+  termLabel, monthLabel, onTick, canTick, onResearch, onProjects, onOpenReference,
 }: {
   termLabel:   string
   monthLabel:  string
@@ -46,6 +47,7 @@ function StatusBar({
   canTick:     boolean
   onResearch:  () => void
   onProjects:  () => void
+  onOpenReference: () => void
 }) {
   const cashReserve       = useGameStore((s) => s.stats.cashReserve)
   const publicTrust       = useGameStore((s) => s.stats.publicTrust)
@@ -92,6 +94,30 @@ function StatusBar({
       </div>
 
       <div className="status-bar-actions" style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+        <button
+          type="button"
+          onClick={onOpenReference}
+          style={{
+            background:   'none',
+            border:       'none',
+            borderRadius: '2px',
+            width:        '24px',
+            height:       '24px',
+            fontSize:     '14px',
+            fontWeight:   700,
+            fontFamily:   "'Archivo Narrow', sans-serif",
+            color:        'var(--text-secondary)',
+            cursor:       'pointer',
+            lineHeight:   1,
+            display:      'flex',
+            alignItems:   'center',
+            justifyContent: 'center',
+            opacity:      0.6,
+          }}
+          title="Quick Reference"
+        >
+          ?
+        </button>
         <button
           type="button"
           onClick={onResearch}
@@ -245,9 +271,10 @@ export default function GameApp() {
   const inbox           = useGameStore((s) => s.inbox)
 
   const llmAttempted = useRef(new Set<string>())
-  const [showResearch, setShowResearch] = useState(false)
-  const [showProjects, setShowProjects] = useState(false)
-  const [activePanel,  setActivePanel]  = useState<DockTab | null>(null)
+  const [showResearch,  setShowResearch]  = useState(false)
+  const [showProjects,  setShowProjects]  = useState(false)
+  const [showReference, setShowReference] = useState(false)
+  const [activePanel,   setActivePanel]   = useState<DockTab | null>(null)
 
   useEffect(() => {
     if (!newspaperHeadline || newspaperHeadline.llmGenerated || newspaperHeadline.llmPending) return
@@ -306,6 +333,7 @@ export default function GameApp() {
           color:         'var(--text)',
         }}
       >
+        {showReference && <HelpReference onClose={() => setShowReference(false)} />}
         <StatusBar
           termLabel={termLabel}
           monthLabel={monthLabel}
@@ -313,6 +341,7 @@ export default function GameApp() {
           canTick={!isGameOver}
           onResearch={() => setShowResearch(true)}
           onProjects={() => setShowProjects(true)}
+          onOpenReference={() => setShowReference(true)}
         />
 
         <div style={{ height: '2px', background: 'var(--border-subtle)', flexShrink: 0 }}>
