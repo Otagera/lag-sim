@@ -78,7 +78,7 @@ const introRoute = createRoute({
     const navigate = useNavigate()
     return (
       <WelcomeModal
-        onStart={() => navigate({ to: '/new-game/archetype' })}
+        onStart={() => navigate({ to: '/new-game/archetype', replace: true })}
       />
     )
   },
@@ -94,7 +94,7 @@ const archetypeRoute = createRoute({
       <ArchetypeSelectionScreen
         onSelect={(_key: ArchetypeKey) => {
           // ArchetypeSelectionScreen already sets runMeta.archetype in Zustand on select
-          navigate({ to: '/new-game/deputy' })
+          navigate({ to: '/new-game/deputy', replace: true })
         }}
       />
     )
@@ -111,7 +111,7 @@ const deputyRoute = createRoute({
     return (
       <DeputySelectionScreen
         archetypeKey={archetypeKey}
-        onSelect={() => navigate({ to: '/new-game/handover' })}
+        onSelect={() => navigate({ to: '/new-game/handover', replace: true })}
       />
     )
   },
@@ -127,7 +127,7 @@ const handoverRoute = createRoute({
     return (
       <HandoverNotesModal
         archetypeKey={archetypeKey}
-        onClose={() => navigate({ to: '/new-game/goal', search: { context: 'new-game' } })}
+        onClose={() => navigate({ to: '/new-game/goal', search: { context: 'new-game' }, replace: true })}
       />
     )
   },
@@ -146,7 +146,7 @@ const goalRoute = createRoute({
     return (
       <GoalSelectionScreen
         context={context}
-        onSelect={() => navigate({ to: '/game' })}
+        onSelect={() => navigate({ to: '/game', replace: true })}
       />
     )
   },

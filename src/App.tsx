@@ -275,7 +275,7 @@ export default function GameApp() {
   function handleLegacyNewGame() {
     clearSave()
     useGameStore.setState({ ...STARTING_STATE })
-    navigate({ to: '/' })
+    navigate({ to: '/', replace: true })
   }
 
   const termBaseWeek = currentTerm === 2 ? week - 208 : week
