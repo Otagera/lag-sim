@@ -4,6 +4,7 @@ import { ThemeProvider } from './ui/design/ThemeProvider'
 import { DevPanel } from './ui/DevPanel'
 import { WelcomeScreen } from './ui/WelcomeScreen'
 import { WelcomeModal, hasSeenIntro } from './ui/WelcomeModal'
+import { GameErrorBoundary } from './ui/ErrorBoundary'
 import { ArchetypeSelectionScreen } from './ui/ArchetypeSelectionScreen'
 import { DeputySelectionScreen } from './ui/DeputySelectionScreen'
 import { HandoverNotesModal } from './ui/HandoverNotesModal'
@@ -46,11 +47,7 @@ const indexRoute = createRoute({
       const saved = loadGame()
       if (!saved) return
       useGameStore.setState({ ...saved })
-      if (saved.selectedGoalId === null && saved.week > 1) {
-        navigate({ to: '/new-game/goal', search: { context: 'migration' } })
-      } else {
-        navigate({ to: '/game' })
-      }
+      navigate({ to: '/game' })
     }
 
     return (
@@ -158,20 +155,35 @@ function GameRouteGuard() {
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    if (hasSavedGame()) {
-      const state = useGameStore.getState()
-      // Store at pure STARTING_STATE defaults means it wasn't loaded from save
-      // This happens when user refreshes on /game directly
-      if (state.week === 1 && state.runMeta.archetype === null && state.selectedGoalId === null) {
-        navigate({ to: '/' })
-        return
-      }
+    // 1. Try to restore from saved game first (handles refresh mid-game)
+    const saved = loadGame()
+    if (saved) {
+      useGameStore.setState({ ...saved })
+      setReady(true)
+      return
     }
+
+    // 2. No save — check if store has been properly initialised from setup flow
+    const state = useGameStore.getState()
+    const hasValidGame =
+      state.week >= 1 &&
+      state.runMeta.archetype !== null &&
+      state.deputy !== null
+
+    if (!hasValidGame) {
+      navigate({ to: '/', replace: true })
+      return
+    }
+
     setReady(true)
   }, [navigate])
 
   if (!ready) return null
-  return <GameApp />
+  return (
+    <GameErrorBoundary>
+      <GameApp />
+    </GameErrorBoundary>
+  )
 }
 
 const gameRoute = createRoute({
