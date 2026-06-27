@@ -8,6 +8,7 @@ interface StatProps {
   danger?:    boolean
   suffix?:    string
   decimals?:  number
+  title?:     string   // native tooltip on hover
 }
 
 function useCountTo(target: number, dur = 700) {
@@ -42,7 +43,7 @@ function fmt(v: number, format: StatProps['format'], decimals = 0, suffix = '') 
   }
 }
 
-export function Stat({ label, value, format = 'number', warn, danger, suffix, decimals }: StatProps) {
+export function Stat({ label, value, format = 'number', warn, danger, suffix, decimals, title }: StatProps) {
   const display = useCountTo(value)
 
   const color = danger ? 'var(--error-9)' :
@@ -50,7 +51,7 @@ export function Stat({ label, value, format = 'number', warn, danger, suffix, de
                 'var(--text)'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', minWidth: 0 }}>
+    <div title={title} style={{ display: 'flex', flexDirection: 'column', gap: '1px', minWidth: 0 }}>
       <div className="label-caps" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
         {label}
       </div>

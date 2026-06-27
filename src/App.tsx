@@ -86,9 +86,9 @@ function StatusBar({
       <div className="status-bar-spacer" style={{ flex: 1 }} />
 
       <div className="status-bar-stats" style={{ display: 'flex', gap: 'var(--status-bar-stats-gap, 20px)', alignItems: 'center' }}>
-        <Stat label="Treasury"  value={cashReserve}      format="currency" warn={cashWarn}  danger={cashReserve < 8} />
-        <Stat label="Trust"     value={publicTrust}      format="percent"  warn={trustWarn} danger={publicTrust < 25} />
-        <Stat label="Pol. Cap"  value={politicalCapital} warn={pcWarn}     danger={politicalCapital < 10} />
+        <Stat label="Treasury"  value={cashReserve}      format="currency" warn={cashWarn}  danger={cashReserve < 8}  title="Weekly revenue minus expenditure. Below 15bn triggers warnings; negative for 3+ weeks = bankruptcy." />
+        <Stat label="Trust"     value={publicTrust}      format="percent"  warn={trustWarn} danger={publicTrust < 25} title="Public approval rating. Below 25% risks mass uprising if youth tension is high." />
+        <Stat label="Pol. Cap"  value={politicalCapital} warn={pcWarn}     danger={politicalCapital < 10} title="Political capital to spend on bold actions. Earned by wins; spent on hard choices." />
       </div>
 
       <div className="status-bar-actions" style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
