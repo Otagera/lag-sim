@@ -3,8 +3,8 @@ import type { EventCard } from '../../state/types'
 export const economyEvents: EventCard[] = [
   {
     id: 'taxEvasionScandal',
-    title: 'Tax Evasion Scandal',
-    body: `A major tax evasion scandal has come to light, involving several high-profile businesses in the city. The public is outraged and demanding accountability.`,
+    title: 'LIRS Audit Exposes ₦14bn Tax Evasion Ring',
+    body: `A Lagos Internal Revenue Service audit has uncovered systematic PAYE evasion across 23 telecoms and FMCG companies operating in Ikeja and VI. Estimated unpaid liability: ₦14.3bn over three years. The FIRS says it's a state matter. The companies say the assessments are wrong. SERAP has filed a freedom-of-information request naming your office.`,
     severity: 'medium',
     category: 'economy',
     week: 4,
@@ -12,18 +12,18 @@ export const economyEvents: EventCard[] = [
     choices: [
       {
         id: 'investigateThoroughly',
-        label: 'Investigate Thoroughly',
+        label: 'Pursue Full Recovery',
         description:
-          'Launch a comprehensive investigation into the scandal, demonstrating a commitment to justice.',
+          'Back the LIRS assessments. Instruct the AG to file civil recovery suits. Trust +10, Business Community -10, Civil Society +5.',
         immediate: { publicTrust: +10, politicalCapital: -15 },
         factionImpact: { businessCommunity: -10, civilSocietyMedia: +5 },
         politicalCapitalCost: 15,
       },
       {
         id: 'downplayIssue',
-        label: 'Downplay the Issue',
+        label: 'Negotiate Quiet Settlement',
         description:
-          "Minimize the scandal's impact in public statements, but risk losing credibility.",
+          'Allow the companies to settle at a reduced figure without public proceedings. Business Community +5 but it will leak.',
         immediate: { publicTrust: -5, politicalCapital: +10 },
         factionImpact: { businessCommunity: +5, civilSocietyMedia: -5 },
         politicalCapitalCost: 10,
@@ -32,8 +32,8 @@ export const economyEvents: EventCard[] = [
   },
   {
     id: 'inflationSpike',
-    title: 'Inflation Spike',
-    body: `The city is experiencing a sudden spike in inflation, leading to increased prices for goods and services. Citizens are struggling to cope with the rising cost of living.`,
+    title: 'Staples Crisis: Mile 12 Prices up 60%',
+    body: `Tomatoes are ₦4,000 per basket at Mile 12. Onions are ₦6,500. A 50kg bag of rice — basic household staples — has jumped 60% in three weeks following the naira slide and a northern supply chain breakdown. Market women in Ojota and Oyingbo are reporting empty stalls. The CBN says it's a supply-side problem. Your traders say it's your problem.`,
     severity: 'high',
     category: 'economy',
     week: 5,
@@ -41,19 +41,19 @@ export const economyEvents: EventCard[] = [
     choices: [
       {
         id: 'implementPriceControls',
-        label: 'Implement Price Controls',
+        label: 'Emergency Price Cap',
         description:
-          'Introduce temporary price controls on essential goods to protect citizens from inflation.',
-        immediate: { expenditure: -5, publicTrust: +10 },
+          'Gazette maximum prices for key staples through LASCOPA. Traders will resist; enforcement is difficult. Trust +10, Business Community -5.',
+        immediate: { publicTrust: +10 },
         factionImpact: { civilSocietyMedia: +5, businessCommunity: -5 },
         politicalCapitalCost: 20,
       },
       {
         id: 'promoteEconomicGrowth',
-        label: 'Promote Economic Growth',
+        label: 'Fund Emergency Supply Routes',
         description:
-          'Focus on long-term economic growth strategies to stabilize the economy, but it may take time to see results.',
-        immediate: { expenditure: -10, igr: +5 },
+          'Contract LASWA and LAMATA to open alternative supply lanes from Epe and Badagry farms directly to markets. Slower, but sustainable. IGR +5 medium-term.',
+        immediate: { igr: +5 },
         factionImpact: { businessCommunity: +5, civilSocietyMedia: -5 },
         politicalCapitalCost: 25,
       },

@@ -155,6 +155,8 @@ export type Choice = {
   setFlags?: Record<string, boolean>
   npcImpact?: Partial<Record<NPCArchetypeKey, number>>
   resentmentDelta?: number
+  clearDeputy?: boolean       // sets state.deputy = null (resignation/removal)
+  setDeputy?: DeputyKey       // installs a new deputy (replacement appointment)
   launchInitiative?: {
     id: string
     name: string
@@ -279,6 +281,28 @@ export type RunMeta = {
   simWeeksSkipped: number | null
 }
 
+export type MediaChannel = 'newspaper' | 'shortVideo' | 'tweet' | 'podcast' | 'whatsapp'
+
+export interface ChannelMeta {
+  channel: MediaChannel
+  // short-video
+  views?: number
+  creatorHandle?: string
+  // tweet
+  handle?: string
+  hashtag?: string
+  retweets?: number
+  likes?: number
+  // podcast
+  showName?: string
+  hostName?: string
+  duration?: string
+  keyQuote?: string
+  // whatsapp
+  forwardCount?: number
+  isRumor?: boolean
+}
+
 export type NewsArticle = {
   headline: string
   deck: string
@@ -294,6 +318,7 @@ export type NewsArticle = {
   publicationId?: string
   framingCaption?: string
   framingEditorialNote?: string
+  channelMeta?: ChannelMeta
 }
 
 // --- End Phase 2 Types ---

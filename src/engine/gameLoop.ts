@@ -18,6 +18,7 @@ import { applyDelta } from './statEngine'
 import { evaluateNews } from './evaluateNews'
 import { tickResearchNodes } from './researchEngine'
 import { selectPublicationForArticle, pickFramingVariant } from './publicationEngine'
+import { selectChannelMeta } from './channelEngine'
 import { getGoal, getGoalIsMet, getGoalProgress } from '../data/goals'
 import { buildEndingNarrative } from './endingNarrator'
 import { ALL_HINTS } from '../data/hints'
@@ -330,13 +331,17 @@ export function tick(state: GameState): GameState {
   const NEWS_COOLDOWN = 3
   const article = (next.week - next.lastNewsWeek >= NEWS_COOLDOWN) ? evaluateNews(state, next) : null
   if (article) {
-    const pub = selectPublicationForArticle(next, article.category)
+    const channelMeta = selectChannelMeta(article, next)
+    const articleWithChannel = { ...article, channelMeta }
+    const pub = channelMeta.channel === 'newspaper'
+      ? selectPublicationForArticle(next, article.category)
+      : null
     if (pub) {
       const framing = pickFramingVariant(pub, article.category)
       let afterPublication: GameState = {
         ...next,
         newspaperHeadline: {
-          ...article,
+          ...articleWithChannel,
           publicationId: pub.id,
           framingCaption: framing?.caption,
           framingEditorialNote: framing?.editorialNote,
@@ -350,7 +355,7 @@ export function tick(state: GameState): GameState {
       }
       next = { ...afterPublication, lastNewsWeek: next.week }
     } else {
-      next = { ...next, newspaperHeadline: article }
+      next = { ...next, newspaperHeadline: articleWithChannel, lastNewsWeek: next.week }
     }
   }
 

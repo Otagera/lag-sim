@@ -192,6 +192,14 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     }
   }
 
+  if (choice.clearDeputy) {
+    next = { ...next, deputy: null }
+  }
+
+  if (choice.setDeputy) {
+    next = { ...next, deputy: { key: choice.setDeputy, resentment: 0, revealed: false } }
+  }
+
   if (choice.launchInitiative) {
     next = { ...next, activeInitiative: choice.launchInitiative }
   }

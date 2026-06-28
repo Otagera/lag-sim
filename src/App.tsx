@@ -6,7 +6,7 @@ import type { LucideIcon } from 'lucide-react'
 import { STARTING_STATE } from './data/startingState'
 import { useGameStore } from './state/gameStore'
 import { clearSave } from './state/persistence'
-import { LagosHerald } from './ui/LagosHerald'
+import { MediaRouter } from './ui/MediaRouter'
 import { BudgetPanel } from './ui/BudgetPanel'
 import { ResearchTree } from './ui/ResearchTree'
 import { ProjectsPanel } from './ui/ProjectsPanel'
@@ -338,7 +338,7 @@ export default function GameApp() {
 
   return (
     <>
-      {newspaperHeadline && <LagosHerald />}
+      {newspaperHeadline && <MediaRouter />}
       {hintDef && <ToastHint text={hintDef.text} onDismiss={handleDismissHint} />}
       {showResearch && <ResearchTree onClose={() => setShowResearch(false)} />}
       {showProjects && <ProjectsPanel onClose={() => setShowProjects(false)} />}

@@ -3,8 +3,8 @@ import type { EventCard } from '../../state/types'
 export const transportEvents: EventCard[] = [
   {
     id: 'trafficCongestion',
-    title: 'Traffic Congestion Crisis',
-    body: `The city is facing severe traffic congestion, leading to delays, increased pollution, and public frustration. Citizens are demanding solutions to improve transportation efficiency.`,
+    title: 'Apapa–Oshodi Expressway: 18-Hour Gridlock',
+    body: `Apapa–Oshodi Expressway has been immovable for 18 hours. Container trucks from the port backed up beyond the Oshodi Interchange, blocking feeder roads into Mushin and Isolo. BRT buses are stranded. A hospital ambulance recorded a 4-hour wait to cover 3km. The Nigerian Ports Authority says it's a state road problem. Dangote's logistics arm issued a statement threatening to reroute freight through Tin Can Island permanently. The business loss is estimated at ₦900m per day of gridlock.`,
     severity: 'high',
     category: 'transport',
     week: 4,
@@ -12,19 +12,19 @@ export const transportEvents: EventCard[] = [
     choices: [
       {
         id: 'investInPublicTransport',
-        label: 'Invest in Public Transport',
+        label: 'Emergency BRT Reroute + Apapa Truck Protocol',
         description:
-          'Allocate funds to improve public transportation infrastructure, encouraging citizens to use alternative modes of transport.',
-        immediate: { expenditure: -10, infrastructureScore: +10 },
+          'Enforce a truck movement window (6–9pm only) and reroute BRT via Ikorodu Road corridor. Infrastructure +10, Business Community +3.',
+        immediate: { infrastructureScore: +10 },
         factionImpact: { federalGovt: +5, businessCommunity: +3 },
         politicalCapitalCost: 20,
       },
       {
         id: 'expandRoadNetwork',
-        label: 'Expand Road Network',
+        label: 'Fast-Track Apapa Link Road Expansion',
         description:
-          'Focus on expanding the road network to accommodate more vehicles, but it may lead to increased traffic in the long run.',
-        immediate: { expenditure: -15, infrastructureScore: +5 },
+          'Commission a second carriageway on the Apapa access route. 12-week build. More permanent fix, bigger cost. Infrastructure +5 now, +8 on completion.',
+        immediate: { infrastructureScore: +5 },
         factionImpact: { federalGovt: +3, businessCommunity: +5 },
         politicalCapitalCost: 25,
       },

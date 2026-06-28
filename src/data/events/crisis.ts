@@ -3,8 +3,8 @@ import type { EventCard } from '../../state/types'
 export const crisisEvents: EventCard[] = [
   {
     id: 'powerOutage',
-    title: 'Citywide Power Outage',
-    body: `A major failure in the city's power grid has caused widespread outages, affecting homes, businesses, and critical infrastructure. The public is frustrated and demanding action.`,
+    title: 'EKEDC Billing Dispute Triggers Wholesale Disconnection',
+    body: `EKEDC has disconnected the Isolo and Mushin distribution feeders over an unpaid government electricity bill — ₦3.1bn accumulated across state secondary schools, health centres, and LGA offices. 48 hours without power. LASUTH's surgical ward is running on generator fuel that ran out this morning. NERC says the disconnection is lawful. The Medical Director of LASUTH says it is criminal. Both are right.`,
     severity: 'high',
     category: 'crisis',
     week: 3,
@@ -12,18 +12,18 @@ export const crisisEvents: EventCard[] = [
     choices: [
       {
         id: 'investInGrid',
-        label: 'Invest in Grid Maintenance',
+        label: 'Clear the Debt, Restore Power',
         description:
-          'Allocate funds to maintain and upgrade the power grid, improving reliability.',
-        immediate: { expenditure: -5, infrastructureScore: +10 },
+          'Pay ₦3.1bn arrears immediately from contingency reserves. Reconnection within 6 hours. Infrastructure +10, Business Community +3.',
+        immediate: { cashReserve: -3.1, infrastructureScore: +10 },
         factionImpact: { federalGovt: +5, businessCommunity: +3 },
         politicalCapitalCost: 20,
       },
       {
         id: 'doNothing',
-        label: 'Do Nothing',
+        label: 'Dispute the Bill, Stall',
         description:
-          'Ignore the issue for now, but risk worsening conditions and public dissatisfaction.',
+          'Instruct the AG to challenge the EKEDC assessment. Hospitals stay dark while lawyers file. Trust -10, Security -5.',
         immediate: { publicTrust: -10, securityIndex: -5 },
         factionImpact: { civilSocietyMedia: -5, lgChairmen: -3 },
       },

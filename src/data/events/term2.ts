@@ -11,7 +11,7 @@ export const term2Events: EventCard[] = [
 
   {
     id: 'term2-fourth-mainland-legacy',
-    title: 'Term 2: The Fourth Mainland Bridge Legacy Trap',
+    title: 'The Fourth Mainland Bridge Legacy Trap',
     body: `It is your second term, and your place in Lagos history depends on breaking ground on the 38km Fourth Mainland Bridge connecting Lekki to Ikorodu. The international consortium demands an upfront ₦25bn state equity contribution. Your treasury is completely bankrupt, and executing the alignment requires bulldozing 2,000 informal structures in waterfront communities.`,
     severity: 'critical',
     category: 'infrastructure',
@@ -56,7 +56,7 @@ export const term2Events: EventCard[] = [
 
   {
     id: 'term2-abuja-allocation-withholding',
-    title: 'Term 2: Federal Character Sanctions',
+    title: 'Federal Character Sanctions',
     body: `Following the collapse of your administration's relationship with the federal government, Abuja has executed a punitive maneuver. The Revenue Mobilization Allocation and Fiscal Commission has withheld this month's FAAC allocation, citing unremitted federal values on Lagos port arteries. The deficit hits state payroll in eight days.`,
     severity: 'high',
     category: 'political',
@@ -100,7 +100,7 @@ export const term2Events: EventCard[] = [
 
   {
     id: 'term2-danfo-mafia-consolidation',
-    title: 'Term 2: Transport Union Cartelization',
+    title: 'Transport Union Cartelization',
     body: `With your political capital spent, the transport union leadership (Agberos) has executed an unholy takeover. They have established unauthorized physical toll barriers across every exit lane of the Third Mainland Bridge and Oshodi Interchange, collecting cash directly from commuters to finance the upcoming election machinery.`,
     severity: 'high',
     category: 'transport',
@@ -141,7 +141,7 @@ export const term2Events: EventCard[] = [
 
   {
     id: 'term2-lame-duck-looting',
-    title: 'Term 2: Cabinet Succession Looting',
+    title: 'Cabinet Succession Looting',
     body: `You are a lame-duck executive barred from a third term, and your State Executive Council is fracturing. An intelligence report reveals that your Commissioner for Physical Planning is systematically approving compromised building blueprints in Victoria Island in exchange for cash bribes to fund his upcoming gubernatorial campaign.`,
     severity: 'high',
     category: 'political',
@@ -180,7 +180,7 @@ export const term2Events: EventCard[] = [
 
   {
     id: 'term2-domestic-debt-default',
-    title: 'Term 2: Commercial Overdraft Default',
+    title: 'Commercial Overdraft Default',
     body: `Lagos has officially defaulted on consecutive weekly interest payments for emergency bridge loans drawn from domestic commercial banks. The Central Bank of Nigeria has issued an order freezing the state's clearing accounts, instantly paralyzing PAYE tax processing and capital disbursements.`,
     severity: 'critical',
     category: 'economy',
@@ -220,7 +220,7 @@ export const term2Events: EventCard[] = [
 
   {
     id: 'term2-civil-service-sabotage',
-    title: 'Term 2: Lame Duck Civil Service Go-Slow',
+    title: 'Lame Duck Civil Service Go-Slow',
     body: `Permanent Secretaries across all ministries at the Alausa Secretariat have entered active administrative non-cooperation. Realizing your tenure is finite, bureaucrats are sitting on land title files, contract sign-offs, and procurement approvals, grinding economic activity to a halt while positioning for the next administration.`,
     severity: 'medium',
     category: 'social',
@@ -261,7 +261,7 @@ export const term2Events: EventCard[] = [
 
   {
     id: 'term2-deputy-succession-ambition',
-    title: 'Term 2: Your Deputy Governor Is Running — Against Your Wishes',
+    title: 'Your Deputy Governor Is Running — Against Your Wishes',
     body: `The intelligence briefing arrives before your morning tea: your Deputy Governor has filed nomination papers for the governorship primary — without informing you, without seeking your endorsement, and publicly aligning with the godfather bloc you spent four years resisting. When questioned, he issues a statement: "Every qualified Nigerian has the constitutional right to seek elective office."
 
 He controls the party secretariat and has three of your commissioners openly campaigning for him.`,
@@ -298,7 +298,7 @@ He controls the party secretariat and has three of your commissioners openly cam
 
   {
     id: 'term2-igr-platform-collapse',
-    title: 'Term 2: LIRS Revenue Platform Total Failure',
+    title: 'LIRS Revenue Platform Total Failure',
     body: `The Lagos Internal Revenue Service's digital tax collection platform — a ₦3.2bn project completed in year one — has suffered a catastrophic server failure following a ransomware attack. The system, which processes 68% of all PAYE and business premises revenue, has been offline for eleven days. Weekly IGR has collapsed from ₦9.2bn to ₦2.1bn. LIRS executive director is before your Emergency Committee.`,
     severity: 'critical',
     category: 'economy',
@@ -336,7 +336,7 @@ He controls the party secretariat and has three of your commissioners openly cam
 
   {
     id: 'term2-lasu-shutdown',
-    title: 'Term 2: LASU Academic Shutdown — 52,000 Students Idle',
+    title: 'LASU Academic Shutdown — 52,000 Students Idle',
     body: `The Academic Staff Union of Universities has declared an indefinite strike at Lagos State University, Ojo. The triggering issue: four months of earned allowances unpaid, a research grant fund that has been empty for eighteen months, and a new VC appointment the union describes as "political and academically unqualified."
 
 52,000 LASU students are at home. Youth tensions in Ojo, Badagry Road, and Alimosho — already volatile — are now boiling.`,
@@ -377,7 +377,7 @@ He controls the party secretariat and has three of your commissioners openly cam
 
   {
     id: 'term2-assembly-speaker-pivot',
-    title: 'Term 2: The Speaker Has Switched Sides',
+    title: 'The Speaker Has Switched Sides',
     body: `Your principal confidential secretary delivers the news you have been dreading: the Speaker of the Lagos State House of Assembly — your appointee, your party loyalist for eight years — has formally declared his support for the Deputy Governor's gubernatorial campaign, effective immediately. Three committee chairmanships have been redistributed to the rival camp overnight. You are now effectively a minority executive.`,
     severity: 'high',
     category: 'political',
@@ -415,7 +415,7 @@ He controls the party secretariat and has three of your commissioners openly cam
 
   {
     id: 'term2-ikoyi-kidnapping-ring',
-    title: 'Term 2: Ikoyi–Banana Island Kidnapping Network',
+    title: 'Ikoyi–Banana Island Kidnapping Network',
     body: `The Lagos State Police Commissioner presents a classified brief: a sophisticated kidnapping network has established a pipeline targeting high-net-worth residents and their families in Ikoyi, Banana Island, and Old Ikoyi. Seven kidnappings in twelve weeks. Three victims remain in captivity. The Nigerian billionaire community — your tax base — has issued a confidential collective note to Alausa: "We are moving families out."`,
     severity: 'critical',
     category: 'crisis',
@@ -451,7 +451,7 @@ He controls the party secretariat and has three of your commissioners openly cam
 
   {
     id: 'term2-opposition-super-coalition',
-    title: 'Term 2: The Unity Ticket — Opposition Forms Coalition Government Platform',
+    title: 'The Unity Ticket — Opposition Forms Coalition Government Platform',
     body: `The opposition has done what you always feared: the Labour Party, PDP, NNPP, and three minor parties have signed a formal Memorandum of Understanding forming a "Lagos Unity Coalition." They have selected a joint governorship candidate — a retired technocrat with a clean record and a Harvard MBA — and are running on your legacy's failures. Your campaign team projects a 12-point deficit in Alimosho and a 9-point gap in Agege.`,
     severity: 'high',
     category: 'political',
@@ -490,7 +490,7 @@ He controls the party secretariat and has three of your commissioners openly cam
 
   {
     id: 'term2-apapa-pollution-emergency',
-    title: 'Term 2: Apapa Environmental Health Catastrophe',
+    title: 'Apapa Environmental Health Catastrophe',
     body: `The Nigeria Centre for Disease Control has classified the Apapa neighbourhood as an "acute environmental emergency zone." Air quality in the corridor running from Tin Can Island through Creek Road to Trade Fair Complex is now at 48 times the WHO safety threshold, driven by truck exhaust, illegal generator emissions, and open chemical dumping from port operations. Respiratory hospital admissions in Surulere and Ajegunle have tripled in four months.`,
     severity: 'high',
     category: 'social',
@@ -529,7 +529,7 @@ He controls the party secretariat and has three of your commissioners openly cam
 
   {
     id: 'term2-ajegunle-gang-wars',
-    title: 'Term 2: Ajegunle Territorial Gang War',
+    title: 'Ajegunle Territorial Gang War',
     body: `Three rival cult groups — Eiye Confraternity, Maphite, and a new faction calling themselves "Eko Boys" — have launched a sustained territorial war across Ajegunle, Ijora, and Olodi-Apapa. Nineteen confirmed deaths in two weeks. The local police post was burned down. Local government councils have suspended all ward activities. Market women are organizing their own escape routes.
 
 The Lagos Island commercial corridor is now directly threatened by northward spread of the conflict.`,
@@ -571,7 +571,7 @@ The Lagos Island commercial corridor is now directly threatened by northward spr
 
   {
     id: 'term2-olusosun-landfill-fire',
-    title: 'Term 2: Olusosun Landfill Catastrophic Fire',
+    title: 'Olusosun Landfill Catastrophic Fire',
     body: `A section of the Olusosun landfill in Ojota — the largest in West Africa at 42 hectares — has caught fire. Dense toxic smoke is spreading across Ojota, Maryland, and Ikeja. The Lagos State Fire Service has been fighting the blaze for six days. The Ikeja District Hospital emergency ward is overwhelmed. Flights in and out of Murtala Muhammed Airport have been disrupted. LAWMA officials confirm that prohibited industrial waste — illegally dumped by three manufacturing companies — is fueling the blaze.`,
     severity: 'critical',
     category: 'crisis',
@@ -616,7 +616,7 @@ The Lagos Island commercial corridor is now directly threatened by northward spr
 
   {
     id: 'term2-eko-bridge-structural-crisis',
-    title: 'Term 2: Eko Bridge Emergency Closure',
+    title: 'Eko Bridge Emergency Closure',
     body: `At 5:47am, three concrete deck panels on the Eko Bridge spanning Lagos Island to Victoria Island show visible structural cracks along Span 7. A structural engineering inspection commissioned in your first term flagged this section as "requiring urgent intervention within eighteen months." That report is now thirty-one months old. The bridge carries 180,000 vehicles per day.
 
 Your Commissioner for Works is recommending immediate closure. Your traffic management team says closure will paralyze Lagos Island for months.`,
@@ -668,7 +668,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
 
   {
     id: 'term2-ferry-terminal-collapse',
-    title: 'Term 2: Badore Jetty Structural Failure — 23 Injured',
+    title: 'Badore Jetty Structural Failure — 23 Injured',
     body: `The Badore water ferry terminal in Ajah — opened with fanfare eighteen months ago — has suffered partial structural collapse of its waiting pontoon. Twenty-three commuters were injured, three critically. The terminal served 8,000 daily passengers on the Lekki–CMS water route, part of your signature multimodal transport plan. Preliminary investigation: substandard concrete in the pontoon piling, likely contractor non-compliance.`,
     severity: 'high',
     category: 'transport',
@@ -712,7 +712,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
 
   {
     id: 'term2-pension-deficit-exposure',
-    title: 'Term 2: ₦89bn Pension Deficit Exposed',
+    title: '₦89bn Pension Deficit Exposed',
     body: `An internal audit commissioned by the Lagos Pension Commission has been leaked to Channels Television. The report reveals a ₦89bn unfunded liability in the Lagos State defined-benefit pension scheme — accumulated over fourteen years across three administrations including yours. Forty thousand retired civil servants are owed arrears. The Pensioners Welfare Association has announced a protest at Alausa for Friday.`,
     severity: 'critical',
     category: 'economy',
@@ -751,7 +751,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
 
   {
     id: 'term2-brt-fleet-disintegration',
-    title: 'Term 2: BRT Fleet Collapse — 40% of Buses Offline',
+    title: 'BRT Fleet Collapse — 40% of Buses Offline',
     body: `LAMATA has briefed your transport committee: 168 of the 420 BRT buses in the Lagos Blue-Line fleet are now out of service. Engine failures from deferred maintenance, seven buses written off after fires, and a new contractual dispute with the Italian maintenance partner who has not been paid in four months. Morning peak gridlock in Ikorodu Road, Berger, and Anthony Village has surged to four-hour commutes.`,
     severity: 'high',
     category: 'transport',
@@ -794,7 +794,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
 
   {
     id: 'term2-lasuth-funding-crisis',
-    title: 'Term 2: Lagos University Teaching Hospital — Functional Collapse',
+    title: 'Lagos University Teaching Hospital — Functional Collapse',
     body: `A whistleblower consultant at Lagos University Teaching Hospital (LASUTH), Ikeja, has sent a 22-page letter directly to the Punch newspaper, copied to your office: the hospital's dialysis machines have been broken for nine months. The trauma ward has been operating without reliable electricity for six weeks. Three patients died awaiting surgery that never happened because the anesthesiologist's salary was four months in arrears. X-ray film stock has been exhausted for five months.`,
     severity: 'critical',
     category: 'social',
@@ -834,7 +834,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
 
   {
     id: 'term2-naira-devaluation-shock',
-    title: 'Term 2: CBN Naira Devaluation — ₦40bn Budget Hole',
+    title: 'CBN Naira Devaluation — ₦40bn Budget Hole',
     body: `The Central Bank of Nigeria has executed a surprise 35% devaluation of the Naira through a managed float collapse. Your capital budget — denominated in Naira but with 60% of its components requiring imported materials — now has a ₦40bn shortfall relative to original projections. Infrastructure contractors have issued force majeure notices. Cement prices have spiked 18% overnight.`,
     severity: 'critical',
     category: 'economy',
@@ -877,7 +877,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
 
   {
     id: 'term2-school-building-collapse-ojota',
-    title: 'Term 2: Primary School Building Collapse — Ojota',
+    title: 'Primary School Building Collapse — Ojota',
     body: `At 9:14am on a Tuesday, the rear block of Queens Primary School in Ojota collapsed while 340 children were in classes. The structure — built in 1987 and last "rehabilitated" during a ₦2.3bn school infrastructure contract awarded in your third year — used substandard materials. Eleven children and one teacher have been confirmed dead. Forty-seven are still trapped under rubble. Every television crew in Lagos is at the scene.`,
     severity: 'critical',
     category: 'social',
@@ -918,7 +918,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
 
   {
     id: 'term2-party-nec-successor-diktat',
-    title: 'Term 2: Abuja Sends You a Successor',
+    title: 'Abuja Sends You a Successor',
     body: `A hand-carried letter from the Party National Chairman arrives on Saturday afternoon. The National Executive Committee has "concluded consultations" and arrived at a "consensus candidate" for the Lagos gubernatorial primary: Chief Babatunde Rasheed Olanrewaju — a Godfather-aligned business operator with no governance record and three pending EFCC cases — has been declared the "consensus candidate."
 
 The NEC letter asks you to "facilitate" his endorsement at the state congress in three weeks.`,
@@ -955,7 +955,7 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
 
   {
     id: 'term2-succession-primary-fixing',
-    title: 'Term 2: Pressure to Rig the Governorship Primary',
+    title: 'Pressure to Rig the Governorship Primary',
     body: `Your campaign director arrives with a simple ask from the Godfather caucus: the party primary for your successor must be "guided." Specifically, delegate cards in Alimosho, Agege, and Mushin — where your preferred reform candidate has grassroots support — should be "managed" to produce the right delegate count. The price of non-compliance: the party withdraws all organizational support from your remaining infrastructure projects in the final months of your tenure.`,
     severity: 'high',
     category: 'political',
@@ -996,7 +996,7 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
 
   {
     id: 'term2-external-audit-damning-report',
-    title: 'Term 2: External Auditor\'s Final Verdict on Your Administration',
+    title: 'External Auditor\'s Final Verdict on Your Administration',
     body: `PricewaterhouseCoopers has submitted its final commissioned performance audit of your eight-year administration (both terms). The summary chapter has been leaked to Sahara Reporters: "₦312bn in capital expenditure was committed across 847 projects. Only 34% achieved full commissioning. ₦48bn cannot be reconciled through available documentation." The report lands 8 months before your successor takes office.`,
     severity: 'critical',
     category: 'economy',
@@ -1030,7 +1030,7 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
 
   {
     id: 'term2-efcc-parting-shot',
-    title: 'Term 2: EFCC Charges Filed — The Parting Shot',
+    title: 'EFCC Charges Filed — The Parting Shot',
     body: `The Economic and Financial Crimes Commission has filed a formal criminal charge against "The Lagos State Government and persons connected thereto" regarding procurement irregularities in the Outer Ring Road contract (2021). The filing is timed for maximum impact: eight months before your exit. Your legal team suspects Abuja is using the EFCC to shape your post-tenure vulnerability — ensuring you need political cover from the same Godfathers you spent eight years resisting.`,
     severity: 'critical',
     category: 'political',
@@ -1067,7 +1067,7 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
 
   {
     id: 'term2-legacy-legislation-blockade',
-    title: 'Term 2: Your Five Legacy Bills Are Dead',
+    title: 'Your Five Legacy Bills Are Dead',
     body: `Your five priority legacy bills — the Lagos Transport Authority Consolidation Bill, the State Healthcare Financing Act, the Digital Infrastructure Development Bill, the Lagos Revenue Authority Reform Bill, and the Public Procurement Transparency Act — have all been allowed to expire at their second reading in the House of Assembly. The Speaker has confirmed there will be no third reading before the close of the legislative session. Your term ends in four months.`,
     severity: 'high',
     category: 'political',
@@ -1103,7 +1103,7 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
 
   {
     id: 'term2-successor-betrayal',
-    title: 'Term 2: Your Handpicked Successor Publicly Distances Himself',
+    title: 'Your Handpicked Successor Publicly Distances Himself',
     body: `The candidate you backed for governorship — your former Commissioner for Works, the technocrat you nurtured for six years — has given an interview to The Punch. He describes your administration as "well-meaning but infrastructure-heavy at the expense of human capital." He mentions "endemic contract irregularities that the new administration must resolve." He does not name you. He does not have to.
 
 Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He is also backing the new man.`,
@@ -1139,7 +1139,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-archives-transition-crisis',
-    title: 'Term 2: Transition Committee Refuses Access to Governor\'s Archive',
+    title: 'Transition Committee Refuses Access to Governor\'s Archive',
     body: `The Incoming Administration's Transition Committee, chaired by a hostile party operative, has informed your Chief of Staff that they require "immediate access" to all contract databases, MDA files, and financial archives — including the State Finance Commissioner's encrypted cloud system — before your tenure ends. Legal counsel advises this is constitutionally premature by three months. You suspect they are looking for ammunition, not briefing material.`,
     severity: 'medium',
     category: 'political',
@@ -1174,7 +1174,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-valedictory-legacy-choice',
-    title: 'Term 2: The Valedictory Address — What History Will Write',
+    title: 'The Valedictory Address — What History Will Write',
     body: `Your speechwriter has presented three draft versions of your valedictory address, to be delivered in the packed Glover Memorial Hall in two weeks. Each articulates a different account of eight years. The draft you choose will anchor the historical record — and how civil society, the business community, and ordinary Lagos residents remember you as you hand over the keys.`,
     severity: 'medium',
     category: 'political',
@@ -1210,7 +1210,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-final-budget-sabotage',
-    title: 'Term 2: The Lame Duck Supplementary Budget',
+    title: 'The Lame Duck Supplementary Budget',
     body: `Your Commissioner for Finance has presented a ₦22bn supplementary budget for the final six months of your tenure — covering infrastructure completion, pension clearance, and emergency health spending. The House of Assembly's new leadership, fully aligned with the incoming administration, has allowed the bill to sit without a date for second reading. They are running out the clock. Every week of delay is ₦3.7bn in uncompleted contracts.`,
     severity: 'high',
     category: 'economy',
@@ -1249,7 +1249,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-handover-document-war',
-    title: 'Term 2: The Handover Note — Weapon or Gift',
+    title: 'The Handover Note — Weapon or Gift',
     body: `Your Chief of Staff has compiled the official Handover Note — 480 pages covering every ministry, agency, and fiscal position across your two terms. The document contains detailed evidence of your predecessor's debts, the full pension liability, the ghost worker problem your administration partially resolved, and the condition of every capital project. Your legal team warns: the document is also ammunition for a hostile successor to blame you for structural problems you inherited.`,
     severity: 'medium',
     category: 'political',
@@ -1289,7 +1289,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-lga-election-fund-demand',
-    title: 'Term 2: LG Chairmen Demand State Funding for Local Council Elections',
+    title: 'LG Chairmen Demand State Funding for Local Council Elections',
     body: `The Lagos State Independent Electoral Commission has set a date for local government elections. The 57 LG Chairmen who form your core ground-level infrastructure are now at your office with a single demand: the state must fund their ward-level campaign machinery directly — party structure payments, polling agents, posters, and "mobilisation allowances" — to the tune of ₦8bn. Without it, they warn, turnout in your support base will collapse, and the successor you prefer cannot win.`,
     severity: 'high',
     category: 'political',
@@ -1323,7 +1323,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-ward-congress-violence',
-    title: 'Term 2: Party Ward Congress — Three LGAs in Flames',
+    title: 'Party Ward Congress — Three LGAs in Flames',
     body: `The party ward congresses in Alimosho, Agege, and Ikorodu have collapsed into violence. Rival faction supporters clashed with iron rods, chairs, and teargas at the Alimosho Party Secretariat. The Police PRO reports two hospitalizations and one fatality. The congresses have been disrupted — no valid delegates can be returned from these three LGAs. Your state coordinator estimates this invalidates 11% of the gubernatorial primary delegate pool.`,
     severity: 'high',
     category: 'political',
@@ -1362,7 +1362,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-ltvs-journalist-mutiny',
-    title: 'Term 2: Lagos Television Journalists Refuse to Cover Your Events',
+    title: 'Lagos Television Journalists Refuse to Cover Your Events',
     body: `The Nigerian Union of Journalists chapter at Lagos Television and Radio Lagos has issued a formal "No Work Order" — they will no longer cover gubernatorial press events until four months of outstanding allowances are paid and a ₦120M equipment rehabilitation package is released. Every state-owned broadcast is now running archive footage. Your Press Secretary's morning briefing is being ignored by the state's own cameras.`,
     severity: 'medium',
     category: 'political',
@@ -1396,7 +1396,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-commissioner-defection-wave',
-    title: 'Term 2: Four Commissioners Publicly Back the Rival Camp',
+    title: 'Four Commissioners Publicly Back the Rival Camp',
     body: `The morning news leads with a coordinated statement signed by four of your cabinet members — the Commissioners for Works, Housing, Agriculture, and Youth — declaring their "total support" for the NEC-backed gubernatorial candidate. They praise his "vision for a new Lagos" and state that "transition of power requires early alignment." They did not resign. They are still in their offices. They are still attending your cabinet meetings.`,
     severity: 'high',
     category: 'political',
@@ -1430,7 +1430,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-sw-governors-isolation',
-    title: 'Term 2: Frozen Out of the Southwest Governors Forum',
+    title: 'Frozen Out of the Southwest Governors Forum',
     body: `The Southwest Governors Forum meeting in Ibadan adjourned without you receiving an invitation. Your Abuja liaison confirms: the other five Southwest governors — under pressure from Abuja — have decided to "de-emphasise Lagos participation" in joint Forum communiqués. You are effectively isolated from the region's intergovernmental machinery at the exact moment you need it most to protect Lagos's revenue autonomy position before FAAC committee season.`,
     severity: 'medium',
     category: 'political',
@@ -1468,7 +1468,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-social-media-disinformation',
-    title: 'Term 2: Coordinated Bot Campaign — "Lagos Governor Looted ₦400bn"',
+    title: 'Coordinated Bot Campaign — "Lagos Governor Looted ₦400bn"',
     body: `A coordinated social media campaign has gone viral: a fabricated graphic purporting to show a leaked "State Audit Document" claiming your administration looted ₦400bn from the state treasury. The graphic has been shared 840,000 times. BBC Pidgin has covered it as a "trending story." Your information team has traced the origin to a political consultancy registered in Abuja two months ago. Twitter/X is refusing to take it down.`,
     severity: 'high',
     category: 'political',
@@ -1502,7 +1502,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-vp-mediation-offer',
-    title: 'Term 2: The Vice President\'s Private Offer',
+    title: 'The Vice President\'s Private Offer',
     body: `A courier delivers an unsigned, unheaded note to your Chief of Staff. The message is from the Vice President's office. He is willing to "facilitate a normalisation of relations" between your administration and Abuja — federal allocations restored, EFCC file shelved, and Forum access returned — in exchange for a "cooperative posture" on two items: endorsement of the NEC candidate, and withdrawal of Lagos's pending Supreme Court case on VAT revenue allocation.`,
     severity: 'critical',
     category: 'political',
@@ -1539,7 +1539,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-flag-bearer-withdrawal',
-    title: 'Term 2: Your Backed Candidate Withdraws from the Primary',
+    title: 'Your Backed Candidate Withdraws from the Primary',
     body: `Your preferred successor — the technocrat you nurtured, whose primary campaign you structured, whose manifesto your team helped write — has filed a formal withdrawal from the gubernatorial race. His one-paragraph statement cites "insurmountable institutional pressure and the need to protect my family." He has not named names. He does not return your calls. The primary is in six weeks and you have no candidate.`,
     severity: 'critical',
     category: 'political',
@@ -1577,7 +1577,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-contractor-cartel-lockout',
-    title: 'Term 2: Infrastructure Contractor Cartel Halts All Works',
+    title: 'Infrastructure Contractor Cartel Halts All Works',
     body: `The Lagos Contractors and Builders Association has coordinated a formal site-lockdown across 34 active state infrastructure sites. Their grievance: ₦18.4bn in outstanding contract certificates that have been "processed but not paid" for an average of seven months. Mobile equipment has been moved off sites. Cement has been bagged and locked. Three bridges are mid-span. The Third Mainland Bridge traffic drainage works are 60% complete and have stopped.`,
     severity: 'critical',
     category: 'economy',
@@ -1620,7 +1620,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-faac-oil-windfall',
-    title: 'Term 2: Surprise FAAC Windfall — ₦22bn Unexpected Allocation',
+    title: 'Surprise FAAC Windfall — ₦22bn Unexpected Allocation',
     body: `The Brent crude benchmark has spiked to $108 per barrel on a combination of Middle East supply disruption and a US Federal Reserve pivot. Lagos's FAAC allocation for this month is ₦22bn above the approved budget baseline — a one-time windfall that arrives when the state treasury is at its most stretched. Your Finance Commissioner, your party coordinator, and the infrastructure team are all in your office simultaneously. Each has a different plan for the money.`,
     severity: 'medium',
     category: 'economy',
@@ -1653,7 +1653,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-artisan-market-demolition',
-    title: 'Term 2: Flyover Alignment Requires Demolishing Balogun Market Annexe',
+    title: 'Flyover Alignment Requires Demolishing Balogun Market Annexe',
     body: `Your Commissioner for Works has confirmed that the final alignment design for the Oshodi-Apapa Expressway elevated section passes directly through the Balogun Market Annexe — 1,200 trading stalls and the primary daily income source for an estimated 6,000 traders. Compensation packages were designed in year one. Three years later, the traders have not moved, the compensation checks have not cleared, and the bulldozers are sitting outside.`,
     severity: 'high',
     category: 'infrastructure',
@@ -1693,7 +1693,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-foreign-investment-flight',
-    title: 'Term 2: MTN Threatens to Relocate its Nigerian HQ Out of Lagos',
+    title: 'MTN Threatens to Relocate its Nigerian HQ Out of Lagos',
     body: `An internal MTN Group memo, leaked to Bloomberg, confirms that the company is evaluating relocating its Nigerian headquarters from Lagos Island to Abuja. The stated reasons: deteriorating road infrastructure around their offices, twelve-hour daily power cuts, the Eko Bridge disruption, and increasingly burdensome state business environment taxes. If MTN leaves, seven other multinationals will follow. The business community estimates ₦3.2bn in annual IGR at risk.`,
     severity: 'high',
     category: 'economy',
@@ -1738,7 +1738,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-stamp-duty-dispute',
-    title: 'Term 2: Federal Government Withholds Lagos Stamp Duty Revenue Share',
+    title: 'Federal Government Withholds Lagos Stamp Duty Revenue Share',
     body: `The Federal Inland Revenue Service has unilaterally reclassified 68% of Lagos State stamp duty collections as "federal jurisdiction transactions" — effectively redirecting ₦6.2bn per quarter that previously accrued to the state. The reclassification was gazetted on a Friday evening with no advance notice. Lagos generates 44% of all national stamp duty. This decision will stand unless challenged within ninety days.`,
     severity: 'high',
     category: 'economy',
@@ -1776,7 +1776,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-diaspora-bond-strings',
-    title: 'Term 2: The Diaspora Investment Fund — With Conditions',
+    title: 'The Diaspora Investment Fund — With Conditions',
     body: `A consortium of Lagos-origin UK and US diaspora investors has approached your office with a ₦15bn investment pledge for Lagos housing and transport infrastructure. The offer is legitimate, the terms are favorable, and the lead investor is a globally respected Nigerian-British developer. The single condition: the administration must formally denounce the recent Alausa land seizure that displaced 2,000 families — a seizure you signed off on in year three to fund the Fourth Mainland Bridge equity.`,
     severity: 'medium',
     category: 'economy',
@@ -1811,7 +1811,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-coastal-erosion-vi',
-    title: 'Term 2: Victoria Island Shoreline Emergency — 40 Metres Lost',
+    title: 'Victoria Island Shoreline Emergency — 40 Metres Lost',
     body: `The Lagos State Coastal Authority has submitted an emergency brief: the Victoria Island oceanfront between Bar Beach and Eko Atlantic has lost 40 metres of natural shoreline to accelerated coastal erosion in the last fourteen months. Three beachfront restaurants have been abandoned. One building is now visibly undermined. The Eko Atlantic seawall is holding, but the unprotected stretch south of Oniru is now a live emergency.`,
     severity: 'high',
     category: 'infrastructure',
@@ -1851,7 +1851,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-drainage-flood-surulere',
-    title: 'Term 2: Drainage Failure — Seven Dead in Surulere Flash Flood',
+    title: 'Drainage Failure — Seven Dead in Surulere Flash Flood',
     body: `A 90-minute downpour overwhelmed the drainage system on Bode Thomas Street, Adeniran Ogunsanya, and the Cole Street axis in Surulere. Seven confirmed dead. One is a 4-year-old who was swept into an open culvert. Forty-three homes are submerged. The drainage system in this corridor was earmarked for rehabilitation in a ₦2.1bn contract approved two years ago — the contractor mobilized for three weeks, then abandoned the site after receiving 40% mobilization fees.`,
     severity: 'critical',
     category: 'infrastructure',
@@ -1894,7 +1894,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-carter-bridge-closure',
-    title: 'Term 2: Carter Bridge Emergency Lane Failure',
+    title: 'Carter Bridge Emergency Lane Failure',
     body: `At 3:15pm on a Wednesday, the northbound carriageway of the Carter Bridge spanning Lagos Lagoon between Lagos Island and the mainland has developed a visible longitudinal crack running 22 metres. The LASBCA emergency structural team recommends immediate closure of the affected lane. Carter Bridge carries 110,000 vehicles per day. With the Eko Bridge already under rehabilitation, closing Carter Bridge means the entire Lagos–Mainland connection runs through Third Mainland alone.`,
     severity: 'critical',
     category: 'transport',
@@ -1938,7 +1938,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-red-line-contractor-walkoff',
-    title: 'Term 2: Red Line Rail Contractor Abandons the Remaining 4km',
+    title: 'Red Line Rail Contractor Abandons the Remaining 4km',
     body: `The Chinese construction firm managing the final 4km extension of the Lagos Metro Red Line — from Ikeja to Agege — has suspended all operations and demobilized equipment. Their official notice: Lagos State has failed to pay ₦9.3bn in progress certificates across three consecutive billing cycles. The 4km gap means the Red Line cannot open as a through route. Trains operate to Ikeja only. The ₦180bn project is 94% complete.`,
     severity: 'critical',
     category: 'infrastructure',
@@ -1982,7 +1982,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-naval-base-land-dispute',
-    title: 'Term 2: Federal Naval Base Fence Encroaches on Lagos State Road',
+    title: 'Federal Naval Base Fence Encroaches on Lagos State Road',
     body: `The Commander of the Lagos Naval Base (NNS Onura) in Apapa has erected a new perimeter fence that physically encroaches 18 metres into Abosede Express Road — a key state arterial that serves the Tin Can Island port corridor. The fence has already blocked one lane. The Lagos State Surveyor-General has confirmed the encroachment. The Navy says the fence marks their "historically surveyed boundary." Lagos believes it is a deliberate act of territorial creep backed by the federal government.`,
     severity: 'medium',
     category: 'infrastructure',
@@ -2025,7 +2025,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-ikeja-flyover-abandoned',
-    title: 'Term 2: Half-Built Ikeja Flyover — A ₦4bn Monument to Abandonment',
+    title: 'Half-Built Ikeja Flyover — A ₦4bn Monument to Abandonment',
     body: `The Ikeja Along flyover — awarded in year one for ₦7.8bn, 60% complete — has been abandoned for eleven months. The two completed piers stand at 18 metres with exposed reinforcement rods rusting in the open air. The structure now constitutes a safety hazard: local residents report concrete spalling from the piers. The LASBCA has issued a "risk notice." The abandonment has been cited in two international "infrastructure governance failure" rankings.`,
     severity: 'high',
     category: 'infrastructure',
@@ -2067,7 +2067,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-okada-ban-revolt',
-    title: 'Term 2: Motorcycle Ban Enforcement — 400,000 Riders Revolt',
+    title: 'Motorcycle Ban Enforcement — 400,000 Riders Revolt',
     body: `Your administration began enforcing the Lagos State Motorcycle Ban on twelve major highways in this term. The crackdown — 3,200 motorcycles impounded in three weeks — has triggered a sustained revolt. The Amalgamated Commercial Motorcycle Owners and Riders Association of Nigeria has mobilized 400,000 registered riders in Lagos. Their warning: total motorcycle shutdown on all remaining routes for thirty days unless the ban is suspended. The periphery communities that depend on okadas for last-mile transport are reporting economic paralysis.`,
     severity: 'high',
     category: 'transport',
@@ -2107,7 +2107,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-sars-revival-scandal',
-    title: 'Term 2: Secret SARS Unit Discovered Operating in Mushin',
+    title: 'Secret SARS Unit Discovered Operating in Mushin',
     body: `A civil society investigator working for Enough is Enough Nigeria has documented a unit of twelve police officers operating out of a private compound in Mushin using all the tactics of the disbanded Special Anti-Robbery Squad — arbitrary arrests, extortion, detention without charge. They are wearing plain clothes and operating with impunity. An 18-year-old apprentice carpenter has been in their detention for eleven days. The video evidence is on Twitter and has 2.4 million views.`,
     severity: 'critical',
     category: 'crisis',
@@ -2146,7 +2146,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-community-health-workers-strike',
-    title: 'Term 2: Primary Health Care Workers Walk Out — 57 LCDAs Affected',
+    title: 'Primary Health Care Workers Walk Out — 57 LCDAs Affected',
     body: `Community health extension workers across all 57 local council development areas have declared an indefinite strike. The grievance: a backlog of eight months of unpaid BHCPF primary health allowances — ₦1.1bn in total — and the non-deployment of vaccines that arrived at the state health warehouse six months ago and are now close to expiration. Infant vaccination rates have fallen 38% in the past two months. Polio alert notices are being distributed in three LCDAs.`,
     severity: 'critical',
     category: 'social',
@@ -2185,7 +2185,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-highrise-construction-collapse',
-    title: 'Term 2: 21-Storey Building Collapses During Construction in Victoria Island',
+    title: '21-Storey Building Collapses During Construction in Victoria Island',
     body: `A 21-storey mixed-use tower under construction on Adeola Odeku Street, Victoria Island collapsed at 7:40am during foundation piling. Eleven construction workers — mostly migrant labourers from Kogi and Enugu — were killed. Forty-three are missing. The developer is a politically connected real estate company whose building approval was fast-tracked through the Ministry of Physical Planning eighteen months ago. The LASBCA did not conduct a mandatory third-party structural review.`,
     severity: 'critical',
     category: 'crisis',
@@ -2224,7 +2224,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-food-price-emergency',
-    title: 'Term 2: Tomato and Staples Price Crisis — 300% Spike in Oyingbo',
+    title: 'Tomato and Staples Price Crisis — 300% Spike in Oyingbo',
     body: `A combination of flooding in Benue (Nigeria's food basket), fuel price hikes increasing haulage costs, and the destruction of the Oyingbo wholesale market cold storage facility by fire have driven tomato prices to ₦8,000 per basket — a 300% increase in six weeks. Pepper, yam, and onion prices have followed. Oyingbo market traders are rioting at the distributor loading bays. The Lagos Consumer Protection Council is receiving 400 complaints per day.`,
     severity: 'high',
     category: 'economy',
@@ -2263,7 +2263,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-environmental-sanitation-death',
-    title: 'Term 2: Man Dies During Saturday Environmental Sanitation — Viral Video',
+    title: 'Man Dies During Saturday Environmental Sanitation — Viral Video',
     body: `A 52-second video is trending across all platforms: a Lagos Environmental Sanitation Officer striking a 61-year-old man who was attempting to enter his compound gate during the mandatory Saturday morning sanitation lockdown. The man collapsed and died at the scene from what the Lagos State University Teaching Hospital describes as a cardiac event. The officer is visible in uniform with a state logo on his vehicle. The video has been viewed 14 million times. #LagosKills is trending nationally.`,
     severity: 'critical',
     category: 'social',
@@ -2297,7 +2297,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-almajiri-crisis',
-    title: 'Term 2: 12,000 Street Children in Lagos — The Northern Overflow',
+    title: '12,000 Street Children in Lagos — The Northern Overflow',
     body: `The Lagos State Social Welfare Agency has registered a sudden 340% increase in unaccompanied minors on the streets of Lagos — primarily Almajiri children from Sokoto, Kano, and Zamfara who have been displaced by the closure of traditional Islamic boarding schools and northern drought conditions. They are concentrated in Oshodi, Mushin, Agege, and around the Idumota motor parks. Civil society organisations are overwhelmed. Youth tension has been rising in these areas for six weeks.`,
     severity: 'high',
     category: 'social',
@@ -2332,7 +2332,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-lekki-toll-occupation',
-    title: 'Term 2: Lekki Toll Plaza Occupation — Anniversary Protest',
+    title: 'Lekki Toll Plaza Occupation — Anniversary Protest',
     body: `On the anniversary of the October 2020 Lekki toll gate shooting, a coalition of youth-led organizations has occupied the Lekki toll plaza with 8,000 protesters. Traffic on the Lekki-Epe expressway has been blocked for eleven hours. The protest has a single demand: formal government acknowledgment of responsibility for the 2020 events and a fund for survivors. The anniversary date, the location, and the symbolism make this a defining test.`,
     severity: 'critical',
     category: 'crisis',
@@ -2366,7 +2366,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-airport-road-embarrassment',
-    title: 'Term 2: MM Airport Road — International Embarrassment',
+    title: 'MM Airport Road — International Embarrassment',
     body: `The Financial Times has published a feature headlined "Welcome to Lagos: A Pothole Greets Every Arrival." The Murtala Muhammed Airport access road — seven kilometres connecting the domestic and international terminals to the expressway — has been described by the FT correspondent as "the single worst airport approach road in West Africa." Three foreign ambassadors have formally raised the road condition in separate notes to the Ministry of Foreign Affairs. The airport handles 11 million passengers annually.`,
     severity: 'medium',
     category: 'infrastructure',
@@ -2414,7 +2414,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-lagos-island-fire',
-    title: 'Term 2: Tenement Fire in Lagos Island — 14 Dead, 300 Displaced',
+    title: 'Tenement Fire in Lagos Island — 14 Dead, 300 Displaced',
     body: `A fire originating from an overloaded electrical distribution panel consumed four adjacent three-storey tenement buildings on Tokunbo Street, Lagos Island, at 2:10am. Fourteen confirmed dead, eighty-one injured, and an estimated 300 residents are homeless. The buildings were all operating under expired Lagos State fire safety certificates. Two were flagged for non-compliance in a 2022 state inspection but no enforcement action was taken. The tenement landlords are nowhere to be found.`,
     severity: 'critical',
     category: 'crisis',
@@ -2449,7 +2449,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-phc-workers-strike-round2',
-    title: 'Term 2: PHC Workers — Second Strike in Eight Months',
+    title: 'PHC Workers — Second Strike in Eight Months',
     body: `Community health workers have launched a second indefinite strike — this time adding a new demand: professional designation upgrade across all 57 LCDAs, which would reclassify them as medical professionals rather than auxiliary workers, increasing salary scales by 45%. The Lagos State Health Management Board has quietly admitted they cannot fund the upgrade without a federal waiver. A WHO surveillance team visiting three Lagos LCDAs has flagged the strike as creating a "disease surveillance gap."`,
     severity: 'high',
     category: 'social',
@@ -2487,7 +2487,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-yellow-bus-phaseout',
-    title: 'Term 2: Operation Phase-Out — Lagos Tries to Retire the Molue',
+    title: 'Operation Phase-Out — Lagos Tries to Retire the Molue',
     body: `Your administration has issued the definitive retirement notice for all pre-2005 "yellow molue" and "danfo" minibuses operating on Lagos routes — a commitment you made in year one. The deadline is forty-five days. Approximately 28,000 buses are affected. The Amalgamated Commercial Transport Owners Association has filed an injunction in the High Court and simultaneously organized a three-day withdrawal from all routes. Lagos is grinding to a halt.`,
     severity: 'high',
     category: 'transport',
@@ -2526,7 +2526,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-light-rail-final-funding',
-    title: 'Term 2: Final ₦15bn Needed to Commission the Light Rail Blue Line',
+    title: 'Final ₦15bn Needed to Commission the Light Rail Blue Line',
     body: `Your Commissioner for Transport delivers a simple brief: the Lagos Metro Blue Line is physically complete. Trains have been delivered, the overhead electrical lines are installed, and 13 of 14 stations have passed commissioning tests. The final item: ₦15bn required for systems integration, safety certification, fare-gate installation, and the 14th station completion. Without it, the project cannot open. With it, Lagos becomes the first sub-Saharan African city with a fully commissioned urban metro since 1995.`,
     severity: 'critical',
     category: 'infrastructure',

@@ -201,6 +201,8 @@ export const politicalEvents: EventCard[] = [
           'He goes quietly. Trust +5. You lose your most loyal ally. Political Capital -15.',
         immediate: { publicTrust: 5, politicalCapital: -15 },
         factionImpact: { civilSocietyMedia: 8 },
+        clearDeputy: true,
+        followUpEventId: 'deputy-replacement',
       },
       {
         id: 'stand-by-deputy',
@@ -467,8 +469,8 @@ export const politicalEvents: EventCard[] = [
   },
   {
     id: 'corruptionScandal',
-    title: 'Corruption Scandal',
-    body: `A corruption scandal has emerged within the city government, involving several high-ranking officials. The public is demanding transparency and accountability.`,
+    title: 'LASG Contracts Office: ₦2.8bn Ghost Projects Exposed',
+    body: `Premium Times has published documents showing that 17 road contracts awarded through the Ministry of Works over the past 14 months were either fictitious or awarded to shell companies. Total value: ₦2.8bn. One company's registered address is a phone repair shop in Ikeja. An ICPC source tells the paper your Chief of Staff's signature appears on three of the award letters. Your Chief of Staff says he signed what he was told to sign.`,
     severity: 'high',
     category: 'political',
     week: 3,
@@ -476,18 +478,18 @@ export const politicalEvents: EventCard[] = [
     choices: [
       {
         id: 'launchInvestigation',
-        label: 'Launch Investigation',
+        label: 'Refer to ICPC, Suspend Officials',
         description:
-          'Initiate a thorough investigation into the allegations, demonstrating a commitment to integrity.',
+          'Suspend the Chief of Staff pending investigation and formally invite ICPC. Trust +10, Civil Society +5. Political Capital -15 — party allies will resist.',
         immediate: { publicTrust: +10, politicalCapital: -15 },
         factionImpact: { civilSocietyMedia: +5, businessCommunity: -5 },
         politicalCapitalCost: 15,
       },
       {
         id: 'ignoreAllegations',
-        label: 'Ignore Allegations',
+        label: 'Deny, Discredit the Reporting',
         description:
-          'Downplay the scandal and avoid taking any action, risking further damage to credibility.',
+          'Issue a statement calling the Premium Times story "politically motivated" and threaten legal action. Buys time but Civil Society will not let it go.',
         immediate: { publicTrust: -5, politicalCapital: +10 },
         factionImpact: { civilSocietyMedia: -5, businessCommunity: +5 },
         politicalCapitalCost: 10,

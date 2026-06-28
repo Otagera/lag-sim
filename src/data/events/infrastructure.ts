@@ -3,8 +3,8 @@ import type { EventCard } from '../../state/types'
 export const infrastructureEvents: EventCard[] = [
   {
     id: 'bridgeCollapse',
-    title: 'Bridge Collapse',
-    body: `A critical bridge on Lagos Mainland has collapsed, causing significant disruption to transportation and raising concerns about infrastructure safety. The public is demanding swift action.`,
+    title: 'Carter Bridge Partial Collapse — Lane Failure',
+    body: `The westbound outer lane of Carter Bridge has given way at the mid-span joint. Two vehicles fell into the Lagos Lagoon. Seven confirmed injured; two missing. The bridge — Lagos Mainland's oldest — has been under watch since 2022. FERMA says the carriageway is a state asset. Your infrastructure team says federal. The argument is happening while the lagoon is still being searched.`,
     severity: 'high',
     category: 'infrastructure',
     week: 2,
@@ -12,9 +12,9 @@ export const infrastructureEvents: EventCard[] = [
     choices: [
       {
         id: 'rebuildBridge',
-        label: 'Commission Full Reconstruction',
+        label: 'Claim Jurisdiction, Rebuild',
         description:
-          'Allocate funds to rebuild the bridge with improved safety standards. ₦8bn contract, 18 weeks.',
+          'Own the bridge, own the fix. ₦8bn full reconstruction contract, 18 weeks. Clears the FERMA dispute once and for all. Federal Govt +5, Business +3.',
         immediate: { infrastructureScore: 4 },
         factionImpact: { federalGovt: +5, businessCommunity: +3 },
         politicalCapitalCost: 25,
@@ -29,10 +29,10 @@ export const infrastructureEvents: EventCard[] = [
       },
       {
         id: 'temporaryFix',
-        label: 'Implement Temporary Fixes',
+        label: 'Emergency Patch, Reopen',
         description:
-          'Focus on temporary repairs to restore functionality quickly, but it may not address long-term safety concerns.',
-        immediate: { expenditure: -5, infrastructureScore: +5 },
+          'Steel plate repair. Bridge reopens in 72 hours. Infrastructure +5 short-term, but the structural problem will return. Corruption Pressure +2 when the contract process leaks.',
+        immediate: { infrastructureScore: +5, corruptionPressure: 2 },
         factionImpact: { federalGovt: +2, businessCommunity: +1 },
         politicalCapitalCost: 10,
       },

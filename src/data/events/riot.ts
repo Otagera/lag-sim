@@ -4,9 +4,7 @@ export const riotEvents: EventCard[] = [
   {
     id: 'riot-curfew-order',
     title: 'Crisis: Curfew Demands',
-    body: `Youth protests have turned violent in Alimosho and Surulere.
-Security chiefs are requesting emergency curfew powers.
-Every hour without a decision emboldens more agitators.`,
+    body: `It started at the Alimosho council secretariat — a sit-in over NECO result collection fees that turned into broken windows by early afternoon. By 6pm, it had spread to Surulere: bonfires on Bode Thomas Street, two police patrol cars overturned near the NTA building. RRS deployed, but they are outnumbered and the crowd is not reading any script they recognise. Your security chiefs want emergency curfew powers before dark. Your Chief of Staff is on the phone with the NUJ Lagos chair, who is threatening to cover every baton strike in real time. Every hour without a decision is another hour the crowd sets the agenda.`,
     severity: 'critical',
     category: 'riot',
     isRecurring: true,
@@ -40,9 +38,7 @@ Every hour without a decision emboldens more agitators.`,
   {
     id: 'riot-security-surge',
     title: 'Crisis: Security Surge',
-    body: `The Inspector General of Police is requesting authority to deploy rapid-response squads across Lagos.
-A federal offer to co-deploy Army units is also on the table.
-Each hour of delay is broadcast live.`,
+    body: `The IG has sent a formal request to your office: authority to deploy Rapid Response Squads to Agege, Ikorodu, and Ajegunle simultaneously — hotspots that erupted within 90 minutes of each other this morning. A coordinated federal offer has also come in, a joint Army–Police task force with barracks in Ojo and Ikeja as staging points. The optics of federal troops on Lagos streets are not good. The optics of Lagos burning on Arise TV are also not good. Each hour of delay is an hour the unrest self-organises.`,
     severity: 'critical',
     category: 'riot',
     isRecurring: true,
@@ -76,9 +72,7 @@ Each hour of delay is broadcast live.`,
   {
     id: 'riot-youth-leader-parley',
     title: 'Crisis: Youth Leaders Demand Audience',
-    body: `A coalition of youth leaders — some legitimate, some opportunist — has issued a 48-hour ultimatum:
-meet publicly and announce reforms, or escalation continues.
-Social media is watching.`,
+    body: `A coalition of youth leaders — some with legitimate community mandates, others who appeared on television two days ago for the first time — has issued a 48-hour ultimatum: a public meeting at Government House with a live-stream, a list of demands read on camera, and a commitment to respond within 72 hours. Or escalation continues. The list has 11 demands, ranging from legitimate (police accountability, NECO fees scrapped) to political theatre. Their social media following collectively reaches 4 million accounts in Lagos alone. Your advisors are split: engaging legitimises them; refusing radicalises them.`,
     severity: 'high',
     category: 'riot',
     isRecurring: true,

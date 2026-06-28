@@ -606,6 +606,8 @@ export const characterEvents: EventCard[] = [
         description: "Distance yourself publicly. Trust -15, Political Capital -20. You'll govern alone.",
         immediate: { publicTrust: -15, politicalCapital: -20 },
         factionImpact: { civilSocietyMedia: 5 },
+        clearDeputy: true,
+        followUpEventId: 'deputy-replacement',
       },
       {
         id: 'investigate-adeyemi-shaw',
@@ -639,6 +641,8 @@ export const characterEvents: EventCard[] = [
         description: 'Civil Society -20, Trust -12. She leaves with her integrity — and her scrutiny — intact.',
         immediate: { publicTrust: -12, corruptionPressure: -5 },
         factionImpact: { civilSocietyMedia: -20, businessCommunity: 5, partyGodfathers: 8 },
+        clearDeputy: true,
+        followUpEventId: 'deputy-replacement',
       },
       {
         id: 'beg-reformer-to-stay',
@@ -647,6 +651,50 @@ export const characterEvents: EventCard[] = [
         immediate: { politicalCapital: -30, corruptionPressure: -8 },
         factionImpact: { civilSocietyMedia: 10, partyGodfathers: -5 },
         resentmentDelta: -50,
+      },
+    ],
+  },
+
+  // Queued via followUpEventId from all three deputy resignation paths.
+  // triggerCondition: () => false keeps it out of random/triggered pools —
+  // isRecurring prevents resolvedEvents from blocking a second queuing if a
+  // replacement deputy later resigns in the same term.
+  {
+    id: 'deputy-replacement',
+    title: 'The Deputy Chair is Empty',
+    body: `The deputy governor's office at Alausa has gone dark — the aide de camp reassigned, the press assistant quietly moved. Channels are asking who fills the chair. The party is already lobbying. Civil society wants a clean break. You have seventy-two hours before the silence becomes the story.`,
+    severity: 'high',
+    category: 'political',
+    triggerCondition: () => false,
+    isRecurring: true,
+    cooldownWeeks: 4,
+    choices: [
+      {
+        id: 'appoint-party-loyalist',
+        label: 'Appoint a Party Loyalist',
+        description:
+          'Signal continuity to the godfathers. Godfather relations +12. Trust -6. The machine is satisfied; reform optics suffer.',
+        immediate: { publicTrust: -6, politicalCapital: 8 },
+        factionImpact: { partyGodfathers: 12, civilSocietyMedia: -8 },
+        setDeputy: 'loyalist',
+      },
+      {
+        id: 'appoint-technocrat-deputy',
+        label: 'Appoint a Technocrat',
+        description:
+          'Pull someone from academia or the civil service. Trust +8, Political Capital -10. Competent, independent, no godfathers to answer to.',
+        immediate: { publicTrust: 8, politicalCapital: -10 },
+        factionImpact: { civilSocietyMedia: 10, businessCommunity: 6, partyGodfathers: -6 },
+        setDeputy: 'technocrat',
+      },
+      {
+        id: 'appoint-reformer-deputy',
+        label: 'Appoint a Reform Candidate',
+        description:
+          'Make the appointment a statement. Trust +14, Political Capital -20. Godfathers are furious. Civil society circles it as a win.',
+        immediate: { publicTrust: 14, politicalCapital: -20 },
+        factionImpact: { civilSocietyMedia: 18, partyGodfathers: -14 },
+        setDeputy: 'reformer',
       },
     ],
   },
