@@ -4,6 +4,7 @@ import { SAVE_VERSION } from '../version'
 import type { EventCard, GameState } from './types'
 
 const SAVE_KEY = 'lagos-governor-sim-save'
+const HINTS_KEY = 'lagos-governor-sim-seen-hints'
 
 type SerializableState = Omit<GameState, 'activeEvent' | 'eventQueue'> & {
   version: number
@@ -124,4 +125,24 @@ export function hasSavedGame(): boolean {
 
 export function clearSave(): void {
   localStorage.removeItem(SAVE_KEY)
+}
+
+const HINTS_SEPARATOR = ','
+
+export function saveSeenHints(ids: string[]): void {
+  try {
+    localStorage.setItem(HINTS_KEY, ids.join(HINTS_SEPARATOR))
+  } catch (e) {
+    console.warn('Failed to save seen hints:', e)
+  }
+}
+
+export function loadSeenHints(): string[] {
+  try {
+    const raw = localStorage.getItem(HINTS_KEY)
+    if (!raw) return []
+    return raw.split(HINTS_SEPARATOR).filter(Boolean)
+  } catch {
+    return []
+  }
 }

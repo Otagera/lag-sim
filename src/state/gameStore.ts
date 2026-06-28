@@ -12,7 +12,7 @@ import { applyFactionDelta } from '../engine/factionEngine'
 import { generateCommissionerMessage } from '../engine/inboxEngine'
 import { commissionNode } from '../engine/researchEngine'
 import { commissionProject as commissionProjectAction } from '../engine/projectsEngine'
-import { saveGame } from './persistence'
+import { loadSeenHints, saveGame, saveSeenHints } from './persistence'
 import type { CommissionerRole, CommissionerState, DeputyKey, GameState, LoanSource } from './types'
 
 export interface GameStore extends GameState {
@@ -48,6 +48,7 @@ export interface GameStore extends GameState {
 
 export const useGameStore = create<GameStore>((set, get) => ({
   ...STARTING_STATE,
+  seenHints: loadSeenHints(),
   tick: () => {
     set(gameLoopTick(get()))
   },
@@ -209,10 +210,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }))
   },
   dismissHint: (id: string) => {
-    set((s) => ({
-      seenHints: [...s.seenHints, id],
-      hintQueue: s.hintQueue.filter((h) => h !== id),
-    }))
+    set((s) => {
+      const seenHints = [...s.seenHints, id]
+      saveSeenHints(seenHints)
+      return { seenHints, hintQueue: s.hintQueue.filter((h) => h !== id) }
+    })
   },
   setGoal: (id: string | null) => set({ selectedGoalId: id }),
   commissionResearchNode: (nodeId: string) => {

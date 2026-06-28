@@ -231,15 +231,15 @@ export function Inbox() {
         <Tab label="Read" active={filter === 'read'} onClick={() => setFilter('read')} />
       </div>
 
-      {/* Content */}
-      {filtered.length === 0 ? (
+      {/* Content — selected takes priority so marking-read doesn't lose the view */}
+      {selected ? (
+        <MessageDetail msg={selected} onBack={() => setSelectedId(null)} />
+      ) : filtered.length === 0 ? (
         <div className="flex-1 flex items-center justify-center p-4">
           <p className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
             {filter === 'unread' ? 'No unread messages.' : filter === 'read' ? 'No read messages.' : 'No messages yet.'}
           </p>
         </div>
-      ) : selected ? (
-        <MessageDetail msg={selected} onBack={() => setSelectedId(null)} />
       ) : (
         <div className="flex-1 overflow-y-auto">
           {filtered.map((msg) => (
