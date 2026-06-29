@@ -1,14 +1,15 @@
 import { useState, type ReactNode } from 'react'
 
 interface TabProps {
-  icon?:    ReactNode
-  label:    string
-  badge?:   number
-  active?:  boolean
-  onClick?: () => void
+  icon?:     ReactNode
+  label:     string
+  badge?:    number
+  active?:   boolean
+  onClick?:  () => void
+  dataTour?: string
 }
 
-export function Tab({ icon, label, badge, active, onClick }: TabProps) {
+export function Tab({ icon, label, badge, active, onClick, dataTour }: TabProps) {
   const [hover, setHover] = useState(false)
 
   return (
@@ -37,6 +38,7 @@ export function Tab({ icon, label, badge, active, onClick }: TabProps) {
         position:       'relative',
       }}
       aria-current={active ? 'page' : undefined}
+      {...(dataTour ? { 'data-tour': dataTour } : {})}
     >
       {icon && (
         <div style={{ fontSize: '18px', lineHeight: 1 }}>{icon}</div>

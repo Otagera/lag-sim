@@ -16,7 +16,9 @@ import { Inbox } from './ui/Inbox'
 import { NPCPanel } from './ui/NPCPanel'
 import { LegacyScreen } from './ui/LegacyScreen'
 import { HelpReference } from './ui/HelpReference'
-import { ToastHint } from './ui/ToastHint'
+import 'driver.js/dist/driver.css'
+import { ContextualHint } from './ui/ContextualHint'
+import { GuidedTour } from './ui/GuidedTour'
 import { ALL_HINTS } from './data/hints'
 import { formatGameMonth } from './utils/calendar'
 import { getSeasonModifier } from './engine/seasonEngine'
@@ -166,6 +168,7 @@ function StatusBar({
           <button
             type="button"
             onClick={onTick}
+            data-tour="next-week"
             style={{
               background:   'var(--accent-solid)',
               color:        'var(--accent-on-solid)',
@@ -280,6 +283,7 @@ export default function GameApp() {
   const inbox           = useGameStore((s) => s.inbox)
 
   const hintQueue       = useGameStore((s) => s.hintQueue)
+  const seenHints       = useGameStore((s) => s.seenHints)
   const dismissHint     = useGameStore((s) => s.dismissHint)
   const llmAttempted = useRef(new Set<string>())
   const [showResearch,  setShowResearch]  = useState(false)
@@ -347,7 +351,8 @@ export default function GameApp() {
   return (
     <>
       {newspaperHeadline && <MediaRouter />}
-      {hintDef && <ToastHint text={hintDef.text} onDismiss={handleDismissHint} />}
+      {hintDef && <ContextualHint hint={hintDef} onDismiss={handleDismissHint} />}
+      <GuidedTour seen={seenHints} onComplete={() => dismissHint('onboarding-tour')} />
       {showResearch && <ResearchTree onClose={() => setShowResearch(false)} />}
       {showProjects && <ProjectsPanel onClose={() => setShowProjects(false)} />}
       {inCampaignMode && <ElectionWatermark />}
@@ -409,7 +414,7 @@ export default function GameApp() {
           {isGameOver ? (
             <LegacyScreen onNewGame={handleLegacyNewGame} />
           ) : (
-            <div style={{
+            <div className="event-card-area" style={{
               maxWidth:      '720px',
               margin:        '0 auto',
               padding:       '16px 16px 80px',
@@ -446,6 +451,7 @@ export default function GameApp() {
                 icon={<Icon size={18} />}
                 label={label}
                 active={activePanel === id}
+                dataTour={`dock-${id}`}
                 badge={
                   id === 'inbox'    ? inboxCount :
                   id === 'factions' ? (factionAlert ? 1 : 0) : 0

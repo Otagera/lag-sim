@@ -33,7 +33,7 @@ import { GoalSelectionScreen } from './GoalSelectionScreen'
 // Overlays
 import { HelpReference } from './HelpReference'
 import { Inbox } from './Inbox'
-import { ToastHint } from './ToastHint'
+
 import { GoalTracker } from './GoalTracker'
 import { DiagnosisBanner as GameDiagnosisBanner } from './game/DiagnosisBanner'
 import { StateOfTheState as GameStateOfTheState } from './game/StateOfTheState'
@@ -1156,14 +1156,7 @@ function OverlaysTab({ theme }: { theme: Theme }) {
             <Inbox />
           </div>
 
-          {/* ToastHint */}
-          <div>
-            <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}>ToastHint · short + long</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <ToastHint text="New event arrived: Makoko Market Fire" onDismiss={() => {}} />
-              <ToastHint text="Your weekly report is ready. Revenue is up 3% but expenditure grew 5%. Consider a spending review." onDismiss={() => {}} />
-            </div>
-          </div>
+          {/* ContextualHint — replaced ToastHint (renders via Driver.js, not shown in StyleLab) */}
 
           {/* GoalTracker */}
           <div>
