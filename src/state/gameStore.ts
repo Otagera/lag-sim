@@ -4,6 +4,8 @@ import { DEPUTY_PROFILES } from '../data/deputies'
 import { takeLoan as takeLoanAction } from '../engine/debtEngine'
 import { resolveEvent as resolveEventAction } from '../engine/eventEngine'
 import { tick as gameLoopTick } from '../engine/gameLoop'
+import { calculateWeeklyRevenue } from '../engine/revenueEngine'
+import { calculateWeeklyExpenditure } from '../engine/expenditureEngine'
 import { resolveGodfather } from '../engine/godfatherEngine'
 import { simulateWeeks, type SimulateOptions, type SimulateResult } from '../engine/simulateEngine'
 import { evaluateSkipNews } from '../engine/evaluateNews'
@@ -48,6 +50,8 @@ export interface GameStore extends GameState {
 
 export const useGameStore = create<GameStore>((set, get) => ({
   ...STARTING_STATE,
+  lastWeekRevenue: calculateWeeklyRevenue(STARTING_STATE as GameState),
+  lastWeekExpenditure: calculateWeeklyExpenditure(STARTING_STATE as GameState),
   seenHints: loadSeenHints(),
   tick: () => {
     set(gameLoopTick(get()))

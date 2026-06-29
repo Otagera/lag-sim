@@ -45,11 +45,12 @@ const DOCK_TABS: { id: DockTab; label: string; Icon: LucideIcon }[] = [
 
 // ─── Status bar ───────────────────────────────────────────────────────────────
 function StatusBar({
-  termLabel, monthLabel, seasonLabel, onTick, canTick, onResearch, onProjects, onOpenReference,
+  termLabel, monthLabel, seasonLabel, week, onTick, canTick, onResearch, onProjects, onOpenReference,
 }: {
   termLabel:   string
   monthLabel:  string
   seasonLabel: string
+  week:        number
   onTick:      () => void
   canTick:     boolean
   onResearch:  () => void
@@ -86,7 +87,7 @@ function StatusBar({
           <div className="font-display" style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)', lineHeight: 1.2 }}>
             Lagos Governor Sim
           </div>
-          <div className="label-caps" style={{ marginTop: '1px' }}>
+          <div className="label-caps" style={{ marginTop: '1px', cursor: 'default' }} title={`Week ${week}`}>
             {termLabel} · {monthLabel} · <span style={{ color: 'var(--accent-text)' }}>{seasonLabel}</span>
           </div>
         </div>
@@ -333,8 +334,8 @@ export default function GameApp() {
   const year         = Math.ceil(termBaseWeek / 52)
   const YEARS        = ['Year 1', 'Year 2', 'Year 3', 'Year 4'] as const
   const termLabel    = currentTerm === 2
-    ? `Year ${year + 4}`
-    : YEARS[Math.min(year - 1, YEARS.length - 1)]
+    ? `Second Term · Year ${year + 4}`
+    : `First Term · ${YEARS[Math.min(year - 1, YEARS.length - 1)]}`
   const monthLabel   = formatGameMonth(week)
   const seasonLabel  = getSeasonModifier(week).label
 
@@ -367,6 +368,7 @@ export default function GameApp() {
           termLabel={termLabel}
           monthLabel={monthLabel}
           seasonLabel={seasonLabel}
+          week={week}
           onTick={tick}
           canTick={!isGameOver}
           onResearch={() => setShowResearch(true)}
@@ -385,7 +387,7 @@ export default function GameApp() {
 
         <DiagnosisBanner />
 
-        {(currentTerm === 2 || inCampaignMode) && !isGameOver && (
+        {inCampaignMode && !isGameOver && (
           <div style={{
             textAlign:     'center',
             padding:       '4px 12px',
@@ -399,10 +401,7 @@ export default function GameApp() {
             borderBottom:  '1px solid var(--border)',
             flexShrink:    0,
           }}>
-            {inCampaignMode
-              ? `Election Campaign — Week ${week} · Every decision counts`
-              : `Second Term · ${termLabel} · Week ${week}`
-            }
+            Election Campaign — Week {week} · Every decision counts
           </div>
         )}
 

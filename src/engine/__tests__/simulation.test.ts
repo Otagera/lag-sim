@@ -26,6 +26,8 @@ const BOUNDS: Record<StatKey, { min: number; max: number }> = {
   baseOverheads: { min: -Infinity, max: Infinity },
   subventionCutRate: { min: 0, max: 0.4 },
   capitalEfficiency: { min: 0, max: 1.0 },
+  foodSecurityIndex: { min: 0, max: 100 },
+  floodResilienceScore: { min: 0, max: 100 },
 }
 
 const BOUNDED_STATS = Object.entries(BOUNDS).filter(

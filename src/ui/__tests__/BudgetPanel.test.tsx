@@ -3,9 +3,16 @@ import { render, screen } from '@testing-library/react'
 import { BudgetPanel } from '../BudgetPanel'
 import { useGameStore } from '../../state/gameStore'
 import { STARTING_STATE } from '../../data/startingState'
+import { calculateWeeklyRevenue } from '../../engine/revenueEngine'
+import { calculateWeeklyExpenditure } from '../../engine/expenditureEngine'
+import type { GameState } from '../../state/types'
 
 beforeEach(() => {
-  useGameStore.setState(STARTING_STATE)
+  useGameStore.setState({
+    ...STARTING_STATE,
+    lastWeekRevenue: calculateWeeklyRevenue(STARTING_STATE as GameState),
+    lastWeekExpenditure: calculateWeeklyExpenditure(STARTING_STATE as GameState),
+  })
 })
 
 describe('BudgetPanel', () => {

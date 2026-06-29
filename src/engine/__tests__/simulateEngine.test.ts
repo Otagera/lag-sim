@@ -1,22 +1,12 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { STARTING_STATE } from '../../data/startingState'
+import { mulberry32 } from '../../utils/prng'
 import type { GameState } from '../../state/types'
 import { simulateWeeks } from '../simulateEngine'
 import { getArchetypeState } from '../../data/archetypes'
 
 function clone(s: GameState): GameState {
   return JSON.parse(JSON.stringify(s))
-}
-
-/** mulberry32 seeded PRNG — deterministic for a given seed */
-function mulberry32(seed: number): () => number {
-  let s = seed | 0
-  return () => {
-    s = (s + 0x6d2b79f5) | 0
-    let t = Math.imul(s ^ (s >>> 15), 1 | s)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
 }
 
 /**

@@ -20,6 +20,8 @@ export type StatKey =
   | 'baseOverheads'
   | 'subventionCutRate'
   | 'capitalEfficiency'
+  | 'foodSecurityIndex'
+  | 'floodResilienceScore'
 
 export type StatDelta = Partial<Record<StatKey, number>>
 
@@ -32,6 +34,9 @@ export type FactionKey =
   | 'lgChairmen'
 
 export type FactionState = Record<FactionKey, number>
+
+export type SecondaryFactionKey = 'creativeEconomy' | 'techSector' | 'medicalAssociation' | 'agrarianSector'
+export type SecondaryFactionState = Record<SecondaryFactionKey, number>
 
 export type FactionDelta = Partial<FactionState>
 
@@ -155,6 +160,7 @@ export type Choice = {
   corruptionTrigger?: boolean
   setFlags?: Record<string, boolean>
   npcImpact?: Partial<Record<NPCArchetypeKey, number>>
+  secondaryFactionImpact?: Partial<SecondaryFactionState>
   resentmentDelta?: number
   clearDeputy?: boolean       // sets state.deputy = null (resignation/removal)
   setDeputy?: DeputyKey       // installs a new deputy (replacement appointment)
@@ -442,10 +448,12 @@ export type InitiativeState = {
 
 export type GameState = {
   week: number
+  runSeed: number
   stateFlags: Record<string, boolean>
   stats: Record<StatKey, number>
   factions: FactionState
   constituencyApproval: ConstituencyApproval
+  secondaryFactions: SecondaryFactionState
   activeEvent: EventCard | null
   eventQueue: EventCard[]
   pendingDelayed: PendingEvent[]

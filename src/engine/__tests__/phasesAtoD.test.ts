@@ -52,12 +52,26 @@ function makeChoice(overrides: Partial<Choice> = {}): Choice {
 // ─────────────────────────────────────────────────────────────
 
 describe('Phase A — Goals', () => {
-  it('exports exactly 3 goals', () => {
-    expect(ALL_GOALS).toHaveLength(3)
+  it('exports exactly 17 goals', () => {
+    expect(ALL_GOALS).toHaveLength(17)
     expect(ALL_GOALS.map((g) => g.id)).toEqual([
       'break-the-machine',
       'make-the-promise-real',
       'lights-on',
+      'self-sufficient-lagos',
+      'safe-city',
+      'creative-capital',
+      'tech-hub',
+      'revive-apapa',
+      'ikeja-corridor',
+      'reclaim-waterfront',
+      'tame-the-danfo',
+      'move-the-city',
+      'cross-the-water',
+      'educate-generation',
+      'healthy-city',
+      'feed-lagos',
+      'climate-proof-lagos',
     ])
   })
 

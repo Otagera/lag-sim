@@ -372,4 +372,129 @@ export const RESEARCH_TREE: ResearchNode[] = [
       },
     ],
   },
+
+  // ── ADMINISTRATION (fiscal autonomy) ───────────────────────
+  {
+    id: 'etax-ussd-portal',
+    domain: 'administration',
+    title: 'LIRS e-Tax USSD Portal',
+    pitch: 'A low-tech USSD tax filing portal for Lagosians without smartphones. The informal economy runs on feature phones and cash. Meet them where they are — and bring them into the net.',
+    framing: 'localImplementation',
+    cost: 4,
+    weeksToComplete: 6,
+    prerequisites: [
+      { type: 'node', nodeId: 'e-governance-platform', label: 'E-Governance Platform' },
+    ],
+    stepEffect: { igr: 0.6 },
+  },
+  {
+    id: 'border-tax-accords',
+    domain: 'administration',
+    title: 'Lagos-Ogun Tax Collation Accords',
+    pitch: 'A data-sharing agreement with Ogun State to track residents who work in Lagos but live across the border. Every Akute-to-Ikeja commuter is a revenue leak. Close it. Carefully.',
+    framing: 'localImplementation',
+    cost: 8,
+    weeksToComplete: 12,
+    prerequisites: [
+      { type: 'node', nodeId: 'etax-ussd-portal', label: 'LIRS e-Tax USSD Portal' },
+    ],
+    stepEffect: { igr: 1.0, federalRelationship: 3 },
+  },
+
+  // ── INNOVATION (creative economy + tech) ──────────────────
+  {
+    id: 'entertainment-district',
+    domain: 'innovation',
+    title: 'Lagos Entertainment District',
+    pitch: 'A designated entertainment zone with 24-hour power, security, and tax holidays for film and music production. Nollywood already runs on generator fuel and grit — give them the grid and watch what they produce.',
+    framing: 'innovation',
+    cost: 10,
+    weeksToComplete: 10,
+    prerequisites: [
+      { type: 'state', predicate: (s) => s.stats.infrastructureScore > 50, label: 'Infrastructure > 50' },
+    ],
+    stepEffect: { igr: 0.5 },
+  },
+  {
+    id: 'nollywood-tax-credit',
+    domain: 'innovation',
+    title: 'Nollywood Tax Credit Scheme',
+    pitch: 'A production tax credit for films, music, and fashion content shot and processed in Lagos. The industry already generates billions annually — formalise the financing, capture the credit, and make Lagos the creative capital of Africa by law, not just by reputation.',
+    framing: 'innovation',
+    cost: 6,
+    weeksToComplete: 8,
+    prerequisites: [
+      { type: 'node', nodeId: 'entertainment-district', label: 'Lagos Entertainment District' },
+    ],
+    stepEffect: { igr: 0.7 },
+  },
+
+  // ── AGRICULTURE (food security + logistics) ───────────────
+  {
+    id: 'canal-dredging',
+    domain: 'agriculture',
+    title: 'Epe-Badagry Canal Dredging',
+    pitch: 'Dredge the farm-to-market canals connecting Epe and Badagry to the Lagos lagoon network. Currently impassable for half the year. This is how food gets to market without rotting on the road.',
+    framing: 'localImplementation',
+    cost: 6,
+    weeksToComplete: 8,
+    prerequisites: [
+      { type: 'node', nodeId: 'aquaculture-pilot', label: 'Aquaculture Pilot' },
+    ],
+    stepEffect: { foodSecurityIndex: 10, igr: 0.3 },
+  },
+  {
+    id: 'livestock-logistics',
+    domain: 'agriculture',
+    title: 'Sallah Livestock Logistics',
+    pitch: 'A dedicated livestock corridor with holding pens, inspection points, and scheduled movement windows from Kara Market to Lagos abattoirs. No more midnight cattle jams on the Lagos-Ibadan expressway.',
+    framing: 'localImplementation',
+    cost: 10,
+    weeksToComplete: 10,
+    prerequisites: [
+      { type: 'node', nodeId: 'cold-chain', label: 'Cold Chain' },
+    ],
+    stepEffect: { foodSecurityIndex: 8, publicTrust: 3 },
+  },
+
+  // ── CLIMATE (resilience) ─────────────────────────────────
+  {
+    id: 'drainage-system-156',
+    domain: 'climate',
+    title: 'System 156 Drainage Upgrade',
+    pitch: 'The notorious System 156 drainage collector that serves Alimosho, Agege, and Ikeja is a colonial-era relic. Desilt, reinforce, and extend it. This one channel affects flood risk for 3 million Lagosians.',
+    framing: 'localImplementation',
+    cost: 12,
+    weeksToComplete: 14,
+    prerequisites: [
+      { type: 'node', nodeId: 'drainage-master-plan', label: 'Drainage Master Plan' },
+    ],
+    stepEffect: { floodResilienceScore: 15, infrastructureScore: 2 },
+  },
+  {
+    id: 'wetland-enforcement',
+    domain: 'climate',
+    title: 'Wetland Classification & Enforcement',
+    pitch: 'Geotechnical mapping of Lagos wetlands, codified into enforceable planning regulations. Every building on a floodplain was approved by someone. Stop approving. The lawsuits will come. The flooding will not.',
+    framing: 'localImplementation',
+    cost: 8,
+    weeksToComplete: 10,
+    prerequisites: [
+      { type: 'node', nodeId: 'drainage-system-156', label: 'System 156 Drainage Upgrade' },
+    ],
+    stepEffect: { floodResilienceScore: 10, ghostWorkerRate: -0.02 },
+  },
+  {
+    id: 'flood-resettlement',
+    domain: 'climate',
+    title: 'Floodplain Resettlement Framework',
+    pitch: 'A structured resettlement programme for communities living in high-risk flood zones. Compensation, alternative housing, livelihood support. Costly. Controversial. Necessary.',
+    framing: 'localImplementation',
+    cost: 6,
+    weeksToComplete: 8,
+    prerequisites: [
+      { type: 'node', nodeId: 'wetland-enforcement', label: 'Wetland Classification & Enforcement' },
+    ],
+    stepEffect: { floodResilienceScore: 8, publicTrust: 3 },
+  },
 ]

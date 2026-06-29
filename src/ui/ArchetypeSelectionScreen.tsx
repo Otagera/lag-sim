@@ -25,7 +25,8 @@ export function ArchetypeSelectionScreen({ onSelect }: Props) {
 
   function handleSelect(key: ArchetypeKey) {
     const base = getArchetypeState(key)
-    useGameStore.setState({ ...base, runMeta: { ...base.runMeta, archetype: key } })
+    const runSeed = Math.floor(Math.random() * 2 ** 32)
+    useGameStore.setState({ ...base, runSeed, runMeta: { ...base.runMeta, archetype: key } })
     onSelect(key)
   }
 

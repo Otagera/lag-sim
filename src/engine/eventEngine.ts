@@ -1,3 +1,4 @@
+import { mulberry32, hashSeed } from '../utils/prng'
 import { chainEvents } from '../data/events/chains'
 import { characterEvents } from '../data/events/characters'
 import { NPC_DECK_EVENTS } from '../data/events/npcDecks'
@@ -19,12 +20,13 @@ import { transportEvents } from '../data/events/transport'
 import { narrateConsequence } from './consequenceNarrator'
 import { fashemuAsks } from '../data/godfatherAsks'
 import { applyEscalation as applyGodfatherEscalation } from './godfatherEngine'
-import type { EventCard, GameState, PendingEvent, StatKey, TimelineEntry } from '../state/types'
+import type { EventCard, GameState, PendingEvent, SecondaryFactionKey, StatKey, TimelineEntry } from '../state/types'
 import { applyConstituencyImpact } from './constituencyEngine'
 import { applyFactionDelta } from './factionEngine'
 import { createProject } from './projectEngine'
 import { getSeasonModifier } from './seasonEngine'
 import { applyDelta } from './statEngine'
+import { getSecondaryFactionImpact } from './secondaryFactionHooks'
 
 export const ALL_EVENTS: EventCard[] = [
   // phase4Events first: gives their trigger-condition outcomes (e.g. populist shield)
@@ -82,12 +84,13 @@ function getEventWeight(event: EventCard, floodMultiplier = 1, mediaDampening = 
   return weight
 }
 
-function weightedSelect(pool: EventCard[], floodMultiplier = 1, mediaDampening = 0): EventCard | null {
+function weightedSelect(pool: EventCard[], seed: number, floodMultiplier = 1, mediaDampening = 0): EventCard | null {
   const weights = pool.map((e) => getEventWeight(e, floodMultiplier, mediaDampening))
   const total = weights.reduce((sum, w) => sum + w, 0)
   if (total <= 0) return null
 
-  let roll = Math.random() * total
+  const rng = mulberry32(seed)
+  let roll = rng() * total
   for (let i = 0; i < pool.length; i++) {
     roll -= weights[i]
     if (roll <= 0) return pool[i]
@@ -98,6 +101,11 @@ function weightedSelect(pool: EventCard[], floodMultiplier = 1, mediaDampening =
 export function drawNextEvent(state: GameState): EventCard | null {
   if (state.activeEvent) return null
   if (state.eventsResolvedThisWeek >= 2) return null
+
+  // Derive a deterministic sub-seed for this draw position
+  const drawSeed = state.runSeed
+    ? hashSeed(state.runSeed, `draw:${state.week}:${state.eventsResolvedThisWeek}`)
+    : state.week + state.eventsResolvedThisWeek
 
   // Check event queue first (chain follow-ups take priority)
   if (state.eventQueue.length > 0) {
@@ -120,7 +128,7 @@ export function drawNextEvent(state: GameState): EventCard | null {
   if (state.riotModeActive) {
     const riotPool = available.filter((e) => e.category === 'riot')
     if (riotPool.length === 0) return null
-    return weightedSelect(riotPool)
+    return weightedSelect(riotPool, drawSeed)
   }
 
   const pool = available.filter(
@@ -135,7 +143,7 @@ export function drawNextEvent(state: GameState): EventCard | null {
   const { floodEventWeightMultiplier } = getSeasonModifier(state.week)
   const infoComm = state.commissioners?.['information']
   const mediaDampening = infoComm ? (infoComm.loyalty / 100) * 0.25 : 0
-  return weightedSelect(pool, floodEventWeightMultiplier, mediaDampening)
+  return weightedSelect(pool, drawSeed, floodEventWeightMultiplier, mediaDampening)
 }
 
 export function resolveEvent(state: GameState, event: EventCard, choiceId: string): GameState {
@@ -238,6 +246,29 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
       }
     }
     next = { ...next, activeNPCs: npcs }
+  }
+
+  // Apply secondary faction impact from choice
+  if (choice.secondaryFactionImpact) {
+    const updated = { ...next.secondaryFactions }
+    for (const [key, delta] of Object.entries(choice.secondaryFactionImpact)) {
+      if (typeof delta === 'number') {
+        updated[key as SecondaryFactionKey] = Math.max(0, Math.min(100, updated[key as SecondaryFactionKey] + delta))
+      }
+    }
+    next = { ...next, secondaryFactions: updated }
+  }
+
+  // Auto-hook: known seasonal/research events affect secondary factions
+  const autoHook = getSecondaryFactionImpact(event.id)
+  if (autoHook) {
+    const updated = { ...next.secondaryFactions }
+    for (const [key, delta] of Object.entries(autoHook)) {
+      if (typeof delta === 'number') {
+        updated[key as SecondaryFactionKey] = Math.max(0, Math.min(100, updated[key as SecondaryFactionKey] + delta))
+      }
+    }
+    next = { ...next, secondaryFactions: updated }
   }
 
   let pendingDelayed = [...next.pendingDelayed]

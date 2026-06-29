@@ -22,6 +22,8 @@ const BOUNDS: Partial<Record<StatKey, { min: number; max: number }>> = {
   baseOverheads: { min: -3, max: Infinity },
   subventionCutRate: { min: 0, max: 0.4 },
   capitalEfficiency: { min: 0, max: 1 },
+  foodSecurityIndex: { min: 0, max: 100 },
+  floodResilienceScore: { min: 0, max: 100 },
 }
 
 export function applyDelta(state: GameState, delta: StatDelta): GameState {

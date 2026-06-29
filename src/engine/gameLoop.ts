@@ -22,6 +22,8 @@ import { selectChannelMeta } from './channelEngine'
 import { getGoal, getGoalIsMet, getGoalProgress } from '../data/goals'
 import { buildEndingNarrative } from './endingNarrator'
 import { ALL_HINTS } from '../data/hints'
+import { isDettyDecember, isSallahPeriod, isEyoFestival, isHarmattan } from '../utils/calendar'
+import { tickSecondaryFactions } from './secondaryFactionEngine'
 
 const CONSTITUENCY_TRUST_WEIGHTS: Partial<Record<string, number>> = {
   alimosho:        13,
@@ -265,6 +267,15 @@ export function tick(state: GameState): GameState {
   // Phase E — research tree tick
   next = tickResearchNodes(next)
 
+  // Secondary faction tick (drift + seasonal modulation)
+  next = tickSecondaryFactions(
+    next,
+    isDettyDecember(next.week),
+    isSallahPeriod(next.week),
+    isEyoFestival(next.week),
+    isHarmattan(next.week),
+  )
+
   // Projects tick
   next = tickProjects(next)
 
@@ -319,6 +330,14 @@ export function tick(state: GameState): GameState {
   const infraDecay = 0.5 + Math.max(0, next.stats.infrastructureScore - 70) * 0.005
   // Youth tension: passive +0.4/week — the city always generates new pressure
   next = applyDelta(next, { infrastructureScore: -infraDecay, youthTension: 0.4 })
+
+  // New stat decay: foodSecurityIndex (-0.25/wk base, extra harmattan burden)
+  const foodDecay = 0.25 + (mod.isHarmattan ? 0.4 : 0)
+  next = applyDelta(next, { foodSecurityIndex: -foodDecay })
+
+  // New stat decay: floodResilienceScore (-0.1/wk base, -0.8/wk in wet season)
+  const floodDecay = 0.1 + (mod.isWetSeason ? 0.8 : 0)
+  next = applyDelta(next, { floodResilienceScore: -floodDecay })
 
   // Append this week's per-LGA approval to rolling 8-week window
   const updatedHistory = {} as Record<ConstituencyKey, number[]>

@@ -140,6 +140,12 @@ export function StateOfTheState() {
           <Surface elevation="flat" padding="10px">
             <Stat label="Youth Tension"      value={stats.youthTension}      warn={stats.youthTension > 60} danger={stats.youthTension > 80} title="Youth unrest level. Rises 0.4/wk naturally. Above 85 + trust < 15 = mass uprising." icon={STAT_ICONS.youthTension.icon} />
           </Surface>
+          <Surface elevation="flat" padding="10px">
+            <Stat label="Food Security"      value={stats.foodSecurityIndex ?? 40} warn={(stats.foodSecurityIndex ?? 40) < 40} title="Food supply chain resilience. Decays 0.25/wk. Below 40 triggers food price warnings." />
+          </Surface>
+          <Surface elevation="flat" padding="10px">
+            <Stat label="Flood Resilience"   value={stats.floodResilienceScore ?? 35} warn={(stats.floodResilienceScore ?? 35) < 40} title="Flood prevention infrastructure. Decays 0.1/wk + extra in wet season. Below 40 = flood crisis risk." />
+          </Surface>
         </div>
       </section>
 
@@ -151,6 +157,52 @@ export function StateOfTheState() {
             <FactionBar key={key} label={FACTION_LABELS[key] ?? key} value={value as number} factionKey={key} />
           ))}
         </Surface>
+      </section>
+
+      {/* Secondary Factions */}
+      <section>
+        <Kicker accent>Sector Stakeholders</Kicker>
+        <div style={{
+          marginTop: '8px',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '6px',
+        }}>
+          {[
+            { key: 'creativeEconomy', label: 'Creative Economy' },
+            { key: 'techSector', label: 'Tech Sector' },
+            { key: 'medicalAssociation', label: 'Health Professionals' },
+            { key: 'agrarianSector', label: 'Agriculture' },
+          ].map(({ key, label }) => {
+            const val = s.secondaryFactions[key as keyof typeof s.secondaryFactions] as number ?? 50
+            const danger = val <= 25
+            const warn = val <= 40
+            const color = danger ? 'var(--error-9)' : warn ? 'var(--warning-9)' : 'var(--accent-solid)'
+            return (
+              <div key={key} style={{
+                padding: '8px 10px',
+                background: 'var(--surface)',
+                borderRadius: '2px',
+                border: '1px solid var(--border)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+                <span style={{
+                  fontSize: '10px',
+                  color: danger ? 'var(--error-11)' : 'var(--text-secondary)',
+                  fontWeight: danger ? 600 : 400,
+                }}>{label}</span>
+                <span style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color,
+                  fontVariantNumeric: 'tabular-nums',
+                }}>{Math.round(val)}</span>
+              </div>
+            )
+          })}
+        </div>
       </section>
 
       {/* Federal */}

@@ -1,3 +1,4 @@
+import { mulberry32, hashSeed } from '../utils/prng'
 import type {
   GameState,
   ResearchNode,
@@ -102,7 +103,7 @@ export function commissionNode(nodeId: string, state: GameState): GameState {
   }
 }
 
-export function pickOutcome(node: ResearchNode, state: GameState): PathOutcome {
+export function pickOutcome(node: ResearchNode, state: GameState, seed: number): PathOutcome {
   const outcomes = node.outcomes
   if (!outcomes || outcomes.length === 0) {
     return {
@@ -122,7 +123,8 @@ export function pickOutcome(node: ResearchNode, state: GameState): PathOutcome {
   const totalWeight = adjusted.reduce((sum, a) => sum + Math.max(0, a.weight), 0)
   if (totalWeight <= 0) return outcomes[0]
 
-  const roll = Math.random() * totalWeight
+  const rng = mulberry32(seed)
+  const roll = rng() * totalWeight
   let cumulative = 0
   for (const a of adjusted) {
     cumulative += Math.max(0, a.weight)
@@ -165,7 +167,8 @@ export function tickResearchNodes(state: GameState): GameState {
     }
 
     if (node.outcomes) {
-      const outcome = pickOutcome(node, next)
+      const subSeed = hashSeed(state.runSeed, `research:${node.id}:${crn.completionWeek}`)
+      const outcome = pickOutcome(node, next, subSeed)
 
       next = applyDelta(next, outcome.payoff)
       if (outcome.factionImpact && Object.keys(outcome.factionImpact).length > 0) {

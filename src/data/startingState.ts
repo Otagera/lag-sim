@@ -2,6 +2,7 @@ import type { GameState } from '../state/types'
 
 export const STARTING_STATE: GameState = {
   week: 1,
+  runSeed: 0,
   stateFlags: {},
   stats: {
     igr: 12.8,
@@ -25,6 +26,8 @@ export const STARTING_STATE: GameState = {
     baseOverheads: 0,
     subventionCutRate: 0,
     capitalEfficiency: 1,
+    foodSecurityIndex: 40,
+    floodResilienceScore: 35,
   },
   factions: {
     businessCommunity: 55,
@@ -33,6 +36,12 @@ export const STARTING_STATE: GameState = {
     federalGovt: 48,
     civilSocietyMedia: 44,
     lgChairmen: 58,
+  },
+  secondaryFactions: {
+    creativeEconomy: 45,
+    techSector: 40,
+    medicalAssociation: 50,
+    agrarianSector: 40,
   },
   constituencyApproval: {
     lagosIsland:     60,

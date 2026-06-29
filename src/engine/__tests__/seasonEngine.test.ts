@@ -147,11 +147,13 @@ describe('season effects — flood event weight bias', () => {
     const triggeredIds = ALL_EVENTS.filter((e) => e.triggerCondition).map((e) => e.id)
     const idsExceptFlood = [...triggeredIds]
 
-    // Run 200 draws in wet season (week 5), count flood event appearances
+    // Run 200 draws in wet season (week 5) with different run seeds,
+    // count flood event appearances
     let floodCount = 0
     for (let i = 0; i < 200; i++) {
       const state = clone({
         ...STARTING_STATE,
+        runSeed: i + 1,
         week: 5,
         activeEvent: null,
         eventsResolvedThisWeek: 0,
