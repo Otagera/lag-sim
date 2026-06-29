@@ -109,6 +109,17 @@ Weeks 210–260+: Fourth Mainland Bridge, Abuja withholding, transport union car
 ### NPC Decks (file: `npcDecks.ts`, ~16 cards)
 8 archetypes × 2 events each (hostile escalation + neutral opportunity). `{NPC}` placeholder replaced at draw time. See `docs/npc-system.md`.
 
+## Pool Eligibility vs. Scheduling
+
+`week: N` on an event is a **pool eligibility gate**, not a schedule. The event becomes eligible to be drawn at week N, but it still competes with every other pooled event in a weighted random draw. In a 208-week term with ~2 draws per week and 80+ pooled events, most events appear in at most one run and many won't appear at all. Different seeds produce completely different event subsets.
+
+This is distinct from `triggerCondition` events, which fire as mandatory triggered events the moment their condition is met and the event queue is empty — those do fire predictably for every run that hits the condition.
+
+**Choosing a week gate:**
+- Set it narratively (when would this event plausibly surface in a Lagos term?) not to tune the benchmark
+- Don't set it to `week: 1` unless the event is appropriate in the governor's first weeks
+- `triggerCondition: () => false` removes an event from the pool entirely (queue-only or disabled)
+
 ## Event Drawing Logic (`drawNextEvent`)
 
 1. If event queue is non-empty, return queue front

@@ -34,6 +34,15 @@ export const WINNING_STRATEGY = {
     politicalCapital: 0.3,
   },
 
+  // Emergency floors for election-relevant factions — only activates when a faction
+  // is within 10 points of its endorsement penalty threshold (≤35/≤30).
+  factionFloors: {
+    civilSocietyMedia: { threshold: 45, weight: 4 },
+    businessCommunity: { threshold: 45, weight: 3 },
+    lgChairmen:        { threshold: 45, weight: 3 },
+    informalEconomy:   { threshold: 40, weight: 3 },
+  },
+
   emergency: {
     fedRel:           { threshold: -10, statWeight: 20, factionWeight: 10 },
     cashReserve:      { threshold: 60, weight: 25 },   // keeps emergency active through most of term1
@@ -138,6 +147,16 @@ function scoreWinningChoice(
   if ((d.igr ?? 0) < 0 && state.week > cfg.igrLoss.weekGate) {
     score += d.igr! * cfg.igrLoss.weight
   }
+
+  const ff = WINNING_STRATEGY.factionFloors
+  if (state.factions.civilSocietyMedia < ff.civilSocietyMedia.threshold)
+    score += (f.civilSocietyMedia ?? 0) * ff.civilSocietyMedia.weight
+  if (state.factions.businessCommunity < ff.businessCommunity.threshold)
+    score += (f.businessCommunity ?? 0) * ff.businessCommunity.weight
+  if (state.factions.lgChairmen < ff.lgChairmen.threshold)
+    score += (f.lgChairmen ?? 0) * ff.lgChairmen.weight
+  if (state.factions.informalEconomy < ff.informalEconomy.threshold)
+    score += (f.informalEconomy ?? 0) * ff.informalEconomy.weight
 
   return score
 }

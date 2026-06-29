@@ -178,11 +178,15 @@ describe('cascade: riot mode', () => {
 
   it('all riot events are in ALL_EVENTS', () => {
     const riotPool = ALL_EVENTS.filter((e) => e.category === 'riot')
-    expect(riotPool.length).toBe(3)
+    expect(riotPool.length).toBe(7)
     const ids = riotPool.map((e) => e.id)
     expect(ids).toContain('riot-curfew-order')
     expect(ids).toContain('riot-security-surge')
     expect(ids).toContain('riot-youth-leader-parley')
+    expect(ids).toContain('riot-luc-market-lockdown')
+    expect(ids).toContain('riot-sars-successor-unit')
+    expect(ids).toContain('riot-sanitation-death')
+    expect(ids).toContain('riot-water-bill-boycott')
   })
 
   it('riot events have isRecurring true', () => {

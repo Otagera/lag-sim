@@ -1,6 +1,6 @@
 # Winning Strategy: Simulation AI Tuning
 
-The `'winning'` simulation strategy (`src/engine/simulateEngine.ts`) uses `WINNING_STRATEGY` — a single config object at the top of the file with all thresholds and weights. This strategy wins ≥ 60% of runs across 15 seeds (3 archetypes × 5 seeds; current best: 10/15 = 67%).
+The `'winning'` simulation strategy (`src/engine/simulateEngine.ts`) uses `WINNING_STRATEGY` — a single config object at the top of the file with all thresholds and weights. This strategy wins ≥ 60% of runs across 15 seeds (3 archetypes × 5 seeds; current best: 10/15 = 67%). Baseline with new events gated off: 12/15 = 80%.
 
 ## Scope (post Phases A–D)
 
@@ -59,6 +59,16 @@ export const WINNING_STRATEGY = {
     igrLoss:          { weekGate: 209,  weight: 8 },  // Term2-only
   },
 
+  // Election-relevant faction floors — only activates when faction is within 10pts of endorsement penalty threshold.
+  // Weights (3-4×) are high enough to override when triggered; the threshold ensures existing events
+  // (where factions are healthy) are unaffected.
+  factionFloors: {
+    civilSocietyMedia: { threshold: 45, weight: 4 },  // endorsement penalty at ≤35
+    businessCommunity: { threshold: 45, weight: 3 },  // endorsement penalty at ≤35
+    lgChairmen:        { threshold: 45, weight: 3 },  // endorsement penalty at ≤35
+    informalEconomy:   { threshold: 40, weight: 3 },  // endorsement penalty at ≤30
+  },
+
   // Godfather acceptance logic
   godfather: {
     corruptionRefuseThreshold: 50,  // Refuse if corruption > 50
@@ -95,6 +105,13 @@ export const WINNING_STRATEGY = {
 - Minimum score above baseline to override choice[0]
 - Lower = more deviation from safe default; 3 caused regressions
 
+### `factionFloors`
+- Threshold defaults: 45/45/45/40 (10pts above endorsement penalty cutoffs)
+- When a faction is below its threshold, choices that protect it score with weight 3-4×
+- Safe to tune aggressively: the threshold prevents it from firing on existing events where factions are healthy
+- Calibrated so that a +12 civil society swing clears `overrideMinScore` (5) while a +5 swing doesn't
+- **Why conditional, not always-on:** always-on faction weights shift behavior for all events including well-tuned existing ones, causing regressions. The threshold means the formula only acts when factions are already in danger.
+
 ## Design Principles
 
 1. **Default to choice[0]** — game designers put the safe/effective option first. Only override when a stat crosses an emergency threshold.
@@ -106,12 +123,15 @@ export const WINNING_STRATEGY = {
 ## Score Function (`scoreWinningChoice`)
 
 Each choice is scored by:
-- Baselines at 0.1
+- Baseline at 0.1
 - Continuous weights on `cashReserve`, `igr`, `corruptionPressure`, `politicalCapital`
 - Emergency weights activate only when corresponding stat crosses threshold
 - Expenditure penalty scales by crisisWeight when cash < 50
 - Term 2: PC floor at 25, IGR loss penalty active
+- Faction floor weights activate when election-relevant factions fall near endorsement penalty threshold
 - If no emergency kicks in, choice[0] wins by default
+
+**Adding new events:** new events don't need to conform to this scoring. The formula is designed to handle a diverse pool — faction scoring was added specifically because the expanded event deck (social/transport/crisis/economy expansion) included events with strong faction tradeoffs the strategy had no opinion on. When tuning is needed, run the benchmark and adjust `factionFloors` thresholds before touching `emergency` weights.
 
 ## Godfather Acceptance Logic (`shouldAcceptGodfather`)
 
