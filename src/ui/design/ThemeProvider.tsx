@@ -9,7 +9,7 @@ import { useGameStore } from '../../state/gameStore'
 import { deriveSituation, type Situation } from './tokens'
 
 // ─── Context ──────────────────────────────────────────────────────────────────
-const SituationCtx = createContext<Situation>('calm')
+export const SituationCtx = createContext<Situation>('calm')
 export const useSituation = () => useContext(SituationCtx)
 
 // ─── Rain drops (generated once) ─────────────────────────────────────────────

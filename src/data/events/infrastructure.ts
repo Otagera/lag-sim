@@ -411,7 +411,7 @@ export const infrastructureEvents: EventCard[] = [
   {
     id: 'lekki-highrise-enforcement',
     title: 'LASBCA Flags 14 Lekki High-Rises for Structural Violations',
-    body: `LASBCA's latest structural audit has flagged 14 high-rise buildings in Lekki Phase 1 and Oniru — nine occupied, five under construction — for compromised structural approval documentation. Three were approved by a LASBCA official who resigned last year under a cloud. The developers include companies with links to two party financiers. If LASBCA enforces stop-work or evacuation orders, the litigation exposure is significant. If it doesn't, and one of those buildings collapses, you own the headline.`,
+    body: `LASBCA's latest structural audit has flagged 14 high-rise buildings in Lekki Phase 1 and Oniru — nine occupied, five under construction — for compromised structural approval documentation. Three were approved by a LASBCA official who resigned last year under a cloud. The developers include companies with links to two party financiers. Since 2019, high-rise collapses in Ikoyi and Ebute Metta have killed 47 people between them. Both sites had valid LASBCA clearance certificates. If LASBCA enforces stop-work or evacuation orders, the litigation exposure is significant. If it doesn't, and one of those buildings collapses, you own the headline.`,
     severity: 'high',
     category: 'infrastructure',
     week: 20,

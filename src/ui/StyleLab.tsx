@@ -6,9 +6,66 @@
  */
 import { useState, useEffect, useRef, useMemo } from 'react'
 
+// ─── Tab sections ───────────────────────────────────────────────────────────
+import { FIXTURE_ARTICLES, FIXTURE_INBOX } from './styleLab/fixtures'
+import { STARTING_STATE } from '../data/startingState'
+import { useGameStore } from '../state/gameStore'
+import { ALL_GOALS } from '../data/goals'
+import { SituationCtx } from './design/ThemeProvider'
+import type { Situation } from './design/tokens'
+import type { ArchetypeKey } from '../data/archetypes'
+
+// Media formats
+import { ViralClip } from './ViralClip'
+import { SocialPost } from './SocialPost'
+import { PodcastCard } from './PodcastCard'
+import { WhatsAppChain } from './WhatsAppChain'
+import { LagosHerald } from './LagosHerald'
+
+// Onboarding screens
+import { WelcomeScreen } from './WelcomeScreen'
+import { WelcomeModal } from './WelcomeModal'
+import { ArchetypeSelectionScreen } from './ArchetypeSelectionScreen'
+import { DeputySelectionScreen } from './DeputySelectionScreen'
+import { HandoverNotesModal } from './HandoverNotesModal'
+import { GoalSelectionScreen } from './GoalSelectionScreen'
+
+// Overlays
+import { HelpReference } from './HelpReference'
+import { Inbox } from './Inbox'
+import { ToastHint } from './ToastHint'
+import { GoalTracker } from './GoalTracker'
+import { DiagnosisBanner as GameDiagnosisBanner } from './game/DiagnosisBanner'
+import { StateOfTheState as GameStateOfTheState } from './game/StateOfTheState'
+import { ProjectsPanel } from './ProjectsPanel'
+import { ResearchTree } from './ResearchTree'
+
+// Atoms
+import { Button } from './components/Button'
+import { Surface } from './components/Surface'
+import { Stat } from './components/Stat'
+import { Pill } from './components/Pill'
+import { Banner } from './components/Banner'
+import { Badge } from './components/Badge'
+import { Tab } from './components/Tab'
+import { Kicker, Heading, Prose } from './components/Typography'
+import { RainLayer } from './components/RainLayer'
+
+// ─── CSS overrides for fixed-position components in non-Core tabs ────────────
+const FIXED_OVERRIDE_CSS = `
+.sl-tab-section .fixed { position: relative !important; inset: auto !important; z-index: auto !important; }
+.sl-tab-section .z-50 { z-index: auto !important; }
+.sl-tab-section .z-100 { z-index: auto !important; }
+.sl-tab-section [style*="position: fixed"] { position: relative !important; }
+.sl-tab-section [style*="zIndex: 50"] { z-index: auto !important; }
+.sl-tab-section [style*="zIndex: 100"] { z-index: auto !important; }
+.sl-tab-section [style*="zIndex: 200"] { z-index: auto !important; }
+`
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 type GameState = 'calm' | 'election' | 'crisis' | 'storm'
 type Variant   = 'clean' | 'bold' | 'atmospheric'
+type TabId     = 0 | 1 | 2 | 3 | 4
 
 interface Theme {
   bg: string; bgGrad: string; bgCard: string
@@ -353,7 +410,7 @@ function StatusBar({ theme, variant, state }: { theme: Theme; variant: Variant; 
   )
 }
 
-// ─── 2. DIAGNOSIS BANNER ─────────────────────────────────────────────────────
+// ─── 2. DIAGNOSIS BANNER (lab mock) ──────────────────────────────────────────
 function DiagnosisBanner({ theme, variant }: { theme: Theme; variant: Variant }) {
   return (
     <div
@@ -831,6 +888,438 @@ function LabChrome({ gameState, variant, soundOn, onState, onVariant, onSound }:
   )
 }
 
+// ─── Tab Bar ──────────────────────────────────────────────────────────────────
+const TABS: { id: TabId; label: string }[] = [
+  { id: 0, label: 'Core' },
+  { id: 1, label: 'Media' },
+  { id: 2, label: 'Onboarding' },
+  { id: 3, label: 'Overlays' },
+  { id: 4, label: 'Atoms' },
+]
+
+function TabBar({ activeTab, onChange }: { activeTab: TabId; onChange: (id: TabId) => void }) {
+  return (
+    <div style={{
+      display: 'flex',
+      borderBottom: '1px solid var(--border, rgba(0,0,0,.1))',
+      background: 'var(--surface, #fff)',
+      position: 'sticky', top: 0, zIndex: 29,
+    }}>
+      {TABS.map((tab) => {
+        const isActive = activeTab === tab.id
+        return (
+          <button
+            key={tab.id}
+            onClick={() => onChange(tab.id)}
+            style={{
+              flex: 1,
+              padding: '10px 16px',
+              border: 'none',
+              borderBottom: isActive ? '2px solid var(--accent-solid, #1A9B8E)' : '2px solid transparent',
+              background: isActive ? 'rgba(26,155,142,.06)' : 'transparent',
+              cursor: 'pointer',
+              fontFamily: "'Archivo Narrow', sans-serif",
+              fontSize: '11px',
+              fontWeight: isActive ? 700 : 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: isActive ? '#1A9B8E' : 'rgba(15,32,30,.5)',
+              transition: 'all .15s ease',
+            }}
+          >
+            {tab.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+// ─── Tab 1: Media ────────────────────────────────────────────────────────────
+type ArticleCategory = 'fiscal' | 'political' | 'crisis' | 'milestone'
+
+const CATEGORY_META: Record<ArticleCategory, { label: string; color: string }> = {
+  fiscal:    { label: 'Fiscal',    color: '#1A9B8E' },
+  political: { label: 'Political', color: '#7C3AED' },
+  crisis:    { label: 'Crisis',    color: '#D7322A' },
+  milestone: { label: 'Milestone', color: '#3AA048' },
+}
+
+function MediaTab({ theme }: { theme: Theme }) {
+  const [category, setCategory] = useState<ArticleCategory>('fiscal')
+  const article = FIXTURE_ARTICLES[category]
+  const headline = useGameStore((s) => s.newspaperHeadline)
+
+  // Hydrate store with article — re-apply if dismissed via close handler
+  useEffect(() => {
+    useGameStore.setState({
+      ...STARTING_STATE,
+      newspaperHeadline: article,
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category])
+
+  useEffect(() => {
+    if (!headline && article) {
+      useGameStore.setState({ newspaperHeadline: article })
+    }
+  }, [headline, article])
+
+  // Reset store on unmount
+  useEffect(() => {
+    return () => { useGameStore.setState(STARTING_STATE) }
+  }, [])
+
+  return (
+    <div className="sl-tab-section" style={{ padding: '20px 24px', maxWidth: '900px', margin: '0 auto', width: '100%' }}>
+      {/* Category picker */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+        {(['fiscal', 'political', 'crisis', 'milestone'] as ArticleCategory[]).map((cat) => {
+          const isActive = category === cat
+          const m = CATEGORY_META[cat]
+          return (
+            <button
+              key={cat}
+              onClick={() => setCategory(cat)}
+              style={{
+                padding: '5px 14px',
+                fontFamily: "'Archivo Narrow', sans-serif",
+                fontSize: '10px', fontWeight: 600,
+                textTransform: 'uppercase', letterSpacing: '0.08em',
+                border: `1px solid ${isActive ? m.color : 'rgba(128,128,128,.25)'}`,
+                borderRadius: '3px',
+                background: isActive ? `${m.color}18` : 'transparent',
+                color: isActive ? m.color : 'rgba(15,32,30,.55)',
+                cursor: 'pointer',
+                transition: 'all .15s ease',
+              }}
+            >
+              {m.label}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Format components — stacked vertically */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div>
+          <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}>LagosHerald · {article.channelMeta?.channel}</div>
+          <LagosHerald />
+        </div>
+        <div>
+          <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}>ViralClip · shortVideo</div>
+          <ViralClip article={{ ...article, channelMeta: { channel: 'shortVideo', views: 1400000, creatorHandle: '@Lagospedia' }}} />
+        </div>
+        <div>
+          <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}>SocialPost · tweet</div>
+          <SocialPost article={{ ...article, channelMeta: { channel: 'tweet', handle: '@LagosPunch', hashtag: '#LagosReports', retweets: 2340, likes: 8700 }}} />
+        </div>
+        <div>
+          <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}>PodcastCard · podcast</div>
+          <PodcastCard article={{ ...article, channelMeta: { channel: 'podcast', showName: 'Lagos Minute', hostName: 'Yetunde Bello', duration: '12:34', keyQuote: "This changes everything for the lagoon economy." }}} />
+        </div>
+        <div>
+          <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}>WhatsAppChain · whatsapp</div>
+          <WhatsAppChain article={{ ...article, channelMeta: { channel: 'whatsapp', forwardCount: 8400, isRumor: category === 'crisis' }}} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Tab 2: Onboarding ────────────────────────────────────────────────────────
+function OnboardingTab() {
+  const [archetype, setArchetype] = useState<ArchetypeKey>('technocrat')
+
+  // Reset store on mount
+  useEffect(() => {
+    useGameStore.setState(STARTING_STATE)
+    return () => { useGameStore.setState(STARTING_STATE) }
+  }, [])
+
+  return (
+    <div className="sl-tab-section" style={{ padding: '20px 24px', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
+      {/* Archetype picker */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+        {(['technocrat', 'loyalist', 'outsider'] as ArchetypeKey[]).map((a) => {
+          const isActive = archetype === a
+          return (
+            <button
+              key={a}
+              onClick={() => setArchetype(a)}
+              style={{
+                padding: '5px 14px',
+                fontFamily: "'Archivo Narrow', sans-serif",
+                fontSize: '10px', fontWeight: 600,
+                textTransform: 'capitalize', letterSpacing: '0.08em',
+                border: `1px solid ${isActive ? '#1A9B8E' : 'rgba(128,128,128,.25)'}`,
+                borderRadius: '3px',
+                background: isActive ? 'rgba(26,155,142,.12)' : 'transparent',
+                color: isActive ? '#1A9B8E' : 'rgba(15,32,30,.55)',
+                cursor: 'pointer',
+                transition: 'all .15s ease',
+              }}
+            >
+              {a}
+            </button>
+          )
+        })}
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        {/* 1. WelcomeScreen */}
+        <div>
+          <div className="label-caps" style={{ fontSize: '9px', color: 'var(--text-tertiary, rgba(0,0,0,.35))', marginBottom: '6px' }}>WelcomeScreen · onNewGame/onContinue stubbed</div>
+          <div style={{ border: '1px dashed rgba(0,0,0,.15)', borderRadius: '4px', overflow: 'hidden' }}>
+            <WelcomeScreen onNewGame={() => {}} onContinue={() => {}} canContinue={true} />
+          </div>
+        </div>
+
+        {/* 2. WelcomeModal */}
+        <div>
+          <div className="label-caps" style={{ fontSize: '9px', color: 'var(--text-tertiary, rgba(0,0,0,.35))', marginBottom: '6px' }}>WelcomeModal · CTA navigates away — use browser back</div>
+          <div style={{ border: '1px dashed rgba(0,0,0,.15)', borderRadius: '4px', overflow: 'hidden', minHeight: '400px' }}>
+            <WelcomeModal onStart={() => {}} />
+          </div>
+        </div>
+
+        {/* 3. ArchetypeSelectionScreen */}
+        <div>
+          <div className="label-caps" style={{ fontSize: '9px', color: 'var(--text-tertiary, rgba(0,0,0,.35))', marginBottom: '6px' }}>ArchetypeSelectionScreen · CTA navigates away</div>
+          <div style={{ border: '1px dashed rgba(0,0,0,.15)', borderRadius: '4px', overflow: 'hidden', minHeight: '400px' }}>
+            <ArchetypeSelectionScreen onSelect={() => {}} />
+          </div>
+        </div>
+
+        {/* 4. DeputySelectionScreen */}
+        <div>
+          <div className="label-caps" style={{ fontSize: '9px', color: 'var(--text-tertiary, rgba(0,0,0,.35))', marginBottom: '6px' }}>DeputySelectionScreen · CTA navigates away</div>
+          <div style={{ border: '1px dashed rgba(0,0,0,.15)', borderRadius: '4px', overflow: 'hidden', minHeight: '400px' }}>
+            <DeputySelectionScreen onSelect={() => {}} archetypeKey={archetype} />
+          </div>
+        </div>
+
+        {/* 5. HandoverNotesModal */}
+        <div>
+          <div className="label-caps" style={{ fontSize: '9px', color: 'var(--text-tertiary, rgba(0,0,0,.35))', marginBottom: '6px' }}>HandoverNotesModal · onClose stubbed</div>
+          <div style={{ border: '1px dashed rgba(0,0,0,.15)', borderRadius: '4px', overflow: 'hidden', minHeight: '400px' }}>
+            <HandoverNotesModal onClose={() => {}} archetypeKey={archetype} />
+          </div>
+        </div>
+
+        {/* 6. GoalSelectionScreen */}
+        <div>
+          <div className="label-caps" style={{ fontSize: '9px', color: 'var(--text-tertiary, rgba(0,0,0,.35))', marginBottom: '6px' }}>GoalSelectionScreen · CTA navigates away</div>
+          <div style={{ border: '1px dashed rgba(0,0,0,.15)', borderRadius: '4px', overflow: 'hidden', minHeight: '400px' }}>
+            <GoalSelectionScreen onSelect={() => {}} context="new-game" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Tab 3: Overlays ──────────────────────────────────────────────────────────
+const FAKE_SITUATION_CTX_VALUE: Situation = 'crisis'
+
+function OverlaysTab({ theme }: { theme: Theme }) {
+  // Hydrate store
+  useEffect(() => {
+    useGameStore.setState({
+      ...STARTING_STATE,
+      inbox: FIXTURE_INBOX,
+      selectedGoalId: ALL_GOALS[0]?.id ?? 'break-the-machine',
+    })
+    return () => { useGameStore.setState(STARTING_STATE) }
+  }, [])
+
+  return (
+    <SituationCtx.Provider value={FAKE_SITUATION_CTX_VALUE}>
+      <div className="sl-tab-section" style={{ padding: '20px 24px', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+
+          {/* HelpReference */}
+          <div>
+            <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}>HelpReference · onClose stubbed</div>
+            <HelpReference onClose={() => {}} />
+          </div>
+
+          {/* Inbox */}
+          <div>
+            <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}>Inbox · reads from Zustand (fixture data injected)</div>
+            <Inbox />
+          </div>
+
+          {/* ToastHint */}
+          <div>
+            <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}>ToastHint · short + long</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <ToastHint text="New event arrived: Makoko Market Fire" onDismiss={() => {}} />
+              <ToastHint text="Your weekly report is ready. Revenue is up 3% but expenditure grew 5%. Consider a spending review." onDismiss={() => {}} />
+            </div>
+          </div>
+
+          {/* GoalTracker */}
+          <div>
+            <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}>GoalTracker · reads selectedGoalId from store</div>
+            <GoalTracker />
+          </div>
+
+          {/* DiagnosisBanner (game) */}
+          <div>
+            <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}>GameDiagnosisBanner · wrapped in fake SituationCtx (crisis)</div>
+            <GameDiagnosisBanner />
+          </div>
+
+          {/* StateOfTheState */}
+          <div>
+            <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}>StateOfTheState · reads stats/factions from store</div>
+            <div style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid rgba(0,0,0,.1)', borderRadius: '4px' }}>
+              <GameStateOfTheState />
+            </div>
+          </div>
+
+          {/* ProjectsPanel */}
+          <div>
+            <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}>ProjectsPanel · reads projects from store, onClose stubbed</div>
+            <div style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid rgba(0,0,0,.1)', borderRadius: '4px' }}>
+              <ProjectsPanel onClose={() => {}} />
+            </div>
+          </div>
+
+          {/* ResearchTree */}
+          <div>
+            <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}>ResearchTree · reads research from store, onClose stubbed</div>
+            <div style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid rgba(0,0,0,.1)', borderRadius: '4px' }}>
+              <ResearchTree onClose={() => {}} />
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </SituationCtx.Provider>
+  )
+}
+
+// ─── Tab 4: Atoms ─────────────────────────────────────────────────────────────
+function AtomsTab() {
+  return (
+    <div className="sl-tab-section" style={{ padding: '20px 24px', maxWidth: '900px', margin: '0 auto', width: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
+
+        {/* Button */}
+        <section>
+          <Kicker accent>Button</Kicker>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginTop: '8px' }}>
+            {(['primary', 'choice', 'danger', 'ghost'] as const).map((v) => (
+              <div key={v} style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                <Button variant={v}>{v}</Button>
+                <Button variant={v} disabled>{v} disabled</Button>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Surface */}
+        <section>
+          <Kicker accent>Surface</Kicker>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginTop: '8px' }}>
+            {(['flat', 'raised', 'atm'] as const).map((elev) =>
+              (['default', 'surface2', 'ghost'] as const).map((vari) => (
+                <Surface key={`${elev}-${vari}`} elevation={elev} variant={vari} padding="16px">
+                  <div style={{ fontFamily: "'Archivo Narrow', sans-serif", fontSize: '11px', textAlign: 'center' }}>
+                    {elev} · {vari}
+                  </div>
+                </Surface>
+              ))
+            )}
+          </div>
+        </section>
+
+        {/* Stat */}
+        <section>
+          <Kicker accent>Stat</Kicker>
+          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginTop: '8px' }}>
+            <Stat label="Revenue" value={24.8} format="currency" />
+            <Stat label="Trust" value={67} format="percent" />
+            <Stat label="Pol. Cap" value={45} />
+            <Stat label="Cash" value={8.2} format="currency" warn danger />
+          </div>
+        </section>
+
+        {/* Pill */}
+        <section>
+          <Kicker accent>Pill</Kicker>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', marginTop: '8px' }}>
+            <Pill text="+3 Trust" isGood />
+            <Pill text="−5 Corruption" isGood={false} />
+            <Pill text="+12 Business" isGood size="md" />
+            <Pill text="−3 Cash" isGood={false} size="md" />
+            <Pill text="With icon" isGood icon={undefined} />
+          </div>
+        </section>
+
+        {/* Banner */}
+        <section>
+          <Kicker accent>Banner</Kicker>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+            <Banner tone="warning">Warning banner — your treasury is low</Banner>
+            <Banner tone="danger">Danger banner — riot declared in three LGAs</Banner>
+            <Banner tone="info">Info banner — weekly report ready</Banner>
+            <Banner tone="success">Success banner — infrastructure milestone reached</Banner>
+          </div>
+        </section>
+
+        {/* Badge */}
+        <section>
+          <Kicker accent>Badge</Kicker>
+          <div style={{ display: 'flex', gap: '24px', alignItems: 'center', marginTop: '8px' }}>
+            <Badge count={1} />
+            <Badge count={5} />
+            <Badge count={12} />
+            <Badge count={99} max={9} />
+            <Badge count={100} max={99} />
+          </div>
+        </section>
+
+        {/* Tab */}
+        <section>
+          <Kicker accent>Tab</Kicker>
+          <div style={{ display: 'flex', gap: '4px', marginTop: '8px' }}>
+            <Tab label="All" active />
+            <Tab label="Unread" badge={3} />
+            <Tab label="Archived" />
+            <Tab label="Flagged" badge={12} />
+          </div>
+        </section>
+
+        {/* Typography */}
+        <section>
+          <Kicker accent>Typography</Kicker>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+            <Kicker>Kicker — Section kicker</Kicker>
+            <Heading level={1}>Heading 1 — Display Title</Heading>
+            <Heading level={2}>Heading 2 — Section Title</Heading>
+            <Heading level={3}>Heading 3 — Card Title</Heading>
+            <Prose>Prose — Body text with the standard leading and measure used throughout the game interface.</Prose>
+          </div>
+        </section>
+
+        {/* RainLayer */}
+        <section>
+          <Kicker accent>RainLayer</Kicker>
+          <div style={{ marginTop: '8px' }}>
+            <div style={{ width: '200px', height: '200px', border: '1px solid rgba(0,0,0,.1)', borderRadius: '4px', overflow: 'hidden', position: 'relative', background: '#0C1720' }}>
+              <RainLayer />
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  )
+}
+
 // ─── Root ─────────────────────────────────────────────────────────────────────
 export function StyleLab() {
   const [gameState, setGameState] = useState<GameState>('calm')
@@ -839,6 +1328,7 @@ export function StyleLab() {
   const [showBlackout, setShowBlackout] = useState(false)
   const [showDiagnosis, setShowDiagnosis] = useState(false)
   const [diagKey, setDiagKey]     = useState(0)  // force re-mount for re-animation
+  const [activeTab, setActiveTab] = useState<TabId>(0)
   const theme = useMemo(() => mkTheme(gameState, variant), [gameState, variant])
 
   function changeState(next: GameState) {
@@ -867,6 +1357,7 @@ export function StyleLab() {
   return (
     <>
       <style>{SL_CSS}</style>
+      <style>{FIXED_OVERRIDE_CSS}</style>
 
       {/* ── Atmospheric overlays ── */}
       {showBlackout && <div className="sl-bko"/>}
@@ -912,51 +1403,62 @@ export function StyleLab() {
           onSound={setSoundOn}
         />
 
-        {/* ── Game UI Simulation ── */}
-        <div style={{ position: 'relative', zIndex: 10, flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {/* Tab bar — sticky below chrome */}
+        <TabBar activeTab={activeTab} onChange={setActiveTab} />
 
-          {/* Status Bar */}
-          <StatusBar theme={theme} variant={variant} state={gameState}/>
+        {/* ── Tab Content ── */}
+        {activeTab === 0 && (
+          /* ════════ CORE (existing content — unchanged) ════════ */
+          <div style={{ position: 'relative', zIndex: 10, flex: 1, display: 'flex', flexDirection: 'column' }}>
 
-          {/* Diagnosis Banner — crisis + storm only */}
-          {showDiagnosis && (
-            <DiagnosisBanner key={diagKey} theme={theme} variant={variant}/>
-          )}
+            {/* Status Bar */}
+            <StatusBar theme={theme} variant={variant} state={gameState}/>
 
-          {/* Main content */}
-          <div style={{
-            flex: 1, padding: `20px ${variant === 'atmospheric' ? '24px' : '20px'}`,
-            maxWidth: '720px', margin: '0 auto', width: '100%',
-            display: 'flex', flexDirection: 'column', gap: '0',
-          }}>
-            {/* Event Card — the hero */}
-            <EventCard
-              theme={theme}
-              variant={variant}
-              soundOn={soundOn}
-              onCommit={() => {}}
-            />
+            {/* Diagnosis Banner — crisis + storm only */}
+            {showDiagnosis && (
+              <DiagnosisBanner key={diagKey} theme={theme} variant={variant}/>
+            )}
 
-            {/* State Seal */}
-            <StateSeal theme={theme} variant={variant}/>
-
-            {/* Sandbox note */}
+            {/* Main content */}
             <div style={{
-              textAlign: 'center', paddingBottom: '24px',
-              fontFamily: "'Archivo Narrow', sans-serif",
-              fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.14em',
-              color: theme.textFaint,
-              transition: tr(theme),
+              flex: 1, padding: `20px ${variant === 'atmospheric' ? '24px' : '20px'}`,
+              maxWidth: '720px', margin: '0 auto', width: '100%',
+              display: 'flex', flexDirection: 'column', gap: '0',
             }}>
-              /style-lab · throwaway · flip the mood switcher to see the system
+              {/* Event Card — the hero */}
+              <EventCard
+                theme={theme}
+                variant={variant}
+                soundOn={soundOn}
+                onCommit={() => {}}
+              />
+
+              {/* State Seal */}
+              <StateSeal theme={theme} variant={variant}/>
+
+              {/* Sandbox note */}
+              <div style={{
+                textAlign: 'center', paddingBottom: '24px',
+                fontFamily: "'Archivo Narrow', sans-serif",
+                fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.14em',
+                color: theme.textFaint,
+                transition: tr(theme),
+              }}>
+                /style-lab · throwaway · flip the mood switcher to see the system
+              </div>
+            </div>
+
+            {/* Nav Dock — pinned at bottom */}
+            <div style={{ position: 'sticky', bottom: 0, zIndex: 20 }}>
+              <NavDock theme={theme} variant={variant} state={gameState}/>
             </div>
           </div>
+        )}
 
-          {/* Nav Dock — pinned at bottom */}
-          <div style={{ position: 'sticky', bottom: 0, zIndex: 20 }}>
-            <NavDock theme={theme} variant={variant} state={gameState}/>
-          </div>
-        </div>
+        {activeTab === 1 && <MediaTab theme={theme} />}
+        {activeTab === 2 && <OnboardingTab />}
+        {activeTab === 3 && <OverlaysTab theme={theme} />}
+        {activeTab === 4 && <AtomsTab />}
       </div>
     </>
   )

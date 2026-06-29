@@ -24,7 +24,7 @@ export interface SimulateResult {
  * verify the win rate stays ≥ 80%.
  */
 export const WINNING_STRATEGY = {
-  overrideMinScore: 5,
+  overrideMinScore: 1.5,
   baselineScore: 0.1,
 
   continuous: {
@@ -32,6 +32,9 @@ export const WINNING_STRATEGY = {
     igr: 2,              // IGR compounds; term2-only igrLoss guard handles permanent losses
     corruptionPressure: -1,
     politicalCapital: 0.3,
+    infrastructureScore: 0.5,
+    securityIndex: 0.5,
+    youthTension: -0.3,
   },
 
   // Emergency floors for election-relevant factions — only activates when a faction
@@ -45,14 +48,15 @@ export const WINNING_STRATEGY = {
 
   emergency: {
     fedRel:           { threshold: -10, statWeight: 20, factionWeight: 10 },
-    cashReserve:      { threshold: 60, weight: 25 },   // keeps emergency active through most of term1
+    cashReserve:      { threshold: 60, weight: 40 },
+    cashCritical:     { threshold: 25, weight: 80 },
     corruption:       { threshold: 50, weight: 18 },
     godfathers:       { threshold: 15, weekGate: 40, weight: 12 },
-    youthTension:     { threshold: 55, weight: 12 },   // fires before Ajegunle trigger (>55)
+    youthTension:     { threshold: 55, weight: 15 },
     publicTrust:      { threshold: 35, weight: 12 },
     expenditure:      { cashThreshold: 50, normalWeight: 2, crisisWeight: 8 },
-    politicalCapital: { threshold: 25, weekGate: 209, weight: 15 },  // term2-only PC floor
-    igrLoss:          { weekGate: 209, weight: 8 },  // term2-only: large penalty for permanent revenue loss
+    politicalCapital: { threshold: 25, weekGate: 209, weight: 15 },
+    igrLoss:          { weekGate: 209, weight: 8 },
   },
 
   godfather: {
@@ -107,6 +111,14 @@ function scoreWinningChoice(
   score += (d.igr ?? 0) * cont.igr
   score -= (d.corruptionPressure ?? 0) * cont.corruptionPressure
   score += (d.politicalCapital ?? 0) * cont.politicalCapital
+  score += (d.infrastructureScore ?? 0) * cont.infrastructureScore
+  score += (d.securityIndex ?? 0) * cont.securityIndex
+  score += (d.youthTension ?? 0) * cont.youthTension
+
+  // Penalize political capital cost — choices that burn PC are costly
+  const pcCost = choice.politicalCapitalCost ?? 0
+  score -= pcCost * 0.8
+  if (state.stats.politicalCapital < 30) score -= pcCost * 1.5
 
   if (state.stats.federalRelationship < cfg.fedRel.threshold) {
     score += (d.federalRelationship ?? 0) * cfg.fedRel.statWeight
@@ -115,6 +127,10 @@ function scoreWinningChoice(
 
   if (state.stats.cashReserve < cfg.cashReserve.threshold) {
     score += (d.cashReserve ?? 0) * cfg.cashReserve.weight
+  }
+
+  if (state.stats.cashReserve < cfg.cashCritical.threshold) {
+    score += (d.cashReserve ?? 0) * cfg.cashCritical.weight
   }
 
   if (state.stats.corruptionPressure > cfg.corruption.threshold) {

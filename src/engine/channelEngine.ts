@@ -90,7 +90,6 @@ export function selectChannelMeta(
 function pickChannel(article: NewsArticle, state: GameState): MediaChannel {
   const { category } = article
   const trust = state.stats.publicTrust
-  const youthTension = state.stats.youthTension
   const week = state.week
   const seed = article.headline.slice(0, 12)
 
