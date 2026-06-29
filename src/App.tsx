@@ -283,7 +283,6 @@ export default function GameApp() {
   const inbox           = useGameStore((s) => s.inbox)
 
   const hintQueue       = useGameStore((s) => s.hintQueue)
-  const seenHints       = useGameStore((s) => s.seenHints)
   const dismissHint     = useGameStore((s) => s.dismissHint)
   const llmAttempted = useRef(new Set<string>())
   const [showResearch,  setShowResearch]  = useState(false)
@@ -352,7 +351,7 @@ export default function GameApp() {
     <>
       {newspaperHeadline && <MediaRouter />}
       {hintDef && <ContextualHint hint={hintDef} onDismiss={handleDismissHint} />}
-      <GuidedTour seen={seenHints} onComplete={() => dismissHint('onboarding-tour')} />
+      <GuidedTour />
       {showResearch && <ResearchTree onClose={() => setShowResearch(false)} />}
       {showProjects && <ProjectsPanel onClose={() => setShowProjects(false)} />}
       {inCampaignMode && <ElectionWatermark />}

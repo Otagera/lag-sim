@@ -1,18 +1,14 @@
 import { useEffect, useRef } from 'react'
 import { driver } from 'driver.js'
+import { hasSeenTour, markTourSeen } from '../state/persistence'
 import { ONBOARDING_TOUR_STEPS } from '../data/onboardingTour'
 
-type Props = {
-  seen: string[]
-  onComplete: () => void
-}
-
-export function GuidedTour({ seen, onComplete }: Props) {
+export function GuidedTour() {
   const firedRef = useRef(false)
 
   useEffect(() => {
     if (firedRef.current) return
-    if (seen.includes('onboarding-tour')) return
+    if (hasSeenTour()) return
 
     // Wait a tick for the DOM to be fully mounted
     const id = requestAnimationFrame(() => {
@@ -29,7 +25,7 @@ export function GuidedTour({ seen, onComplete }: Props) {
       const d = driver({
         animate: true,
         overlayColor: 'rgba(0,0,0,0.55)',
-        allowClose: false,
+        allowClose: true,
         showProgress: true,
         progressText: '{{current}} of {{total}}',
         doneBtnText: 'Begin',
@@ -40,7 +36,7 @@ export function GuidedTour({ seen, onComplete }: Props) {
         stageRadius: 4,
         steps: ONBOARDING_TOUR_STEPS,
         onDestroyed: () => {
-          onComplete()
+          markTourSeen()
         },
       })
 
@@ -48,7 +44,7 @@ export function GuidedTour({ seen, onComplete }: Props) {
     })
 
     return () => cancelAnimationFrame(id)
-  }, [seen])
+  }, [])
 
   return null
 }

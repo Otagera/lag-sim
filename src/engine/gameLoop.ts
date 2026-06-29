@@ -331,13 +331,14 @@ export function tick(state: GameState): GameState {
   // Youth tension: passive +0.4/week — the city always generates new pressure
   next = applyDelta(next, { infrastructureScore: -infraDecay, youthTension: 0.4 })
 
-  // New stat decay: foodSecurityIndex (-0.25/wk base, extra harmattan burden)
-  const foodDecay = 0.25 + (mod.isHarmattan ? 0.4 : 0)
-  next = applyDelta(next, { foodSecurityIndex: -foodDecay })
-
-  // New stat decay: floodResilienceScore (-0.1/wk base, -0.8/wk in wet season)
-  const floodDecay = 0.1 + (mod.isWetSeason ? 0.8 : 0)
-  next = applyDelta(next, { floodResilienceScore: -floodDecay })
+  // OTA-39: food+flood decay neutralised until counterplay ships (re-enable in OTA-32).
+  const FOOD_FLOOD_DECAY_ENABLED = false
+  if (FOOD_FLOOD_DECAY_ENABLED) {
+    const foodDecay = 0.25 + (mod.isHarmattan ? 0.4 : 0)
+    next = applyDelta(next, { foodSecurityIndex: -foodDecay })
+    const floodDecay = 0.1 + (mod.isWetSeason ? 0.8 : 0)
+    next = applyDelta(next, { floodResilienceScore: -floodDecay })
+  }
 
   // Append this week's per-LGA approval to rolling 8-week window
   const updatedHistory = {} as Record<ConstituencyKey, number[]>

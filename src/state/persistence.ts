@@ -5,6 +5,7 @@ import type { EventCard, GameState } from './types'
 
 const SAVE_KEY = 'lagos-governor-sim-save'
 const HINTS_KEY = 'lagos-governor-sim-seen-hints'
+const TOUR_KEY = 'lagos-governor-sim-tour-done'
 
 type SerializableState = Omit<GameState, 'activeEvent' | 'eventQueue'> & {
   version: number
@@ -144,5 +145,23 @@ export function loadSeenHints(): string[] {
     return raw.split(HINTS_SEPARATOR).filter(Boolean)
   } catch {
     return []
+  }
+}
+
+/** Whether the onboarding tour has been completed on this device (survives new game). */
+export function hasSeenTour(): boolean {
+  try {
+    return localStorage.getItem(TOUR_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+/** Mark the onboarding tour as seen (persists across saves). */
+export function markTourSeen(): void {
+  try {
+    localStorage.setItem(TOUR_KEY, '1')
+  } catch {
+    // localStorage unavailable — non-critical
   }
 }
