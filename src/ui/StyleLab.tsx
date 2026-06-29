@@ -39,6 +39,8 @@ import { DiagnosisBanner as GameDiagnosisBanner } from './game/DiagnosisBanner'
 import { StateOfTheState as GameStateOfTheState } from './game/StateOfTheState'
 import { ProjectsPanel } from './ProjectsPanel'
 import { ResearchTree } from './ResearchTree'
+import { ElectionWatermark } from './ElectionWatermark'
+import { CampaignTracker } from './CampaignTracker'
 
 // Atoms
 import { Button } from './components/Button'
@@ -1127,6 +1129,10 @@ function OverlaysTab({ theme }: { theme: Theme }) {
   useEffect(() => {
     useGameStore.setState({
       ...STARTING_STATE,
+      week: 200,
+      inCampaignMode: true,
+      campaignDecisions: ['rally-alimosho', 'promise-education', 'go-positive', 'release-full-audit', 'counter-rally-mainland'],
+      lgaElectionResult: 62,
       inbox: FIXTURE_INBOX,
       selectedGoalId: ALL_GOALS[0]?.id ?? 'break-the-machine',
     })
@@ -1192,6 +1198,22 @@ function OverlaysTab({ theme }: { theme: Theme }) {
             <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}>ResearchTree · reads research from store, onClose stubbed</div>
             <div style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid rgba(0,0,0,.1)', borderRadius: '4px' }}>
               <ResearchTree onClose={() => {}} />
+            </div>
+          </div>
+
+          {/* ElectionWatermark */}
+          <div>
+            <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}>ElectionWatermark · renders when inCampaignMode (toggle via dirty-mock)</div>
+            <div style={{ position: 'relative', height: '120px', border: '1px solid rgba(0,0,0,.1)', borderRadius: '4px', overflow: 'hidden', background: 'var(--surface, #fff)' }}>
+              <ElectionWatermark />
+            </div>
+          </div>
+
+          {/* CampaignTracker */}
+          <div>
+            <div className="label-caps" style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}>CampaignTracker · reads campaignDecisions/voteShare from store</div>
+            <div style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid rgba(0,0,0,.1)', borderRadius: '4px' }}>
+              <CampaignTracker />
             </div>
           </div>
 

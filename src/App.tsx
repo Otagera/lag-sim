@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { Heart, Inbox as InboxIcon, DollarSign, Users, BarChart3, Landmark, Wallet, Zap } from 'lucide-react'
+import { Heart, Inbox as InboxIcon, DollarSign, Users, BarChart3, Landmark, Wallet, Zap, Vote } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 import { STARTING_STATE } from './data/startingState'
@@ -19,17 +19,20 @@ import { HelpReference } from './ui/HelpReference'
 import { ToastHint } from './ui/ToastHint'
 import { ALL_HINTS } from './data/hints'
 import { formatGameMonth } from './utils/calendar'
+import { getSeasonModifier } from './engine/seasonEngine'
 import { CabinetPanel } from './ui/CabinetPanel'
 import { DeputyPanel } from './ui/DeputyPanel'
 import { buildNewsPrompt, generateNewsText } from './engine/llmNews'
 import { DiagnosisBanner } from './ui/game/DiagnosisBanner'
 import { StateOfTheState } from './ui/game/StateOfTheState'
+import { CampaignTracker } from './ui/CampaignTracker'
+import { ElectionWatermark } from './ui/ElectionWatermark'
 import { Tab } from './ui/components/Tab'
 import { Stat } from './ui/components/Stat'
 import { Seal } from './ui/components/Seal'
 
 // ─── Dock destinations ────────────────────────────────────────────────────────
-type DockTab = 'inbox' | 'economy' | 'factions' | 'people' | 'state'
+type DockTab = 'inbox' | 'economy' | 'factions' | 'people' | 'state' | 'election'
 
 const DOCK_TABS: { id: DockTab; label: string; Icon: LucideIcon }[] = [
   { id: 'inbox',    label: 'Inbox',    Icon: InboxIcon  },
@@ -37,14 +40,16 @@ const DOCK_TABS: { id: DockTab; label: string; Icon: LucideIcon }[] = [
   { id: 'factions', label: 'Factions', Icon: Landmark   },
   { id: 'people',   label: 'People',   Icon: Users      },
   { id: 'state',    label: 'State',    Icon: BarChart3  },
+  { id: 'election', label: 'Election', Icon: Vote       },
 ]
 
 // ─── Status bar ───────────────────────────────────────────────────────────────
 function StatusBar({
-  termLabel, monthLabel, onTick, canTick, onResearch, onProjects, onOpenReference,
+  termLabel, monthLabel, seasonLabel, onTick, canTick, onResearch, onProjects, onOpenReference,
 }: {
   termLabel:   string
   monthLabel:  string
+  seasonLabel: string
   onTick:      () => void
   canTick:     boolean
   onResearch:  () => void
@@ -82,7 +87,7 @@ function StatusBar({
             Lagos Governor Sim
           </div>
           <div className="label-caps" style={{ marginTop: '1px' }}>
-            {termLabel} · {monthLabel}
+            {termLabel} · {monthLabel} · <span style={{ color: 'var(--accent-text)' }}>{seasonLabel}</span>
           </div>
         </div>
       </div>
@@ -253,6 +258,7 @@ function PanelOverlay({
             </div>
           )}
           {activeTab === 'state' && <StateOfTheState />}
+          {activeTab === 'election' && <div style={{ padding: '12px' }}><CampaignTracker /></div>}
         </div>
       </div>
     </>
@@ -330,6 +336,7 @@ export default function GameApp() {
     ? `Year ${year + 4}`
     : YEARS[Math.min(year - 1, YEARS.length - 1)]
   const monthLabel   = formatGameMonth(week)
+  const seasonLabel  = getSeasonModifier(week).label
 
   const inboxCount   = inbox.filter((m) => !m.read).length + (activeGodfatherMessage ? 1 : 0)
   const factionAlert = Object.values(factions).some((v) => v <= 25)
@@ -342,6 +349,7 @@ export default function GameApp() {
       {hintDef && <ToastHint text={hintDef.text} onDismiss={handleDismissHint} />}
       {showResearch && <ResearchTree onClose={() => setShowResearch(false)} />}
       {showProjects && <ProjectsPanel onClose={() => setShowProjects(false)} />}
+      {inCampaignMode && <ElectionWatermark />}
 
       <div
         className="themed"
@@ -358,6 +366,7 @@ export default function GameApp() {
         <StatusBar
           termLabel={termLabel}
           monthLabel={monthLabel}
+          seasonLabel={seasonLabel}
           onTick={tick}
           canTick={!isGameOver}
           onResearch={() => setShowResearch(true)}
@@ -432,7 +441,7 @@ export default function GameApp() {
               transition:    'background-color var(--dur) ease, border-color var(--dur) ease',
             }}
           >
-            {DOCK_TABS.map(({ id, label, Icon }) => (
+            {DOCK_TABS.filter((t) => t.id !== 'election' || inCampaignMode).map(({ id, label, Icon }) => (
               <Tab
                 key={id}
                 icon={<Icon size={18} />}

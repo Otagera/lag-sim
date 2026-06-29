@@ -341,3 +341,9 @@ body {
     order: 3;
   }
 }
+
+/* Election-day banner pulse */
+@keyframes pulse-glow {
+  0%   { box-shadow: 0 0 4px var(--accent-solid); }
+  100% { box-shadow: 0 0 16px var(--accent-solid), 0 0 32px rgba(255,165,0,.25); }
+}

@@ -24,7 +24,7 @@ export interface SimulateResult {
  * verify the win rate stays ≥ 80%.
  */
 export const WINNING_STRATEGY = {
-  overrideMinScore: 1.5,
+  overrideMinScore: 4,
   baselineScore: 0.1,
 
   continuous: {
@@ -193,13 +193,13 @@ function pickChoiceId(event: EventCard, strategy: SimulateStrategy, rng: () => n
     return choices[choices.length - 1].id
   }
   if (strategy === 'winning' && state) {
-    // Default to first choice (safe/effective), only override in emergencies
     const scores = choices.map((c) => scoreWinningChoice(c, state, event.id))
     const maxScore = Math.max(...scores)
     if (maxScore > WINNING_STRATEGY.overrideMinScore) {
       const bestIdx = scores.indexOf(maxScore)
       return choices[bestIdx].id
     }
+    // Fallback to the designed default (first choice is the safe/effective option)
     return choices[0].id
   }
   return choices[0].id

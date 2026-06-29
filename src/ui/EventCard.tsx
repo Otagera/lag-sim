@@ -179,6 +179,7 @@ function AftermathPanel({ beat, onDismiss }: { beat: ConsequenceBeat; onDismiss:
 
 export function EventCard() {
   const activeEvent = useGameStore((s) => s.activeEvent)
+  const inCampaignMode = useGameStore((s) => s.inCampaignMode)
   const consequenceBeats = useGameStore((s) => s.consequenceBeats)
   const resolveEvent = useGameStore((s) => s.resolveEvent)
   const dismissConsequenceBeat = useGameStore((s) => s.dismissConsequenceBeat)
@@ -214,6 +215,9 @@ export function EventCard() {
   const godfatherColor = '#8b0000'
   const accentColor = isGodfather ? godfatherColor : 'var(--accent-solid)'
 
+  const isFinale = activeEvent.id.startsWith('finale-')
+  const isElectionDay = activeEvent.id === 'finale-election-eve'
+
   return (
     <div
       className="border"
@@ -226,6 +230,24 @@ export function EventCard() {
       }}
     >
       <div style={{ padding: '20px 24px' }}>
+        {isFinale && (
+          <div style={{
+            textAlign: 'center',
+            padding: '5px 8px',
+            marginBottom: '12px',
+            fontSize: '10px',
+            fontFamily: "'Archivo Narrow', sans-serif",
+            fontWeight: 700,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            background: 'var(--accent-solid)',
+            color: 'var(--accent-on-solid)',
+            borderRadius: '2px',
+            animation: 'pulse-glow 1.5s ease-in-out infinite alternate',
+          }}>
+            {isElectionDay ? 'LIVE ELECTION COVERAGE' : `ELECTION ${isElectionDay ? 'DAY' : 'SEASON'} 2027`}
+          </div>
+        )}
         <div className="flex items-center gap-2 mb-2">
           {isGodfather ? (
             <span className="label-caps" style={{ color: godfatherColor }}>Chief Fashemu</span>
@@ -235,6 +257,21 @@ export function EventCard() {
             </span>
           )}
           <span className="label-caps" style={{ color: 'var(--text-secondary)' }}>{activeEvent.category}</span>
+          {inCampaignMode && (
+            <span style={{
+              fontSize: '9px',
+              fontWeight: 700,
+              fontFamily: "'Archivo Narrow', sans-serif",
+              letterSpacing: '0.06em',
+              padding: '1px 5px',
+              borderRadius: '2px',
+              background: 'var(--accent-solid)',
+              color: 'var(--accent-on-solid)',
+              textTransform: 'uppercase',
+            }}>
+              ELECTION '27
+            </span>
+          )}
         </div>
 
         <div style={{ height: '1px', background: `linear-gradient(to right, transparent, ${accentColor}, transparent)`, margin: '6px 0 10px' }} />

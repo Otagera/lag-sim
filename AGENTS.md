@@ -111,3 +111,20 @@ Core fields in `src/state/types.ts` (378 lines). Starting defaults in `src/data/
 - Changing weekly tick order → ask first (game feel, test assumptions)
 - Adding real Nigerian political names → confirm approach (sensitivity)
 - Adding backend → confirm new phase first
+
+---
+
+## Election Season (MVP) — Implemented, src/ui/
+
+| Work Item | Files |
+|---|---|
+| INEC watermark CSS overlay | `src/ui/ElectionWatermark.tsx`, rendered in `App.tsx` when `inCampaignMode` |
+| Campaign Tracker panel (decisions, attacks, countdown, polling) | `src/ui/CampaignTracker.tsx`, added as dock tab `election` when `inCampaignMode` |
+| Polling projection widget | Vote share in `Dashboard.tsx` and in CampaignTracker panel |
+| Campaign event badge | `ELECTION '27` chip in `EventCard.tsx` when `inCampaignMode` |
+| Election-day finale polish | LIVE ELECTION COVERAGE banner / ELECTION SEASON 2027 banner for events prefixed `finale-` |
+
+### Deferred to Phase 2 / Post-MVP
+- Full-blown campaign mini-game (e.g., choosing rally locations on a map)
+- Opponent AI that responds dynamically to player choices
+- Televised debate mini-game beyond the single finale-debate card

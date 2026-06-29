@@ -1,4 +1,4 @@
-import { seasonOf, weekToDate } from '../utils/calendar'
+import { isDettyDecember, isHarmattan, isSallahPeriod, seasonOf, weekToDate } from '../utils/calendar'
 
 export type SeasonModifier = {
   label: string
@@ -6,6 +6,9 @@ export type SeasonModifier = {
   isWetSeason: boolean
   isFederalElectionYear: boolean
   isBudgetCrunch: boolean
+  isHarmattan: boolean
+  isDettyDecember: boolean
+  isSallahPeriod: boolean
   faacVarianceScale: number          // wet season: 1.5 (wider FAAC swings)
   faacBasePenalty: number            // 0–1 fraction of FAAC lost (budget crunch / election noise)
   politicalCapitalCostScale: number  // federal election year: 1.2 (everything costs more)
@@ -33,11 +36,17 @@ export function getSeasonModifier(week: number): SeasonModifier {
   const isWetSeason = season === 'wet'
   const fedElection = isFederalElectionYear(week)
   const budgetCrunch = isBudgetCrunch(week)
+  const harmattan = isHarmattan(week)
+  const dettyDec = isDettyDecember(week)
+  const sallah = isSallahPeriod(week)
 
   const labels: string[] = []
   if (isWetSeason) labels.push('Rainy Season')
   if (fedElection) labels.push('Federal Election Year')
   if (budgetCrunch) labels.push('Budget Crunch')
+  if (harmattan) labels.push('Harmattan')
+  if (dettyDec) labels.push('Detty December')
+  if (sallah) labels.push('Sallah')
   const label = labels.length > 0 ? labels.join(' · ') : 'Normal'
 
   return {
@@ -46,6 +55,9 @@ export function getSeasonModifier(week: number): SeasonModifier {
     isWetSeason,
     isFederalElectionYear: fedElection,
     isBudgetCrunch: budgetCrunch,
+    isHarmattan: harmattan,
+    isDettyDecember: dettyDec,
+    isSallahPeriod: sallah,
     faacVarianceScale: isWetSeason ? 1.5 : 1.0,
     faacBasePenalty: budgetCrunch ? 0.2 : fedElection ? 0.1 : 0,
     politicalCapitalCostScale: fedElection ? 1.2 : 1.0,

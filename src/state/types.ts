@@ -66,6 +66,7 @@ export type RevenueBreakdown = {
   other: number
   faac: number
   grants: number
+  tourism: number
   total: number
 }
 

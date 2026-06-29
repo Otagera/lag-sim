@@ -1,5 +1,6 @@
 import { useGameStore } from '../state/gameStore'
 import { formatGameDate } from '../utils/calendar'
+import { calculateVoteShare } from '../engine/electionEngine'
 
 function StatCard({
   label,
@@ -43,6 +44,7 @@ export function Dashboard() {
   const stats = useGameStore((s) => s.stats)
   const mode = useGameStore((s) => s.mode)
   const snap = useGameStore((s) => s.lastWeekStatSnapshot)
+  const inCampaignMode = useGameStore((s) => s.inCampaignMode)
 
   const cashDelta = snap ? cashReserve - snap.cashReserve : undefined
   const trustDelta = snap ? publicTrust - snap.publicTrust : undefined
@@ -54,6 +56,9 @@ export function Dashboard() {
       <StatCard label="Cash" value={cashReserve} format={naira} delta={cashDelta} />
       <StatCard label="Trust" value={publicTrust} format={(v) => `${v.toFixed(0)}%`} delta={trustDelta} />
       <StatCard label="Pol. Cap" value={politicalCapital} format={(v) => `${v}/200`} delta={polCapDelta} />
+      {inCampaignMode && (
+        <StatCard label="Vote Share" value={calculateVoteShare(useGameStore.getState())} format={(v) => `${v.toFixed(0)}%`} />
+      )}
       {mode === 'detailed' && (
         <>
           <StatCard label="IGR" value={stats.igr} format={(v) => `₦${v.toFixed(1)}bn`} />

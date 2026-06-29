@@ -28,6 +28,21 @@
 | subventionCutRate | 0 | Range 0–1 |
 | capitalEfficiency | 1 | Multiplier on project build speed |
 
+### Revenue Breakdown (`lastWeekRevenue: RevenueBreakdown`)
+
+Computed each tick by `revenueEngine.ts`. Displayed in the Economy section of StateOfTheState.
+
+| Field | Purpose |
+|---|---|
+| `paye` | PAYE income tax — scales with infra/security/youth factors |
+| `mda` | MDA fees — scales with infra/security factors |
+| `luc` | Land Use Charge — scales with enforcement level |
+| `other` | Fines, permits, miscellaneous — scales with infra factor |
+| `faac` | Federal allocation — penalised by poor federal relationship |
+| `grants` | Grant income — zeroed during grant freeze |
+| `tourism` | Seasonal tourism revenue — base 0, boosted during Detty December (+0.4/wk), surged by `stateFlags.dettyDecemberSurge` (+1.2/wk) from event choices |
+| `total` | Sum of all above |
+
 ### Factions (week 1)
 
 | Faction | Default |

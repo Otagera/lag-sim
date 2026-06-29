@@ -490,7 +490,7 @@ export function narrateConsequence(
     candidates.push({ key, delta: value, tier: TIER[key] ?? 0 })
   }
 
-  for (const [key, value] of Object.entries(choice.factionImpact)) {
+  for (const [key, value] of Object.entries(choice.factionImpact ?? {})) {
     if (value === undefined || value === 0) continue
     const abs = Math.abs(value)
     if (abs < minDelta(key)) continue

@@ -79,6 +79,38 @@ export function StateOfTheState() {
             <Stat label="Expenditure"  value={stats.expenditure} format="currency" title="Weekly spending commitments (salaries, overhead, debt servicing)." icon={STAT_ICONS.expenditure.icon} />
           </Surface>
         </div>
+        {/* IGR breakdown */}
+        <div className="label-caps" style={{
+          marginTop: '8px',
+          padding: '6px 10px',
+          display: 'flex',
+          gap: '12px',
+          flexWrap: 'wrap',
+          background: 'var(--surface)',
+          borderRadius: '2px',
+          border: '1px solid var(--border)',
+          color: 'var(--text-secondary)',
+          fontSize: '10px',
+        }}>
+          {(() => {
+            const rev = s.lastWeekRevenue
+            if (!rev) return <span>Revenue data pending…</span>
+            const items = [
+              { label: 'PAYE', value: rev.paye },
+              { label: 'MDA', value: rev.mda },
+              { label: 'LUC', value: rev.luc },
+              { label: 'Tourism', value: rev.tourism },
+              { label: 'FAAC', value: rev.faac },
+              { label: 'Grants', value: rev.grants },
+            ]
+            return items.map((item) => (
+              <span key={item.label} style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
+                <span>{item.label}:</span>
+                <span style={{ fontVariantNumeric: 'tabular-nums' }}>₦{item.value.toFixed(2)}bn</span>
+              </span>
+            ))
+          })()}
+        </div>
       </section>
 
       {/* Governance */}

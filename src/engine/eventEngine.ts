@@ -14,6 +14,7 @@ import { politicalEvents } from '../data/events/political'
 import { riotEvents } from '../data/events/riot'
 import { routineEvents } from '../data/events/routine'
 import { socialEvents } from '../data/events/social'
+import { seasonalEvents } from '../data/events/seasonal'
 import { transportEvents } from '../data/events/transport'
 import { narrateConsequence } from './consequenceNarrator'
 import { fashemuAsks } from '../data/godfatherAsks'
@@ -29,6 +30,7 @@ export const ALL_EVENTS: EventCard[] = [
   // phase4Events first: gives their trigger-condition outcomes (e.g. populist shield)
   // priority over other simultaneously-triggered events
   ...phase4Events,
+  ...seasonalEvents,
   ...transportEvents,
   ...infrastructureEvents,
   ...politicalEvents,
@@ -109,7 +111,8 @@ export function drawNextEvent(state: GameState): EventCard | null {
       e.triggerCondition?.(state) &&
       !e.npcArchetype &&
       !(e.requiresInitiativeSlot && state.activeInitiative) &&
-      (e.category !== 'election' || state.inCampaignMode),
+      (e.category !== 'election' || state.inCampaignMode) &&
+      (!state.riotModeActive || e.category === 'riot'),
   )
   if (triggered) return triggered
 

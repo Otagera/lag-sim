@@ -24,6 +24,7 @@ function biggestOpportunity(rev: RevenueBreakdown | undefined): { label: string;
     { label: 'PAYE', value: rev.paye },
     { label: 'MDA', value: rev.mda },
     { label: 'LUC', value: rev.luc },
+    { label: 'Tourism', value: rev.tourism },
     { label: 'FAAC', value: rev.faac },
     { label: 'Grants', value: rev.grants },
   ]

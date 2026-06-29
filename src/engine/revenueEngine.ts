@@ -1,4 +1,5 @@
 import type { GameState, RevenueBreakdown } from '../state/types'
+import { isDettyDecember } from '../utils/calendar'
 
 export function calculateWeeklyRevenue(state: GameState): RevenueBreakdown {
   const {
@@ -30,7 +31,12 @@ export function calculateWeeklyRevenue(state: GameState): RevenueBreakdown {
   const grantsBonus = financeCommissioner ? (financeCommissioner.competence / 100) * 0.15 : 0
   const grants = state.grantFreezeDuration > 0 ? 0 : 0.8 * Math.min(1, grantsCompliance + grantsBonus)
 
-  const total = paye + mda + luc + other + faac + grants
+  // Tourism: seasonal boost from Detty December; stateFlags surge from event choices
+  const dettyBase = isDettyDecember(state.week) ? 0.4 : 0
+  const surgeBoost = state.stateFlags.dettyDecemberSurge ? 1.2 : 0
+  const tourism = dettyBase + surgeBoost
 
-  return { paye, mda, luc, other, faac, grants, total }
+  const total = paye + mda + luc + other + faac + grants + tourism
+
+  return { paye, mda, luc, other, faac, grants, tourism, total }
 }
