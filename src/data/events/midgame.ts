@@ -1,8 +1,10 @@
 import type { EventCard } from '../../state/types'
 
-// Mid-game chapter events — narrative spine for weeks 52-150.
+// Mid-game chapter events — narrative spine for weeks 52-195.
 // All use triggerCondition so they fire as triggered events (bypass pool),
 // creating year-anchored inflection points regardless of player luck.
+// Beats at 60/78/104/130 anchor years 1-3; the 145/160/175 beats fill the
+// pre-campaign gap (weeks 130-195) that previously ran empty and sagged.
 
 export const midgameEvents: EventCard[] = [
   {
@@ -142,6 +144,116 @@ With campaign season approaching in twelve months, this is the last window for a
         description: 'Revise measurement methodology to show a more favourable index. Security Index +3 (cosmetic). Corruption Pressure +4. Trust +2 short-term. Civil Society -8 if they find out.',
         immediate: { securityIndex: 3, corruptionPressure: 4, publicTrust: 2 },
         factionImpact: { civilSocietyMedia: -8, partyGodfathers: 3 },
+      },
+    ],
+  },
+
+  {
+    id: 'midgame-faction-confidence-checkpoint',
+    title: 'Year Three: The Backers Take Stock',
+    body: `Three years in, the people who put you in office want an accounting. A quiet dinner has been convened at a Banana Island residence — the business financiers, two newspaper proprietors, and a godfather emissary at the same table for the first time in a year. The message, relayed beforehand by your Chief of Staff, is blunt: "We are deciding, now, whether to spend on your second term or hedge." What you say in that room sets the tone for the campaign that is coming.`,
+    severity: 'high',
+    category: 'political',
+    triggerCondition: (state) => state.week >= 145 && state.currentTerm === 1,
+    choices: [
+      {
+        id: 'court-the-backers',
+        label: 'Reassure the Backers — Promise Continuity',
+        description:
+          'Guarantee their access and their projects survive a second term. Business +8, Godfathers +8. Political Capital +12. Civil Society -6 (the optics leak). Corruption Pressure +3.',
+        immediate: { politicalCapital: 12, corruptionPressure: 3 },
+        factionImpact: { businessCommunity: 8, partyGodfathers: 8, civilSocietyMedia: -6 },
+      },
+      {
+        id: 'run-on-record',
+        label: 'Tell Them You Will Run on the Record',
+        description:
+          'Refuse to trade favours; stake re-election on delivery. Civil Society +10. Trust +5. Godfathers -8 (they hear a threat). Political Capital -10.',
+        immediate: { publicTrust: 5, politicalCapital: -10 },
+        factionImpact: { civilSocietyMedia: 10, partyGodfathers: -8, businessCommunity: -3 },
+      },
+      {
+        id: 'split-the-difference',
+        label: 'Buy Time — Commit to Nothing',
+        description:
+          'Warm words, no promises. The room leaves unconvinced. Political Capital +4 now, but Business -4 and Godfathers -4 as doubt sets in.',
+        immediate: { politicalCapital: 4 },
+        factionImpact: { businessCommunity: -4, partyGodfathers: -4 },
+      },
+    ],
+  },
+
+  {
+    id: 'midgame-periphery-grievance',
+    title: 'The Neglected Belt: Periphery Revolt Brews',
+    body: `A coalition of community associations from Alimosho, Ikorodu, Badagry and Epe has published a joint memorandum with a damning chart: capital spend per resident on the Island is six times what their areas received. "Two Lagoses," the headline runs. Turnout in these wards decided the last election and will decide the next. Your Special Adviser on Political Matters says the resentment is real, organised, and one viral video away from the streets.`,
+    severity: 'high',
+    category: 'political',
+    triggerCondition: (state) => state.week >= 160 && state.currentTerm === 1,
+    choices: [
+      {
+        id: 'periphery-investment-surge',
+        label: 'Announce a Periphery Investment Surge — ₦2.5bn',
+        description:
+          'Roads, drainage, markets and clinics targeted at the outer belt. Cash -₦2.5bn. Infrastructure +3. Flood Resilience +4. Periphery constituencies rise. LG Chairmen +6.',
+        immediate: { cashReserve: -2.5, infrastructureScore: 3, floodResilienceScore: 4 },
+        factionImpact: { lgChairmen: 6, civilSocietyMedia: 4 },
+        constituencyImpact: { alimosho: 6, ikorodu: 6, badagry: 5, epe: 5, agege: 4 },
+      },
+      {
+        id: 'listening-tour',
+        label: 'Launch a Periphery Listening Tour',
+        description:
+          'Show up, listen, promise a plan. Cheap and sincere-looking. Trust +4. Periphery +3. Political Capital -6. But delivering nothing later will cost you.',
+        immediate: { publicTrust: 4, politicalCapital: -6 },
+        factionImpact: { civilSocietyMedia: 3 },
+        constituencyImpact: { alimosho: 3, ikorodu: 3, badagry: 2, epe: 2 },
+        diminishingReturns: true,
+      },
+      {
+        id: 'dismiss-periphery',
+        label: 'Dismiss It as Opposition Mischief',
+        description:
+          'Brand the memorandum a political stunt. Godfathers +4 (they like the fight). Periphery -5. Youth Tension +6. Civil Society -6.',
+        immediate: { youthTension: 6 },
+        factionImpact: { partyGodfathers: 4, civilSocietyMedia: -6 },
+        constituencyImpact: { alimosho: -5, ikorodu: -5, badagry: -4, epe: -4 },
+      },
+    ],
+  },
+
+  {
+    id: 'midgame-preprimary-signal',
+    title: 'Pre-Primary Manoeuvres: The Party Tests You',
+    body: `The campaign season is on the horizon and the party machinery is already moving. A rival aspirant — well-funded, blessed by a faction of godfathers — has begun "consultations." Delegates are being courted. Your name is being weighed against the cost of backing you. The party chairman requests a meeting to discuss "the modalities of the primary." This is the last quiet moment before the contest for your own ticket begins.`,
+    severity: 'high',
+    category: 'political',
+    triggerCondition: (state) => state.week >= 175 && state.currentTerm === 1,
+    choices: [
+      {
+        id: 'lock-delegates',
+        label: 'Lock Down the Delegates Early',
+        description:
+          'Deploy patronage and machine muscle to secure the delegate base now. Godfathers +6, LG Chairmen +6. Political Capital -18. Corruption Pressure +5. A commanding position going into the primary.',
+        immediate: { politicalCapital: -18, corruptionPressure: 5 },
+        factionImpact: { partyGodfathers: 6, lgChairmen: 6 },
+        setFlags: { 'preprimary-delegates-locked': true },
+      },
+      {
+        id: 'grassroots-primary',
+        label: 'Run a Grassroots Delegate Campaign',
+        description:
+          'Win delegates on record and popularity, not cash. Trust +6. Civil Society +8. Political Capital -8. Slower, cleaner, riskier if the machine turns.',
+        immediate: { publicTrust: 6, politicalCapital: -8 },
+        factionImpact: { civilSocietyMedia: 8, partyGodfathers: -4 },
+      },
+      {
+        id: 'dare-the-rival',
+        label: 'Call the Rival\'s Bluff — Do Nothing',
+        description:
+          'Project confidence and refuse to negotiate. Political Capital +6 (strength). But the rival gains ground: Godfathers -6, LG Chairmen -4.',
+        immediate: { politicalCapital: 6 },
+        factionImpact: { partyGodfathers: -6, lgChairmen: -4 },
       },
     ],
   },

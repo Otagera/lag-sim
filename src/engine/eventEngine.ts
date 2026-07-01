@@ -1,4 +1,5 @@
 import { mulberry32, hashSeed } from '../utils/prng'
+import { agricultureEvents } from '../data/events/agriculture'
 import { chainEvents } from '../data/events/chains'
 import { characterEvents } from '../data/events/characters'
 import { NPC_DECK_EVENTS } from '../data/events/npcDecks'
@@ -38,6 +39,7 @@ export const ALL_EVENTS: EventCard[] = [
   ...politicalEvents,
   ...crisisEvents,
   ...economyEvents,
+  ...agricultureEvents,
   ...socialEvents,
   ...routineEvents,
   ...characterEvents,

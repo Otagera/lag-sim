@@ -141,10 +141,10 @@ export function StateOfTheState() {
             <Stat label="Youth Tension"      value={stats.youthTension}      warn={stats.youthTension > 60} danger={stats.youthTension > 80} title="Youth unrest level. Rises 0.4/wk naturally. Above 85 + trust < 15 = mass uprising." icon={STAT_ICONS.youthTension.icon} />
           </Surface>
           <Surface elevation="flat" padding="10px">
-            <Stat label="Food Security"      value={stats.foodSecurityIndex ?? 40} warn={(stats.foodSecurityIndex ?? 40) < 40} title="Food supply chain resilience. Decays 0.25/wk. Below 40 triggers food price warnings." />
+            <Stat label="Food Security"      value={stats.foodSecurityIndex ?? 40} warn={(stats.foodSecurityIndex ?? 40) < 40} title="Food supply chain resilience. Decays 0.15/wk (0.30 in Harmattan). Raise it via food-market events and the Feed Lagos research track. Below 40 = food price warnings." />
           </Surface>
           <Surface elevation="flat" padding="10px">
-            <Stat label="Flood Resilience"   value={stats.floodResilienceScore ?? 35} warn={(stats.floodResilienceScore ?? 35) < 40} title="Flood prevention infrastructure. Decays 0.1/wk + extra in wet season. Below 40 = flood crisis risk." />
+            <Stat label="Flood Resilience"   value={stats.floodResilienceScore ?? 35} warn={(stats.floodResilienceScore ?? 35) < 40} title="Flood prevention infrastructure. Decays 0.10/wk (0.35 in wet season). Raise it via drainage/wetland events and the Climate-Proof research track. Below 40 = flood crisis risk." />
           </Surface>
         </div>
       </section>

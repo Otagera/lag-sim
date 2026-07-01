@@ -446,4 +446,123 @@ export const infrastructureEvents: EventCard[] = [
       },
     ],
   },
+
+  // ── Flood-resilience counter-tools (OTA-32 "Climate-Proof Lagos" strand) ──
+  // Accessible steering wheel for floodResilienceScore against the weekly decay
+  // re-enabled in gameLoop. Pair with the climate research nodes (drainage,
+  // wetland enforcement, resettlement) and the Climate-Proof Lagos goal.
+  {
+    id: 'flood-drainage-readiness',
+    title: 'Pre-Rains Drainage Readiness Drive',
+    body: `The rains are weeks away and the primary drains are choked — sachet water, silt, and the debris of a dry season. Every year the same channels overflow and the same neighbourhoods make the same headlines. The Emergency Flood Abatement Gang wants a citywide desilting mobilisation before the first downpour. It is unglamorous, it is expensive, and it is the single most effective thing you can do before June.`,
+    severity: 'medium',
+    category: 'infrastructure',
+    season: 'wet',
+    isRecurring: true,
+    cooldownWeeks: 14,
+    triggerCondition: (state) => state.week >= 14 && (state.stats.floodResilienceScore ?? 35) < 68,
+    choices: [
+      {
+        id: 'full-desilting-drive',
+        label: 'Citywide Desilting Mobilisation — ₦1.5bn',
+        description:
+          'Machines and crews on every primary collector before the rains. Flood Resilience +12. Infrastructure +2. Cash -₦1.5bn.',
+        immediate: { floodResilienceScore: 12, infrastructureScore: 2, cashReserve: -1.5 },
+        factionImpact: { civilSocietyMedia: 4 },
+        launchProject: {
+          name: 'Pre-Rains Drainage Desilting',
+          location: 'kosofe',
+          totalCost: 1.5,
+          weeklyDraw: 0.25,
+          weeksRemaining: 6,
+          contractorId: 'contractor-env-1',
+        },
+      },
+      {
+        id: 'community-cleanup',
+        label: 'Community Sanitation Saturdays',
+        description:
+          'Mobilise residents and LG teams to clear local drains. Cheaper, slower. Flood Resilience +6. Civil Society +5. Cash -₦0.3bn.',
+        immediate: { floodResilienceScore: 6, cashReserve: -0.3 },
+        factionImpact: { civilSocietyMedia: 5 },
+        diminishingReturns: true,
+      },
+      {
+        id: 'skip-desilting',
+        label: 'Hope for a Mild Season',
+        description:
+          'No mobilisation. Flood Resilience -4 when the first floods hit.',
+        immediate: { floodResilienceScore: -4 },
+        factionImpact: { civilSocietyMedia: -3 },
+      },
+    ],
+  },
+  {
+    id: 'flood-early-warning',
+    title: 'Flood Early-Warning & Drainage Telemetry',
+    body: `A partnership offer sits on your desk: sensor-instrumented drainage gates, rain gauges wired to a central dashboard, and an SMS alert system for flood-prone wards. The University of Lagos and a local civic-tech outfit will build it. It won't stop the water, but it turns flooding from a surprise into a managed event — and it makes your drainage spending measurable for the first time.`,
+    severity: 'low',
+    category: 'infrastructure',
+    isRecurring: true,
+    cooldownWeeks: 24,
+    triggerCondition: (state) => state.week >= 24,
+    choices: [
+      {
+        id: 'deploy-telemetry',
+        label: 'Deploy the Full Sensor Network',
+        description:
+          'Instrument the drains and stand up the alert system. Flood Resilience +8. Tech sector +6. Cash -₦0.6bn.',
+        immediate: { floodResilienceScore: 8, cashReserve: -0.6 },
+        factionImpact: {},
+        secondaryFactionImpact: { techSector: 6 },
+      },
+      {
+        id: 'pilot-telemetry',
+        label: 'Run a Small Lekki Pilot First',
+        description:
+          'Prove it on one axis before scaling. Flood Resilience +3. Tech sector +2.',
+        immediate: { floodResilienceScore: 3 },
+        factionImpact: {},
+        secondaryFactionImpact: { techSector: 2 },
+        diminishingReturns: true,
+      },
+    ],
+  },
+  {
+    id: 'flood-wetland-patrol',
+    title: 'Wetland Encroachment: The Sand-Fillers Are Back',
+    body: `Satellite imagery your planning ministry commissioned is unambiguous: sand-filling and illegal construction have swallowed another stretch of the Lekki–Epe wetlands this dry season. Every filled hectare is a hectare that used to hold floodwater. Some of the plots trace back to developers who fund your party. Enforcement means bulldozers, injunctions, and angry phone calls.`,
+    severity: 'medium',
+    category: 'infrastructure',
+    isRecurring: true,
+    cooldownWeeks: 18,
+    triggerCondition: (state) => state.week >= 26 && (state.stats.floodResilienceScore ?? 35) < 58,
+    choices: [
+      {
+        id: 'enforce-wetland',
+        label: 'Full Enforcement — Demolish and Reclaim',
+        description:
+          'Bulldoze illegal fills, reclaim the wetland buffer. Flood Resilience +9. Trust +4. Godfathers -8, Business -5.',
+        immediate: { floodResilienceScore: 9, publicTrust: 4 },
+        factionImpact: { partyGodfathers: -8, businessCommunity: -5, civilSocietyMedia: 6 },
+      },
+      {
+        id: 'selective-wetland',
+        label: 'Selective Enforcement — The Worst Offenders Only',
+        description:
+          'Move on the egregious cases, quietly grandfather the rest. Flood Resilience +4. Corruption Pressure +3.',
+        immediate: { floodResilienceScore: 4, corruptionPressure: 3 },
+        factionImpact: { partyGodfathers: -2 },
+        diminishingReturns: true,
+      },
+      {
+        id: 'ignore-wetland',
+        label: 'Look the Other Way',
+        description:
+          'Development is development. Flood Resilience -5. Godfathers +5. Civil Society -6.',
+        immediate: { floodResilienceScore: -5 },
+        factionImpact: { partyGodfathers: 5, civilSocietyMedia: -6 },
+      },
+    ],
+  },
 ]

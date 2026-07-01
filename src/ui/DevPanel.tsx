@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useGameStore } from '../state/gameStore'
+import { SAVE_VERSION } from '../version'
 import type { SimulateResult, SimulateStrategy } from '../engine/simulateEngine'
 
 interface StatDiff {
@@ -49,6 +50,44 @@ export function DevPanel() {
       setResult({ ...res, weekBefore, statsBefore, factionsBefore })
       setRunning(false)
     }, 0)
+  }
+
+  // Dev-only: download the full game state as a JSON report for offline analysis
+  // (balance checks, save-diffing, bug repros). Panel is already gated behind
+  // import.meta.env.DEV in router.tsx, so this never ships to players.
+  function handleDownloadReport() {
+    const s = useGameStore.getState()
+    const exportData = {
+      version: SAVE_VERSION,
+      exportedAt: new Date().toISOString(),
+      week: s.week,
+      meta: {
+        archetype: s.runMeta.archetype,
+        simStrategy: s.runMeta.simStrategy,
+        simSeed: s.runMeta.simSeed,
+        simWeeksSkipped: s.runMeta.simWeeksSkipped,
+        currentTerm: s.currentTerm,
+      },
+      stats: s.stats,
+      factions: s.factions,
+      secondaryFactions: s.secondaryFactions,
+      constituencyApproval: s.constituencyApproval,
+      budget: {
+        lastWeekRevenue: s.lastWeekRevenue,
+        lastWeekExpenditure: s.lastWeekExpenditure,
+      },
+      loans: s.activeLoans,
+      pendingDelayed: s.pendingDelayed,
+      timeline: s.timeline,
+      resolvedEvents: s.resolvedEvents,
+    }
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `lagos-report-week${s.week}.json`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   const disabled = running || state.isGameOver
@@ -135,6 +174,16 @@ export function DevPanel() {
               }}
             >
               {running ? 'Simulating…' : `⏩ Skip ${weeks} week${weeks === 1 ? '' : 's'}`}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDownloadReport}
+              className="w-full px-2 py-1.5 text-[10px] font-medium transition-colors border"
+              style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
+              title="Download the current game state as a JSON report"
+            >
+              ⬇ Download report (JSON)
             </button>
 
             {result && (

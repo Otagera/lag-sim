@@ -331,12 +331,15 @@ export function tick(state: GameState): GameState {
   // Youth tension: passive +0.4/week — the city always generates new pressure
   next = applyDelta(next, { infrastructureScore: -infraDecay, youthTension: 0.4 })
 
-  // OTA-39: food+flood decay neutralised until counterplay ships (re-enable in OTA-32).
-  const FOOD_FLOOD_DECAY_ENABLED = false
+  // OTA-32: food+flood decay re-enabled now that accessible counterplay ships alongside it
+  // (agricultureEvents food counter-tools, infrastructure flood counter-tools, + climate/agri
+  // research nodes). Seasonal multipliers softened from the original OTA-39 values so a diligent
+  // player can out-pace the bleed over a term and still reach the Feed Lagos / Climate-Proof goals.
+  const FOOD_FLOOD_DECAY_ENABLED = true
   if (FOOD_FLOOD_DECAY_ENABLED) {
-    const foodDecay = 0.25 + (mod.isHarmattan ? 0.4 : 0)
+    const foodDecay = 0.15 + (mod.isHarmattan ? 0.15 : 0)   // -0.15/wk base, -0.30 in Harmattan
     next = applyDelta(next, { foodSecurityIndex: -foodDecay })
-    const floodDecay = 0.1 + (mod.isWetSeason ? 0.8 : 0)
+    const floodDecay = 0.1 + (mod.isWetSeason ? 0.25 : 0)   // -0.10/wk base, -0.35 in wet season
     next = applyDelta(next, { floodResilienceScore: -floodDecay })
   }
 
