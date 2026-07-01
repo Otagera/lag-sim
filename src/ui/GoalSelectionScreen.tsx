@@ -1,4 +1,5 @@
 import { useGameStore } from '../state/gameStore'
+import { saveGame } from '../state/persistence'
 import { ALL_GOALS, getGoalProgress } from '../data/goals'
 import { Button, Surface, Heading } from './components'
 import type { Goal } from '../data/goals'
@@ -14,6 +15,12 @@ export function GoalSelectionScreen({ onSelect, context }: Props) {
 
   function handleSelect(id: string | null) {
     setGoal(id)
+    // Flush the save synchronously before navigating. The store's auto-save is
+    // debounced (500ms), but leaving this screen immediately routes to /game,
+    // where GameRouteGuard reloads state from localStorage — which would restore
+    // the pre-goal save and clobber the just-picked goal. Writing now guarantees
+    // selectedGoalId is persisted before that reload.
+    saveGame(useGameStore.getState())
     onSelect()
   }
 

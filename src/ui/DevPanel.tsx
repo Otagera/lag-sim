@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useGameStore } from '../state/gameStore'
 import { SAVE_VERSION } from '../version'
+import { getGoal } from '../data/goals'
 import type { SimulateResult, SimulateStrategy } from '../engine/simulateEngine'
 
 interface StatDiff {
@@ -67,6 +68,8 @@ export function DevPanel() {
         simSeed: s.runMeta.simSeed,
         simWeeksSkipped: s.runMeta.simWeeksSkipped,
         currentTerm: s.currentTerm,
+        selectedGoalId: s.selectedGoalId,
+        selectedGoalTitle: getGoal(s.selectedGoalId)?.title ?? null,
       },
       stats: s.stats,
       factions: s.factions,

@@ -387,7 +387,7 @@ Four year-anchored events create a narrative spine through the middle of the gam
 
 ## For Developers and Contributors
 
-Technical reference docs are in `docs/`. Start with `docs/architecture.md` for the engine contract, then see specific docs for events, state, and systems.
+Technical reference docs are in `docs/`. Start with `docs/architecture.md` for the engine contract, then see specific docs for events, state, and systems. For strategy — archetypes, the political-capital economy, and the overheads trap — see `docs/how-to-play.md`.
 
 ### Adding an Event Card
 

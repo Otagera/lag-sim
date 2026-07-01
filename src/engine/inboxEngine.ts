@@ -317,3 +317,25 @@ export function generateDeputyMessage(
     read: false,
   }
 }
+
+/**
+ * Cap the inbox so it stays manageable over a 200+ week game. The player reads
+ * recent reactions — nobody scrolls to week-3 flavor at week 180 — so older
+ * messages simply drop off. Two invariants:
+ *   1. Anything still needing action (an un-actioned godfather ask) is ALWAYS kept,
+ *      regardless of age, so a pending demand can never be pruned away.
+ *   2. Otherwise keep the most recent `cap` messages (inbox is in append order).
+ * Original append order is preserved; the result may slightly exceed `cap` if
+ * there are many pending asks (correctness over an exact count).
+ */
+export const INBOX_CAP = 50
+
+export function pruneInbox(inbox: InboxMessage[], cap = INBOX_CAP): InboxMessage[] {
+  if (inbox.length <= cap) return inbox
+  const needsAction = (m: InboxMessage) => m.isGodfatherAsk === true && m.actioned !== true
+  const mustKeepIds = new Set(inbox.filter(needsAction).map((m) => m.id))
+  const recentIds = new Set(
+    inbox.filter((m) => !mustKeepIds.has(m.id)).slice(-cap).map((m) => m.id),
+  )
+  return inbox.filter((m) => mustKeepIds.has(m.id) || recentIds.has(m.id))
+}

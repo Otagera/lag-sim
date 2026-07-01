@@ -7,7 +7,7 @@ import { ALL_EVENTS, drawNextEvent, firePendingDelayed } from './eventEngine'
 import { calculateWeeklyExpenditure } from './expenditureEngine'
 import { applyFactionDeltaState, drift } from './factionEngine'
 import { applyFashemuPhaseTransition, drawGodfatherAsk, godfatherToEventCard, shouldDrawGodfather } from './godfatherEngine'
-import { generateChiefOfStaffBriefing, generateDeputyMessage, generateGodfatherPhaseMessage, generateNPCActivationMessage } from './inboxEngine'
+import { generateChiefOfStaffBriefing, generateDeputyMessage, generateGodfatherPhaseMessage, generateNPCActivationMessage, pruneInbox } from './inboxEngine'
 import { emergencyBridgeLoan } from './debtEngine'
 import { primaryContestLossEvent, removalResolutionEvent } from '../data/events/characters'
 import { processProjects } from './projectEngine'
@@ -395,6 +395,11 @@ export function tick(state: GameState): GameState {
       next = { ...next, hintQueue: [...next.hintQueue, hint.id] }
     }
   }
+
+  // Cap inbox growth over a long game — keeps recent reactions, drops old flavor,
+  // never prunes an un-actioned godfather ask.
+  const pruned = pruneInbox(next.inbox)
+  if (pruned.length !== next.inbox.length) next = { ...next, inbox: pruned }
 
   return next
 }

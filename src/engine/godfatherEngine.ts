@@ -82,6 +82,11 @@ export function drawGodfatherAsk(state: GameState): GodfatherMessage | null {
 }
 
 export function godfatherToEventCard(message: GodfatherMessage): EventCard {
+  // onAccept/onRefuse are StatDelta + a nested factionImpact. Strip factionImpact
+  // out of `immediate` so applyDelta never writes a junk `factionImpact` key into
+  // stats — it belongs on the choice's own factionImpact field only.
+  const { factionImpact: acceptFactions, ...acceptDelta } = message.ask.onAccept
+  const { factionImpact: refuseFactions, ...refuseDelta } = message.ask.onRefuse
   return {
     id: message.id,
     title: 'A Request from Chief Fashemu',
@@ -93,15 +98,15 @@ export function godfatherToEventCard(message: GodfatherMessage): EventCard {
         id: `${message.id}:accept`,
         label: 'Accept',
         description: message.ask.description,
-        immediate: message.ask.onAccept as any,
-        factionImpact: message.ask.onAccept.factionImpact ?? {},
+        immediate: acceptDelta,
+        factionImpact: acceptFactions ?? {},
       },
       {
         id: `${message.id}:refuse`,
         label: 'Refuse',
         description: `Decline: ${message.ask.description}`,
-        immediate: message.ask.onRefuse as any,
-        factionImpact: message.ask.onRefuse.factionImpact ?? {},
+        immediate: refuseDelta,
+        factionImpact: refuseFactions ?? {},
       },
     ],
   }

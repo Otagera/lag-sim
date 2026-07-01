@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { STARTING_STATE } from '../data/startingState'
 import type { GameState, GodfatherMessage } from '../state/types'
-import { shouldDrawGodfather, drawGodfatherAsk, resolveGodfather } from './godfatherEngine'
+import { shouldDrawGodfather, drawGodfatherAsk, resolveGodfather, godfatherToEventCard } from './godfatherEngine'
+import { applyDelta } from './statEngine'
 import { generalGodfatherPool, fashemuAsks } from '../data/godfatherAsks'
 
 function clone(s: GameState): GameState {
@@ -200,5 +201,45 @@ describe('resolveGodfather', () => {
     expect(result.factions.federalGovt).toBe(46) // 48 - 2
     // onRefuse applies partyGodfathers: -6, then escalation applies -5
     expect(result.factions.partyGodfathers).toBe(54) // 65 - 6 - 5
+  })
+})
+
+describe('godfatherToEventCard', () => {
+  const mockMessage: GodfatherMessage = {
+    id: 'test-ask',
+    week: 5,
+    text: 'Do this favour',
+    ask: {
+      type: 'contract',
+      description: 'A favour',
+      onAccept: {
+        corruptionPressure: 3,
+        factionImpact: { partyGodfathers: 5, civilSocietyMedia: -4 },
+      },
+      onRefuse: {
+        factionImpact: { partyGodfathers: -6 },
+      },
+    },
+  }
+
+  // Regression: factionImpact must NOT leak into `immediate`, or applyDelta writes
+  // a junk `factionImpact` key into stats (surfaced as "undefined[object Object]").
+  it('keeps factionImpact out of choice.immediate', () => {
+    const card = godfatherToEventCard(mockMessage)
+    expect('factionImpact' in card.choices[0].immediate).toBe(false)
+    expect('factionImpact' in card.choices[1].immediate).toBe(false)
+    expect(card.choices[0].immediate).toEqual({ corruptionPressure: 3 })
+  })
+
+  it('applying immediate does not pollute stats with a factionImpact key', () => {
+    const card = godfatherToEventCard(mockMessage)
+    const result = applyDelta(state, card.choices[0].immediate)
+    expect('factionImpact' in result.stats).toBe(false)
+  })
+
+  it('routes factionImpact to the choice factionImpact field', () => {
+    const card = godfatherToEventCard(mockMessage)
+    expect(card.choices[0].factionImpact).toEqual({ partyGodfathers: 5, civilSocietyMedia: -4 })
+    expect(card.choices[1].factionImpact).toEqual({ partyGodfathers: -6 })
   })
 })
