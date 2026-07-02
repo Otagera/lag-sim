@@ -1,0 +1,7 @@
+export { DeskScene } from './DeskScene'
+export { DeskSurface } from './DeskSurface'
+export { WindowFrame } from './WindowFrame'
+export { CoffeeCup } from './CoffeeCup'
+export { DeskPhone } from './DeskPhone'
+export { Notebook } from './Notebook'
+export { DeskLamp } from './DeskLamp'

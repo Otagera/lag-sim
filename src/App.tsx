@@ -29,6 +29,7 @@ import { DiagnosisBanner } from './ui/game/DiagnosisBanner'
 import { StateOfTheState } from './ui/game/StateOfTheState'
 import { CampaignTracker } from './ui/CampaignTracker'
 import { ElectionWatermark } from './ui/ElectionWatermark'
+import { LagosSkyline } from './ui/LagosSkyline'
 import { Tab } from './ui/components/Tab'
 import { Stat } from './ui/components/Stat'
 import { Seal } from './ui/components/Seal'
@@ -409,21 +410,27 @@ export default function GameApp() {
           </div>
         )}
 
-        <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-          {isGameOver ? (
-            <LegacyScreen onNewGame={handleLegacyNewGame} />
-          ) : (
-            <div className="event-card-area" style={{
-              maxWidth:      '720px',
-              margin:        '0 auto',
-              padding:       '16px 16px 80px',
-              display:       'flex',
-              flexDirection: 'column',
-              gap:           '12px',
-            }}>
-              <EventCard />
-            </div>
-          )}
+        <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, position: 'relative' }}>
+          {/* Skyline backdrop — the "governor's desk with a view" (OTA-46) */}
+          <div style={{ position: 'absolute', inset: 0, zIndex: 0, opacity: 0.2, pointerEvents: 'none' }}>
+            <LagosSkyline height="100%" />
+          </div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            {isGameOver ? (
+              <LegacyScreen onNewGame={handleLegacyNewGame} />
+            ) : (
+              <div className="event-card-area" style={{
+                maxWidth:      '720px',
+                margin:        '0 auto',
+                padding:       '16px 16px 80px',
+                display:       'flex',
+                flexDirection: 'column',
+                gap:           '12px',
+              }}>
+                <EventCard />
+              </div>
+            )}
+          </div>
         </div>
 
         {!isGameOver && (

@@ -14,6 +14,8 @@ import { ALL_GOALS } from '../data/goals'
 import { SituationCtx } from './design/ThemeProvider'
 import type { Situation } from './design/tokens'
 import type { ArchetypeKey } from '../data/archetypes'
+import { playCue, setMuted, setAmbient, stopAll } from './audio/audioBus'
+import { useReducedMotion } from './design/useReducedMotion'
 
 // Media formats
 import { ViralClip } from './ViralClip'
@@ -52,6 +54,8 @@ import { Badge } from './components/Badge'
 import { Tab } from './components/Tab'
 import { Kicker, Heading, Prose } from './components/Typography'
 import { RainLayer } from './components/RainLayer'
+import { LagosSkyline } from './LagosSkyline'
+import { DeskScene } from './desk/DeskScene'
 
 // ─── CSS overrides for fixed-position components in non-Core tabs ────────────
 const FIXED_OVERRIDE_CSS = `
@@ -67,7 +71,7 @@ const FIXED_OVERRIDE_CSS = `
 // ─── Types ────────────────────────────────────────────────────────────────────
 type GameState = 'calm' | 'election' | 'crisis' | 'storm'
 type Variant   = 'clean' | 'bold' | 'atmospheric'
-type TabId     = 0 | 1 | 2 | 3 | 4
+type TabId     = 0 | 1 | 2 | 3 | 4 | 5
 
 interface Theme {
   bg: string; bgGrad: string; bgCard: string
@@ -238,38 +242,9 @@ const STATS: Record<GameState, [number,number,number,number]> = {
   storm:    [13.2, 35, 16, 28],
 }
 
-// ─── Sound stubs (Web Audio API) ──────────────────────────────────────────────
-let _AC: AudioContext | null = null
-function ac(): AudioContext | null {
-  try {
-    if (!_AC) _AC = new (window.AudioContext || (window as any).webkitAudioContext)()
-    return _AC
-  } catch { return null }
-}
-function tone(on: boolean, type: 'commit'|'crisis'|'blackout') {
-  if (!on) return
-  const ctx = ac(); if (!ctx) return
-  const o = ctx.createOscillator(), g = ctx.createGain()
-  o.connect(g); g.connect(ctx.destination)
-  const t = ctx.currentTime
-  if (type === 'commit') {
-    o.type='sine'
-    o.frequency.setValueAtTime(523, t); o.frequency.exponentialRampToValueAtTime(392, t+.14)
-    g.gain.setValueAtTime(.18, t); g.gain.exponentialRampToValueAtTime(.001, t+.38)
-    o.start(); o.stop(t+.45)
-  } else if (type === 'crisis') {
-    o.type='sawtooth'
-    o.frequency.setValueAtTime(880, t); o.frequency.exponentialRampToValueAtTime(110, t+.55)
-    g.gain.setValueAtTime(.12, t); g.gain.exponentialRampToValueAtTime(.001, t+.75)
-    o.start(); o.stop(t+.85)
-  } else {
-    // blackout — power hum dying
-    o.type='square'
-    o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(28, t+.45)
-    g.gain.setValueAtTime(.28, t); g.gain.exponentialRampToValueAtTime(.001, t+.55)
-    o.start(); o.stop(t+.7)
-  }
-}
+// Sound is owned by the shared audioBus module (Web Audio, no libs). Style Lab is
+// where we prototype and tune it before wiring into the game — playCue for stings,
+// setAmbient for the per-situation bed, setMuted driven by the sound toggle.
 
 // ─── Number count-up hook ────────────────────────────────────────────────────
 function useCountTo(target: number, dur = 750) {
@@ -470,15 +445,15 @@ const CHOICES = [
   { label: 'Order security dispersal',             fx: '−Trust 20 · ⚠ unrest', fxC: 'danger'  },
 ]
 
-function EventCard({ theme, variant, onCommit, soundOn }:
-  { theme: Theme; variant: Variant; onCommit: () => void; soundOn: boolean }) {
+function EventCard({ theme, variant, onCommit }:
+  { theme: Theme; variant: Variant; onCommit: () => void }) {
   const [committed, setCommitted] = useState<number|null>(null)
   const [showCq, setShowCq] = useState(false)
 
   function handleChoice(i: number) {
     if (committed !== null) return
     setCommitted(i)
-    tone(soundOn, 'commit')
+    playCue('commit')
     setTimeout(() => setShowCq(true), 300)
     setTimeout(() => { setCommitted(null); setShowCq(false); onCommit() }, 2800)
   }
@@ -897,6 +872,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 2, label: 'Onboarding' },
   { id: 3, label: 'Overlays' },
   { id: 4, label: 'Atoms' },
+  { id: 5, label: 'Desk' },
 ]
 
 function TabBar({ activeTab, onChange }: { activeTab: TabId; onChange: (id: TabId) => void }) {
@@ -1330,7 +1306,89 @@ function AtomsTab() {
           </div>
         </section>
 
+        {/* Lagos skyline vignette — layered-parallax technique proof for the SVG desk (OTA-46) */}
+        <section>
+          <Kicker accent>Lagos Skyline (OTA-46 technique proof)</Kicker>
+          <div className="label-caps" style={{ fontSize: '9px', color: 'var(--text-tertiary, rgba(0,0,0,.35))', margin: '6px 0' }}>
+            Layered inline-SVG: clouds + ferry + danfo move; skyline/landmarks static. Motion respects prefers-reduced-motion.
+          </div>
+          <div style={{ marginTop: '8px', maxWidth: '640px', border: '1px solid rgba(0,0,0,.1)', borderRadius: '6px', overflow: 'hidden' }}>
+            <LagosSkyline height={260} />
+          </div>
+        </section>
+
       </div>
+    </div>
+  )
+}
+
+// ─── Tab 5: Desk ──────────────────────────────────────────────────────────────
+function DeskTab({ theme, variant, gameState }: { theme: Theme; variant: Variant; gameState: GameState }) {
+  const [deskStyle, setDeskStyle] = useState<'modern' | 'traditional' | 'simple'>('modern')
+  const [showWindow, setShowWindow] = useState(true)
+  const [showProps, setShowProps] = useState(true)
+
+  return (
+    <div className="sl-tab-section" style={{ padding: '20px 24px', maxWidth: '960px', margin: '0 auto', width: '100%' }}>
+      {/* Controls */}
+      <div style={{
+        display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap',
+        marginBottom: '20px',
+        fontFamily: "'Archivo Narrow', sans-serif", fontSize: '12px',
+      }}>
+        {/* Desk style */}
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <span style={{ color: theme.text2, fontWeight: 600, letterSpacing: '.03em', textTransform: 'uppercase', fontSize: '10px' }}>Desk</span>
+          {(['modern', 'traditional', 'simple'] as const).map((s) => (
+            <button key={s} onClick={() => setDeskStyle(s)}
+              style={{
+                padding: '4px 12px', border: `1px solid ${deskStyle === s ? theme.accent : theme.border}`,
+                background: deskStyle === s ? theme.accent : 'transparent',
+                color: deskStyle === s ? '#fff' : theme.text,
+                borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600,
+                transition: 'all .2s ease',
+              }}
+            >{s}</button>
+          ))}
+        </div>
+
+        {/* Toggles */}
+        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: theme.text2 }}>
+          <input type="checkbox" checked={showWindow} onChange={() => setShowWindow(v => !v)} />
+          Window
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: theme.text2 }}>
+          <input type="checkbox" checked={showProps} onChange={() => setShowProps(v => !v)} />
+          Props
+        </label>
+      </div>
+
+      {/* Desk Scene */}
+      <DeskScene
+        situation={gameState}
+        deskStyle={deskStyle}
+        showWindow={showWindow}
+        showProps={showProps}
+      >
+        <div style={{ width: '100%', position: 'relative' }}>
+          <EventCard
+            theme={theme}
+            variant={variant}
+            onCommit={() => {}}
+          />
+        </div>
+        <div style={{ display: 'flex', gap: '12px', width: '100%', justifyContent: 'center', marginTop: '4px' }}>
+          <div style={{ flex: 1, maxWidth: '140px' }}>
+            <Stat label="Revenue" value={24.8} format="currency" />
+          </div>
+          <div style={{ flex: 1, maxWidth: '140px' }}>
+            <Stat label="Trust" value={67} format="percent" />
+          </div>
+          <div style={{ flex: 1, maxWidth: '140px' }}>
+            <Stat label="Pol. Cap" value={45} />
+          </div>
+        </div>
+      </DeskScene>
     </div>
   )
 }
@@ -1345,11 +1403,16 @@ export function StyleLab() {
   const [diagKey, setDiagKey]     = useState(0)  // force re-mount for re-animation
   const [activeTab, setActiveTab] = useState<TabId>(0)
   const theme = useMemo(() => mkTheme(gameState, variant), [gameState, variant])
+  const reduced = useReducedMotion()
+
+  // Silence the ambient bed when leaving the lab
+  useEffect(() => () => { stopAll() }, [])
 
   function changeState(next: GameState) {
-    // Play sounds
-    if (next === 'storm')  tone(soundOn, 'blackout')
-    if (next === 'crisis') tone(soundOn, 'crisis')
+    // Transition stings + cross-fade the ambient bed to the new situation
+    if (next === 'storm')  playCue('blackout')
+    if (next === 'crisis') playCue('crisis')
+    setAmbient(next)
 
     // Blackout flash for storm transition
     if (next === 'storm' || gameState === 'storm') {
@@ -1374,9 +1437,22 @@ export function StyleLab() {
       <style>{SL_CSS}</style>
       <style>{FIXED_OVERRIDE_CSS}</style>
 
-      {/* ── Atmospheric overlays ── */}
+      {/* ── Atmospheric overlays (skipped when the OS asks for reduced motion) ── */}
       {showBlackout && <div className="sl-bko"/>}
-      {gameState === 'storm' && <Rain/>}
+      {gameState === 'storm' && !reduced && <Rain/>}
+
+      {/* Reduced-motion indicator (verifies the accessibility gate in the lab) */}
+      {reduced && (
+        <div style={{
+          position: 'fixed', bottom: 12, left: 12, zIndex: 70,
+          padding: '4px 8px', fontSize: '10px', fontWeight: 600,
+          fontFamily: "'Archivo Narrow', sans-serif", letterSpacing: '.04em',
+          color: '#8a6d1a', background: 'rgba(240,220,140,.18)',
+          border: '1px solid rgba(180,150,40,.4)', pointerEvents: 'none',
+        }}>
+          ⏸ REDUCED MOTION — rain/shimmer off
+        </div>
+      )}
 
       <div
         className="sl-scroll"
@@ -1390,7 +1466,7 @@ export function StyleLab() {
         }}
       >
         {/* Calm: very faint ambient shimmer on the page background */}
-        {gameState === 'calm' && variant === 'atmospheric' && (
+        {gameState === 'calm' && variant === 'atmospheric' && !reduced && (
           <div className="sl-shimmer" style={{
             position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
             background: 'radial-gradient(ellipse at 60% 20%, rgba(26,155,142,.04) 0%, transparent 55%)',
@@ -1415,7 +1491,11 @@ export function StyleLab() {
           soundOn={soundOn}
           onState={changeState}
           onVariant={setVariant}
-          onSound={setSoundOn}
+          onSound={(on) => {
+            setSoundOn(on)
+            setMuted(!on)          // resumes the AudioContext (this is the user gesture)
+            if (on) setAmbient(gameState)  // start the bed for the current situation
+          }}
         />
 
         {/* Tab bar — sticky below chrome */}
@@ -1444,7 +1524,6 @@ export function StyleLab() {
               <EventCard
                 theme={theme}
                 variant={variant}
-                soundOn={soundOn}
                 onCommit={() => {}}
               />
 
@@ -1474,6 +1553,7 @@ export function StyleLab() {
         {activeTab === 2 && <OnboardingTab />}
         {activeTab === 3 && <OverlaysTab theme={theme} />}
         {activeTab === 4 && <AtomsTab />}
+        {activeTab === 5 && <DeskTab theme={theme} variant={variant} gameState={gameState} />}
       </div>
     </>
   )

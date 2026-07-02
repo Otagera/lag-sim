@@ -7,6 +7,7 @@ coverage
 .DS_Store
 events.json
 /saves
+/references
 
 # design-sync
 .ds-sync/
