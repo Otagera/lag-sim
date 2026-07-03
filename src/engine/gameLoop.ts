@@ -298,8 +298,8 @@ export function tick(state: GameState): GameState {
     next = resolveLGAElection(next)
   }
 
-  // Enter campaign mode at week 195 (first term only — second term has no election)
-  if (next.week >= 195 && !next.inCampaignMode && next.currentTerm === 1) {
+  // Enter campaign mode at week 187 (first term only — second term has no election)
+  if (next.week >= 187 && !next.inCampaignMode && next.currentTerm === 1) {
     next = { ...next, inCampaignMode: true }
   }
 
@@ -849,7 +849,7 @@ function checkGameOver(state: GameState): GameState {
   // For intermediate ticks, nothing to do — goals only matter at the end.
 
   // Second term end: week 416 is 208 weeks × 2 terms
-  if (next.week > 416 && next.currentTerm === 2) {
+  if (next.week >= 416 && next.currentTerm === 2) {
     let nextWithGoal = { ...next }
     if (nextWithGoal.selectedGoalId) {
       const goal = getGoal(nextWithGoal.selectedGoalId)
@@ -867,7 +867,20 @@ function checkGameOver(state: GameState): GameState {
     return endGame(nextWithGoal, 'secondTermEnd', 'Your second term has ended. Your legacy is now sealed.')
   }
 
-  if (next.week > 208 && next.currentTerm === 1) {
+  // ── Term end — week 208 (inauguration or handover) ────────────────────
+  if (next.week >= 208 && next.currentTerm === 1 && next.electionResult !== null) {
+    if (next.reElected) {
+      return endGame(
+        { ...next, currentTerm: 2, primaryScenario: null, primaryWon: null },
+        'termEndWin',
+        `Re-elected with ${next.electionResult.toFixed(1)}% of the vote. Inauguration day.`,
+      )
+    }
+    return endGame(next, 'termEndLoss', 'Defeated in the election. Your term ends.')
+  }
+
+  // ── Election day (vote) — week 200 ─────────────────────────────────────
+  if (next.week >= 200 && next.currentTerm === 1 && next.electionResult === null) {
     const electionResult = calculateVoteShare(next)
     const reElected = electionResult > 50
 
@@ -882,64 +895,40 @@ function checkGameOver(state: GameState): GameState {
       else if (next.godfatherComplianceCount >= 3) fashemuEndingPath = 'A'
     }
 
-    if (reElected) {
-      // Continue into second term instead of ending the game
-      const goalTimeline: TimelineEntry[] = []
-      if (next.selectedGoalId) {
-        const goal = getGoal(next.selectedGoalId)
-        if (goal) {
-          const met = getGoalIsMet(goal, next)
-          goalTimeline.push({
-            week: next.week,
-            type: 'milestone' as const,
-            title: met ? 'Personal Goal: On Track' : 'Personal Goal: Carried Forward',
-            description: met
-              ? `Your ${goal.title} goal is on track — hold this to term end.`
-              : `Your ${goal.title} goal is ${getGoalProgress(goal, next).toFixed(0)}% complete. Second term is the chance to finish it.`,
-          })
-        }
-      }
-      return {
-        ...next,
-        electionResult,
-        reElected,
-        fashemuEndingPath,
-        currentTerm: 2,
-        inCampaignMode: false,
-        primaryScenario: null,
-        primaryWon: null,
-        timeline: [
-          ...next.timeline,
-          {
-            week: next.week,
-            type: 'milestone' as const,
-            title: 'Re-Election Victory — Second Term Begins',
-            description: `${electionResult.toFixed(1)}% of the vote. The people have given you another mandate. Second term begins — the stakes are higher, the margin for error is smaller.`,
-          },
-          ...goalTimeline,
-        ],
-      }
-    }
-
-    let nextWithGoal = { ...next }
-    if (nextWithGoal.selectedGoalId) {
-      const goal = getGoal(nextWithGoal.selectedGoalId)
+    // Record the result and enter the transition period (no endGame yet)
+    const goalTimeline: TimelineEntry[] = []
+    if (next.selectedGoalId) {
+      const goal = getGoal(next.selectedGoalId)
       if (goal) {
-        const met = getGoalIsMet(goal, nextWithGoal)
-        const progress = getGoalProgress(goal, nextWithGoal)
-        nextWithGoal.timeline = [...nextWithGoal.timeline, {
+        const met = getGoalIsMet(goal, next)
+        goalTimeline.push({
           week: next.week,
           type: 'milestone' as const,
-          title: met ? 'Personal Goal: Achieved' : 'Personal Goal: Unfulfilled',
-          description: met ? goal.flavorClosing : `You set out to "${goal.title}" but reached only ${progress.toFixed(0)}% of your targets. The ambition was real — the execution fell short.`,
-        }]
+          title: met ? 'Personal Goal: On Track' : 'Personal Goal: Carried Forward',
+          description: met
+            ? `Your ${goal.title} goal is on track — hold this to term end.`
+            : `Your ${goal.title} goal is ${getGoalProgress(goal, next).toFixed(0)}% complete. Second term is the chance to finish it.`,
+        })
       }
     }
     return {
-      ...endGame(nextWithGoal, 'termEndLoss', 'Your term has ended. Check your final scorecard.'),
+      ...next,
       electionResult,
       reElected,
       fashemuEndingPath,
+      inCampaignMode: false,
+      timeline: [
+        ...next.timeline,
+        {
+          week: next.week,
+          type: 'milestone' as const,
+          title: reElected ? 'Re-Election Victory' : 'Defeated at the Polls',
+          description: reElected
+            ? `${electionResult.toFixed(1)}% of the vote. The people have returned you. Transition period until inauguration at week 208.`
+            : `${electionResult.toFixed(1)}% of the vote. Your term continues until the handover at week 208.`,
+        },
+        ...goalTimeline,
+      ],
     }
   }
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { Heart, Inbox as InboxIcon, DollarSign, Users, BarChart3, Landmark, Wallet, Zap, Vote } from 'lucide-react'
+import { Heart, Inbox as InboxIcon, DollarSign, Users, BarChart3, Landmark, Wallet, Zap, Vote, GanttChartSquare } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 import { STARTING_STATE } from './data/startingState'
@@ -12,6 +12,7 @@ import { ResearchTree } from './ui/ResearchTree'
 import { ProjectsPanel } from './ui/ProjectsPanel'
 import { EventCard } from './ui/EventCard'
 import { FactionPanel } from './ui/FactionPanel'
+import { PollPanel } from './ui/PollPanel'
 import { Inbox } from './ui/Inbox'
 import { NPCPanel } from './ui/NPCPanel'
 import { LegacyScreen } from './ui/LegacyScreen'
@@ -27,6 +28,7 @@ import { DeputyPanel } from './ui/DeputyPanel'
 import { buildNewsPrompt, generateNewsText } from './engine/llmNews'
 import { DiagnosisBanner } from './ui/game/DiagnosisBanner'
 import { StateOfTheState } from './ui/game/StateOfTheState'
+import { StrategicDashboard } from './ui/StrategicDashboard'
 import { CampaignTracker } from './ui/CampaignTracker'
 import { ElectionWatermark } from './ui/ElectionWatermark'
 import { LagosSkyline } from './ui/LagosSkyline'
@@ -35,15 +37,16 @@ import { Stat } from './ui/components/Stat'
 import { Seal } from './ui/components/Seal'
 
 // ─── Dock destinations ────────────────────────────────────────────────────────
-type DockTab = 'inbox' | 'economy' | 'factions' | 'people' | 'state' | 'election'
+type DockTab = 'inbox' | 'economy' | 'factions' | 'people' | 'state' | 'strategy' | 'election'
 
 const DOCK_TABS: { id: DockTab; label: string; Icon: LucideIcon }[] = [
-  { id: 'inbox',    label: 'Inbox',    Icon: InboxIcon  },
-  { id: 'economy',  label: 'Economy',  Icon: DollarSign },
-  { id: 'factions', label: 'Factions', Icon: Landmark   },
-  { id: 'people',   label: 'People',   Icon: Users      },
-  { id: 'state',    label: 'State',    Icon: BarChart3  },
-  { id: 'election', label: 'Election', Icon: Vote       },
+  { id: 'inbox',    label: 'Inbox',    Icon: InboxIcon       },
+  { id: 'economy',  label: 'Economy',  Icon: DollarSign      },
+  { id: 'factions', label: 'Factions', Icon: Landmark        },
+  { id: 'people',   label: 'People',   Icon: Users           },
+  { id: 'state',    label: 'State',    Icon: BarChart3       },
+  { id: 'strategy', label: 'Strategy', Icon: GanttChartSquare },
+  { id: 'election', label: 'Election', Icon: Vote            },
 ]
 
 // ─── Status bar ───────────────────────────────────────────────────────────────
@@ -254,7 +257,12 @@ function PanelOverlay({
         <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
           {activeTab === 'inbox'    && <div style={{ padding: '12px' }}><Inbox /></div>}
           {activeTab === 'economy'  && <div style={{ padding: '12px' }}><BudgetPanel /></div>}
-          {activeTab === 'factions' && <div style={{ padding: '12px' }}><FactionPanel /></div>}
+          {activeTab === 'factions' && (
+  <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <FactionPanel />
+    <PollPanel />
+  </div>
+)}
           {activeTab === 'people'   && (
             <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <DeputyPanel />
@@ -263,6 +271,7 @@ function PanelOverlay({
             </div>
           )}
           {activeTab === 'state' && <StateOfTheState />}
+          {activeTab === 'strategy' && <div style={{ padding: '12px' }}><StrategicDashboard /></div>}
           {activeTab === 'election' && <div style={{ padding: '12px' }}><CampaignTracker /></div>}
         </div>
       </div>

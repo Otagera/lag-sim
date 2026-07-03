@@ -1,8 +1,12 @@
 import { useGameStore } from '../state/gameStore'
+import { electionYear } from '../utils/calendar'
 
 export function ElectionWatermark() {
   const inCampaignMode = useGameStore((s) => s.inCampaignMode)
+  const currentTerm = useGameStore((s) => s.currentTerm)
   if (!inCampaignMode) return null
+
+  const year = electionYear(currentTerm)
 
   return (
     <div
@@ -32,7 +36,7 @@ export function ElectionWatermark() {
             textTransform: 'uppercase',
           }}
         >
-          ELECTION 2027
+          ELECTION {year}
         </div>
       ))}
     </div>

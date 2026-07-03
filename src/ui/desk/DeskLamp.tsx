@@ -36,7 +36,14 @@ export function DeskLamp({ x = 0, y = 0, scale = 1, lit = false }: Props) {
       {/* Banker's dome shade */}
       <path d="M4,18 Q4,7 16,7 Q28,7 28,18 Z" fill="#2f5d43" />
       <path d="M4,18 Q4,7 16,7 Q28,7 28,18 Z" fill="none" stroke="#243f30" strokeWidth="0.8" />
-      <path d="M8,16 Q8.5,10 14,8.2" fill="none" stroke="#4a8563" strokeWidth="1.6" strokeLinecap="round" opacity="0.7" />
+      <path
+        d="M8,16 Q8.5,10 14,8.2"
+        fill="none"
+        stroke="#4a8563"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        opacity="0.7"
+      />
       {/* Brass trim along the shade lip */}
       <path d="M4,18 Q16,21 28,18" fill="none" stroke="#b8894a" strokeWidth="1.6" />
       {/* Finial */}

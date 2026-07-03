@@ -42,6 +42,7 @@ export interface GameStore extends GameState {
   dismissHint: (id: string) => void
   // Goal tracking
   setGoal: (id: string | null) => void
+  beginSecondTerm: () => void
   // Phase E — research tree
   commissionResearchNode: (nodeId: string) => void
   // Projects
@@ -192,6 +193,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
       { politicalCapital: 10, publicTrust: -3, corruptionPressure: 3 },
     )
     set({ ...afterStat, factions: applyFactionDelta(afterStat.factions, { partyGodfathers: 5 }) })
+  },
+  beginSecondTerm: () => {
+    set((s) => ({
+      ...s,
+      isGameOver: false,
+      gameOverType: undefined,
+      gameOverReason: undefined,
+      endingNarrative: undefined,
+      electionResult: null,
+      reElected: false,
+    }))
   },
   clearNewspaperHeadline: () => {
     set({ newspaperHeadline: undefined })

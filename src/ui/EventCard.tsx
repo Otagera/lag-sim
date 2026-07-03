@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useGameStore } from '../state/gameStore'
 import { Pill } from './components'
 import { STAT_ICONS, FACTION_ICONS, SEVERITY_GLYPH } from '../data/icons'
+import { electionYear } from '../utils/calendar'
 import type { LucideIcon } from 'lucide-react'
 import type { Choice, ConsequenceBeat } from '../state/types'
 
@@ -183,6 +184,7 @@ export function EventCard() {
   const consequenceBeats = useGameStore((s) => s.consequenceBeats)
   const resolveEvent = useGameStore((s) => s.resolveEvent)
   const dismissConsequenceBeat = useGameStore((s) => s.dismissConsequenceBeat)
+  const currentTerm = useGameStore((s) => s.currentTerm)
 
   // Aftermath view — show first beat in queue
   if (!activeEvent && consequenceBeats.length > 0) {
@@ -215,6 +217,8 @@ export function EventCard() {
   const godfatherColor = '#8b0000'
   const accentColor = isGodfather ? godfatherColor : 'var(--accent-solid)'
 
+  const eYear = electionYear(currentTerm)
+
   const isFinale = activeEvent.id.startsWith('finale-')
   const isElectionDay = activeEvent.id === 'finale-election-eve'
 
@@ -245,7 +249,7 @@ export function EventCard() {
             borderRadius: '2px',
             animation: 'pulse-glow 1.5s ease-in-out infinite alternate',
           }}>
-            {isElectionDay ? 'LIVE ELECTION COVERAGE' : `ELECTION ${isElectionDay ? 'DAY' : 'SEASON'} 2027`}
+            {isElectionDay ? 'LIVE ELECTION COVERAGE' : `ELECTION ${isElectionDay ? 'DAY' : 'SEASON'} ${eYear}`}
           </div>
         )}
         <div className="flex items-center gap-2 mb-2">
@@ -269,7 +273,7 @@ export function EventCard() {
               color: 'var(--accent-on-solid)',
               textTransform: 'uppercase',
             }}>
-              ELECTION '27
+              ELECTION '{String(eYear).slice(2)}
             </span>
           )}
         </div>

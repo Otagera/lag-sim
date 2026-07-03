@@ -55,6 +55,11 @@ export function isEyoFestival(week: number): boolean {
   return month === 5 && day >= 20
 }
 
+export function electionYear(currentTerm: number): number {
+  const START_YEAR = 2027
+  return START_YEAR + currentTerm * 4
+}
+
 // Harmattan: dry Saharan winds December–February
 export function isHarmattan(week: number): boolean {
   const month = weekToDate(week).getMonth() + 1

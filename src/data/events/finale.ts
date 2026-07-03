@@ -1,7 +1,7 @@
 import type { EventCard } from '../../state/types'
 
-// Three-event locked finale chain — weeks 205–207
-// Stage 1 fires via triggerCondition at week 205; stages 2 and 3 arrive via followUpEventId.
+// Three-event locked finale chain — weeks 195–199
+// Stage 1 fires via triggerCondition at week 195; stages 2 and 3 arrive via followUpEventId.
 // triggerCondition: () => false on stages 2 and 3 locks them out of the random pool.
 
 export const finaleEvents: EventCard[] = [
@@ -15,7 +15,7 @@ Your chief strategist has spent three days preparing two dossiers. One documents
 You have two hours. What you say in this room will be replayed until February.`,
     severity: 'critical',
     category: 'political',
-    triggerCondition: (state) => state.week >= 205 && !state.resolvedEvents.includes('finale-debate') && state.currentTerm === 1,
+    triggerCondition: (state) => state.week >= 195 && !state.resolvedEvents.includes('finale-debate') && state.currentTerm === 1,
     followUpEventId: 'finale-security-breakdown',
     choices: [
       {

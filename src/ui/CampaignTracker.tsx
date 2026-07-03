@@ -83,7 +83,7 @@ function ConfidenceMeter({ value }: { value: number }) {
   )
 }
 
-const ELECTION_WEEK = 208
+const ELECTION_WEEK = 200
 
 export function CampaignTracker() {
   const week = useGameStore((s) => s.week)

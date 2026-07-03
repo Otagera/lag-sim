@@ -418,7 +418,20 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
           </div>
         )}
 
-        <div className="text-center">
+        <div className="text-center space-x-3">
+          {state.gameOverType === 'termEndWin' && (
+            <button
+              type="button"
+              onClick={() => useGameStore.getState().beginSecondTerm()}
+              className="px-8 py-3 text-sm font-semibold transition-colors"
+              style={{
+                backgroundColor: 'var(--success-9)',
+                color: '#fff',
+              }}
+            >
+              Begin Second Term
+            </button>
+          )}
           <button
             type="button"
             onClick={handleNewGame}

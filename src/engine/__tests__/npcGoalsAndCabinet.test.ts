@@ -237,22 +237,22 @@ describe('campaign mode: inCampaignMode activation', () => {
   beforeEach(() => vi.spyOn(Math, 'random').mockReturnValue(0.5))
   afterEach(() => vi.restoreAllMocks())
 
-  it('inCampaignMode is false before week 195', () => {
-    const state: GameState = { ...clone(STARTING_STATE), week: 193 }
+  it('inCampaignMode is false before week 187', () => {
+    const state: GameState = { ...clone(STARTING_STATE), week: 185 }
     const result = tick(state)
     expect(result.inCampaignMode).toBe(false)
   })
 
-  it('inCampaignMode becomes true at week 195', () => {
-    const state: GameState = { ...clone(STARTING_STATE), week: 194 }
+  it('inCampaignMode becomes true at week 187', () => {
+    const state: GameState = { ...clone(STARTING_STATE), week: 186 }
     const result = tick(state)
-    // tick advances week to 195
-    expect(result.week).toBe(195)
+    // tick advances week to 187
+    expect(result.week).toBe(187)
     expect(result.inCampaignMode).toBe(true)
   })
 
   it('inCampaignMode stays true once set', () => {
-    const state: GameState = { ...clone(STARTING_STATE), week: 196, inCampaignMode: true }
+    const state: GameState = { ...clone(STARTING_STATE), week: 188, inCampaignMode: true }
     const result = tick(state)
     expect(result.inCampaignMode).toBe(true)
   })

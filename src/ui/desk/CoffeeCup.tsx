@@ -10,7 +10,9 @@ interface Props {
 export function CoffeeCup({ x = 0, y = 0, scale = 1, steaming = true }: Props) {
   const reduced = useReducedMotion()
   const steam = (secs: number, delay = 0) =>
-    reduced ? undefined : { animation: `desk-shim ${secs}s ease-in-out infinite`, animationDelay: `${delay}s` }
+    reduced
+      ? undefined
+      : { animation: `desk-shim ${secs}s ease-in-out infinite`, animationDelay: `${delay}s` }
 
   return (
     <g transform={`translate(${x},${y}) scale(${scale})`}>
@@ -23,8 +25,20 @@ export function CoffeeCup({ x = 0, y = 0, scale = 1, steaming = true }: Props) {
       <ellipse cx="20" cy="33.4" rx="10" ry="2.3" fill="#e0d5c0" />
 
       {/* Handle (behind body so it reads as attached) */}
-      <path d="M29,16 Q38,15 37.5,21 Q37,27 28.5,26" fill="none" stroke="#e6ddcc" strokeWidth="3.2" strokeLinecap="round" />
-      <path d="M29,16 Q38,15 37.5,21 Q37,27 28.5,26" fill="none" stroke="#cdbfa2" strokeWidth="1" strokeLinecap="round" />
+      <path
+        d="M29,16 Q38,15 37.5,21 Q37,27 28.5,26"
+        fill="none"
+        stroke="#e6ddcc"
+        strokeWidth="3.2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M29,16 Q38,15 37.5,21 Q37,27 28.5,26"
+        fill="none"
+        stroke="#cdbfa2"
+        strokeWidth="1"
+        strokeLinecap="round"
+      />
 
       {/* Cup body */}
       <path d="M10.5,13 Q10,25 13,29 Q16,32 20,32 Q24,32 27,29 Q30,25 29.5,13 Z" fill="#f4efe4" />
@@ -40,7 +54,14 @@ export function CoffeeCup({ x = 0, y = 0, scale = 1, steaming = true }: Props) {
       <ellipse cx="20" cy="13.2" rx="7.6" ry="2.1" fill="#3f2817" />
       <ellipse cx="18.5" cy="12.6" rx="3" ry="0.9" fill="#5a3a20" opacity="0.7" />
       {/* Rim highlight */}
-      <path d="M12,12 Q11.6,17 13.5,24" fill="none" stroke="#fff" strokeWidth="1" strokeLinecap="round" opacity="0.45" />
+      <path
+        d="M12,12 Q11.6,17 13.5,24"
+        fill="none"
+        stroke="#fff"
+        strokeWidth="1"
+        strokeLinecap="round"
+        opacity="0.45"
+      />
 
       {/* Steam */}
       {steaming && (

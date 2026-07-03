@@ -16,11 +16,39 @@ export function Notebook({ x = 0, y = 0, scale = 1 }: Props) {
       <line x1="7" y1="33" x2="40" y2="33" stroke="#d3c7ab" strokeWidth="0.5" />
 
       {/* Leather cover */}
-      <path d="M3,4 Q3,2 5,2 L35,2 Q37,2 37,4 L37,32 Q37,34 35,34 L5,34 Q3,34 3,32 Z" fill="#7a3b30" />
-      <path d="M3,4 Q3,2 5,2 L35,2 Q37,2 37,4 L37,32 Q37,34 35,34 L5,34 Q3,34 3,32 Z" fill="none" stroke="#5f2c24" strokeWidth="1" />
+      <path
+        d="M3,4 Q3,2 5,2 L35,2 Q37,2 37,4 L37,32 Q37,34 35,34 L5,34 Q3,34 3,32 Z"
+        fill="#7a3b30"
+      />
+      <path
+        d="M3,4 Q3,2 5,2 L35,2 Q37,2 37,4 L37,32 Q37,34 35,34 L5,34 Q3,34 3,32 Z"
+        fill="none"
+        stroke="#5f2c24"
+        strokeWidth="1"
+      />
       {/* Debossed border rule */}
-      <rect x="6" y="5" width="28" height="24" rx="1.5" fill="none" stroke="#5f2c24" strokeWidth="0.7" opacity="0.7" />
-      <rect x="6.6" y="5.6" width="28" height="24" rx="1.5" fill="none" stroke="#96574a" strokeWidth="0.4" opacity="0.55" />
+      <rect
+        x="6"
+        y="5"
+        width="28"
+        height="24"
+        rx="1.5"
+        fill="none"
+        stroke="#5f2c24"
+        strokeWidth="0.7"
+        opacity="0.7"
+      />
+      <rect
+        x="6.6"
+        y="5.6"
+        width="28"
+        height="24"
+        rx="1.5"
+        fill="none"
+        stroke="#96574a"
+        strokeWidth="0.4"
+        opacity="0.55"
+      />
       {/* Brass monogram lines */}
       <line x1="12" y1="12" x2="26" y2="12" stroke="#b8894a" strokeWidth="1.1" />
       <line x1="15" y1="15" x2="23" y2="15" stroke="#b8894a" strokeWidth="0.8" opacity="0.7" />
