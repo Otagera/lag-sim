@@ -215,64 +215,77 @@ function windowsForBuilding(
 // VI towers cast vertical light pillars + horizontal ripple lines into the lagoon.
 // Lagos Island adds a softer secondary reflection.
 // Lens-aware: color follows the active map lens.
+function findZoneById(state: MapState, zoneId: string): ZoneMapState | undefined {
+  return state.zones.find((zone) => zone.id === zoneId)
+}
+
+function getReflectionStyle(
+  zone: ZoneMapState | undefined,
+  lens: MapLens,
+  intensity: number,
+): { baseAlpha: number; color: number } | null {
+  if (!zone) return null
+  const baseAlpha = litFrac(zone.infrastructure) * intensity
+  if (baseAlpha < 0.01) return null
+  return { baseAlpha, color: getColorForLens(zone, lens) }
+}
+
+function drawReflectionBase(g: Graphics, ox: number, oy: number, state: MapState, t = 0) {
+  const style = getReflectionStyle(findZoneById(state, 'viIkoyi'), state.lens, 0.22)
+  if (!style) return
+
+  for (let i = 0; i < 16; i++) {
+    const shimX = Math.sin(t * 0.55 + i * 1.25) * 8
+    const xC = ox + 18 + shimX
+    const yC = oy + 187 + i * 4
+    const lineW = 44 + Math.sin(t * 0.38 + i * 0.52) * 8
+    const alpha = style.baseAlpha * (0.45 + 0.55 * Math.sin(t * 1.2 + i * 0.9)) * (1 - i * 0.038)
+    if (alpha < 0.005) continue
+    g.moveTo(xC - lineW / 2, yC)
+      .lineTo(xC + lineW / 2, yC)
+      .stroke({ color: style.color, width: 1.5, alpha })
+  }
+}
+
+function drawLightRays(g: Graphics, ox: number, oy: number, t: number, state: MapState) {
+  const style = getReflectionStyle(findZoneById(state, 'viIkoyi'), state.lens, 0.22)
+  if (!style) return
+
+  for (let i = 0; i < 10; i++) {
+    const shimX = Math.sin(t * 0.32 + i * 1.42) * 4
+    const x = ox + 8 + i * 6 + shimX
+    const y = oy + 185
+    const pillarHeight = 14 + Math.round(Math.sin(t * 0.68 + i * 0.94) * 5)
+    const alpha = style.baseAlpha * 0.85 * (0.55 + 0.45 * Math.sin(t * 1.05 + i * 1.15))
+    if (alpha < 0.005) continue
+    g.moveTo(x, y)
+      .lineTo(x, y + pillarHeight)
+      .stroke({ color: style.color, width: 1, alpha })
+  }
+}
+
+function drawSecondaryRays(g: Graphics, ox: number, oy: number, t: number, state: MapState) {
+  const style = getReflectionStyle(findZoneById(state, 'lagosIsland'), state.lens, 0.13)
+  if (!style) return
+
+  for (let i = 0; i < 10; i++) {
+    const shimX = Math.sin(t * 0.62 + i * 1.08) * 6
+    const xC = ox + 4 + shimX
+    const yC = oy + 192 + i * 4
+    const lineW = 28 + Math.sin(t * 0.48 + i * 0.6) * 5
+    const alpha = style.baseAlpha * (0.38 + 0.62 * Math.sin(t * 1.1 + i * 0.82)) * (1 - i * 0.048)
+    if (alpha < 0.005) continue
+    g.moveTo(xC - lineW / 2, yC)
+      .lineTo(xC + lineW / 2, yC)
+      .stroke({ color: style.color, width: 1.2, alpha })
+  }
+}
+
 function drawReflection(g: Graphics, state: MapState, ox: number, oy: number, t: number) {
   g.clear()
-
-  const vi = state.zones.find((z) => z.id === 'viIkoyi')
-  const island = state.zones.find((z) => z.id === 'lagosIsland')
-
-  // ── VI reflection — dominant: tall towers cast strong vertical light ─────
-  if (vi) {
-    const baseAlpha = litFrac(vi.infrastructure) * 0.22
-    if (baseAlpha >= 0.01) {
-      const color = getColorForLens(vi, state.lens)
-
-      // Horizontal ripple lines (shimmering water surface)
-      for (let i = 0; i < 16; i++) {
-        const shimX = Math.sin(t * 0.55 + i * 1.25) * 8
-        const xC = ox + 18 + shimX
-        const yC = oy + 187 + i * 4
-        const lineW = 44 + Math.sin(t * 0.38 + i * 0.52) * 8
-        const a = baseAlpha * (0.45 + 0.55 * Math.sin(t * 1.2 + i * 0.9)) * (1 - i * 0.038)
-        if (a < 0.005) continue
-        g.moveTo(xC - lineW / 2, yC)
-          .lineTo(xC + lineW / 2, yC)
-          .stroke({ color, width: 1.5, alpha: a })
-      }
-
-      // Vertical light pillars — towers produce narrow streaks in the water
-      for (let j = 0; j < 10; j++) {
-        const shimX = Math.sin(t * 0.32 + j * 1.42) * 4
-        const x = ox + 8 + j * 6 + shimX
-        const yS = oy + 185
-        const pilH = 14 + Math.round(Math.sin(t * 0.68 + j * 0.94) * 5)
-        const a = baseAlpha * 0.85 * (0.55 + 0.45 * Math.sin(t * 1.05 + j * 1.15))
-        if (a < 0.005) continue
-        g.moveTo(x, yS)
-          .lineTo(x, yS + pilH)
-          .stroke({ color, width: 1, alpha: a })
-      }
-    }
-  }
-
-  // ── Lagos Island — softer secondary shimmer ──────────────────────────────
-  if (island) {
-    const baseAlpha = litFrac(island.infrastructure) * 0.13
-    if (baseAlpha >= 0.01) {
-      const color = getColorForLens(island, state.lens)
-      for (let i = 0; i < 10; i++) {
-        const shimX = Math.sin(t * 0.62 + i * 1.08) * 6
-        const xC = ox + 4 + shimX
-        const yC = oy + 192 + i * 4
-        const lineW = 28 + Math.sin(t * 0.48 + i * 0.6) * 5
-        const a = baseAlpha * (0.38 + 0.62 * Math.sin(t * 1.1 + i * 0.82)) * (1 - i * 0.048)
-        if (a < 0.005) continue
-        g.moveTo(xC - lineW / 2, yC)
-          .lineTo(xC + lineW / 2, yC)
-          .stroke({ color, width: 1.2, alpha: a })
-      }
-    }
-  }
+  drawReflectionBase(g, ox, oy, state, t)
+  drawLightRays(g, ox, oy, t, state)
+  drawSecondaryRays(g, ox, oy, t, state)
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -295,6 +308,193 @@ interface ZoneDisplay {
   trust: number // stored so we can detect changes for glow rebuild
 }
 
+interface LightsLayerRuntime {
+  ox: number
+  oy: number
+  t: number
+  prevLens: MapLens
+  zones: ZoneDisplay[]
+  dots: WindowDot[]
+  darknessG: Graphics
+  glowContainer: Container
+  reflectG: Graphics
+}
+
+const MAX_WINDOW_HEIGHT = 10
+
+function createZoneDisplay(zone: ZoneMapState, lens: MapLens): ZoneDisplay {
+  return {
+    litFraction: litFrac(zone.infrastructure),
+    color: getColorForLens(zone, lens),
+    security: zone.security,
+    youthTension: zone.youthTension,
+    crisisState: zone.crisisState,
+    infrastructure: zone.infrastructure,
+    trust: zone.trust,
+  }
+}
+
+function buildZoneDisplays(state: MapState): ZoneDisplay[] {
+  return state.zones.map((zone) => createZoneDisplay(zone, state.lens))
+}
+
+function buildLightSprites(
+  container: Container,
+  ox: number,
+  oy: number,
+  state: MapState,
+): WindowDot[] {
+  container.removeChildren()
+  const dots: WindowDot[] = []
+  const tex = Texture.WHITE
+
+  void state
+
+  for (const building of generateBuildings()) {
+    const points = windowsForBuilding(building.a, building.b, building.floors, building.fp, ox, oy)
+    const rng = mulberry32(building.a * 997 + building.b * 31 + 7)
+
+    for (const { x, y } of points) {
+      const sprite = new Sprite(tex)
+      sprite.width = 2
+      sprite.height = 1
+      sprite.anchor.set(0.5, 0.5)
+      sprite.x = x
+      sprite.y = y
+      sprite.alpha = 0
+
+      container.addChild(sprite)
+      dots.push({
+        sprite,
+        threshold: rng(),
+        phase: rng() * Math.PI * 2,
+        zoneIdx: building.zoneIdx,
+        floors: building.floors,
+      })
+    }
+  }
+
+  return dots
+}
+
+function buildGlow(container: Container, ox: number, oy: number, zones: ZoneDisplay[]) {
+  container.removeChildren()
+
+  for (let i = 0; i < CITY_ZONES.length; i++) {
+    const zone = CITY_ZONES[i]
+    const display = zones[i]
+    if (!display) continue
+
+    const heightDamp = 1 / (1 + (AVG_FLOORS[zone.type] ?? 1) * 0.04)
+    const intensity = display.litFraction ** 1.3 * (display.trust / 100) * 0.5 * heightDamp
+    if (intensity < 0.05) continue
+
+    const ac = (zone.aMin + zone.aMax) / 2
+    const bc = (zone.bMin + zone.bMax) / 2
+    const { x: cx, y: cy } = isoToScreen(ac, bc, ox, oy)
+    const aSpan = (zone.aMax - zone.aMin) * 2
+    const radius = Math.max(10, aSpan * (GLOW_R_MULT[zone.type] ?? 1.0))
+    const glow = new Graphics()
+
+    drawZoneGlow(glow, cx, cy, radius, display.color, intensity)
+    container.addChild(glow)
+  }
+}
+
+function buildDarkness(g: Graphics, ox: number, oy: number, state: MapState) {
+  g.clear()
+
+  for (let i = 0; i < CITY_ZONES.length; i++) {
+    const zone = CITY_ZONES[i]
+    const infra = state.zones[i]?.infrastructure ?? 50
+    const alpha = faceDarknessAlpha(infra, zone.type)
+    if (alpha < 0.02) continue
+
+    const corners = [
+      isoToScreen(zone.aMin, zone.bMin, ox, oy),
+      isoToScreen(zone.aMin, zone.bMax, ox, oy),
+      isoToScreen(zone.aMax, zone.bMax, ox, oy),
+      isoToScreen(zone.aMax, zone.bMin, ox, oy),
+    ]
+    g.poly(corners.flatMap((point) => [point.x, point.y])).fill({ color: 0x000000, alpha })
+  }
+}
+
+function syncZoneDisplays(
+  state: MapState,
+  runtime: LightsLayerRuntime,
+): { infraChanged: boolean; glowChanged: boolean } {
+  let infraChanged = false
+  let glowChanged = false
+
+  if (state.lens !== runtime.prevLens) {
+    runtime.prevLens = state.lens
+    glowChanged = true
+  }
+
+  runtime.zones.length = state.zones.length
+
+  for (let i = 0; i < state.zones.length; i++) {
+    const zone = state.zones[i]
+    const previous = runtime.zones[i]
+    const next = createZoneDisplay(zone, state.lens)
+
+    if (!previous) {
+      runtime.zones[i] = next
+      infraChanged = true
+      glowChanged = true
+      continue
+    }
+
+    if (Math.abs(zone.infrastructure - previous.infrastructure) > 0.5) infraChanged = true
+    if (Math.abs(zone.trust - previous.trust) > 0.5) glowChanged = true
+    if (Math.abs(zone.security - previous.security) > 0.5) glowChanged = true
+    if (Math.abs(zone.youthTension - previous.youthTension) > 0.5) glowChanged = true
+
+    runtime.zones[i] = next
+  }
+
+  return { infraChanged, glowChanged }
+}
+
+function updateLightSprites(sprites: WindowDot[], state: MapState, t: number) {
+  for (const dot of sprites) {
+    const zone = state.zones[dot.zoneIdx]
+    if (!zone) {
+      if (dot.sprite.alpha !== 0) dot.sprite.alpha = 0
+      continue
+    }
+
+    if (litFrac(zone.infrastructure) < dot.threshold) {
+      if (dot.sprite.alpha !== 0) dot.sprite.alpha = 0
+      continue
+    }
+
+    const heightFactor = clamp(dot.floors / MAX_WINDOW_HEIGHT, 0, 1)
+    const baseAlpha = lerp(0.62, 0.42, heightFactor)
+
+    dot.sprite.tint = getColorForLens(zone, state.lens)
+    dot.sprite.alpha = windowAlpha(t, dot.phase, zone.security, zone.crisisState, baseAlpha)
+  }
+}
+
+function updateLightReflection(g: Graphics, state: MapState, ox: number, oy: number, t: number) {
+  drawReflection(g, state, ox, oy, t)
+}
+
+function updateLightLayer(state: MapState, dt: number, runtime: LightsLayerRuntime) {
+  runtime.t += dt / 1000
+
+  const { infraChanged, glowChanged } = syncZoneDisplays(state, runtime)
+
+  if (infraChanged) buildDarkness(runtime.darknessG, runtime.ox, runtime.oy, state)
+  if (infraChanged || glowChanged)
+    buildGlow(runtime.glowContainer, runtime.ox, runtime.oy, runtime.zones)
+
+  updateLightSprites(runtime.dots, state, runtime.t)
+  updateLightReflection(runtime.reflectG, state, runtime.ox, runtime.oy, runtime.t)
+}
+
 // ── Main factory ──────────────────────────────────────────────────────────────
 
 export function createLightsLayer(): MapLayer {
@@ -312,179 +512,38 @@ export function createLightsLayer(): MapLayer {
   container.addChild(reflectG)
   container.addChild(windowContainer)
 
-  let _ox = 0,
-    _oy = 0,
-    _t = 0
-  let _prevLens: MapLens = 'approval'
-  const _zones: ZoneDisplay[] = []
-  const _dots: WindowDot[] = []
-
-  // ── Build helpers ──────────────────────────────────────────────────────────
-
-  function buildZoneDisplays(state: MapState) {
-    _zones.length = 0
-    for (const z of state.zones) {
-      _zones.push({
-        litFraction: litFrac(z.infrastructure),
-        color: getColorForLens(z, state.lens),
-        security: z.security,
-        youthTension: z.youthTension,
-        crisisState: z.crisisState,
-        infrastructure: z.infrastructure,
-        trust: z.trust,
-      })
-    }
+  const runtime: LightsLayerRuntime = {
+    ox: 0,
+    oy: 0,
+    t: 0,
+    prevLens: 'approval',
+    zones: [],
+    dots: [],
+    darknessG,
+    glowContainer,
+    reflectG,
   }
-
-  function buildWindows() {
-    windowContainer.removeChildren()
-    _dots.length = 0
-    const buildings = generateBuildings()
-    const tex = Texture.WHITE
-
-    for (const bld of buildings) {
-      const wpts = windowsForBuilding(bld.a, bld.b, bld.floors, bld.fp, _ox, _oy)
-      const rng = mulberry32(bld.a * 997 + bld.b * 31 + 7)
-
-      for (const { x, y } of wpts) {
-        const threshold = rng()
-        const phase = rng() * Math.PI * 2
-
-        const sp = new Sprite(tex)
-        sp.width = 2
-        sp.height = 1
-        sp.anchor.set(0.5, 0.5)
-        sp.x = x
-        sp.y = y
-        sp.alpha = 0
-
-        windowContainer.addChild(sp)
-        _dots.push({ sprite: sp, phase, threshold, zoneIdx: bld.zoneIdx, floors: bld.floors })
-      }
-    }
-  }
-
-  function buildGlow(state: MapState) {
-    glowContainer.removeChildren()
-    for (let zi = 0; zi < CITY_ZONES.length; zi++) {
-      const zone = CITY_ZONES[zi]
-      const zd = _zones[zi]
-      if (!zd) continue
-
-      const trust = state.zones[zi]?.trust ?? 50
-      const heightDamp = 1 / (1 + (AVG_FLOORS[zone.type] ?? 1) * 0.04)
-      const gIntensity = zd.litFraction ** 1.3 * (trust / 100) * 0.5 * heightDamp
-      if (gIntensity < 0.05) continue
-
-      const ac = (zone.aMin + zone.aMax) / 2
-      const bc = (zone.bMin + zone.bMax) / 2
-      const { x: cx, y: cy } = isoToScreen(ac, bc, _ox, _oy)
-
-      const aSpan = (zone.aMax - zone.aMin) * 2
-      const radius = Math.max(10, aSpan * (GLOW_R_MULT[zone.type] ?? 1.0))
-
-      const gg = new Graphics()
-      drawZoneGlow(gg, cx, cy, radius, zd.color, gIntensity)
-      glowContainer.addChild(gg)
-    }
-  }
-
-  function buildDarkness(state: MapState) {
-    darknessG.clear()
-    for (let zi = 0; zi < CITY_ZONES.length; zi++) {
-      const zone = CITY_ZONES[zi]
-      const infra = state.zones[zi]?.infrastructure ?? 50
-      const alpha = faceDarknessAlpha(infra, zone.type)
-      if (alpha < 0.02) continue
-
-      const corners = [
-        isoToScreen(zone.aMin, zone.bMin, _ox, _oy),
-        isoToScreen(zone.aMin, zone.bMax, _ox, _oy),
-        isoToScreen(zone.aMax, zone.bMax, _ox, _oy),
-        isoToScreen(zone.aMax, zone.bMin, _ox, _oy),
-      ]
-      darknessG.poly(corners.flatMap((p) => [p.x, p.y])).fill({ color: 0x000000, alpha })
-    }
-  }
-
-  // ── MapLayer interface ─────────────────────────────────────────────────────
 
   return {
     container,
 
     init(state: MapState, w: number, h: number) {
-      _ox = w / 2 - 10
-      _oy = (h - 324) / 2 + 4
-
-      buildZoneDisplays(state)
-      buildWindows()
-      buildGlow(state)
-      buildDarkness(state)
+      runtime.ox = w / 2 - 10
+      runtime.oy = (h - 324) / 2 + 4
+      runtime.zones = buildZoneDisplays(state)
+      runtime.dots = buildLightSprites(windowContainer, runtime.ox, runtime.oy, state)
+      buildGlow(glowContainer, runtime.ox, runtime.oy, runtime.zones)
+      buildDarkness(darknessG, runtime.ox, runtime.oy, state)
     },
 
     update(state: MapState, dt: number) {
-      _t += dt / 1000
-
-      // Detect if we need to rebuild static layers
-      let infraChanged = false
-      let trustChanged = false
-
-      // Lens change triggers full color + glow rebuild
-      if (state.lens !== _prevLens) {
-        _prevLens = state.lens
-        trustChanged = true
-      }
-
-      for (let i = 0; i < state.zones.length; i++) {
-        const z = state.zones[i]
-        const zd = _zones[i]
-        if (!zd) continue
-
-        const newLit = litFrac(z.infrastructure)
-        const newColor = getColorForLens(z, state.lens)
-
-        if (Math.abs(z.infrastructure - zd.infrastructure) > 0.5) infraChanged = true
-        if (Math.abs(z.trust - zd.trust) > 0.5) trustChanged = true
-        if (Math.abs(z.security - zd.security) > 0.5) trustChanged = true
-        if (Math.abs(z.youthTension - zd.youthTension) > 0.5) trustChanged = true
-
-        zd.litFraction = newLit
-        zd.color = newColor
-        zd.security = z.security
-        zd.youthTension = z.youthTension
-        zd.crisisState = z.crisisState
-        zd.infrastructure = z.infrastructure
-        zd.trust = z.trust
-      }
-
-      if (infraChanged) buildDarkness(state)
-      if (infraChanged || trustChanged) buildGlow(state)
-
-      // Per-frame window updates (tint + flicker alpha)
-      // Height-aware base: short houses keep near-full brightness; tall towers tamed.
-      // MAX_HEIGHT=10 matches floorRange 'towers' upper bound in buildings.ts.
-      const MAX_HEIGHT = 10
-      for (const dot of _dots) {
-        const zd = _zones[dot.zoneIdx]
-        if (!zd) continue
-        if (zd.litFraction < dot.threshold) {
-          if (dot.sprite.alpha !== 0) dot.sprite.alpha = 0
-        } else {
-          const heightFactor = clamp(dot.floors / MAX_HEIGHT, 0, 1)
-          const baseAlpha = lerp(0.62, 0.42, heightFactor)
-          dot.sprite.tint = zd.color
-          dot.sprite.alpha = windowAlpha(_t, dot.phase, zd.security, zd.crisisState, baseAlpha)
-        }
-      }
-
-      // Water reflection (redrawn every frame for shimmer)
-      drawReflection(reflectG, state, _ox, _oy, _t)
+      updateLightLayer(state, dt, runtime)
     },
 
     destroy() {
       container.destroy({ children: true })
-      _dots.length = 0
-      _zones.length = 0
+      runtime.dots.length = 0
+      runtime.zones.length = 0
     },
   }
 }

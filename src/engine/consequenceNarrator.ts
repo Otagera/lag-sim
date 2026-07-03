@@ -36,6 +36,18 @@ const THRESHOLD: Record<string, number> = {
   cashReserve: 0.5,
 }
 
+const DIRECT_FAMILY_MAP: Record<string, { gain: string; loss: string }> = {
+  partyGodfathers: { gain: 'godfather-rise', loss: 'godfather-drop' },
+  federalGovt: { gain: 'federal-gain', loss: 'federal-drop' },
+  civilSocietyMedia: { gain: 'civil-gain', loss: 'civil-drop' },
+  youthTension: { gain: 'youth-up', loss: 'youth-down' },
+  securityIndex: { gain: 'security-win', loss: 'security-loss' },
+  infrastructureScore: { gain: 'infra-gain', loss: 'infra-loss' },
+  businessCommunity: { gain: 'business-gain', loss: 'business-loss' },
+  informalEconomy: { gain: 'informal-gain', loss: 'informal-loss' },
+  lgChairmen: { gain: 'lg-gain', loss: 'lg-loss' },
+}
+
 function minDelta(key: string): number {
   return THRESHOLD[key] ?? 2
 }
@@ -408,60 +420,25 @@ function changeToFamily(
     if (tier < 50) return 'hollow-win' // don't override partyGodfathers/federal/trust
   }
 
-  switch (key) {
-    case 'partyGodfathers':
-      return dir === 'gain' ? 'godfather-rise' : 'godfather-drop'
-
-    case 'federalGovt':
-      return dir === 'gain' ? 'federal-gain' : 'federal-drop'
-
-    case 'publicTrust': {
-      if (dir === 'loss') return 'trust-drop'
-      const w = worstLGA(nextState)
-      if (w.approval < 35) return 'trust-gain-crisis'
-      return 'trust-gain'
-    }
-
-    case 'civilSocietyMedia':
-      return dir === 'gain' ? 'civil-gain' : 'civil-drop'
-
-    case 'corruptionPressure':
-      return 'corruption-up'
-
-    case 'youthTension':
-      return dir === 'gain' ? 'youth-up' : 'youth-down'
-
-    case 'securityIndex':
-      return dir === 'gain' ? 'security-win' : 'security-loss'
-
-    case 'cashReserve':
-      // Check for hollow-win again (direct cash gain while insolvent)
-      if (dir === 'gain' && nextState.stats.cashReserve < 0) return 'hollow-win'
-      // Large clean spend (corruption not rising) → clean-but-costly
-      if (
-        dir === 'loss' &&
-        Math.abs(delta) >= 2 &&
-        (choice.immediate.corruptionPressure ?? 0) <= 0
-      ) {
-        return 'clean-but-costly'
-      }
-      return dir === 'gain' ? 'cash-gain' : 'cash-drop'
-
-    case 'infrastructureScore':
-      return dir === 'gain' ? 'infra-gain' : 'infra-loss'
-
-    case 'businessCommunity':
-      return dir === 'gain' ? 'business-gain' : 'business-loss'
-
-    case 'informalEconomy':
-      return dir === 'gain' ? 'informal-gain' : 'informal-loss'
-
-    case 'lgChairmen':
-      return dir === 'gain' ? 'lg-gain' : 'lg-loss'
-
-    default:
-      return 'neutral'
+  if (key === 'publicTrust') {
+    if (dir === 'loss') return 'trust-drop'
+    return worstLGA(nextState).approval < 35 ? 'trust-gain-crisis' : 'trust-gain'
   }
+
+  if (key === 'corruptionPressure') return 'corruption-up'
+
+  if (key === 'cashReserve') {
+    // Check for hollow-win again (direct cash gain while insolvent)
+    if (dir === 'gain' && nextState.stats.cashReserve < 0) return 'hollow-win'
+    // Large clean spend (corruption not rising) → clean-but-costly
+    if (dir === 'loss' && Math.abs(delta) >= 2 && (choice.immediate.corruptionPressure ?? 0) <= 0) {
+      return 'clean-but-costly'
+    }
+    return dir === 'gain' ? 'cash-gain' : 'cash-drop'
+  }
+
+  const directFamily = DIRECT_FAMILY_MAP[key]
+  return directFamily ? directFamily[dir] : 'neutral'
 }
 
 // ── Placeholder filler ───────────────────────────────────────

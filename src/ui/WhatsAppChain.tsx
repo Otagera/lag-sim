@@ -102,20 +102,222 @@ function ForwardBubble({
   )
 }
 
-export function WhatsAppChain({ article }: { article: NewsArticle }) {
-  const clearNewspaperHeadline = useGameStore((s) => s.clearNewspaperHeadline)
-  const meta = article.channelMeta
-
-  const forwardCount = meta?.forwardCount ?? 18
-  const isRumor = meta?.isRumor ?? false
-
+export function buildWhatsAppReactions(article: NewsArticle): {
+  messageText: string
+  reactions: string[][]
+} {
+  const forwardCount = article.channelMeta?.forwardCount ?? 18
   const messageText = article.deck.length > 130 ? `${article.deck.slice(0, 130)}…` : article.deck
-
-  // Pick reactions for this category, offset by headline hash for variety
   const pool = REACTIONS[article.category] ?? DEFAULT_REACTIONS
   const offset = hashInt(article.headline.slice(0, 8)) % pool.length
   const visibleCount = Math.min(3, Math.ceil(forwardCount / 12) + 1)
   const reactions = Array.from({ length: visibleCount }, (_, i) => pool[(offset + i) % pool.length])
+
+  return { messageText, reactions }
+}
+
+function BackdropButton({ onClose }: { onClose: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label="Close WhatsApp chain"
+      onClick={onClose}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        cursor: 'pointer',
+        border: 'none',
+        padding: 0,
+        background: 'transparent',
+      }}
+    />
+  )
+}
+
+function WhatsAppHeader({ forwardCount }: { forwardCount: number }) {
+  return (
+    <div
+      style={{
+        background: '#075E54',
+        padding: '10px 14px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+      }}
+    >
+      <div
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: '50%',
+          background: 'rgba(255,255,255,0.18)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 16,
+        }}
+      >
+        📲
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>Lagos Alert</div>
+        <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11 }}>
+          Forwarded {forwardCount}+ times
+        </div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="rgba(255,255,255,0.45)">
+        <title>Profile</title>
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+      </svg>
+    </div>
+  )
+}
+
+function ForwardedWarning() {
+  return (
+    <div
+      style={{
+        background: '#fdf6e3',
+        padding: '5px 14px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 5,
+        borderBottom: '1px solid #e0d5c0',
+      }}
+    >
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="#8b7355">
+        <title>Forward</title>
+        <path d="M14.5 4l-1.41 1.41 4.58 4.59H3v2h14.67l-4.58 4.59L14.5 20l8-8-8-8z" />
+      </svg>
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="#8b7355" style={{ marginLeft: -7 }}>
+        <title>Forward</title>
+        <path d="M14.5 4l-1.41 1.41 4.58 4.59H3v2h14.67l-4.58 4.59L14.5 20l8-8-8-8z" />
+      </svg>
+      <span style={{ fontSize: 11, color: '#6b5940', fontStyle: 'italic' }}>
+        Forwarded many times
+      </span>
+    </div>
+  )
+}
+
+function IncomingMessage({ article, messageText }: { article: NewsArticle; messageText: string }) {
+  const isRumor = article.channelMeta?.isRumor ?? false
+
+  return (
+    <div style={{ display: 'flex', marginBottom: 8 }}>
+      <div
+        style={{
+          maxWidth: '82%',
+          background: '#fff',
+          borderRadius: '0 10px 10px 10px',
+          padding: '6px 10px 4px',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+        }}
+      >
+        {isRumor && (
+          <div style={{ color: '#e53935', fontSize: 10, fontWeight: 700, marginBottom: 3 }}>
+            ⚠ UNVERIFIED
+          </div>
+        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 3 }}>
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="rgba(0,0,0,0.28)">
+            <title>Forward</title>
+            <path d="M14.5 4l-1.41 1.41 4.58 4.59H3v2h14.67l-4.58 4.59L14.5 20l8-8-8-8z" />
+          </svg>
+          <span style={{ color: 'rgba(0,0,0,0.28)', fontSize: 10, fontStyle: 'italic' }}>
+            Forwarded
+          </span>
+        </div>
+        <p
+          style={{
+            color: '#1a1a1a',
+            fontSize: 13,
+            lineHeight: 1.4,
+            margin: 0,
+            fontWeight: 600,
+          }}
+        >
+          {article.headline}
+        </p>
+        <p style={{ color: '#444', fontSize: 12, lineHeight: 1.4, margin: '4px 0 0' }}>
+          {messageText}
+        </p>
+        <div style={{ textAlign: 'right', marginTop: 3, fontSize: 10, color: '#999' }}>
+          12:39 PM
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DataPointStrip({
+  dataPoint,
+}: {
+  dataPoint: NewsArticle['dataPoints'][number] | undefined
+}) {
+  if (!dataPoint) return null
+
+  return (
+    <div
+      style={{
+        background: '#dcf8c6',
+        padding: '7px 14px',
+        borderTop: '1px solid rgba(0,0,0,0.08)',
+        fontSize: 12,
+        color: '#1a3a1a',
+      }}
+    >
+      <strong>{dataPoint.label}:</strong> {dataPoint.value}
+      {dataPoint.delta && (
+        <span
+          style={{
+            marginLeft: 6,
+            color: dataPoint.positive ? '#2e7d32' : '#c62828',
+            fontWeight: 600,
+          }}
+        >
+          ({dataPoint.delta})
+        </span>
+      )}
+    </div>
+  )
+}
+
+function WhatsAppCTA({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      style={{
+        background: '#075E54',
+        padding: '10px 14px',
+        display: 'flex',
+        justifyContent: 'flex-end',
+      }}
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        style={{
+          background: '#25d366',
+          color: '#000',
+          border: 'none',
+          borderRadius: 6,
+          padding: '8px 18px',
+          fontSize: 13,
+          fontWeight: 700,
+          cursor: 'pointer',
+        }}
+      >
+        Continue Governing &rarr;
+      </button>
+    </div>
+  )
+}
+
+export function WhatsAppChain({ article }: { article: NewsArticle }) {
+  const clearNewspaperHeadline = useGameStore((s) => s.clearNewspaperHeadline)
+  const forwardCount = article.channelMeta?.forwardCount ?? 18
+  const { messageText, reactions } = buildWhatsAppReactions(article)
+  const dataPoint = article.dataPoints[0]
 
   return (
     <div
@@ -130,19 +332,7 @@ export function WhatsAppChain({ article }: { article: NewsArticle }) {
         backdropFilter: 'blur(3px)',
       }}
     >
-      <button
-        type="button"
-        aria-label="Close WhatsApp chain"
-        onClick={clearNewspaperHeadline}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          cursor: 'pointer',
-          border: 'none',
-          padding: 0,
-          background: 'transparent',
-        }}
-      />
+      <BackdropButton onClose={clearNewspaperHeadline} />
       <div
         style={{
           position: 'relative',
@@ -154,68 +344,8 @@ export function WhatsAppChain({ article }: { article: NewsArticle }) {
           boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
         }}
       >
-        {/* Header bar */}
-        <div
-          style={{
-            background: '#075E54',
-            padding: '10px 14px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: '50%',
-              background: 'rgba(255,255,255,0.18)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 16,
-            }}
-          >
-            📲
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>Lagos Alert</div>
-            <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11 }}>
-              Forwarded {forwardCount}+ times
-            </div>
-          </div>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="rgba(255,255,255,0.45)">
-            <title>Profile</title>
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
-          </svg>
-        </div>
-
-        {/* "Many times forwarded" warning */}
-        <div
-          style={{
-            background: '#fdf6e3',
-            padding: '5px 14px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 5,
-            borderBottom: '1px solid #e0d5c0',
-          }}
-        >
-          {/* Double forward arrows */}
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="#8b7355">
-            <title>Forward</title>
-            <path d="M14.5 4l-1.41 1.41 4.58 4.59H3v2h14.67l-4.58 4.59L14.5 20l8-8-8-8z" />
-          </svg>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="#8b7355" style={{ marginLeft: -7 }}>
-            <title>Forward</title>
-            <path d="M14.5 4l-1.41 1.41 4.58 4.59H3v2h14.67l-4.58 4.59L14.5 20l8-8-8-8z" />
-          </svg>
-          <span style={{ fontSize: 11, color: '#6b5940', fontStyle: 'italic' }}>
-            Forwarded many times
-          </span>
-        </div>
-
-        {/* Chat window */}
+        <WhatsAppHeader forwardCount={forwardCount} />
+        <ForwardedWarning />
         <div
           style={{
             background: '#e5ddd5',
@@ -223,53 +353,7 @@ export function WhatsAppChain({ article }: { article: NewsArticle }) {
             minHeight: 180,
           }}
         >
-          {/* Incoming original message */}
-          <div style={{ display: 'flex', marginBottom: 8 }}>
-            <div
-              style={{
-                maxWidth: '82%',
-                background: '#fff',
-                borderRadius: '0 10px 10px 10px',
-                padding: '6px 10px 4px',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-              }}
-            >
-              {isRumor && (
-                <div style={{ color: '#e53935', fontSize: 10, fontWeight: 700, marginBottom: 3 }}>
-                  ⚠ UNVERIFIED
-                </div>
-              )}
-              {/* Forwarded label on incoming too */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 3 }}>
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="rgba(0,0,0,0.28)">
-                  <title>Forward</title>
-                  <path d="M14.5 4l-1.41 1.41 4.58 4.59H3v2h14.67l-4.58 4.59L14.5 20l8-8-8-8z" />
-                </svg>
-                <span style={{ color: 'rgba(0,0,0,0.28)', fontSize: 10, fontStyle: 'italic' }}>
-                  Forwarded
-                </span>
-              </div>
-              <p
-                style={{
-                  color: '#1a1a1a',
-                  fontSize: 13,
-                  lineHeight: 1.4,
-                  margin: 0,
-                  fontWeight: 600,
-                }}
-              >
-                {article.headline}
-              </p>
-              <p style={{ color: '#444', fontSize: 12, lineHeight: 1.4, margin: '4px 0 0' }}>
-                {messageText}
-              </p>
-              <div style={{ textAlign: 'right', marginTop: 3, fontSize: 10, color: '#999' }}>
-                12:39 PM
-              </div>
-            </div>
-          </div>
-
-          {/* Forwarded reactions chain */}
+          <IncomingMessage article={article} messageText={messageText} />
           {reactions.map(([sender, time, message], i) => (
             <ForwardBubble
               key={`${sender}-${time}-${message.slice(0, 12)}`}
@@ -280,59 +364,8 @@ export function WhatsAppChain({ article }: { article: NewsArticle }) {
             />
           ))}
         </div>
-
-        {/* Data point strip */}
-        {article.dataPoints.length > 0 && (
-          <div
-            style={{
-              background: '#dcf8c6',
-              padding: '7px 14px',
-              borderTop: '1px solid rgba(0,0,0,0.08)',
-              fontSize: 12,
-              color: '#1a3a1a',
-            }}
-          >
-            <strong>{article.dataPoints[0].label}:</strong> {article.dataPoints[0].value}
-            {article.dataPoints[0].delta && (
-              <span
-                style={{
-                  marginLeft: 6,
-                  color: article.dataPoints[0].positive ? '#2e7d32' : '#c62828',
-                  fontWeight: 600,
-                }}
-              >
-                ({article.dataPoints[0].delta})
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* CTA */}
-        <div
-          style={{
-            background: '#075E54',
-            padding: '10px 14px',
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <button
-            type="button"
-            onClick={clearNewspaperHeadline}
-            style={{
-              background: '#25d366',
-              color: '#000',
-              border: 'none',
-              borderRadius: 6,
-              padding: '8px 18px',
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
-          >
-            Continue Governing &rarr;
-          </button>
-        </div>
+        <DataPointStrip dataPoint={dataPoint} />
+        <WhatsAppCTA onClose={clearNewspaperHeadline} />
       </div>
     </div>
   )

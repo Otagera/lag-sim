@@ -4,6 +4,7 @@ import { ARCHETYPES } from '../data/archetypes'
 import { ALL_GOALS } from '../data/goals'
 import { FACTION_ICONS, STAT_ICONS } from '../data/icons'
 import { useGameStore } from '../state/gameStore'
+import type { GameState } from '../state/types'
 
 const ARCHETYPE_COS_NOTE: Record<ArchetypeKey, string> = {
   technocrat:
@@ -105,18 +106,63 @@ type Props = {
   archetypeKey: ArchetypeKey
 }
 
+type HandoverStats = GameState['stats']
+type HandoverFactions = GameState['factions']
+type Archetype = (typeof ARCHETYPES)[ArchetypeKey]
+type StateIssue = { label: string; detail: string; severity: 'critical' | 'elevated' }
+type FiscalPositionProps = {
+  stats: HandoverStats
+  net: number
+  insolventWeeks: number | null
+}
+
 export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
   const stats = useGameStore((s) => s.stats)
   const factions = useGameStore((s) => s.factions)
 
   const archetype = ARCHETYPES[archetypeKey]
+  const net = stats.igr - stats.expenditure
+  const insolventWeeks =
+    net < 0 ? Math.floor(stats.cashReserve / Math.max(0.1, Math.abs(net))) : null
+  const stateIssues = buildStateIssues(stats, factions)
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 50,
+        background: 'var(--background)',
+        overflowY: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <div
+        style={{ maxWidth: '680px', width: '100%', margin: '0 auto', padding: '32px 24px 80px' }}
+      >
+        <HandoverHeader archetype={archetype} />
+        <CosOpening archetypeKey={archetypeKey} />
+        <CriticalIssues issues={stateIssues} />
+        <FiscalPosition stats={stats} net={net} insolventWeeks={insolventWeeks} />
+        <PoliticalLandscape factions={factions} />
+        <GoalsPreview />
+        <HandoverFooter onClose={onClose} />
+      </div>
+    </div>
+  )
+}
+
+// ─── local helpers ────────────────────────────────────────────────────────────
+
+function buildStateIssues(stats: HandoverStats, factions: HandoverFactions): StateIssue[] {
   const weeklyFloor = 30.1
   const revenueGap = weeklyFloor - stats.igr
   const net = stats.igr - stats.expenditure
   const insolventWeeks =
     net < 0 ? Math.floor(stats.cashReserve / Math.max(0.1, Math.abs(net))) : null
+  const stateIssues: StateIssue[] = []
 
-  const stateIssues: { label: string; detail: string; severity: 'critical' | 'elevated' }[] = []
   if (stats.cashReserve < 20)
     stateIssues.push({
       label: 'Treasury at risk',
@@ -160,293 +206,291 @@ export function HandoverNotesModal({ onClose, archetypeKey }: Props) {
       severity: 'critical',
     })
 
+  return stateIssues
+}
+
+function HandoverHeader({ archetype }: { archetype: Archetype }) {
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 50,
-        background: 'var(--background)',
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <div style={{ marginBottom: '32px' }}>
       <div
-        style={{ maxWidth: '680px', width: '100%', margin: '0 auto', padding: '32px 24px 80px' }}
+        className="label-caps"
+        style={{ color: 'var(--error-11)', letterSpacing: '0.12em', marginBottom: '12px' }}
       >
-        {/* ── Document header ─────────────────────────────────────────── */}
-        <div style={{ marginBottom: '32px' }}>
-          <div
-            className="label-caps"
-            style={{ color: 'var(--error-11)', letterSpacing: '0.12em', marginBottom: '12px' }}
-          >
-            Government of Lagos State · Restricted
-          </div>
-
-          {/* Signature rule */}
-          <div
-            style={{
-              height: '1px',
-              background:
-                'linear-gradient(to right, transparent, var(--accent-solid) 30%, transparent)',
-              marginBottom: '14px',
-            }}
-          />
-
-          <h1
-            className="font-display"
-            style={{
-              fontSize: '28px',
-              fontWeight: 600,
-              lineHeight: 1.2,
-              color: 'var(--text)',
-              margin: 0,
-            }}
-          >
-            Handover Notes
-          </h1>
-          <p
-            style={{
-              fontFamily: 'Georgia, serif',
-              fontSize: '15px',
-              color: 'var(--text-secondary)',
-              marginTop: '6px',
-              marginBottom: 0,
-            }}
-          >
-            Prepared for {archetype.name} · Chief of Staff, Government House Alausa
-          </p>
-        </div>
-
-        {/* ── COS opening ─────────────────────────────────────────────── */}
-        <div
-          style={{
-            borderLeft: '3px solid var(--accent-solid)',
-            paddingLeft: '16px',
-            marginBottom: '32px',
-          }}
-        >
-          <p
-            style={{
-              fontFamily: 'Georgia, serif',
-              fontSize: '15px',
-              lineHeight: 1.75,
-              color: 'var(--text)',
-              fontStyle: 'italic',
-              margin: 0,
-            }}
-          >
-            "{ARCHETYPE_COS_NOTE[archetypeKey]}"
-          </p>
-        </div>
-
-        {/* ── Critical issues ─────────────────────────────────────────── */}
-        {stateIssues.length > 0 && (
-          <section style={{ marginBottom: '32px' }}>
-            <SectionHeader label="Critical Issues" color="var(--error-11)" />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {stateIssues.map((issue) => (
-                <div
-                  key={issue.label}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'baseline',
-                    justifyContent: 'space-between',
-                    gap: '12px',
-                    padding: '9px 12px',
-                    background:
-                      issue.severity === 'critical' ? 'var(--error-3)' : 'var(--warning-3)',
-                    borderLeft: `3px solid ${issue.severity === 'critical' ? 'var(--error-9)' : 'var(--warning-9)'}`,
-                    borderRadius: '0 2px 2px 0',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: "'Archivo Narrow', sans-serif",
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      color:
-                        issue.severity === 'critical' ? 'var(--error-11)' : 'var(--warning-11)',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {issue.label}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: 'Georgia, serif',
-                      fontSize: '12px',
-                      color:
-                        issue.severity === 'critical' ? 'var(--error-11)' : 'var(--warning-11)',
-                      textAlign: 'right',
-                    }}
-                  >
-                    {issue.detail}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ── Fiscal position ─────────────────────────────────────────── */}
-        <section style={{ marginBottom: '32px' }}>
-          <SectionHeader label="Fiscal Position" color="var(--accent-text)" />
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1fr',
-              gap: '8px',
-              marginBottom: '12px',
-            }}
-          >
-            <FiscalStat
-              label="Cash Reserve"
-              value={`₦${stats.cashReserve.toFixed(1)}bn`}
-              color={stats.cashReserve < 20 ? 'var(--error-11)' : 'var(--text)'}
-              icon={STAT_ICONS.cashReserve.icon}
-            />
-            <FiscalStat
-              label="Weekly Revenue"
-              value={`₦${stats.igr.toFixed(1)}bn`}
-              color="var(--success-11)"
-              icon={STAT_ICONS.igr.icon}
-            />
-            <FiscalStat
-              label="Weekly Outgoings"
-              value={`₦${stats.expenditure.toFixed(1)}bn`}
-              color={net < 0 ? 'var(--error-11)' : 'var(--text)'}
-              icon={STAT_ICONS.expenditure.icon}
-            />
-          </div>
-          <div
-            style={{
-              padding: '10px 12px',
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-              borderRadius: '2px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'baseline',
-            }}
-          >
-            <span
-              style={{
-                fontFamily: "'Archivo Narrow', sans-serif",
-                fontSize: '12px',
-                color: 'var(--text-secondary)',
-              }}
-            >
-              Net weekly position
-            </span>
-            <span
-              style={{
-                fontFamily: "'Archivo Narrow', sans-serif",
-                fontSize: '15px',
-                fontWeight: 600,
-                color: net >= 0 ? 'var(--success-11)' : 'var(--error-11)',
-                fontVariantNumeric: 'tabular-nums',
-              }}
-            >
-              {net >= 0 ? `+₦${net.toFixed(1)}bn` : `−₦${Math.abs(net).toFixed(1)}bn`}
-              {insolventWeeks != null && (
-                <span
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 400,
-                    marginLeft: '8px',
-                    color: 'var(--error-9)',
-                  }}
-                >
-                  (~{insolventWeeks}w runway)
-                </span>
-              )}
-            </span>
-          </div>
-        </section>
-
-        {/* ── Political landscape ─────────────────────────────────────── */}
-        <section style={{ marginBottom: '32px' }}>
-          <SectionHeader label="Political Landscape" color="var(--warning-11)" />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {Object.entries(factions).map(([key, val]) => (
-              <FactionBar
-                key={key}
-                label={FACTION_LABELS[key] ?? key}
-                value={val as number}
-                factionKey={key}
-              />
-            ))}
-          </div>
-        </section>
-
-        {/* ── Goals preview ───────────────────────────────────────────── */}
-        <section style={{ marginBottom: '40px' }}>
-          <SectionHeader label="What You Could Fight For" color="var(--success-11)" />
-          <p
-            style={{
-              fontFamily: 'Georgia, serif',
-              fontSize: '14px',
-              lineHeight: 1.7,
-              color: 'var(--text-secondary)',
-              marginBottom: '14px',
-            }}
-          >
-            Some governors define their term by a single mission. You can choose one on the next
-            screen — or govern without a fixed goal.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-            {ALL_GOALS.map((g) => (
-              <span
-                key={g.id}
-                style={{
-                  fontFamily: "'Archivo Narrow', sans-serif",
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  padding: '5px 10px',
-                  background: 'var(--surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '2px',
-                  color: 'var(--text-secondary)',
-                }}
-              >
-                {g.title}
-              </span>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Footer action ───────────────────────────────────────────── */}
-        <div
-          style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'stretch' }}
-        >
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              width: '100%',
-              padding: '14px 24px',
-              background: 'var(--accent-solid)',
-              color: 'var(--accent-on-solid)',
-              border: 'none',
-              borderRadius: '2px',
-              fontFamily: "'Archivo Narrow', sans-serif",
-              fontSize: '15px',
-              fontWeight: 600,
-              letterSpacing: '0.03em',
-              cursor: 'pointer',
-            }}
-          >
-            Choose Your Mission →
-          </button>
-        </div>
+        Government of Lagos State · Restricted
       </div>
+
+      {/* Signature rule */}
+      <div
+        style={{
+          height: '1px',
+          background:
+            'linear-gradient(to right, transparent, var(--accent-solid) 30%, transparent)',
+          marginBottom: '14px',
+        }}
+      />
+
+      <h1
+        className="font-display"
+        style={{
+          fontSize: '28px',
+          fontWeight: 600,
+          lineHeight: 1.2,
+          color: 'var(--text)',
+          margin: 0,
+        }}
+      >
+        Handover Notes
+      </h1>
+      <p
+        style={{
+          fontFamily: 'Georgia, serif',
+          fontSize: '15px',
+          color: 'var(--text-secondary)',
+          marginTop: '6px',
+          marginBottom: 0,
+        }}
+      >
+        Prepared for {archetype.name} · Chief of Staff, Government House Alausa
+      </p>
     </div>
   )
 }
 
-// ─── local helpers ────────────────────────────────────────────────────────────
+function CosOpening({ archetypeKey }: { archetypeKey: ArchetypeKey }) {
+  return (
+    <div
+      style={{
+        borderLeft: '3px solid var(--accent-solid)',
+        paddingLeft: '16px',
+        marginBottom: '32px',
+      }}
+    >
+      <p
+        style={{
+          fontFamily: 'Georgia, serif',
+          fontSize: '15px',
+          lineHeight: 1.75,
+          color: 'var(--text)',
+          fontStyle: 'italic',
+          margin: 0,
+        }}
+      >
+        "{ARCHETYPE_COS_NOTE[archetypeKey]}"
+      </p>
+    </div>
+  )
+}
+
+function CriticalIssues({ issues }: { issues: StateIssue[] }) {
+  if (issues.length === 0) return null
+
+  return (
+    <section style={{ marginBottom: '32px' }}>
+      <SectionHeader label="Critical Issues" color="var(--error-11)" />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {issues.map((issue) => (
+          <div
+            key={issue.label}
+            style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
+              gap: '12px',
+              padding: '9px 12px',
+              background: issue.severity === 'critical' ? 'var(--error-3)' : 'var(--warning-3)',
+              borderLeft: `3px solid ${issue.severity === 'critical' ? 'var(--error-9)' : 'var(--warning-9)'}`,
+              borderRadius: '0 2px 2px 0',
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "'Archivo Narrow', sans-serif",
+                fontSize: '13px',
+                fontWeight: 600,
+                color: issue.severity === 'critical' ? 'var(--error-11)' : 'var(--warning-11)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {issue.label}
+            </span>
+            <span
+              style={{
+                fontFamily: 'Georgia, serif',
+                fontSize: '12px',
+                color: issue.severity === 'critical' ? 'var(--error-11)' : 'var(--warning-11)',
+                textAlign: 'right',
+              }}
+            >
+              {issue.detail}
+            </span>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function FiscalPosition({ stats, net, insolventWeeks }: FiscalPositionProps) {
+  return (
+    <section style={{ marginBottom: '32px' }}>
+      <SectionHeader label="Fiscal Position" color="var(--accent-text)" />
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr 1fr',
+          gap: '8px',
+          marginBottom: '12px',
+        }}
+      >
+        <FiscalStat
+          label="Cash Reserve"
+          value={`₦${stats.cashReserve.toFixed(1)}bn`}
+          color={stats.cashReserve < 20 ? 'var(--error-11)' : 'var(--text)'}
+          icon={STAT_ICONS.cashReserve.icon}
+        />
+        <FiscalStat
+          label="Weekly Revenue"
+          value={`₦${stats.igr.toFixed(1)}bn`}
+          color="var(--success-11)"
+          icon={STAT_ICONS.igr.icon}
+        />
+        <FiscalStat
+          label="Weekly Outgoings"
+          value={`₦${stats.expenditure.toFixed(1)}bn`}
+          color={net < 0 ? 'var(--error-11)' : 'var(--text)'}
+          icon={STAT_ICONS.expenditure.icon}
+        />
+      </div>
+      <div
+        style={{
+          padding: '10px 12px',
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: '2px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'baseline',
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "'Archivo Narrow', sans-serif",
+            fontSize: '12px',
+            color: 'var(--text-secondary)',
+          }}
+        >
+          Net weekly position
+        </span>
+        <span
+          style={{
+            fontFamily: "'Archivo Narrow', sans-serif",
+            fontSize: '15px',
+            fontWeight: 600,
+            color: net >= 0 ? 'var(--success-11)' : 'var(--error-11)',
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          {net >= 0 ? `+₦${net.toFixed(1)}bn` : `−₦${Math.abs(net).toFixed(1)}bn`}
+          {insolventWeeks != null && (
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 400,
+                marginLeft: '8px',
+                color: 'var(--error-9)',
+              }}
+            >
+              (~{insolventWeeks}w runway)
+            </span>
+          )}
+        </span>
+      </div>
+    </section>
+  )
+}
+
+function PoliticalLandscape({ factions }: { factions: HandoverFactions }) {
+  return (
+    <section style={{ marginBottom: '32px' }}>
+      <SectionHeader label="Political Landscape" color="var(--warning-11)" />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {Object.entries(factions).map(([key, val]) => (
+          <FactionBar
+            key={key}
+            label={FACTION_LABELS[key] ?? key}
+            value={val as number}
+            factionKey={key}
+          />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function GoalsPreview() {
+  return (
+    <section style={{ marginBottom: '40px' }}>
+      <SectionHeader label="What You Could Fight For" color="var(--success-11)" />
+      <p
+        style={{
+          fontFamily: 'Georgia, serif',
+          fontSize: '14px',
+          lineHeight: 1.7,
+          color: 'var(--text-secondary)',
+          marginBottom: '14px',
+        }}
+      >
+        Some governors define their term by a single mission. You can choose one on the next screen
+        — or govern without a fixed goal.
+      </p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+        {ALL_GOALS.map((g) => (
+          <span
+            key={g.id}
+            style={{
+              fontFamily: "'Archivo Narrow', sans-serif",
+              fontSize: '12px',
+              fontWeight: 600,
+              padding: '5px 10px',
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '2px',
+              color: 'var(--text-secondary)',
+            }}
+          >
+            {g.title}
+          </span>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function HandoverFooter({ onClose }: { onClose: () => void }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'stretch' }}>
+      <button
+        type="button"
+        onClick={onClose}
+        style={{
+          width: '100%',
+          padding: '14px 24px',
+          background: 'var(--accent-solid)',
+          color: 'var(--accent-on-solid)',
+          border: 'none',
+          borderRadius: '2px',
+          fontFamily: "'Archivo Narrow', sans-serif",
+          fontSize: '15px',
+          fontWeight: 600,
+          letterSpacing: '0.03em',
+          cursor: 'pointer',
+        }}
+      >
+        Choose Your Mission →
+      </button>
+    </div>
+  )
+}
 
 function SectionHeader({ label, color }: { label: string; color: string }) {
   return (

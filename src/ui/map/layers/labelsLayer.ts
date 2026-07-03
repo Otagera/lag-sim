@@ -24,7 +24,7 @@ const HOVER_STYLE = new TextStyle({
 })
 
 // 7 key LGAs always visible — these are the recognisable anchors
-const ALWAYS_VISIBLE: Set<string> = new Set([
+const LGA_LABELS: Set<string> = new Set([
   'Lagos Island',
   'Eti Osa',
   'Ibeju Lekki',
@@ -33,6 +33,60 @@ const ALWAYS_VISIBLE: Set<string> = new Set([
   'Surulere',
   'Apapa',
 ])
+
+function createLabelSprite(text: string, x: number, y: number, style: TextStyle): Text {
+  const label = new Text({ text, style })
+  label.anchor.set(0.5, 0)
+  label.x = x
+  label.y = y
+  return label
+}
+
+function buildLabelSprites(ox: number, oy: number): Text[] {
+  return getLGAGeometry().flatMap((lga) => {
+    if (!LGA_LABELS.has(lga.name)) return []
+    const { x, y } = isoToScreen(lga.centroid[0], lga.centroid[1], ox, oy)
+    const label = createLabelSprite(lga.name, x, y + 12, LABEL_STYLE)
+    label.alpha = 0.3
+    label.zIndex = 50
+    return [label]
+  })
+}
+
+function updateLabels(labels: Text[], _state: MapState) {
+  for (const label of labels) {
+    label.visible = true
+    label.alpha = 0.3
+  }
+}
+
+function buildHitTargets(
+  container: Container,
+  ox: number,
+  oy: number,
+  showLabel: (name: string, key: ConstituencyKey, x: number, y: number) => void,
+  hideLabel: () => void,
+) {
+  container.removeChildren()
+  for (const lga of getLGAGeometry()) {
+    const { x, y } = isoToScreen(lga.centroid[0], lga.centroid[1], ox, oy)
+    const hit = new Graphics()
+    hit.circle(x, y, 18).fill({ color: 0xffffff, alpha: 0 })
+    hit.eventMode = 'static'
+    hit.cursor = 'pointer'
+    hit.label = lga.name
+    hit.on('pointerover', () => showLabel(lga.name, lga.key, x, y))
+    hit.on('pointerout', hideLabel)
+    container.addChild(hit)
+  }
+}
+
+function destroyText(container: Container, label: Text | null) {
+  if (!label) return null
+  container.removeChild(label)
+  label.destroy()
+  return null
+}
 
 export function createLabelsLayer(): MapLayer {
   const container = new Container()
@@ -45,100 +99,48 @@ export function createLabelsLayer(): MapLayer {
 
   let _ox = 0,
     _oy = 0
+  let _labels: Text[] = []
   let _activeLabel: Text | null = null
   let _activeValue: Text | null = null
 
-  function buildAlwaysVisible() {
-    alwaysC.removeChildren()
-    const lgas = getLGAGeometry()
-    for (const lga of lgas) {
-      if (!ALWAYS_VISIBLE.has(lga.name)) continue
-      const { x, y } = isoToScreen(lga.centroid[0], lga.centroid[1], _ox, _oy)
-      const label = new Text({ text: lga.name, style: LABEL_STYLE })
-      label.anchor.set(0.5, 0)
-      label.x = x
-      label.y = y + 12
-      label.alpha = 0.3
-      label.zIndex = 50
-      alwaysC.addChild(label)
-    }
+  const hideLabel = () => {
+    _activeLabel = destroyText(hitC, _activeLabel)
+    _activeValue = destroyText(hitC, _activeValue)
   }
 
-  function buildHitTargets() {
-    hitC.removeChildren()
-    const lgas = getLGAGeometry()
-    for (const lga of lgas) {
-      const { x, y } = isoToScreen(lga.centroid[0], lga.centroid[1], _ox, _oy)
-
-      const hit = new Graphics()
-      hit.circle(x, y, 18).fill({ color: 0xffffff, alpha: 0 })
-      hit.eventMode = 'static'
-      hit.cursor = 'pointer'
-      hit.label = lga.name
-      const key = lga.key
-
-      hit.on('pointerover', () => {
-        showLabel(lga.name, key, x, y)
-      })
-      hit.on('pointerout', () => {
-        hideLabel()
-      })
-
-      hitC.addChild(hit)
-    }
-  }
-
-  function showLabel(name: string, key: ConstituencyKey, cx: number, cy: number) {
+  const showLabel = (name: string, key: ConstituencyKey, cx: number, cy: number) => {
     hideLabel()
-
     const store = useGameStore.getState()
     const approval = store.constituencyApproval[key] ?? 50
 
-    _activeLabel = new Text({ text: name, style: LABEL_STYLE })
-    _activeLabel.anchor.set(0.5, 0)
-    _activeLabel.x = cx
-    _activeLabel.y = cy - 14
+    _activeLabel = createLabelSprite(name, cx, cy - 14, LABEL_STYLE)
     _activeLabel.alpha = 0.65
     _activeLabel.zIndex = 100
     hitC.addChild(_activeLabel)
 
-    _activeValue = new Text({ text: `${approval}%`, style: HOVER_STYLE })
-    _activeValue.anchor.set(0.5, 0)
-    _activeValue.x = cx
-    _activeValue.y = cy - 2
+    _activeValue = createLabelSprite(`${approval}%`, cx, cy - 2, HOVER_STYLE)
     _activeValue.alpha = 0.55
     _activeValue.zIndex = 100
     hitC.addChild(_activeValue)
   }
 
-  function hideLabel() {
-    if (_activeLabel) {
-      hitC.removeChild(_activeLabel)
-      _activeLabel.destroy()
-      _activeLabel = null
-    }
-    if (_activeValue) {
-      hitC.removeChild(_activeValue)
-      _activeValue.destroy()
-      _activeValue = null
-    }
-  }
-
   return {
     container,
-
     init(_state: MapState, w: number, h: number) {
       _ox = w / 2 - 10
       _oy = (h - 324) / 2 + 4
-      buildAlwaysVisible()
-      buildHitTargets()
+      _labels = buildLabelSprites(_ox, _oy)
+      alwaysC.removeChildren()
+      alwaysC.addChild(..._labels)
+      buildHitTargets(hitC, _ox, _oy, showLabel, hideLabel)
     },
 
-    update(_state: MapState, _dt: number) {
-      // Hover labels shown on pointer event — no per-frame update needed
+    update(state: MapState, _dt: number) {
+      updateLabels(_labels, state)
     },
 
     destroy() {
+      _labels = []
       container.destroy({ children: true })
     },
   }

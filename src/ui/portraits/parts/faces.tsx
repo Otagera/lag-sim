@@ -331,42 +331,27 @@ function JawStubble() {
 
 /* ── the parameterized face ── */
 
-export function Face({ skin, p, fit = 1 }: { skin: string; p: FaceParams; fit?: number }) {
-  const fold = shade(skin, 0.58)
-  // Facial hair follows the jaw, which varies with head width; core features
-  // (brows/eyes/nose/mouth) stay on the standard grid for every head.
-  const hairFit = fit !== 1 ? `translate(50 0) scale(${fit} 1) translate(-50 0)` : undefined
-
-  const browY = p.browY ?? 34.2
-  const browTilt = p.browTilt ?? 0.5
-  const browW = p.browW ?? 6.4
-  const browWeight = p.browWeight ?? 2.1
+function FaceBrows({
+  p,
+  eyeOffset,
+  browY,
+  browTilt,
+  browW,
+  browWeight,
+  fold,
+}: {
+  p: FaceParams
+  eyeOffset: number
+  browY: number
+  browTilt: number
+  browW: number
+  browWeight: number
+  fold: string
+}) {
   const browRaise = p.browRaiseRight ?? 0
 
-  const eyes = p.eyes ?? 'normal'
-  const eyeOffset = p.eyeOffset ?? (eyes === 'heavy' ? 7.2 : 6.8)
-  const eyeY = p.eyeY ?? (p.lash ? 38.8 : eyes === 'heavy' ? 39.4 : 39.2)
-  const eyeW = p.eyeW ?? (p.lash ? 4.7 : 4.6)
-
-  const mouthExpr = p.mouth ?? 'set'
-  const mouthY = p.mouthY ?? (p.tintedLips ? 55.5 : mouthExpr === 'frown' ? 56.2 : 56)
-  const mouthW = p.mouthW ?? 5.2
-
-  const facialHair = p.facialHair ?? 'none'
-
   return (
-    <g>
-      {p.foreheadCreases && (
-        <path
-          d="M41 26.5 Q50 24.8 59 26.5 M42.5 29.8 Q50 28.3 57.5 29.8"
-          fill="none"
-          stroke={fold}
-          strokeWidth="0.75"
-          opacity="0.5"
-          strokeLinecap="round"
-        />
-      )}
-
+    <>
       <Brow
         cx={50 - eyeOffset}
         y={browY}
@@ -390,14 +375,36 @@ export function Face({ skin, p, fit = 1 }: { skin: string; p: FaceParams; fit?: 
           opacity="0.7"
         />
       )}
+    </>
+  )
+}
 
+function FaceEyes({
+  skin,
+  p,
+  eyeOffset,
+  eyeY,
+  eyeW,
+}: {
+  skin: string
+  p: FaceParams
+  eyeOffset: number
+  eyeY: number
+  eyeW: number
+}) {
+  const eyes = p.eyes ?? 'normal'
+  const heavy = eyes === 'heavy'
+  const wide = eyes === 'wide'
+
+  return (
+    <>
       <Eye
         cx={50 - eyeOffset}
         cy={eyeY}
         skin={skin}
         w={eyeW}
-        heavy={eyes === 'heavy'}
-        wide={eyes === 'wide'}
+        heavy={heavy}
+        wide={wide}
         lash={p.lash}
         soft={p.soft}
       />
@@ -406,12 +413,52 @@ export function Face({ skin, p, fit = 1 }: { skin: string; p: FaceParams; fit?: 
         cy={eyeY}
         skin={skin}
         w={eyeW}
-        heavy={eyes === 'heavy'}
-        wide={eyes === 'wide'}
+        heavy={heavy}
+        wide={wide}
         lash={p.lash}
         soft={p.soft}
       />
+    </>
+  )
+}
 
+function FaceNose({ skin, p }: { skin: string; p: FaceParams }) {
+  return <Nose skin={skin} w={p.noseW ?? 7.2} y={p.noseY ?? 49} />
+}
+
+function FaceMouth({
+  skin,
+  p,
+  mouthExpr,
+  mouthW,
+  mouthY,
+}: {
+  skin: string
+  p: FaceParams
+  mouthExpr: NonNullable<FaceParams['mouth']>
+  mouthW: number
+  mouthY: number
+}) {
+  return <Mouth skin={skin} expr={mouthExpr} w={mouthW} y={mouthY} tinted={p.tintedLips} />
+}
+
+function FaceHairline() {
+  return null
+}
+
+function FaceWrinkles({ p, skin, fold }: { p: FaceParams; skin: string; fold: string }) {
+  return (
+    <>
+      {p.foreheadCreases && (
+        <path
+          d="M41 26.5 Q50 24.8 59 26.5 M42.5 29.8 Q50 28.3 57.5 29.8"
+          fill="none"
+          stroke={fold}
+          strokeWidth="0.75"
+          opacity="0.5"
+          strokeLinecap="round"
+        />
+      )}
       {p.underEyePouches && (
         <path
           d="M38.6 43.4 Q42.8 45.4 47 43.6 M53 43.6 Q57.2 45.4 61.4 43.4"
@@ -422,9 +469,6 @@ export function Face({ skin, p, fit = 1 }: { skin: string; p: FaceParams; fit?: 
           strokeLinecap="round"
         />
       )}
-
-      <Nose skin={skin} w={p.noseW ?? 7.2} y={p.noseY ?? 49} />
-
       {p.nasolabialFolds && (
         <path
           d="M44.5 50.5 Q42.4 54 43.2 58.2 M55.5 50.5 Q57.6 54 56.8 58.2"
@@ -455,31 +499,6 @@ export function Face({ skin, p, fit = 1 }: { skin: string; p: FaceParams; fit?: 
           strokeLinecap="round"
         />
       )}
-      {p.jawShade && (
-        <path
-          d="M40 50 Q41 56.5 45.5 60.5 M60 50 Q59 56.5 54.5 60.5"
-          fill="none"
-          stroke={shade(skin, 0.6)}
-          strokeWidth="1"
-          opacity="0.5"
-          strokeLinecap="round"
-        />
-      )}
-
-      {facialHair !== 'none' && (
-        <g transform={hairFit}>
-          {facialHair === 'stubble' && <JawStubble />}
-          {facialHair === 'fullGreyBeard' && <FullGreyBeard mouthY={mouthY} />}
-          {facialHair === 'darkGoatee' && <DarkGoatee mouthY={mouthY} />}
-          {(facialHair === 'greyMoustache' || facialHair === 'greyMoustacheGoatee') && (
-            <GreyMoustache mouthY={mouthY} />
-          )}
-          {facialHair === 'greyMoustacheGoatee' && <GreyGoatee mouthY={mouthY} />}
-        </g>
-      )}
-
-      <Mouth skin={skin} expr={mouthExpr} w={mouthW} y={mouthY} tinted={p.tintedLips} />
-
       {p.chinCrease && (
         <path
           d="M47.5 60 Q50 61 52.5 60"
@@ -489,7 +508,103 @@ export function Face({ skin, p, fit = 1 }: { skin: string; p: FaceParams; fit?: 
           opacity="0.5"
         />
       )}
-      {p.beautyMark && <circle cx={59.5} cy={49.5} r="0.55" fill={INK} opacity="0.6" />}
+    </>
+  )
+}
+
+function FaceJaw({ p, skin }: { p: FaceParams; skin: string }) {
+  if (!p.jawShade) {
+    return null
+  }
+
+  return (
+    <path
+      d="M40 50 Q41 56.5 45.5 60.5 M60 50 Q59 56.5 54.5 60.5"
+      fill="none"
+      stroke={shade(skin, 0.6)}
+      strokeWidth="1"
+      opacity="0.5"
+      strokeLinecap="round"
+    />
+  )
+}
+
+function FaceBeard({
+  facialHair,
+  mouthY,
+  hairFit,
+}: {
+  facialHair: NonNullable<FaceParams['facialHair']>
+  mouthY: number
+  hairFit?: string
+}) {
+  if (facialHair === 'none') {
+    return null
+  }
+
+  return (
+    <g transform={hairFit}>
+      {facialHair === 'stubble' && <JawStubble />}
+      {facialHair === 'fullGreyBeard' && <FullGreyBeard mouthY={mouthY} />}
+      {facialHair === 'darkGoatee' && <DarkGoatee mouthY={mouthY} />}
+      {(facialHair === 'greyMoustache' || facialHair === 'greyMoustacheGoatee') && (
+        <GreyMoustache mouthY={mouthY} />
+      )}
+      {facialHair === 'greyMoustacheGoatee' && <GreyGoatee mouthY={mouthY} />}
+    </g>
+  )
+}
+
+function FaceEars() {
+  return null
+}
+
+function FaceMakeup({ p }: { p: FaceParams }) {
+  return p.beautyMark ? <circle cx={59.5} cy={49.5} r="0.55" fill={INK} opacity="0.6" /> : null
+}
+
+export function Face({ skin, p, fit = 1 }: { skin: string; p: FaceParams; fit?: number }) {
+  const fold = shade(skin, 0.58)
+  // Facial hair follows the jaw, which varies with head width; core features
+  // (brows/eyes/nose/mouth) stay on the standard grid for every head.
+  const hairFit = fit !== 1 ? `translate(50 0) scale(${fit} 1) translate(-50 0)` : undefined
+
+  const browY = p.browY ?? 34.2
+  const browTilt = p.browTilt ?? 0.5
+  const browW = p.browW ?? 6.4
+  const browWeight = p.browWeight ?? 2.1
+
+  const eyes = p.eyes ?? 'normal'
+  const eyeOffset = p.eyeOffset ?? (eyes === 'heavy' ? 7.2 : 6.8)
+  const eyeY = p.eyeY ?? (p.lash ? 38.8 : eyes === 'heavy' ? 39.4 : 39.2)
+  const eyeW = p.eyeW ?? (p.lash ? 4.7 : 4.6)
+
+  const mouthExpr = p.mouth ?? 'set'
+  const mouthY = p.mouthY ?? (p.tintedLips ? 55.5 : mouthExpr === 'frown' ? 56.2 : 56)
+  const mouthW = p.mouthW ?? 5.2
+
+  const facialHair = p.facialHair ?? 'none'
+
+  return (
+    <g>
+      <FaceHairline />
+      <FaceWrinkles p={p} skin={skin} fold={fold} />
+      <FaceBrows
+        p={p}
+        eyeOffset={eyeOffset}
+        browY={browY}
+        browTilt={browTilt}
+        browW={browW}
+        browWeight={browWeight}
+        fold={fold}
+      />
+      <FaceEyes skin={skin} p={p} eyeOffset={eyeOffset} eyeY={eyeY} eyeW={eyeW} />
+      <FaceEars />
+      <FaceNose skin={skin} p={p} />
+      <FaceJaw p={p} skin={skin} />
+      <FaceBeard facialHair={facialHair} mouthY={mouthY} hairFit={hairFit} />
+      <FaceMouth skin={skin} p={p} mouthExpr={mouthExpr} mouthW={mouthW} mouthY={mouthY} />
+      <FaceMakeup p={p} />
     </g>
   )
 }

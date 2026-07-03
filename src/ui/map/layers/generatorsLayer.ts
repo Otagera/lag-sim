@@ -31,6 +31,255 @@ interface GenDot {
   deficitThreshold: number // lights when zone.powerDeficit >= this
 }
 
+interface GeneratorPlacement {
+  a: number
+  b: number
+  phase: number
+  zoneIdx: number
+  deficitThreshold: number
+}
+
+interface GeneratorPoolSpec {
+  poly: [number, number][]
+  rng: () => number
+  maxForZone: number
+}
+
+interface PolygonBounds {
+  aMin: number
+  aMax: number
+  bMin: number
+  bMax: number
+}
+
+interface GeneratorRuntime {
+  glowG: Graphics
+  dotContainer: Container
+  gens: GenDot[]
+  prevDeficits: number[]
+  t: number
+}
+
+function createPoolSeed(key: string): number {
+  return key.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0) * 17 + 7
+}
+
+function getPolygonBounds(poly: [number, number][]): PolygonBounds {
+  let aMin = Infinity
+  let aMax = -Infinity
+  let bMin = Infinity
+  let bMax = -Infinity
+
+  for (const [a, b] of poly) {
+    if (a < aMin) aMin = a
+    if (a > aMax) aMax = a
+    if (b < bMin) bMin = b
+    if (b > bMax) bMax = b
+  }
+
+  return { aMin, aMax, bMin, bMax }
+}
+
+function getBoundsArea(bounds: PolygonBounds): number {
+  return (bounds.aMax - bounds.aMin) * (bounds.bMax - bounds.bMin)
+}
+
+function groupGeneratorPoolsByZone(): Map<number, GeneratorPoolSpec[]> {
+  const zonePools = new Map<number, GeneratorPoolSpec[]>()
+
+  for (const lga of getLGAGeometry()) {
+    const pools = zonePools.get(lga.zoneIdx) ?? []
+    pools.push({
+      poly: lga.isoPolygon,
+      rng: mulberry32(createPoolSeed(lga.key)),
+      maxForZone: 0,
+    })
+    zonePools.set(lga.zoneIdx, pools)
+  }
+
+  return zonePools
+}
+
+function assignPoolCaps(zonePools: Map<number, GeneratorPoolSpec[]>) {
+  for (const pools of zonePools.values()) {
+    const areas = pools.map((pool) => getBoundsArea(getPolygonBounds(pool.poly)))
+    const totalArea = areas.reduce((sum, area) => sum + area, 0)
+
+    for (let i = 0; i < pools.length; i++) {
+      pools[i].maxForZone = Math.max(
+        1,
+        Math.floor(((areas[i] / totalArea) * MAX_GEN) / pools.length),
+      )
+    }
+  }
+}
+
+function samplePoolGenerators(
+  pool: GeneratorPoolSpec,
+  zoneIdx: number,
+  ox: number,
+  oy: number,
+  remaining: number,
+  addGeneratorPair: (gen: GeneratorPlacement, ox: number, oy: number) => void,
+): number {
+  const limit = Math.min(pool.maxForZone, remaining)
+  if (limit <= 0) return 0
+
+  const bounds = getPolygonBounds(pool.poly)
+  let placed = 0
+
+  for (let attempt = 0; attempt < pool.maxForZone * 20 && placed < limit; attempt++) {
+    const a = bounds.aMin + pool.rng() * (bounds.aMax - bounds.aMin)
+    const b = bounds.bMin + pool.rng() * (bounds.bMax - bounds.bMin)
+    if (!pointInPolygon(a, b, pool.poly)) continue
+
+    addGeneratorPair(
+      {
+        a,
+        b,
+        phase: pool.rng() * Math.PI * 2,
+        zoneIdx,
+        deficitThreshold: (placed / pool.maxForZone) * (MAX_DEFICIT - 2) + 2,
+      },
+      ox,
+      oy,
+    )
+    placed++
+  }
+
+  return placed
+}
+
+function populateGeneratorPools(
+  zonePools: Map<number, GeneratorPoolSpec[]>,
+  ox: number,
+  oy: number,
+  addGeneratorPair: (gen: GeneratorPlacement, ox: number, oy: number) => void,
+) {
+  let total = 0
+
+  for (const [zoneIdx, pools] of zonePools) {
+    for (const pool of pools) {
+      total += samplePoolGenerators(pool, zoneIdx, ox, oy, MAX_GEN - total, addGeneratorPair)
+      if (total >= MAX_GEN) return
+    }
+  }
+}
+
+function syncPrevDeficits(state: MapState, prevDeficits: number[]) {
+  for (let i = 0; i < state.zones.length; i++) {
+    prevDeficits[i] = state.zones[i]?.powerDeficit ?? 0
+  }
+}
+
+function detectGlowChange(state: MapState, prevDeficits: number[]): boolean {
+  let glowDirty = false
+
+  for (let i = 0; i < state.zones.length; i++) {
+    const deficit = state.zones[i]?.powerDeficit ?? 0
+    if (Math.abs(deficit - prevDeficits[i]) <= 2) continue
+
+    prevDeficits[i] = deficit
+    glowDirty = true
+  }
+
+  return glowDirty
+}
+
+function animateGeneratorDots(state: MapState, gens: GenDot[], t: number) {
+  for (const gen of gens) {
+    const zone = state.zones[gen.zoneIdx]
+    const active = zone != null && zone.powerDeficit >= gen.deficitThreshold
+    if (!active) {
+      if (gen.sprite.visible) gen.sprite.visible = false
+      continue
+    }
+
+    if (!gen.sprite.visible) gen.sprite.visible = true
+    gen.sprite.alpha = genAlpha(t, gen.phase)
+  }
+}
+
+function createGeneratorRuntime(glowG: Graphics, dotContainer: Container): GeneratorRuntime {
+  return {
+    glowG,
+    dotContainer,
+    gens: [],
+    prevDeficits: new Array(8).fill(0),
+    t: 0,
+  }
+}
+
+function clearPool(runtime: GeneratorRuntime) {
+  runtime.dotContainer.removeChildren()
+  runtime.gens.length = 0
+}
+
+function resetPool(runtime: GeneratorRuntime) {
+  clearPool(runtime)
+}
+
+function buildGeneratorSprite(dot: { x: number; y: number }, color: number): Sprite {
+  const sprite = new Sprite(Texture.WHITE)
+  sprite.width = 2
+  sprite.height = 2
+  sprite.anchor.set(0.5, 0.5)
+  sprite.x = dot.x
+  sprite.y = dot.y
+  sprite.tint = color
+  sprite.visible = false
+  return sprite
+}
+
+function addGeneratorPair(
+  runtime: GeneratorRuntime,
+  gen: GeneratorPlacement,
+  ox: number,
+  oy: number,
+) {
+  const { x, y } = isoToScreen(gen.a, gen.b, ox, oy)
+  const sprite = buildGeneratorSprite({ x, y: y + TILE_H }, GEN_COLOR)
+
+  runtime.dotContainer.addChild(sprite)
+  runtime.gens.push({
+    sprite,
+    screenX: x,
+    screenY: y + TILE_H,
+    phase: gen.phase,
+    zoneIdx: gen.zoneIdx,
+    deficitThreshold: gen.deficitThreshold,
+  })
+}
+
+function buildGeneratorPool(runtime: GeneratorRuntime, ox: number, oy: number, state: MapState) {
+  void state
+  resetPool(runtime)
+  const zonePools = groupGeneratorPoolsByZone()
+  assignPoolCaps(zonePools)
+  populateGeneratorPools(zonePools, ox, oy, (gen, screenOx, screenOy) => {
+    addGeneratorPair(runtime, gen, screenOx, screenOy)
+  })
+}
+
+function rebuildGlow(runtime: GeneratorRuntime, state: MapState) {
+  runtime.glowG.clear()
+  for (const gen of runtime.gens) {
+    const zone = state.zones[gen.zoneIdx]
+    if (!zone || zone.powerDeficit < gen.deficitThreshold) continue
+    runtime.glowG.circle(gen.screenX, gen.screenY, 4).fill({ color: GEN_COLOR, alpha: 0.1 })
+  }
+}
+
+function updateGenerators(runtime: GeneratorRuntime, state: MapState, dt: number) {
+  runtime.t += dt / 1000
+  if (detectGlowChange(state, runtime.prevDeficits)) rebuildGlow(runtime, state)
+  animateGeneratorDots(state, runtime.gens, runtime.t)
+}
+
+function destroyRuntime(runtime: GeneratorRuntime) {
+  runtime.gens.length = 0
+}
+
 export function createGeneratorsLayer(): MapLayer {
   const container = new Container()
   const glowG = new Graphics()
@@ -41,117 +290,7 @@ export function createGeneratorsLayer(): MapLayer {
 
   container.addChild(glowG)
   container.addChild(dotContainer)
-
-  let _t = 0
-  const _gens: GenDot[] = []
-  const _prevDeficits: number[] = new Array(8).fill(0)
-
-  function buildPool(ox: number, oy: number) {
-    dotContainer.removeChildren()
-    _gens.length = 0
-    let total = 0
-
-    const lgas = getLGAGeometry()
-    const zonePools = new Map<
-      number,
-      { poly: [number, number][]; rng: () => number; maxForZone: number }[]
-    >()
-
-    // Group LGAs by zoneIdx
-    for (const lga of lgas) {
-      const arr = zonePools.get(lga.zoneIdx) ?? []
-      arr.push({
-        poly: lga.isoPolygon,
-        rng: mulberry32(lga.key.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 17 + 7),
-        maxForZone: 0,
-      })
-      zonePools.set(lga.zoneIdx, arr)
-    }
-
-    // Assign max generators per zone (proportional to zone area)
-    for (const [, pools] of zonePools) {
-      let totalArea = 0
-      for (const p of pools) {
-        const ba =
-          p.poly.reduce((s, [a]) => Math.max(s, a), 0) -
-          p.poly.reduce((s, [a]) => Math.min(s, a), 0)
-        const bb =
-          p.poly.reduce((s, [, b]) => Math.max(s, b), 0) -
-          p.poly.reduce((s, [, b]) => Math.min(s, b), 0)
-        totalArea += ba * bb
-      }
-      for (const p of pools) {
-        const ba =
-          p.poly.reduce((s, [a]) => Math.max(s, a), 0) -
-          p.poly.reduce((s, [a]) => Math.min(s, a), 0)
-        const bb =
-          p.poly.reduce((s, [, b]) => Math.max(s, b), 0) -
-          p.poly.reduce((s, [, b]) => Math.min(s, b), 0)
-        p.maxForZone = Math.max(1, Math.floor((((ba * bb) / totalArea) * MAX_GEN) / pools.length))
-      }
-    }
-
-    for (const [zi, pools] of zonePools) {
-      for (const pool of pools) {
-        const { poly, rng, maxForZone } = pool
-        // Bounding box for rejection sampling
-        let aMin = Infinity,
-          aMax = -Infinity,
-          bMin = Infinity,
-          bMax = -Infinity
-        for (const [a, b] of poly) {
-          if (a < aMin) aMin = a
-          if (a > aMax) aMax = a
-          if (b < bMin) bMin = b
-          if (b > bMax) bMax = b
-        }
-
-        let placed = 0
-        for (
-          let attempt = 0;
-          attempt < maxForZone * 20 && placed < maxForZone && total < MAX_GEN;
-          attempt++
-        ) {
-          const a = aMin + rng() * (aMax - aMin)
-          const b = bMin + rng() * (bMax - bMin)
-          if (!pointInPolygon(a, b, poly)) continue
-
-          const { x, y } = isoToScreen(a, b, ox, oy)
-
-          const sp = new Sprite(Texture.WHITE)
-          sp.width = 2
-          sp.height = 2
-          sp.anchor.set(0.5, 0.5)
-          sp.x = x
-          sp.y = y + TILE_H
-          sp.tint = GEN_COLOR
-          sp.visible = false
-          dotContainer.addChild(sp)
-
-          _gens.push({
-            sprite: sp,
-            screenX: x,
-            screenY: y + TILE_H,
-            phase: rng() * Math.PI * 2,
-            zoneIdx: zi,
-            deficitThreshold: (placed / maxForZone) * (MAX_DEFICIT - 2) + 2,
-          })
-          placed++
-          total++
-        }
-      }
-    }
-  }
-
-  function rebuildGlow(state: MapState) {
-    glowG.clear()
-    for (const gen of _gens) {
-      const zone = state.zones[gen.zoneIdx]
-      if (!zone || zone.powerDeficit < gen.deficitThreshold) continue
-      // Single soft circle — no inner core (was two overlapping = hotspot). Sparse sprinkle, never a mass.
-      glowG.circle(gen.screenX, gen.screenY, 4).fill({ color: GEN_COLOR, alpha: 0.1 })
-    }
-  }
+  const runtime = createGeneratorRuntime(glowG, dotContainer)
 
   return {
     container,
@@ -159,43 +298,18 @@ export function createGeneratorsLayer(): MapLayer {
     init(state: MapState, w: number, h: number) {
       const ox = w / 2 - 10
       const oy = (h - 324) / 2 + 4
-      buildPool(ox, oy)
-      rebuildGlow(state)
-      for (let i = 0; i < state.zones.length; i++) {
-        _prevDeficits[i] = state.zones[i]?.powerDeficit ?? 0
-      }
+      buildGeneratorPool(runtime, ox, oy, state)
+      rebuildGlow(runtime, state)
+      syncPrevDeficits(state, runtime.prevDeficits)
     },
 
     update(state: MapState, dt: number) {
-      _t += dt / 1000
-
-      // Rebuild glow geometry if any zone deficit shifted meaningfully
-      let glowDirty = false
-      for (let i = 0; i < state.zones.length; i++) {
-        const d = state.zones[i]?.powerDeficit ?? 0
-        if (Math.abs(d - _prevDeficits[i]) > 2) {
-          _prevDeficits[i] = d
-          glowDirty = true
-        }
-      }
-      if (glowDirty) rebuildGlow(state)
-
-      // Per-frame: toggle visibility and animate alpha
-      for (const gen of _gens) {
-        const zone = state.zones[gen.zoneIdx]
-        const active = zone != null && zone.powerDeficit >= gen.deficitThreshold
-        if (!active) {
-          if (gen.sprite.visible) gen.sprite.visible = false
-          continue
-        }
-        if (!gen.sprite.visible) gen.sprite.visible = true
-        gen.sprite.alpha = genAlpha(_t, gen.phase)
-      }
+      updateGenerators(runtime, state, dt)
     },
 
     destroy() {
       container.destroy({ children: true })
-      _gens.length = 0
+      destroyRuntime(runtime)
     },
   }
 }

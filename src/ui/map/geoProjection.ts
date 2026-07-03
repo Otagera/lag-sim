@@ -7,6 +7,52 @@ import { CITY_ZONES } from '../../data/lagosLayout'
 import type { ConstituencyKey } from '../../state/types'
 import { SHAPE_TO_LGA } from '../lagosGeoJSON'
 
+type GeoJSONPosition = [number, number]
+
+type PointGeometry = {
+  type: 'Point'
+  coordinates: GeoJSONPosition
+}
+
+type LineStringGeometry = {
+  type: 'LineString'
+  coordinates: GeoJSONPosition[]
+}
+
+type PolygonGeometry = {
+  type: 'Polygon'
+  coordinates: GeoJSONPosition[][]
+}
+
+type Geometry = PointGeometry | LineStringGeometry | PolygonGeometry
+
+type FeatureProperties = {
+  shapeName?: string
+  [key: string]: unknown
+}
+
+type Feature = {
+  type: 'Feature'
+  properties: FeatureProperties
+  geometry: Geometry | null
+}
+
+type FeatureCollection = {
+  type: 'FeatureCollection'
+  features: Feature[]
+}
+
+type ProjectionSpan = {
+  lngMin: number
+  lngMax: number
+  latMin: number
+  latMax: number
+}
+
+type GridRange = { aMin: number; aMax: number; bMin: number; bMax: number }
+
+type IsoPoint = [number, number]
+
 export interface ProjectedLGA {
   key: ConstituencyKey
   name: string
@@ -43,9 +89,9 @@ export function lgaToZone(key: ConstituencyKey): { zoneId: string; zoneIdx: numb
 function lngLatToIso(
   lng: number,
   lat: number,
-  span: { lngMin: number; lngMax: number; latMin: number; latMax: number },
-  gridRange: { aMin: number; aMax: number; bMin: number; bMax: number },
-): [number, number] {
+  span: ProjectionSpan,
+  gridRange: GridRange,
+): IsoPoint {
   const nx = (lng - span.lngMin) / (span.lngMax - span.lngMin)
   const ny = 1 - (lat - span.latMin) / (span.latMax - span.latMin)
   const a = gridRange.aMin + ny * (gridRange.aMax - gridRange.aMin)
@@ -54,15 +100,15 @@ function lngLatToIso(
 }
 
 // Simple Douglas-Peucker simplification
-function simplifyRing(pts: [number, number][], threshold: number): [number, number][] {
-  if (pts.length <= 3) return pts
+function simplifyPoints(points: IsoPoint[], threshold: number): IsoPoint[] {
+  if (points.length <= 3) return points
   let maxDist = 0
   let maxIdx = 0
-  const [ax, ay] = pts[0]
-  const [bx, by] = pts[pts.length - 1]
+  const [ax, ay] = points[0]
+  const [bx, by] = points[points.length - 1]
 
-  for (let i = 1; i < pts.length - 1; i++) {
-    const [px, py] = pts[i]
+  for (let i = 1; i < points.length - 1; i++) {
+    const [px, py] = points[i]
     const dx = bx - ax
     const dy = by - ay
     const len = Math.sqrt(dx * dx + dy * dy)
@@ -75,11 +121,138 @@ function simplifyRing(pts: [number, number][], threshold: number): [number, numb
   }
 
   if (maxDist > threshold) {
-    const left = simplifyRing(pts.slice(0, maxIdx + 1), threshold)
-    const right = simplifyRing(pts.slice(maxIdx), threshold)
+    const left = simplifyPoints(points.slice(0, maxIdx + 1), threshold)
+    const right = simplifyPoints(points.slice(maxIdx), threshold)
     return [...left.slice(0, -1), ...right]
   }
-  return [pts[0], pts[pts.length - 1]]
+  return [points[0], points[points.length - 1]]
+}
+
+function projectPoint(
+  coords: GeoJSONPosition,
+  span: ProjectionSpan,
+  gridRange: GridRange,
+): IsoPoint {
+  return lngLatToIso(coords[0], coords[1], span, gridRange)
+}
+
+function projectLineString(
+  coords: GeoJSONPosition[],
+  span: ProjectionSpan,
+  gridRange: GridRange,
+): IsoPoint[] {
+  return coords.map((coord) => projectPoint(coord, span, gridRange))
+}
+
+function projectPolygon(
+  coords: GeoJSONPosition[][],
+  span: ProjectionSpan,
+  gridRange: GridRange,
+  simplifyThreshold: number,
+): IsoPoint[] {
+  const ring = coords[0] ?? []
+  const rawPoints = projectLineString(ring, span, gridRange)
+
+  if (rawPoints.length <= 1) return rawPoints
+
+  // CRITICAL: GeoJSON rings are closed (first === last). Strip the closing
+  // vertex before simplification, then re-close. Otherwise simplifyPoints
+  // sees a zero-length segment and returns a degenerate 2-vertex polygon.
+  const openPoints = rawPoints.slice(0, -1)
+  const simplified = simplifyPoints(openPoints, simplifyThreshold)
+  return simplified.length > 0 ? [...simplified, simplified[0]] : simplified
+}
+
+function getGeometryCoordinates(geometry: Geometry | null): GeoJSONPosition[] {
+  if (!geometry) return []
+
+  switch (geometry.type) {
+    case 'Point':
+      return [geometry.coordinates]
+    case 'LineString':
+      return geometry.coordinates
+    case 'Polygon':
+      return geometry.coordinates[0] ?? []
+  }
+}
+
+function buildProjectionSpan(features: Feature[]): ProjectionSpan {
+  let lngMin = Infinity
+  let lngMax = -Infinity
+  let latMin = Infinity
+  let latMax = -Infinity
+
+  for (const feature of features) {
+    for (const [lng, lat] of getGeometryCoordinates(feature.geometry)) {
+      if (lng < lngMin) lngMin = lng
+      if (lng > lngMax) lngMax = lng
+      if (lat < latMin) latMin = lat
+      if (lat > latMax) latMax = lat
+    }
+  }
+
+  const lngPad = (lngMax - lngMin) * 0.05
+  const latPad = (latMax - latMin) * 0.05
+
+  return {
+    lngMin: lngMin - lngPad,
+    lngMax: lngMax + lngPad,
+    latMin: latMin - latPad,
+    latMax: latMax + latPad,
+  }
+}
+
+function calculateCentroid(points: IsoPoint[]): IsoPoint {
+  let aTotal = 0
+  let bTotal = 0
+
+  for (const [a, b] of points) {
+    aTotal += a
+    bTotal += b
+  }
+
+  return [aTotal / points.length, bTotal / points.length]
+}
+
+function calculateBounds(points: IsoPoint[]): ProjectedLGA['bounds'] {
+  let aMin = Infinity
+  let aMax = -Infinity
+  let bMin = Infinity
+  let bMax = -Infinity
+
+  for (const [a, b] of points) {
+    if (a < aMin) aMin = a
+    if (a > aMax) aMax = a
+    if (b < bMin) bMin = b
+    if (b > bMax) bMax = b
+  }
+
+  return { aMin, aMax, bMin, bMax }
+}
+
+function buildProjectedLGA(
+  feature: Feature,
+  name: string,
+  points: IsoPoint[],
+  bounds: ProjectedLGA['bounds'],
+): ProjectedLGA | null {
+  const shapeName = name || feature.properties.shapeName
+  if (!shapeName) return null
+
+  const key = SHAPE_TO_LGA[shapeName]
+  if (!key) return null
+
+  const zone = lgaToZone(key)
+
+  return {
+    key,
+    name: shapeName,
+    isoPolygon: points,
+    centroid: calculateCentroid(points),
+    bounds,
+    zoneId: zone.zoneId,
+    zoneIdx: zone.zoneIdx,
+  }
 }
 
 // Ray-casting point-in-polygon test
@@ -98,87 +271,29 @@ export function pointInPolygon(a: number, b: number, polygon: [number, number][]
 // ── Main projection ─────────────────────────────────────────────────────────
 
 export function projectGeoJSON(
-  geoJSON: any,
+  geoJSON: FeatureCollection,
   gridRange = { aMin: 3, aMax: 79, bMin: 3, bMax: 79 },
   simplifyThreshold = 0.25,
 ): ProjectedLGA[] {
-  const features = geoJSON.features as any[]
-
-  // Compute Mercator-like projection (equirectangular is fine at 6.4°N)
-  let lngMin = Infinity,
-    lngMax = -Infinity
-  let latMin = Infinity,
-    latMax = -Infinity
-  for (const f of features) {
-    for (const [lng, lat] of f.geometry.coordinates[0]) {
-      if (lng < lngMin) lngMin = lng
-      if (lng > lngMax) lngMax = lng
-      if (lat < latMin) latMin = lat
-      if (lat > latMax) latMax = lat
-    }
-  }
-
-  // Add 5% padding
-  const lngPad = (lngMax - lngMin) * 0.05
-  const latPad = (latMax - latMin) * 0.05
-  const span = {
-    lngMin: lngMin - lngPad,
-    lngMax: lngMax + lngPad,
-    latMin: latMin - latPad,
-    latMax: latMax + latPad,
-  }
+  const span = buildProjectionSpan(geoJSON.features)
 
   const result: ProjectedLGA[] = []
 
-  for (const f of features) {
-    const name = f.properties.shapeName as string
-    const key = SHAPE_TO_LGA[name]
-    if (!key) continue
+  for (const feature of geoJSON.features) {
+    const name = feature.properties.shapeName
+    if (!feature.geometry || !name) continue
 
-    const ring = f.geometry.coordinates[0] as number[][]
-    const rawPts: [number, number][] = ring.map(([lng, lat]: number[]) =>
-      lngLatToIso(lng, lat, span, gridRange),
-    )
+    const { geometry } = feature
+    const points =
+      geometry.type === 'Point'
+        ? [projectPoint(geometry.coordinates, span, gridRange)]
+        : geometry.type === 'LineString'
+          ? projectLineString(geometry.coordinates, span, gridRange)
+          : projectPolygon(geometry.coordinates, span, gridRange, simplifyThreshold)
+    if (points.length === 0) continue
 
-    // CRITICAL: GeoJSON rings are closed (first === last). Strip the closing
-    // vertex before simplification, then re-close. Otherwise simplifyRing
-    // sees a zero-length segment and returns a degenerate 2-vertex polygon.
-    const openPts = rawPts.slice(0, -1)
-    const simplified = simplifyRing(openPts, simplifyThreshold)
-    const isoPolygon: [number, number][] = [...simplified, simplified[0]]
-
-    // Compute centroid (vertex average)
-    let ca = 0,
-      cb = 0
-    for (const [a, b] of isoPolygon) {
-      ca += a
-      cb += b
-    }
-    ca /= isoPolygon.length
-    cb /= isoPolygon.length
-
-    // Bounds
-    let aMin = Infinity,
-      aMax = -Infinity,
-      bMin = Infinity,
-      bMax = -Infinity
-    for (const [a, b] of isoPolygon) {
-      if (a < aMin) aMin = a
-      if (a > aMax) aMax = a
-      if (b < bMin) bMin = b
-      if (b > bMax) bMax = b
-    }
-
-    const z = lgaToZone(key)
-    result.push({
-      key,
-      name,
-      isoPolygon,
-      centroid: [ca, cb],
-      bounds: { aMin, aMax, bMin, bMax },
-      zoneId: z.zoneId,
-      zoneIdx: z.zoneIdx,
-    })
+    const projectedLGA = buildProjectedLGA(feature, name, points, calculateBounds(points))
+    if (projectedLGA) result.push(projectedLGA)
   }
 
   return result

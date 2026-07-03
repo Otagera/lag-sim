@@ -24,6 +24,496 @@ function depthMul(depthLayer: number): number {
   return 1.0
 }
 
+type IsoPoint = [number, number]
+
+type RoadBase = {
+  points: IsoPoint[]
+  scale: number
+  width: number
+}
+
+type BridgeBase = {
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+  dx: number
+  dy: number
+  nx: number
+  ny: number
+  scale: number
+  width: number
+}
+
+type StandardBuildingBase = {
+  kind: 'standard'
+  scale: number
+  cx: number
+  cy: number
+  w: number
+  d: number
+  h: number
+  t: IsoPoint
+  r: IsoPoint
+  bt: IsoPoint
+  l: IsoPoint
+}
+
+type GlassTierBase = {
+  kind: 'glassTier'
+  scale: number
+  h: number
+  t: IsoPoint
+  r: IsoPoint
+  bt: IsoPoint
+  l: IsoPoint
+}
+
+type BuildingBase = StandardBuildingBase | GlassTierBase
+
+function roadStrokeColor(r: ResolvedRoad, isLit: boolean): string {
+  if (isLit) {
+    if (r.level === 'primary') return '#B8A060'
+    if (r.level === 'secondary') return '#C8B070'
+    return '#D8C088'
+  }
+  if (r.level === 'primary') return 'rgba(60,45,20,0.55)'
+  return 'rgba(100,80,50,0.35)'
+}
+
+function drawRoadPath(
+  ctx: CanvasRenderingContext2D,
+  r: ResolvedRoad,
+  base: RoadBase,
+  half: number,
+) {
+  const { points, scale, width } = base
+  const edgeColor = r.level === 'primary' ? '#907038' : '#A89050'
+  const shadowOffset = (r.level === 'primary' ? 3 : 1.5) * scale
+
+  ctx.strokeStyle = roadStrokeColor(r, false)
+  ctx.lineWidth = width + (r.level === 'primary' ? 2 : 1) * scale
+  ctx.beginPath()
+  ctx.moveTo(points[0][0], points[0][1] + shadowOffset)
+  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1] + shadowOffset)
+  ctx.stroke()
+
+  ctx.strokeStyle = roadStrokeColor(r, true)
+  ctx.lineWidth = width
+  ctx.beginPath()
+  ctx.moveTo(points[0][0], points[0][1])
+  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1])
+  ctx.stroke()
+
+  if (r.level === 'local') return
+
+  ctx.strokeStyle = edgeColor
+  ctx.lineWidth = r.level === 'primary' ? 1.2 * scale : 0.6 * scale
+  for (let side = -1; side <= 1; side += 2) {
+    ctx.beginPath()
+    for (let i = 0; i < points.length; i++) {
+      const di = Math.max(0, Math.min(i, points.length - 2))
+      const dx = points[di + 1][0] - points[di][0]
+      const dy = points[di + 1][1] - points[di][1]
+      const len = Math.hypot(dx, dy) || 1
+      const px = (-dy / len) * half * side
+      const py = (dx / len) * half * side
+      if (i === 0) ctx.moveTo(points[i][0] + px, points[i][1] + py)
+      else ctx.lineTo(points[i][0] + px, points[i][1] + py)
+    }
+    ctx.stroke()
+  }
+}
+
+function drawRoadMarkings(
+  ctx: CanvasRenderingContext2D,
+  r: ResolvedRoad,
+  base: RoadBase,
+  half: number,
+) {
+  void half
+  if (r.level !== 'primary') return
+
+  const { points, scale } = base
+
+  ctx.strokeStyle = 'rgba(200,190,170,0.6)'
+  ctx.lineWidth = 0.8 * scale
+  ctx.setLineDash([4 * scale, 5 * scale])
+  ctx.beginPath()
+  ctx.moveTo(points[0][0], points[0][1])
+  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1])
+  ctx.stroke()
+  ctx.setLineDash([])
+
+  ctx.strokeStyle = 'rgba(40,130,200,0.30)'
+  ctx.lineWidth = 2.5 * scale
+  ctx.setLineDash([3 * scale, 6 * scale])
+  ctx.beginPath()
+  ctx.moveTo(points[0][0], points[0][1])
+  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1])
+  ctx.stroke()
+  ctx.setLineDash([])
+}
+
+function drawBridgeDeck(
+  ctx: CanvasRenderingContext2D,
+  r: ResolvedBridge,
+  base: BridgeBase,
+  half: number,
+  waterY: number,
+) {
+  void r
+  void half
+
+  ctx.strokeStyle = 'rgba(160,140,120,0.2)'
+  ctx.lineWidth = base.width + 2 * base.scale
+  ctx.lineCap = 'round'
+  ctx.beginPath()
+  ctx.moveTo(base.x1, base.y1 + waterY)
+  ctx.lineTo(base.x2, base.y2 + waterY)
+  ctx.stroke()
+
+  ctx.strokeStyle = BCOL.deck
+  ctx.lineWidth = base.width
+  ctx.lineCap = 'round'
+  ctx.beginPath()
+  ctx.moveTo(base.x1, base.y1)
+  ctx.lineTo(base.x2, base.y2)
+  ctx.stroke()
+}
+
+function drawBridgePiers(
+  ctx: CanvasRenderingContext2D,
+  r: ResolvedBridge,
+  base: BridgeBase,
+  half: number,
+  waterY: number,
+) {
+  void half
+  void waterY
+
+  if (r.type === 'cable') {
+    const midX = (base.x1 + base.x2) / 2
+    const midY = (base.y1 + base.y2) / 2
+    const pylonH = 12 * base.scale
+
+    ctx.strokeStyle = BCOL.pylon
+    ctx.lineWidth = 2.5 * base.scale
+    ctx.beginPath()
+    ctx.moveTo(midX, midY - pylonH)
+    ctx.lineTo(midX, midY)
+    ctx.stroke()
+
+    ctx.lineWidth = 1.5 * base.scale
+    ctx.beginPath()
+    ctx.moveTo(midX - 3 * base.scale, midY - pylonH * 0.6)
+    ctx.lineTo(midX + 3 * base.scale, midY - pylonH * 0.6)
+    ctx.stroke()
+
+    ctx.strokeStyle = BCOL.cable
+    ctx.lineWidth = 0.5 * base.scale
+    for (const [dx, dy] of [
+      [base.x2 - midX, base.y2 - midY],
+      [base.x1 - midX, base.y1 - midY],
+    ]) {
+      for (let i = 0; i <= 6; i++) {
+        const t = i / 6
+        const ex = midX + dx * t
+        const ey = midY + dy * t
+        ctx.beginPath()
+        ctx.moveTo(midX, midY - pylonH)
+        ctx.lineTo(ex, ey)
+        ctx.stroke()
+      }
+    }
+    return
+  }
+
+  if (r.type !== 'suspension') return
+
+  const pylonH = 10 * base.scale
+  const p1x = base.x1 + base.dx * 0.25
+  const p1y = base.y1 + base.dy * 0.25
+  const p2x = base.x1 + base.dx * 0.75
+  const p2y = base.y1 + base.dy * 0.75
+
+  ctx.strokeStyle = BCOL.pylon
+  ctx.lineWidth = 2.5 * base.scale
+  ctx.beginPath()
+  ctx.moveTo(p1x, p1y - pylonH)
+  ctx.lineTo(p1x, p1y)
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.moveTo(p2x, p2y - pylonH)
+  ctx.lineTo(p2x, p2y)
+  ctx.stroke()
+
+  ctx.strokeStyle = BCOL.cable
+  ctx.lineWidth = 1.2 * base.scale
+  ctx.beginPath()
+  for (let i = 0; i <= 20; i++) {
+    const t = i / 20
+    const px = lerp(lerp(base.x1, p1x, t), lerp(p1x, p2x, t), t)
+    const py = lerp(lerp(base.y1, p1y - pylonH, t), lerp(p1y - pylonH, p2y - pylonH, t), t)
+    if (i === 0) ctx.moveTo(px, py)
+    else ctx.lineTo(px, py)
+  }
+  ctx.stroke()
+
+  ctx.lineWidth = 0.3 * base.scale
+  for (let i = 1; i < 10; i++) {
+    const t = i / 10
+    const deckX = lerp(base.x1, base.x2, t)
+    const deckY = lerp(base.y1, base.y2, t)
+    const cableY = deckY - pylonH * Math.sin(t * Math.PI)
+    ctx.beginPath()
+    ctx.moveTo(deckX, deckY)
+    ctx.lineTo(deckX, cableY)
+    ctx.stroke()
+  }
+}
+
+function drawBridgeRails(
+  ctx: CanvasRenderingContext2D,
+  r: ResolvedBridge,
+  base: BridgeBase,
+  half: number,
+  waterY: number,
+) {
+  void r
+  void waterY
+
+  ctx.strokeStyle = BCOL.deckShadow
+  ctx.lineWidth = 0.5 * base.scale
+  for (let s = -1; s <= 1; s += 2) {
+    ctx.beginPath()
+    ctx.moveTo(base.x1 + base.nx * half * s, base.y1 + base.ny * half * s)
+    ctx.lineTo(base.x2 + base.nx * half * s, base.y2 + base.ny * half * s)
+    ctx.stroke()
+  }
+}
+
+function glassTowerTiers(base: StandardBuildingBase): GlassTierBase[] {
+  const tiers = [
+    { wFactor: 1.0, dFactor: 1.0, hStart: 0, hEnd: base.h * 0.4 },
+    { wFactor: 0.78, dFactor: 0.78, hStart: base.h * 0.4, hEnd: base.h * 0.72 },
+    { wFactor: 0.55, dFactor: 0.55, hStart: base.h * 0.72, hEnd: base.h },
+  ]
+
+  return tiers.map((tier) => {
+    const tw = base.w * tier.wFactor
+    const td = base.d * tier.dFactor
+    const baseShift = tier.hStart
+    return {
+      kind: 'glassTier',
+      scale: base.scale,
+      h: tier.hEnd - tier.hStart,
+      t: [base.cx, base.cy - td / 2 - baseShift],
+      r: [base.cx + tw / 2, base.cy - baseShift],
+      bt: [base.cx, base.cy + td / 2 - baseShift],
+      l: [base.cx - tw / 2, base.cy - baseShift],
+    }
+  })
+}
+
+function drawGlassTierShell(
+  ctx: CanvasRenderingContext2D,
+  b: ResolvedBuilding,
+  base: GlassTierBase,
+) {
+  ctx.beginPath()
+  ctx.moveTo(base.l[0], base.l[1])
+  ctx.lineTo(base.bt[0], base.bt[1])
+  ctx.lineTo(base.bt[0], base.bt[1] - base.h)
+  ctx.lineTo(base.l[0], base.l[1] - base.h)
+  ctx.closePath()
+  ctx.fillStyle = b.shadowColor
+  ctx.fill()
+
+  ctx.beginPath()
+  ctx.moveTo(base.r[0], base.r[1])
+  ctx.lineTo(base.bt[0], base.bt[1])
+  ctx.lineTo(base.bt[0], base.bt[1] - base.h)
+  ctx.lineTo(base.r[0], base.r[1] - base.h)
+  ctx.closePath()
+  ctx.fillStyle = b.wallColor
+  ctx.fill()
+
+  ctx.beginPath()
+  ctx.moveTo(base.t[0], base.t[1] - base.h)
+  ctx.lineTo(base.r[0], base.r[1] - base.h)
+  ctx.lineTo(base.bt[0], base.bt[1] - base.h)
+  ctx.lineTo(base.l[0], base.l[1] - base.h)
+  ctx.closePath()
+  ctx.fillStyle = b.roofColor
+  ctx.fill()
+}
+
+function drawStandardBuildingWalls(
+  ctx: CanvasRenderingContext2D,
+  b: ResolvedBuilding,
+  base: StandardBuildingBase,
+) {
+  ctx.beginPath()
+  ctx.moveTo(base.l[0], base.l[1])
+  ctx.lineTo(base.bt[0], base.bt[1])
+  ctx.lineTo(base.bt[0], base.bt[1] + base.h)
+  ctx.lineTo(base.l[0], base.l[1] + base.h)
+  ctx.closePath()
+  ctx.fillStyle = b.shadowColor
+  ctx.fill()
+  ctx.fillStyle = 'rgba(40, 30, 20, 0.08)'
+  ctx.fill()
+
+  ctx.beginPath()
+  ctx.moveTo(base.r[0], base.r[1])
+  ctx.lineTo(base.bt[0], base.bt[1])
+  ctx.lineTo(base.bt[0], base.bt[1] + base.h)
+  ctx.lineTo(base.r[0], base.r[1] + base.h)
+  ctx.closePath()
+  ctx.fillStyle = b.wallColor
+  ctx.fill()
+  ctx.fillStyle = 'rgba(255, 250, 240, 0.04)'
+  ctx.fill()
+}
+
+function drawStandardBuildingRoof(
+  ctx: CanvasRenderingContext2D,
+  b: ResolvedBuilding,
+  base: StandardBuildingBase,
+  half: number,
+) {
+  if (b.type === 'residential') {
+    const roofTopY = base.cy - base.h
+    const roofPitch = base.d * 0.4
+    const ridgeCenter: IsoPoint = [base.cx, roofTopY - base.d / 2 - roofPitch]
+    const ridgeFront: IsoPoint = [base.cx, roofTopY + base.d / 2 - roofPitch]
+    const leftCorner: IsoPoint = [base.cx - half, roofTopY]
+    const rightCorner: IsoPoint = [base.cx + half, roofTopY]
+    const frontCorner: IsoPoint = [base.cx, roofTopY + base.d / 2]
+
+    ctx.beginPath()
+    ctx.moveTo(leftCorner[0], leftCorner[1])
+    ctx.lineTo(frontCorner[0], frontCorner[1])
+    ctx.lineTo(ridgeFront[0], ridgeFront[1])
+    ctx.lineTo(ridgeCenter[0], ridgeCenter[1])
+    ctx.closePath()
+    ctx.fillStyle = b.shadowColor
+    ctx.fill()
+
+    ctx.beginPath()
+    ctx.moveTo(rightCorner[0], rightCorner[1])
+    ctx.lineTo(frontCorner[0], frontCorner[1])
+    ctx.lineTo(ridgeFront[0], ridgeFront[1])
+    ctx.lineTo(ridgeCenter[0], ridgeCenter[1])
+    ctx.closePath()
+    ctx.fillStyle = b.roofColor
+    ctx.fill()
+    return
+  }
+
+  ctx.beginPath()
+  ctx.moveTo(base.t[0], base.t[1])
+  ctx.lineTo(base.r[0], base.r[1])
+  ctx.lineTo(base.bt[0], base.bt[1])
+  ctx.lineTo(base.l[0], base.l[1])
+  ctx.closePath()
+  ctx.fillStyle = b.roofColor
+  ctx.fill()
+}
+
+function drawBuildingShell(
+  ctx: CanvasRenderingContext2D,
+  b: ResolvedBuilding,
+  base: BuildingBase,
+  half: number,
+) {
+  if (base.kind === 'glassTier') {
+    drawGlassTierShell(ctx, b, base)
+    return
+  }
+
+  drawStandardBuildingWalls(ctx, b, base)
+  drawStandardBuildingRoof(ctx, b, base, half)
+
+  ctx.strokeStyle = 'rgba(0,0,0,0.06)'
+  ctx.lineWidth = 0.4 * base.scale
+  ctx.stroke()
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.22)'
+  ctx.lineWidth = 0.6 * base.scale
+  ctx.beginPath()
+  ctx.moveTo(base.bt[0], base.bt[1])
+  ctx.lineTo(base.bt[0], base.bt[1] + base.h)
+  ctx.stroke()
+}
+
+function drawBuildingDetails(
+  ctx: CanvasRenderingContext2D,
+  b: ResolvedBuilding,
+  base: BuildingBase,
+  half: number,
+) {
+  void half
+
+  if (base.kind === 'glassTier') {
+    ctx.strokeStyle = 'rgba(200,220,240,0.08)'
+    ctx.lineWidth = 0.3 * base.scale
+    const leftWidth = Math.hypot(base.bt[0] - base.l[0], base.bt[1] - base.l[1])
+    for (let row = 0; row < 4; row++) {
+      for (let col = 0; col < 3; col++) {
+        ctx.fillStyle = 'rgba(200,220,255,0.06)'
+        ctx.fillRect(
+          base.l[0] + ((base.bt[0] - base.l[0]) * (col + 0.4)) / 3,
+          base.l[1] - base.h + ((row + 0.3) * base.h) / 4,
+          leftWidth * 0.06,
+          base.h * 0.12,
+        )
+      }
+    }
+
+    const rightWidth = Math.hypot(base.bt[0] - base.r[0], base.bt[1] - base.r[1])
+    for (let row = 0; row < 4; row++) {
+      for (let col = 0; col < 3; col++) {
+        ctx.fillStyle = 'rgba(200,230,255,0.10)'
+        ctx.fillRect(
+          base.r[0] + ((base.bt[0] - base.r[0]) * (col + 0.4)) / 3,
+          base.r[1] - base.h + ((row + 0.3) * base.h) / 4,
+          rightWidth * 0.06,
+          base.h * 0.12,
+        )
+      }
+    }
+    return
+  }
+
+  glassDetails(ctx, b, base.scale, base.l, base.bt, base.h, 'left')
+  glassDetails(ctx, b, base.scale, base.r, base.bt, base.h, 'right')
+}
+
+function drawBuildingShadow(
+  ctx: CanvasRenderingContext2D,
+  b: ResolvedBuilding,
+  base: BuildingBase,
+  half: number,
+) {
+  if (base.kind === 'glassTier' || b.type !== 'stilt') return
+
+  ctx.strokeStyle = '#3A3028'
+  ctx.lineWidth = 1.5 * base.scale
+  const width = half * 2
+  for (let pi = -0.3; pi <= 0.3; pi += 0.6) {
+    for (let pj = -0.25; pj <= 0.25; pj += 0.5) {
+      const px = base.cx + pi * width
+      const py = base.cy + pj * base.d
+      ctx.beginPath()
+      ctx.moveTo(px, py)
+      ctx.lineTo(px, py + base.h + 4 * base.scale)
+      ctx.stroke()
+    }
+  }
+}
+
 // ---- Water ----
 function drawWater(ctx: CanvasRenderingContext2D, w: number, h: number, scale: number) {
   const grad = ctx.createRadialGradient(w / 2, h * 0.45, h * 0.15, w / 2, h / 2, w * 0.85)
@@ -121,67 +611,19 @@ function drawRoad(
   ox: number,
   oy: number,
 ) {
-  const pts = r.points.map(([x, y]) => projectToIso(x, y, scale, ox, oy))
+  const width = r.w * scale
+  const half = width / 2
+  const base: RoadBase = {
+    points: r.points.map(([x, y]) => projectToIso(x, y, scale, ox, oy)),
+    scale,
+    width,
+  }
 
-  const roadColor =
-    r.level === 'primary' ? '#B8A060' : r.level === 'secondary' ? '#C8B070' : '#D8C088'
-  const edgeColor = r.level === 'primary' ? '#907038' : '#A89050'
-
-  ctx.strokeStyle = r.level === 'primary' ? 'rgba(60,45,20,0.55)' : 'rgba(100,80,50,0.35)'
-  ctx.lineWidth = (r.w + (r.level === 'primary' ? 2 : 1)) * scale
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
-  ctx.beginPath()
-  ctx.moveTo(pts[0][0], pts[0][1] + (r.level === 'primary' ? 3 : 1.5) * scale)
-  for (let i = 1; i < pts.length; i++)
-    ctx.lineTo(pts[i][0], pts[i][1] + (r.level === 'primary' ? 3 : 1.5) * scale)
-  ctx.stroke()
 
-  ctx.strokeStyle = roadColor
-  ctx.lineWidth = r.w * scale
-  ctx.beginPath()
-  ctx.moveTo(pts[0][0], pts[0][1])
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1])
-  ctx.stroke()
-
-  if (r.level !== 'local') {
-    ctx.strokeStyle = edgeColor
-    ctx.lineWidth = r.level === 'primary' ? 1.2 * scale : 0.6 * scale
-    for (let side = -1; side <= 1; side += 2) {
-      ctx.beginPath()
-      for (let i = 0; i < pts.length; i++) {
-        const di = Math.max(0, Math.min(i, pts.length - 2))
-        const dx = pts[di + 1][0] - pts[di][0]
-        const dy = pts[di + 1][1] - pts[di][1]
-        const len = Math.hypot(dx, dy) || 1
-        const px = (-dy / len) * ((r.w * scale) / 2) * side
-        const py = (dx / len) * ((r.w * scale) / 2) * side
-        if (i === 0) ctx.moveTo(pts[i][0] + px, pts[i][1] + py)
-        else ctx.lineTo(pts[i][0] + px, pts[i][1] + py)
-      }
-      ctx.stroke()
-    }
-  }
-
-  if (r.level === 'primary') {
-    ctx.strokeStyle = 'rgba(200,190,170,0.6)'
-    ctx.lineWidth = 0.8 * scale
-    ctx.setLineDash([4 * scale, 5 * scale])
-    ctx.beginPath()
-    ctx.moveTo(pts[0][0], pts[0][1])
-    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1])
-    ctx.stroke()
-    ctx.setLineDash([])
-
-    ctx.strokeStyle = 'rgba(40,130,200,0.30)'
-    ctx.lineWidth = 2.5 * scale
-    ctx.setLineDash([3 * scale, 6 * scale])
-    ctx.beginPath()
-    ctx.moveTo(pts[0][0], pts[0][1])
-    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1])
-    ctx.stroke()
-    ctx.setLineDash([])
-  }
+  drawRoadPath(ctx, r, base, half)
+  drawRoadMarkings(ctx, r, base, half)
 }
 
 // ---- Bridges ----
@@ -194,122 +636,28 @@ function drawBridge(
 ) {
   const [x1, y1] = projectToIso(b.x1, b.y1, scale, ox, oy)
   const [x2, y2] = projectToIso(b.x2, b.y2, scale, ox, oy)
-  const hw = (b.w * scale) / 2
-  const dx = x2 - x1,
-    dy = y2 - y1
+  const width = b.w * scale
+  const half = width / 2
+  const dx = x2 - x1
+  const dy = y2 - y1
   const len = Math.hypot(dx, dy) || 1
-  const nx = -dy / len,
-    ny = dx / len
-
-  ctx.strokeStyle = 'rgba(160,140,120,0.2)'
-  ctx.lineWidth = b.w * scale + 2 * scale
-  ctx.lineCap = 'round'
-  ctx.beginPath()
-  ctx.moveTo(x1, y1 + 2 * scale)
-  ctx.lineTo(x2, y2 + 2 * scale)
-  ctx.stroke()
-
-  ctx.strokeStyle = BCOL.deck
-  ctx.lineWidth = b.w * scale
-  ctx.lineCap = 'round'
-  ctx.beginPath()
-  ctx.moveTo(x1, y1)
-  ctx.lineTo(x2, y2)
-  ctx.stroke()
-
-  ctx.strokeStyle = BCOL.deckShadow
-  ctx.lineWidth = 0.5 * scale
-  for (let s = -1; s <= 1; s += 2) {
-    ctx.beginPath()
-    ctx.moveTo(x1 + nx * hw * s, y1 + ny * hw * s)
-    ctx.lineTo(x2 + nx * hw * s, y2 + ny * hw * s)
-    ctx.stroke()
+  const base: BridgeBase = {
+    x1,
+    y1,
+    x2,
+    y2,
+    dx,
+    dy,
+    nx: -dy / len,
+    ny: dx / len,
+    scale,
+    width,
   }
+  const waterY = 2 * scale
 
-  if (b.type === 'cable') {
-    const midX = (x1 + x2) / 2
-    const midY = (y1 + y2) / 2
-    const pylonH = 12 * scale
-
-    ctx.strokeStyle = BCOL.pylon
-    ctx.lineWidth = 2.5 * scale
-    ctx.beginPath()
-    ctx.moveTo(midX, midY - pylonH)
-    ctx.lineTo(midX, midY)
-    ctx.stroke()
-
-    ctx.lineWidth = 1.5 * scale
-    ctx.beginPath()
-    ctx.moveTo(midX - 3 * scale, midY - pylonH * 0.6)
-    ctx.lineTo(midX + 3 * scale, midY - pylonH * 0.6)
-    ctx.stroke()
-
-    ctx.strokeStyle = BCOL.cable
-    ctx.lineWidth = 0.5 * scale
-    for (let i = 0; i <= 6; i++) {
-      const t = i / 6
-      const dx2 = x2 - midX,
-        dy2 = y2 - midY
-      const ex = midX + dx2 * t,
-        ey = midY + dy2 * t
-      ctx.beginPath()
-      ctx.moveTo(midX, midY - pylonH)
-      ctx.lineTo(ex, ey)
-      ctx.stroke()
-    }
-    for (let i = 0; i <= 6; i++) {
-      const t = i / 6
-      const dx2 = x1 - midX,
-        dy2 = y1 - midY
-      const ex = midX + dx2 * t,
-        ey = midY + dy2 * t
-      ctx.beginPath()
-      ctx.moveTo(midX, midY - pylonH)
-      ctx.lineTo(ex, ey)
-      ctx.stroke()
-    }
-  } else if (b.type === 'suspension') {
-    const pylonH = 10 * scale
-    const p1x = x1 + dx * 0.25,
-      p1y = y1 + dy * 0.25
-    const p2x = x1 + dx * 0.75,
-      p2y = y1 + dy * 0.75
-
-    ctx.strokeStyle = BCOL.pylon
-    ctx.lineWidth = 2.5 * scale
-    ctx.beginPath()
-    ctx.moveTo(p1x, p1y - pylonH)
-    ctx.lineTo(p1x, p1y)
-    ctx.stroke()
-    ctx.beginPath()
-    ctx.moveTo(p2x, p2y - pylonH)
-    ctx.lineTo(p2x, p2y)
-    ctx.stroke()
-
-    ctx.strokeStyle = BCOL.cable
-    ctx.lineWidth = 1.2 * scale
-    ctx.beginPath()
-    for (let i = 0; i <= 20; i++) {
-      const t = i / 20
-      const px = lerp(lerp(x1, p1x, t), lerp(p1x, p2x, t), t)
-      const py = lerp(lerp(y1, p1y - pylonH, t), lerp(p1y - pylonH, p2y - pylonH, t), t)
-      if (i === 0) ctx.moveTo(px, py)
-      else ctx.lineTo(px, py)
-    }
-    ctx.stroke()
-
-    ctx.lineWidth = 0.3 * scale
-    for (let i = 1; i < 10; i++) {
-      const t = i / 10
-      const deckX = lerp(x1, x2, t),
-        deckY = lerp(y1, y2, t)
-      const cableY = deckY - pylonH * Math.sin(t * Math.PI)
-      ctx.beginPath()
-      ctx.moveTo(deckX, deckY)
-      ctx.lineTo(deckX, cableY)
-      ctx.stroke()
-    }
-  }
+  drawBridgeDeck(ctx, b, base, half, waterY)
+  drawBridgeRails(ctx, b, base, half, waterY)
+  drawBridgePiers(ctx, b, base, half, waterY)
 }
 
 function lerp(a: number, b: number, t: number): number {
@@ -329,180 +677,35 @@ function drawBuilding(
   const d = b.d * scale
   const h = b.h * scale
   const dm = depthMul(b.depthLayer)
+  const half = w / 2
+  const base: StandardBuildingBase = {
+    kind: 'standard',
+    scale,
+    cx,
+    cy,
+    w,
+    d,
+    h,
+    t: [cx, cy - d / 2],
+    r: [cx + w / 2, cy],
+    bt: [cx, cy + d / 2],
+    l: [cx - w / 2, cy],
+  }
 
   if (dm < 1) ctx.globalAlpha = dm
 
-  // ---- Cascading tiered skyscraper ----
   if (b.type === 'glassTower') {
-    const tiers = [
-      { wFactor: 1.0, dFactor: 1.0, hStart: 0, hEnd: h * 0.4 },
-      { wFactor: 0.78, dFactor: 0.78, hStart: h * 0.4, hEnd: h * 0.72 },
-      { wFactor: 0.55, dFactor: 0.55, hStart: h * 0.72, hEnd: h },
-    ]
-    for (const tier of tiers) {
-      const tw = w * tier.wFactor
-      const td = d * tier.dFactor
-      const baseShift = tier.hStart
-      const tierH = tier.hEnd - tier.hStart
-
-      const t_t: [number, number] = [cx, cy - td / 2 - baseShift]
-      const r_t: [number, number] = [cx + tw / 2, cy - baseShift]
-      const b_t: [number, number] = [cx, cy + td / 2 - baseShift]
-      const l_t: [number, number] = [cx - tw / 2, cy - baseShift]
-
-      ctx.beginPath()
-      ctx.moveTo(l_t[0], l_t[1])
-      ctx.lineTo(b_t[0], b_t[1])
-      ctx.lineTo(b_t[0], b_t[1] - tierH)
-      ctx.lineTo(l_t[0], l_t[1] - tierH)
-      ctx.closePath()
-      ctx.fillStyle = b.shadowColor
-      ctx.fill()
-
-      ctx.beginPath()
-      ctx.moveTo(r_t[0], r_t[1])
-      ctx.lineTo(b_t[0], b_t[1])
-      ctx.lineTo(b_t[0], b_t[1] - tierH)
-      ctx.lineTo(r_t[0], r_t[1] - tierH)
-      ctx.closePath()
-      ctx.fillStyle = b.wallColor
-      ctx.fill()
-
-      ctx.beginPath()
-      ctx.moveTo(t_t[0], t_t[1] - tierH)
-      ctx.lineTo(r_t[0], r_t[1] - tierH)
-      ctx.lineTo(b_t[0], b_t[1] - tierH)
-      ctx.lineTo(l_t[0], l_t[1] - tierH)
-      ctx.closePath()
-      ctx.fillStyle = b.roofColor
-      ctx.fill()
-
-      ctx.strokeStyle = 'rgba(200,220,240,0.08)'
-      ctx.lineWidth = 0.3 * scale
-      const lw = Math.hypot(b_t[0] - l_t[0], b_t[1] - l_t[1])
-      for (let row = 0; row < 4; row++) {
-        for (let col = 0; col < 3; col++) {
-          ctx.fillStyle = 'rgba(200,220,255,0.06)'
-          ctx.fillRect(
-            l_t[0] + ((b_t[0] - l_t[0]) * (col + 0.4)) / 3,
-            l_t[1] - tierH + ((row + 0.3) * tierH) / 4,
-            lw * 0.06,
-            tierH * 0.12,
-          )
-        }
-      }
-
-      const rw = Math.hypot(b_t[0] - r_t[0], b_t[1] - r_t[1])
-      for (let row = 0; row < 4; row++) {
-        for (let col = 0; col < 3; col++) {
-          ctx.fillStyle = 'rgba(200,230,255,0.10)'
-          ctx.fillRect(
-            r_t[0] + ((b_t[0] - r_t[0]) * (col + 0.4)) / 3,
-            r_t[1] - tierH + ((row + 0.3) * tierH) / 4,
-            rw * 0.06,
-            tierH * 0.12,
-          )
-        }
-      }
+    for (const tier of glassTowerTiers(base)) {
+      drawBuildingShell(ctx, b, tier, half)
+      drawBuildingDetails(ctx, b, tier, half)
     }
     if (dm < 1) ctx.globalAlpha = 1
     return
   }
 
-  // ---- Standard box walls (residential, mixedUse, stilt) ----
-  const t: [number, number] = [cx, cy - d / 2]
-  const r: [number, number] = [cx + w / 2, cy]
-  const bt: [number, number] = [cx, cy + d / 2]
-  const l: [number, number] = [cx - w / 2, cy]
-
-  if (b.type === 'stilt') {
-    ctx.strokeStyle = '#3A3028'
-    ctx.lineWidth = 1.5 * scale
-    for (let pi = -0.3; pi <= 0.3; pi += 0.6) {
-      for (let pj = -0.25; pj <= 0.25; pj += 0.5) {
-        const px = cx + pi * w,
-          py = cy + pj * d
-        ctx.beginPath()
-        ctx.moveTo(px, py)
-        ctx.lineTo(px, py + h + 4 * scale)
-        ctx.stroke()
-      }
-    }
-  }
-
-  ctx.beginPath()
-  ctx.moveTo(l[0], l[1])
-  ctx.lineTo(bt[0], bt[1])
-  ctx.lineTo(bt[0], bt[1] + h)
-  ctx.lineTo(l[0], l[1] + h)
-  ctx.closePath()
-  ctx.fillStyle = b.shadowColor
-  ctx.fill()
-  ctx.fillStyle = 'rgba(40, 30, 20, 0.08)'
-  ctx.fill()
-
-  glassDetails(ctx, b, scale, l, bt, h, 'left')
-
-  ctx.beginPath()
-  ctx.moveTo(r[0], r[1])
-  ctx.lineTo(bt[0], bt[1])
-  ctx.lineTo(bt[0], bt[1] + h)
-  ctx.lineTo(r[0], r[1] + h)
-  ctx.closePath()
-  ctx.fillStyle = b.wallColor
-  ctx.fill()
-  ctx.fillStyle = 'rgba(255, 250, 240, 0.04)'
-  ctx.fill()
-
-  glassDetails(ctx, b, scale, r, bt, h, 'right')
-
-  if (b.type === 'residential') {
-    const roofTopY = cy - h
-    const roofPitch = d * 0.4
-    const ridgeCenter: [number, number] = [cx, roofTopY - d / 2 - roofPitch]
-    const ridgeFront: [number, number] = [cx, roofTopY + d / 2 - roofPitch]
-    const leftCorner: [number, number] = [cx - w / 2, roofTopY]
-    const rightCorner: [number, number] = [cx + w / 2, roofTopY]
-    const frontCorner: [number, number] = [cx, roofTopY + d / 2]
-
-    ctx.beginPath()
-    ctx.moveTo(leftCorner[0], leftCorner[1])
-    ctx.lineTo(frontCorner[0], frontCorner[1])
-    ctx.lineTo(ridgeFront[0], ridgeFront[1])
-    ctx.lineTo(ridgeCenter[0], ridgeCenter[1])
-    ctx.closePath()
-    ctx.fillStyle = b.shadowColor
-    ctx.fill()
-
-    ctx.beginPath()
-    ctx.moveTo(rightCorner[0], rightCorner[1])
-    ctx.lineTo(frontCorner[0], frontCorner[1])
-    ctx.lineTo(ridgeFront[0], ridgeFront[1])
-    ctx.lineTo(ridgeCenter[0], ridgeCenter[1])
-    ctx.closePath()
-    ctx.fillStyle = b.roofColor
-    ctx.fill()
-  } else {
-    ctx.beginPath()
-    ctx.moveTo(t[0], t[1])
-    ctx.lineTo(r[0], r[1])
-    ctx.lineTo(bt[0], bt[1])
-    ctx.lineTo(l[0], l[1])
-    ctx.closePath()
-    ctx.fillStyle = b.roofColor
-    ctx.fill()
-  }
-
-  ctx.strokeStyle = 'rgba(0,0,0,0.06)'
-  ctx.lineWidth = 0.4 * scale
-  ctx.stroke()
-
-  ctx.strokeStyle = 'rgba(255,255,255,0.22)'
-  ctx.lineWidth = 0.6 * scale
-  ctx.beginPath()
-  ctx.moveTo(bt[0], bt[1])
-  ctx.lineTo(bt[0], bt[1] + h)
-  ctx.stroke()
+  drawBuildingShadow(ctx, b, base, half)
+  drawBuildingShell(ctx, b, base, half)
+  drawBuildingDetails(ctx, b, base, half)
 
   if (dm < 1) ctx.globalAlpha = 1
 }

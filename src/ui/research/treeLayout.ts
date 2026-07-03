@@ -25,20 +25,45 @@ export function computeTreeLayout(
   laneGap: number,
   pad: number,
 ): TreeLayoutNode[] {
-  const nodesByDomain = new Map<string, ResearchNode[]>()
+  const nodesByDomain = buildNodesByDomain()
+  const { depth, primaryParent } = computeDepthsAndParents(nodesByDomain)
+  const childrenOf = buildChildrenMap(nodesByDomain, primaryParent)
+  const positions = layoutPositions(
+    nodesByDomain,
+    depth,
+    primaryParent,
+    childrenOf,
+    nodeWidth,
+    nodeHeight,
+    colGap,
+    rowGap,
+    laneGap,
+    pad,
+  )
+  return Array.from(positions.values())
+}
+
+function buildNodesByDomain(): Map<string, ResearchNode[]> {
+  const map = new Map<string, ResearchNode[]>()
   for (const node of RESEARCH_TREE) {
-    const list = nodesByDomain.get(node.domain) ?? []
+    const list = map.get(node.domain) ?? []
     list.push(node)
-    nodesByDomain.set(node.domain, list)
+    map.set(node.domain, list)
   }
+  return map
+}
 
-  function sameDomainPrereqIds(node: ResearchNode): string[] {
-    return node.prerequisites
-      .filter((p) => p.type === 'node' && p.nodeId)
-      .map((p) => p.nodeId as string)
-      .filter((id) => getNodeDef(id)?.domain === node.domain)
-  }
+function sameDomainPrereqIds(node: ResearchNode): string[] {
+  return node.prerequisites
+    .filter((p) => p.type === 'node' && p.nodeId)
+    .map((p) => p.nodeId as string)
+    .filter((id) => getNodeDef(id)?.domain === node.domain)
+}
 
+function computeDepthsAndParents(nodesByDomain: Map<string, ResearchNode[]>): {
+  depth: Map<string, number>
+  primaryParent: Map<string, string | null>
+} {
   const depth = new Map<string, number>()
   const primaryParent = new Map<string, string | null>()
 
@@ -67,30 +92,43 @@ export function computeTreeLayout(
     return bestDepth + 1
   }
 
-  for (const node of RESEARCH_TREE) computeDepth(node.id)
+  for (const list of nodesByDomain.values()) {
+    for (const node of list) computeDepth(node.id)
+  }
+  return { depth, primaryParent }
+}
 
+function buildChildrenMap(
+  nodesByDomain: Map<string, ResearchNode[]>,
+  primaryParent: Map<string, string | null>,
+): Map<string, string[]> {
   const childrenOf = new Map<string, string[]>()
-  for (const node of RESEARCH_TREE) {
-    const parent = primaryParent.get(node.id)
-    if (parent) {
-      const arr = childrenOf.get(parent) ?? []
-      arr.push(node.id)
-      childrenOf.set(parent, arr)
+  for (const list of nodesByDomain.values()) {
+    for (const node of list) {
+      const parent = primaryParent.get(node.id)
+      if (parent) {
+        const arr = childrenOf.get(parent) ?? []
+        arr.push(node.id)
+        childrenOf.set(parent, arr)
+      }
     }
   }
   for (const arr of childrenOf.values()) arr.sort()
+  return childrenOf
+}
 
-  const subtreeWidth = new Map<string, number>()
-  function computeSubtreeWidth(id: string): number {
-    const cached = subtreeWidth.get(id)
-    if (cached !== undefined) return cached
-    const kids = childrenOf.get(id) ?? []
-    const width = kids.length === 0 ? 1 : kids.reduce((sum, k) => sum + computeSubtreeWidth(k), 0)
-    subtreeWidth.set(id, width)
-    return width
-  }
-  for (const node of RESEARCH_TREE) computeSubtreeWidth(node.id)
-
+function layoutPositions(
+  nodesByDomain: Map<string, ResearchNode[]>,
+  depth: Map<string, number>,
+  primaryParent: Map<string, string | null>,
+  childrenOf: Map<string, string[]>,
+  nodeWidth: number,
+  nodeHeight: number,
+  colGap: number,
+  rowGap: number,
+  laneGap: number,
+  pad: number,
+): Map<string, TreeLayoutNode> {
   const slotWidth = nodeWidth + colGap
   const positions = new Map<string, TreeLayoutNode>()
 
@@ -103,7 +141,7 @@ export function computeTreeLayout(
     let cursor = 0
     function place(id: string) {
       const kids = childrenOf.get(id) ?? []
-      const y = pad + depth.get(id)! * (nodeHeight + rowGap)
+      const y = pad + (depth.get(id) ?? 0) * (nodeHeight + rowGap)
       if (kids.length === 0) {
         const slot = cursor
         cursor += 1
@@ -116,6 +154,7 @@ export function computeTreeLayout(
       const centerSlot = (startSlot + endSlot - 1) / 2
       positions.set(id, { nodeId: id, x: laneStartX + centerSlot * slotWidth, y })
     }
+
     for (const root of roots) place(root.id)
     return cursor
   }
@@ -126,5 +165,5 @@ export function computeTreeLayout(
     laneX += Math.max(1, usedSlots) * slotWidth + laneGap
   }
 
-  return Array.from(positions.values())
+  return positions
 }

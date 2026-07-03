@@ -136,6 +136,58 @@ const SECTIONS = [
   },
 ]
 
+type ReferenceSection = (typeof SECTIONS)[number]
+type ReferenceRowData = ReferenceSection['rows'][number]
+
+function getReferenceRowIcon(sectionLabel: string, condition: string): LucideIcon | undefined {
+  if (sectionLabel === 'Key Stats') return STAT_ICONS[STAT_ROW_KEYS[condition]]?.icon
+  if (sectionLabel === 'Factions') return FACTION_ICONS[FACTION_ROW_KEYS[condition]]?.icon
+  return undefined
+}
+
+function ReferenceRow({ sectionLabel, row }: { sectionLabel: string; row: ReferenceRowData }) {
+  const isSeverity = sectionLabel === 'Severity'
+  const IconComp = getReferenceRowIcon(sectionLabel, row.condition)
+  const hasIcon =
+    IconComp !== undefined || sectionLabel === 'Key Stats' || sectionLabel === 'Factions'
+  const gridTemplateColumns = isSeverity ? '1fr' : hasIcon ? '18px 130px 1fr' : '130px 1fr'
+
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns,
+        gap: '8px',
+        padding: '6px 8px',
+        background: 'var(--surface)',
+        borderRadius: '2px',
+        fontSize: '12px',
+        lineHeight: 1.5,
+      }}
+    >
+      {hasIcon && (
+        <span style={{ display: 'flex', alignItems: 'center', color: 'var(--text-secondary)' }}>
+          {IconComp && <IconComp size={12} />}
+        </span>
+      )}
+      <span
+        style={{
+          fontFamily: "'Archivo Narrow', sans-serif",
+          fontWeight: 600,
+          color: isSeverity ? 'var(--text-secondary)' : 'var(--text)',
+        }}
+      >
+        {row.condition}
+      </span>
+      {!isSeverity && (
+        <span style={{ fontFamily: 'Georgia, serif', color: 'var(--text-secondary)' }}>
+          {row.recovery ? `${row.threshold} — ${row.recovery}` : row.threshold}
+        </span>
+      )}
+    </div>
+  )
+}
+
 export function HelpReference({ onClose }: { onClose: () => void }) {
   return (
     <div
@@ -207,65 +259,9 @@ export function HelpReference({ onClose }: { onClose: () => void }) {
               {section.label}
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              {section.rows.map((row) => {
-                const isStats = section.label === 'Key Stats'
-                const isFactions = section.label === 'Factions'
-                const isSeverity = section.label === 'Severity'
-                const hasIcon = isStats || isFactions
-                let IconComp: LucideIcon | undefined
-                if (isStats) IconComp = STAT_ICONS[STAT_ROW_KEYS[row.condition]]?.icon
-                if (isFactions) IconComp = FACTION_ICONS[FACTION_ROW_KEYS[row.condition]]?.icon
-                return (
-                  <div
-                    key={row.condition}
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: isSeverity
-                        ? '1fr'
-                        : hasIcon
-                          ? '18px 130px 1fr'
-                          : '130px 1fr',
-                      gap: '8px',
-                      padding: '6px 8px',
-                      background: 'var(--surface)',
-                      borderRadius: '2px',
-                      fontSize: '12px',
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {hasIcon && (
-                      <span
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          color: 'var(--text-secondary)',
-                        }}
-                      >
-                        {IconComp && <IconComp size={12} />}
-                      </span>
-                    )}
-                    <span
-                      style={{
-                        fontFamily: "'Archivo Narrow', sans-serif",
-                        fontWeight: 600,
-                        color: isSeverity ? 'var(--text-secondary)' : 'var(--text)',
-                      }}
-                    >
-                      {isSeverity ? row.condition : row.condition}
-                    </span>
-                    {!isSeverity && (
-                      <span
-                        style={{
-                          fontFamily: 'Georgia, serif',
-                          color: 'var(--text-secondary)',
-                        }}
-                      >
-                        {row.recovery ? `${row.threshold} — ${row.recovery}` : row.threshold}
-                      </span>
-                    )}
-                  </div>
-                )
-              })}
+              {section.rows.map((row) => (
+                <ReferenceRow key={row.condition} sectionLabel={section.label} row={row} />
+              ))}
             </div>
           </section>
         ))}

@@ -40,66 +40,97 @@ function weightedApproval(state: GameState): number {
   return weighted / totalWeight
 }
 
-function statAnalyst(prev: GameState, next: GameState): AnalystResult {
-  const cashDelta = next.stats.cashReserve - prev.stats.cashReserve
-  const trustDelta = next.stats.publicTrust - prev.stats.publicTrust
-  const corrDelta = next.stats.corruptionPressure - prev.stats.corruptionPressure
-  const infraDelta = next.stats.infrastructureScore - prev.stats.infrastructureScore
-  const prevRev = prev.lastWeekRevenue?.total ?? 0
-  const nextRev = next.lastWeekRevenue?.total ?? 0
-  const revDelta = nextRev - prevRev
-  const prevExp = prev.lastWeekExpenditure?.total ?? 0
-  const nextExp = next.lastWeekExpenditure?.total ?? 0
-  const expDelta = nextExp - prevExp
+function pickTopCandidate(candidates: AnalystResult[]): AnalystResult {
+  const sorted = candidates
+    .filter((candidate): candidate is NonNullable<AnalystResult> => candidate !== null)
+    .sort((a, b) => b.score - a.score)
+  return sorted[0] ?? null
+}
 
-  const candidates: AnalystResult[] = []
+type StatAnalystContext = {
+  cashDelta: number
+  trustDelta: number
+  corrDelta: number
+  infraDelta: number
+  nextRev: number
+  revDelta: number
+  nextExp: number
+  expDelta: number
+}
 
-  if (cashDelta < -5) {
-    candidates.push({
-      score: 6,
-      headline: `Cash Reserve Down \u20A6${Math.abs(cashDelta).toFixed(1)}bn in Single Week`,
-      deck: `The state treasury contracted by \u20A6${Math.abs(cashDelta).toFixed(1)}bn this week, reflecting persistent spending pressure against revenue collection.`,
-      category: 'fiscal',
-      dataPoints: [
-        {
-          label: 'Cash Reserve',
-          value: `\u20A6${next.stats.cashReserve.toFixed(1)}bn`,
-          delta: `${cashDelta.toFixed(1)}bn`,
-          positive: false,
-        },
-        {
-          label: 'Revenue',
-          value: `\u20A6${nextRev.toFixed(1)}bn`,
-          delta: revDelta !== 0 ? `${revDelta > 0 ? '+' : ''}${revDelta.toFixed(1)}bn` : undefined,
-          positive: revDelta > 0,
-        },
-        {
-          label: 'Expenditure',
-          value: `\u20A6${nextExp.toFixed(1)}bn`,
-          delta: expDelta !== 0 ? `${expDelta > 0 ? '+' : ''}${expDelta.toFixed(1)}bn` : undefined,
-          positive: expDelta < 0,
-        },
-      ],
-    })
-  } else if (prev.stats.cashReserve >= 0 && next.stats.cashReserve < 0) {
-    candidates.push({
-      score: 7,
-      headline: 'Lagos Treasury in the Red',
-      deck: `Cash reserves have fallen below zero for the first time this term. The state is drawing on credit lines to meet obligations.`,
-      category: 'crisis',
-      dataPoints: [
-        {
-          label: 'Cash Reserve',
-          value: `\u20A6${next.stats.cashReserve.toFixed(1)}bn`,
-          delta: `${cashDelta.toFixed(1)}bn`,
-          positive: false,
-        },
-      ],
-    })
+function buildCashReserveDropCandidate(
+  next: GameState,
+  context: StatAnalystContext,
+): NonNullable<AnalystResult> {
+  return {
+    score: 6,
+    headline: `Cash Reserve Down \u20A6${Math.abs(context.cashDelta).toFixed(1)}bn in Single Week`,
+    deck: `The state treasury contracted by \u20A6${Math.abs(context.cashDelta).toFixed(1)}bn this week, reflecting persistent spending pressure against revenue collection.`,
+    category: 'fiscal',
+    dataPoints: [
+      {
+        label: 'Cash Reserve',
+        value: `\u20A6${next.stats.cashReserve.toFixed(1)}bn`,
+        delta: `${context.cashDelta.toFixed(1)}bn`,
+        positive: false,
+      },
+      {
+        label: 'Revenue',
+        value: `\u20A6${context.nextRev.toFixed(1)}bn`,
+        delta:
+          context.revDelta !== 0
+            ? `${context.revDelta > 0 ? '+' : ''}${context.revDelta.toFixed(1)}bn`
+            : undefined,
+        positive: context.revDelta > 0,
+      },
+      {
+        label: 'Expenditure',
+        value: `\u20A6${context.nextExp.toFixed(1)}bn`,
+        delta:
+          context.expDelta !== 0
+            ? `${context.expDelta > 0 ? '+' : ''}${context.expDelta.toFixed(1)}bn`
+            : undefined,
+        positive: context.expDelta < 0,
+      },
+    ],
   }
+}
 
+function buildTreasuryInRedCandidate(
+  next: GameState,
+  cashDelta: number,
+): NonNullable<AnalystResult> {
+  return {
+    score: 7,
+    headline: 'Lagos Treasury in the Red',
+    deck: `Cash reserves have fallen below zero for the first time this term. The state is drawing on credit lines to meet obligations.`,
+    category: 'crisis',
+    dataPoints: [
+      {
+        label: 'Cash Reserve',
+        value: `\u20A6${next.stats.cashReserve.toFixed(1)}bn`,
+        delta: `${cashDelta.toFixed(1)}bn`,
+        positive: false,
+      },
+    ],
+  }
+}
+
+function buildCashFiscalCandidate(
+  prev: GameState,
+  next: GameState,
+  context: StatAnalystContext,
+): AnalystResult {
+  if (context.cashDelta < -5) return buildCashReserveDropCandidate(next, context)
+  if (prev.stats.cashReserve >= 0 && next.stats.cashReserve < 0) {
+    return buildTreasuryInRedCandidate(next, context.cashDelta)
+  }
+  return null
+}
+
+function buildTrustCandidate(next: GameState, trustDelta: number): AnalystResult {
   if (trustDelta < -5) {
-    candidates.push({
+    return {
       score: 5,
       headline: `Public Trust Drops ${Math.abs(trustDelta).toFixed(0)} Points`,
       deck: `Governor approval slipped ${Math.abs(trustDelta).toFixed(0)} points this week as political pressures continue to erode public confidence.`,
@@ -112,9 +143,11 @@ function statAnalyst(prev: GameState, next: GameState): AnalystResult {
           positive: false,
         },
       ],
-    })
-  } else if (trustDelta > 5) {
-    candidates.push({
+    }
+  }
+
+  if (trustDelta > 5) {
+    return {
       score: 4,
       headline: `Public Trust Rises ${trustDelta.toFixed(0)} Points`,
       deck: `The governor\u2019s approval rating climbed ${trustDelta.toFixed(0)} points this week, signalling improving sentiment among Lagosians.`,
@@ -127,65 +160,99 @@ function statAnalyst(prev: GameState, next: GameState): AnalystResult {
           positive: true,
         },
       ],
-    })
+    }
   }
 
-  if (corrDelta > 5) {
-    candidates.push({
-      score: 5,
-      headline: `Corruption Pressure Spikes ${Math.abs(corrDelta).toFixed(0)} Points`,
-      deck: `Corruption indicators rose sharply this week. Civil society groups are beginning to take notice.`,
-      category: 'political',
-      dataPoints: [
-        {
-          label: 'Corruption Pressure',
-          value: `${next.stats.corruptionPressure.toFixed(0)}`,
-          delta: `+${corrDelta.toFixed(0)}`,
-          positive: false,
-        },
-      ],
-    })
+  return null
+}
+
+function buildCorruptionPressureCandidate(next: GameState, corrDelta: number): AnalystResult {
+  if (corrDelta <= 5) return null
+
+  return {
+    score: 5,
+    headline: `Corruption Pressure Spikes ${Math.abs(corrDelta).toFixed(0)} Points`,
+    deck: `Corruption indicators rose sharply this week. Civil society groups are beginning to take notice.`,
+    category: 'political',
+    dataPoints: [
+      {
+        label: 'Corruption Pressure',
+        value: `${next.stats.corruptionPressure.toFixed(0)}`,
+        delta: `+${corrDelta.toFixed(0)}`,
+        positive: false,
+      },
+    ],
+  }
+}
+
+function buildInfrastructureCandidate(next: GameState, infraDelta: number): AnalystResult {
+  if (infraDelta >= -3) return null
+
+  return {
+    score: 4,
+    headline: `Infrastructure Declines ${Math.abs(infraDelta).toFixed(0)} Points`,
+    deck: `The state\u2019s infrastructure score fell by ${Math.abs(infraDelta).toFixed(0)} this week as maintenance spending lags behind decay.`,
+    category: 'background',
+    dataPoints: [
+      {
+        label: 'Infrastructure',
+        value: `${next.stats.infrastructureScore.toFixed(0)}/100`,
+        delta: `${infraDelta.toFixed(0)}pts`,
+        positive: false,
+      },
+    ],
+  }
+}
+
+function buildRevenueSwingCandidate(nextRev: number, revDelta: number): AnalystResult {
+  if (Math.abs(revDelta) <= 8) return null
+
+  return {
+    score: 6,
+    headline: `Revenue Swings \u20A6${Math.abs(revDelta).toFixed(1)}bn Week-on-Week`,
+    deck: `Lagos recorded a sharp ${revDelta > 0 ? 'increase' : 'decline'} in weekly revenue, driven largely by FAAC volatility and collection efficiency.`,
+    category: 'fiscal',
+    dataPoints: [
+      {
+        label: 'Revenue Swing',
+        value: `\u20A6${nextRev.toFixed(1)}bn`,
+        delta: `${revDelta > 0 ? '+' : ''}${revDelta.toFixed(1)}bn`,
+        positive: revDelta > 0,
+      },
+    ],
+  }
+}
+
+function statAnalyst(prev: GameState, next: GameState): AnalystResult {
+  const cashDelta = next.stats.cashReserve - prev.stats.cashReserve
+  const trustDelta = next.stats.publicTrust - prev.stats.publicTrust
+  const corrDelta = next.stats.corruptionPressure - prev.stats.corruptionPressure
+  const infraDelta = next.stats.infrastructureScore - prev.stats.infrastructureScore
+  const prevRev = prev.lastWeekRevenue?.total ?? 0
+  const nextRev = next.lastWeekRevenue?.total ?? 0
+  const revDelta = nextRev - prevRev
+  const prevExp = prev.lastWeekExpenditure?.total ?? 0
+  const nextExp = next.lastWeekExpenditure?.total ?? 0
+  const expDelta = nextExp - prevExp
+
+  const context: StatAnalystContext = {
+    cashDelta,
+    trustDelta,
+    corrDelta,
+    infraDelta,
+    nextRev,
+    revDelta,
+    nextExp,
+    expDelta,
   }
 
-  if (infraDelta < -3) {
-    candidates.push({
-      score: 4,
-      headline: `Infrastructure Declines ${Math.abs(infraDelta).toFixed(0)} Points`,
-      deck: `The state\u2019s infrastructure score fell by ${Math.abs(infraDelta).toFixed(0)} this week as maintenance spending lags behind decay.`,
-      category: 'background',
-      dataPoints: [
-        {
-          label: 'Infrastructure',
-          value: `${next.stats.infrastructureScore.toFixed(0)}/100`,
-          delta: `${infraDelta.toFixed(0)}pts`,
-          positive: false,
-        },
-      ],
-    })
-  }
-
-  if (Math.abs(revDelta) > 8) {
-    candidates.push({
-      score: 6,
-      headline: `Revenue Swings \u20A6${Math.abs(revDelta).toFixed(1)}bn Week-on-Week`,
-      deck: `Lagos recorded a sharp ${revDelta > 0 ? 'increase' : 'decline'} in weekly revenue, driven largely by FAAC volatility and collection efficiency.`,
-      category: 'fiscal',
-      dataPoints: [
-        {
-          label: 'Revenue Swing',
-          value: `\u20A6${nextRev.toFixed(1)}bn`,
-          delta: `${revDelta > 0 ? '+' : ''}${revDelta.toFixed(1)}bn`,
-          positive: revDelta > 0,
-        },
-      ],
-    })
-  }
-
-  if (candidates.length === 0) return null
-  const sorted = candidates
-    .filter((c): c is NonNullable<typeof c> => true)
-    .sort((a, b) => b.score - a.score)
-  return sorted[0]
+  return pickTopCandidate([
+    buildCashFiscalCandidate(prev, next, context),
+    buildTrustCandidate(next, context.trustDelta),
+    buildCorruptionPressureCandidate(next, context.corrDelta),
+    buildInfrastructureCandidate(next, context.infraDelta),
+    buildRevenueSwingCandidate(context.nextRev, context.revDelta),
+  ])
 }
 
 function trendAnalyst(prev: GameState, next: GameState): AnalystResult {
@@ -266,146 +333,163 @@ function trendAnalyst(prev: GameState, next: GameState): AnalystResult {
     })
   }
 
-  if (candidates.length === 0) return null
-  const sorted2 = candidates
-    .filter((c): c is NonNullable<typeof c> => true)
-    .sort((a, b) => b.score - a.score)
-  return sorted2[0]
+  return pickTopCandidate(candidates)
+}
+
+function buildTermMilestoneCandidate(next: GameState): AnalystResult {
+  const milestoneWeeks = [26, 52, 78, 104, 130, 156, 182, 208]
+  if (!milestoneWeeks.includes(next.week)) return null
+
+  return {
+    score: 5,
+    headline: `Week ${next.week} — A Governance Milestone`,
+    deck: `The administration has reached week ${next.week} of its term. A moment for reflection on progress and setbacks.`,
+    category: 'milestone',
+    dataPoints: [{ label: 'Term Week', value: `${next.week}`, positive: undefined }],
+  }
+}
+
+function buildCampaignModeCandidate(prev: GameState, next: GameState): AnalystResult {
+  if (prev.inCampaignMode === next.inCampaignMode || !next.inCampaignMode) return null
+
+  return {
+    score: 7,
+    headline: 'Election Campaign Mode Activated',
+    deck: 'With 13 weeks until the election, official campaign activities have begun. Every decision from here carries electoral weight.',
+    category: 'milestone',
+    dataPoints: [{ label: 'Mode', value: 'Campaign', positive: undefined }],
+  }
+}
+
+function buildEmergencyRuleCandidate(prev: GameState, next: GameState): AnalystResult {
+  if (prev.emergencySuspensionWeeks !== 0 || next.emergencySuspensionWeeks <= 0) return null
+
+  return {
+    score: 7,
+    headline: 'Federal Government Declares Emergency in Lagos',
+    deck: 'The presidency has invoked emergency powers, placing Lagos under federal administrator control. Executive authority is suspended.',
+    category: 'crisis',
+    dataPoints: [{ label: 'Status', value: 'Emergency Rule', positive: false }],
+  }
+}
+
+function buildLitigationCandidate(prev: GameState, next: GameState): AnalystResult {
+  if (prev.litigationActive === next.litigationActive || !next.litigationActive) return null
+
+  return {
+    score: 7,
+    headline: 'Election Petition Filed at Tribunal',
+    deck: 'A legal challenge to the validity of the election has been filed. The tribunal will hear arguments in the coming weeks.',
+    category: 'crisis',
+    dataPoints: [{ label: 'Litigation', value: 'Active', positive: false }],
+  }
+}
+
+function buildImpeachmentCandidate(prev: GameState, next: GameState): AnalystResult {
+  if (prev.impeachmentStage === next.impeachmentStage || next.impeachmentStage <= 0) return null
+
+  return {
+    score: 7,
+    headline: 'Impeachment Proceedings Initiated',
+    deck: 'The Lagos State House of Assembly has begun proceedings against the governor. The political stakes are now existential.',
+    category: 'crisis',
+    dataPoints: [{ label: 'Stage', value: `Stage ${next.impeachmentStage}`, positive: false }],
+  }
+}
+
+function buildRiotModeCandidate(prev: GameState, next: GameState): AnalystResult {
+  if (prev.riotModeActive === next.riotModeActive || !next.riotModeActive) return null
+
+  return {
+    score: 7,
+    headline: 'Civil Unrest — Riot Mode Declared',
+    deck: 'Youth tension has crossed the critical threshold. Normal governance is suspended until order is restored.',
+    category: 'crisis',
+    dataPoints: [{ label: 'Status', value: 'Riot Mode', positive: false }],
+  }
+}
+
+function buildGrantFreezeCandidate(prev: GameState, next: GameState): AnalystResult {
+  if (prev.grantFreezeDuration !== 0 || next.grantFreezeDuration <= 0) return null
+
+  return {
+    score: 7,
+    headline: 'International Grants Suspended',
+    deck: 'Sustained corruption indicators have triggered a freeze on international development grants. Lagos loses access to external funding.',
+    category: 'crisis',
+    dataPoints: [
+      { label: 'Grant Freeze', value: `${next.grantFreezeDuration} weeks`, positive: false },
+    ],
+  }
+}
+
+function buildLgaElectionCandidate(prev: GameState, next: GameState): AnalystResult {
+  if (prev.lgaElectionHeld === next.lgaElectionHeld || !next.lgaElectionHeld) return null
+
+  const result = next.lgaElectionResult ?? 0
+  return {
+    score: 8,
+    headline: `LGA Elections: Party Wins ${result.toFixed(0)}% of LGAs`,
+    deck: `Local government elections have concluded. The party-aligned chairman count gives a ${result.toFixed(0)}% loyalty score across the 20 LGAs.`,
+    category: 'milestone',
+    dataPoints: [{ label: 'Party LGAs', value: `${result.toFixed(0)}%`, positive: result >= 50 }],
+  }
+}
+
+function buildElectionResultCandidate(prev: GameState, next: GameState): AnalystResult {
+  if (prev.electionResult !== null || next.electionResult === null) return null
+
+  const won = next.reElected
+  return {
+    score: 8,
+    headline: won ? 'Governor Wins Re-Election' : 'Governor Defeated at the Polls',
+    deck: won
+      ? `With ${next.electionResult.toFixed(1)}% of the vote, the governor secures a second term.`
+      : `The governor received ${next.electionResult.toFixed(1)}% of the vote, falling short of the threshold for re-election.`,
+    category: 'milestone',
+    dataPoints: [
+      {
+        label: 'Vote Share',
+        value: `${next.electionResult.toFixed(1)}%`,
+        positive: won ?? false,
+      },
+    ],
+  }
+}
+
+function buildPrimaryResultCandidate(prev: GameState, next: GameState): AnalystResult {
+  if (prev.primaryWon !== null || next.primaryWon === null) return null
+
+  return {
+    score: 7,
+    headline: next.primaryWon ? 'Governor Wins Party Primary' : 'Governor Loses Party Primary',
+    deck: next.primaryWon
+      ? 'The governor has secured the party nomination for the upcoming election.'
+      : 'The party has chosen a different candidate. The governor\u2019s re-election bid ends here.',
+    category: 'milestone',
+    dataPoints: [
+      {
+        label: 'Primary Result',
+        value: next.primaryWon ? 'Won' : 'Lost',
+        positive: next.primaryWon,
+      },
+    ],
+  }
 }
 
 function compositeAnalyst(prev: GameState, next: GameState): AnalystResult {
-  const candidates: AnalystResult[] = []
-
-  const milestoneWeeks = [26, 52, 78, 104, 130, 156, 182, 208]
-  if (milestoneWeeks.includes(next.week)) {
-    candidates.push({
-      score: 5,
-      headline: `Week ${next.week} — A Governance Milestone`,
-      deck: `The administration has reached week ${next.week} of its term. A moment for reflection on progress and setbacks.`,
-      category: 'milestone',
-      dataPoints: [{ label: 'Term Week', value: `${next.week}`, positive: undefined }],
-    })
-  }
-
-  if (prev.inCampaignMode !== next.inCampaignMode && next.inCampaignMode) {
-    candidates.push({
-      score: 7,
-      headline: 'Election Campaign Mode Activated',
-      deck: 'With 13 weeks until the election, official campaign activities have begun. Every decision from here carries electoral weight.',
-      category: 'milestone',
-      dataPoints: [{ label: 'Mode', value: 'Campaign', positive: undefined }],
-    })
-  }
-
-  if (prev.emergencySuspensionWeeks === 0 && next.emergencySuspensionWeeks > 0) {
-    candidates.push({
-      score: 7,
-      headline: 'Federal Government Declares Emergency in Lagos',
-      deck: 'The presidency has invoked emergency powers, placing Lagos under federal administrator control. Executive authority is suspended.',
-      category: 'crisis',
-      dataPoints: [{ label: 'Status', value: 'Emergency Rule', positive: false }],
-    })
-  }
-
-  if (prev.litigationActive !== next.litigationActive && next.litigationActive) {
-    candidates.push({
-      score: 7,
-      headline: 'Election Petition Filed at Tribunal',
-      deck: 'A legal challenge to the validity of the election has been filed. The tribunal will hear arguments in the coming weeks.',
-      category: 'crisis',
-      dataPoints: [{ label: 'Litigation', value: 'Active', positive: false }],
-    })
-  }
-
-  if (prev.impeachmentStage !== next.impeachmentStage && next.impeachmentStage > 0) {
-    candidates.push({
-      score: 7,
-      headline: 'Impeachment Proceedings Initiated',
-      deck: 'The Lagos State House of Assembly has begun proceedings against the governor. The political stakes are now existential.',
-      category: 'crisis',
-      dataPoints: [{ label: 'Stage', value: `Stage ${next.impeachmentStage}`, positive: false }],
-    })
-  }
-
-  if (prev.riotModeActive !== next.riotModeActive && next.riotModeActive) {
-    candidates.push({
-      score: 7,
-      headline: 'Civil Unrest — Riot Mode Declared',
-      deck: 'Youth tension has crossed the critical threshold. Normal governance is suspended until order is restored.',
-      category: 'crisis',
-      dataPoints: [{ label: 'Status', value: 'Riot Mode', positive: false }],
-    })
-  }
-
-  if (prev.grantFreezeDuration === 0 && next.grantFreezeDuration > 0) {
-    candidates.push({
-      score: 7,
-      headline: 'International Grants Suspended',
-      deck: 'Sustained corruption indicators have triggered a freeze on international development grants. Lagos loses access to external funding.',
-      category: 'crisis',
-      dataPoints: [
-        { label: 'Grant Freeze', value: `${next.grantFreezeDuration} weeks`, positive: false },
-      ],
-    })
-  }
-
-  if (prev.lgaElectionHeld !== next.lgaElectionHeld && next.lgaElectionHeld) {
-    const result = next.lgaElectionResult ?? 0
-    candidates.push({
-      score: 8,
-      headline: `LGA Elections: Party Wins ${result.toFixed(0)}% of LGAs`,
-      deck: `Local government elections have concluded. The party-aligned chairman count gives a ${result.toFixed(0)}% loyalty score across the 20 LGAs.`,
-      category: 'milestone',
-      dataPoints: [{ label: 'Party LGAs', value: `${result.toFixed(0)}%`, positive: result >= 50 }],
-    })
-  }
-
-  if (prev.electionResult === null && next.electionResult !== null) {
-    const won = next.reElected
-    candidates.push({
-      score: 8,
-      headline: won ? 'Governor Wins Re-Election' : 'Governor Defeated at the Polls',
-      deck: won
-        ? `With ${next.electionResult.toFixed(1)}% of the vote, the governor secures a second term.`
-        : `The governor received ${next.electionResult.toFixed(1)}% of the vote, falling short of the threshold for re-election.`,
-      category: 'milestone',
-      dataPoints: [
-        {
-          label: 'Vote Share',
-          value: `${next.electionResult.toFixed(1)}%`,
-          positive: won ?? false,
-        },
-      ],
-    })
-  }
-
-  if (prev.primaryWon === null && next.primaryWon !== null) {
-    candidates.push({
-      score: 7,
-      headline: next.primaryWon ? 'Governor Wins Party Primary' : 'Governor Loses Party Primary',
-      deck: next.primaryWon
-        ? 'The governor has secured the party nomination for the upcoming election.'
-        : 'The party has chosen a different candidate. The governor\u2019s re-election bid ends here.',
-      category: 'milestone',
-      dataPoints: [
-        {
-          label: 'Primary Result',
-          value: next.primaryWon ? 'Won' : 'Lost',
-          positive: next.primaryWon,
-        },
-      ],
-    })
-  }
-
-  if (!next.isGameOver && prev.isGameOver !== next.isGameOver) {
-    // handled below
-  }
-
-  if (candidates.length === 0) return null
-  const sorted3 = candidates
-    .filter((c): c is NonNullable<typeof c> => true)
-    .sort((a, b) => b.score - a.score)
-  return sorted3[0]
+  return pickTopCandidate([
+    buildTermMilestoneCandidate(next),
+    buildCampaignModeCandidate(prev, next),
+    buildEmergencyRuleCandidate(prev, next),
+    buildLitigationCandidate(prev, next),
+    buildImpeachmentCandidate(prev, next),
+    buildRiotModeCandidate(prev, next),
+    buildGrantFreezeCandidate(prev, next),
+    buildLgaElectionCandidate(prev, next),
+    buildElectionResultCandidate(prev, next),
+    buildPrimaryResultCandidate(prev, next),
+  ])
 }
 
 function timelineAnalyst(prev: GameState, next: GameState): AnalystResult {

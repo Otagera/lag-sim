@@ -387,46 +387,34 @@ function cardSurface(t: Theme, v: Variant): string {
   return v === 'atmospheric' ? `${t.bgCard}, ${t.surface}` : t.surface
 }
 
-// ─── 1. STATUS BAR ───────────────────────────────────────────────────────────
-function StatusBar({
+function StatusBarMetric({
+  label,
+  display,
+  warn,
   theme,
   variant,
-  state,
 }: {
+  label: string
+  display: string
+  warn: boolean
   theme: Theme
   variant: Variant
-  state: GameState
 }) {
-  const [tr0, tr1, tr2, tr3] = STATS[state]
-  const treasury = useCountTo(tr0)
-  const trust = useCountTo(tr1)
-  const pc = useCountTo(tr2)
-  const approval = useCountTo(tr3)
-
-  const warnTreasury = tr0 < 20
-  const warnPC = tr2 < 28
-  const warnTrust = tr1 < 45
-  const warnApproval = tr3 < 38
-
-  const labelStyle: React.CSSProperties = {
-    fontFamily: theme.fontUI,
-    fontSize: '9px',
-    textTransform: 'uppercase',
-    letterSpacing: '0.13em',
-    color: theme.textFaint,
-    marginBottom: '2px',
-    transition: tr(theme),
-  }
-
-  const statBlock = (
-    label: string,
-    _raw: number,
-    display: string,
-    warn: boolean,
-    _decimals = 0,
-  ) => (
-    <div key={label} style={{ textAlign: 'right' }}>
-      <div style={labelStyle}>{label}</div>
+  return (
+    <div style={{ textAlign: 'right' }}>
+      <div
+        style={{
+          fontFamily: theme.fontUI,
+          fontSize: '9px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.13em',
+          color: theme.textFaint,
+          marginBottom: '2px',
+          transition: tr(theme),
+        }}
+      >
+        {label}
+      </div>
       <div
         className={warn ? 'sl-warn' : ''}
         style={{
@@ -456,6 +444,61 @@ function StatusBar({
       )}
     </div>
   )
+}
+
+function StatusBarHeader({ theme, variant }: { theme: Theme; variant: Variant }) {
+  return (
+    <div style={{ marginRight: 'auto' }}>
+      <div
+        style={{
+          fontFamily: theme.fontUI,
+          fontSize: '10px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.14em',
+          color: theme.textFaint,
+          transition: tr(theme),
+        }}
+      >
+        Year II · Week 34 · Term I
+      </div>
+      <div
+        style={{
+          fontFamily: theme.fontHead,
+          fontSize: variant === 'bold' ? '13px' : '12px',
+          color: theme.text2,
+          marginTop: '2px',
+          fontWeight: variant === 'bold' ? 600 : 400,
+          transition: tr(theme),
+        }}
+      >
+        Lagos State Government
+      </div>
+    </div>
+  )
+}
+
+// ─── 1. STATUS BAR ───────────────────────────────────────────────────────────
+function StatusBar({
+  theme,
+  variant,
+  state,
+}: {
+  theme: Theme
+  variant: Variant
+  state: GameState
+}) {
+  const [tr0, tr1, tr2, tr3] = STATS[state]
+  const treasury = useCountTo(tr0)
+  const trust = useCountTo(tr1)
+  const pc = useCountTo(tr2)
+  const approval = useCountTo(tr3)
+
+  const metrics = [
+    { label: 'Treasury', display: `₦${treasury.toFixed(1)}B`, warn: tr0 < 20 },
+    { label: 'Public Trust', display: `${Math.round(trust)}%`, warn: tr1 < 45 },
+    { label: 'Pol. Capital', display: `${Math.round(pc)}`, warn: tr2 < 28 },
+    { label: 'Approval', display: `${Math.round(approval)}%`, warn: tr3 < 38 },
+  ]
 
   return (
     <div
@@ -477,7 +520,6 @@ function StatusBar({
         transition: tr(theme),
       }}
     >
-      {/* Calm shimmer */}
       {variant === 'atmospheric' && state === 'calm' && (
         <div
           className="sl-shimmer"
@@ -492,37 +534,17 @@ function StatusBar({
         />
       )}
 
-      <div style={{ marginRight: 'auto' }}>
-        <div
-          style={{
-            fontFamily: theme.fontUI,
-            fontSize: '10px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.14em',
-            color: theme.textFaint,
-            transition: tr(theme),
-          }}
-        >
-          Year II · Week 34 · Term I
-        </div>
-        <div
-          style={{
-            fontFamily: theme.fontHead,
-            fontSize: variant === 'bold' ? '13px' : '12px',
-            color: theme.text2,
-            marginTop: '2px',
-            fontWeight: variant === 'bold' ? 600 : 400,
-            transition: tr(theme),
-          }}
-        >
-          Lagos State Government
-        </div>
-      </div>
-
-      {statBlock('Treasury', tr0, `₦${treasury.toFixed(1)}B`, warnTreasury)}
-      {statBlock('Public Trust', tr1, `${Math.round(trust)}%`, warnTrust)}
-      {statBlock('Pol. Capital', tr2, `${Math.round(pc)}`, warnPC)}
-      {statBlock('Approval', tr3, `${Math.round(approval)}%`, warnApproval)}
+      <StatusBarHeader theme={theme} variant={variant} />
+      {metrics.map((m) => (
+        <StatusBarMetric
+          key={m.label}
+          label={m.label}
+          display={m.display}
+          warn={m.warn}
+          theme={theme}
+          variant={variant}
+        />
+      ))}
     </div>
   )
 }
@@ -615,6 +637,243 @@ const CHOICES = [
   { id: 'disperse', label: 'Order security dispersal', fx: '−Trust 20 · ⚠ unrest', fxC: 'danger' },
 ]
 
+function EventCardAtmosphere({ theme, variant }: { theme: Theme; variant: Variant }) {
+  return (
+    <>
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '2px',
+          background: theme.accent,
+          transition: tr(theme),
+        }}
+      />
+      {variant === 'atmospheric' && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: '40%',
+            height: '60%',
+            background: `radial-gradient(ellipse at 100% 0%, ${theme.accentMuted} 0%, transparent 70%)`,
+            pointerEvents: 'none',
+            transition: tr(theme),
+          }}
+        />
+      )}
+    </>
+  )
+}
+
+function EventCardDivider({ theme, variant }: { theme: Theme; variant: Variant }) {
+  return variant === 'atmospheric' ? (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        marginBottom: '16px',
+        color: theme.textFaint,
+      }}
+    >
+      <div
+        style={{
+          flex: 1,
+          height: '1px',
+          background: `linear-gradient(90deg, transparent, ${theme.border})`,
+        }}
+      />
+      <span style={{ fontSize: '10px', letterSpacing: '0.2em' }}>✦</span>
+      <div
+        style={{
+          flex: 1,
+          height: '1px',
+          background: `linear-gradient(90deg, ${theme.border}, transparent)`,
+        }}
+      />
+    </div>
+  ) : (
+    <div
+      style={{
+        height: '1px',
+        background: theme.border,
+        marginBottom: '16px',
+        transition: tr(theme),
+      }}
+    />
+  )
+}
+
+function EventCardBody({ theme, variant }: { theme: Theme; variant: Variant }) {
+  return (
+    <p
+      style={{
+        fontFamily: theme.fontBody,
+        fontSize: variant === 'bold' ? '14px' : '15px',
+        lineHeight: variant === 'bold' ? 1.55 : 1.78,
+        color: theme.text2,
+        marginBottom: '24px',
+        fontStyle: variant === 'bold' ? 'normal' : 'italic',
+        transition: tr(theme),
+      }}
+    >
+      Several hundred residents have blockaded the Carter Bridge approach since dawn, demanding
+      immediate structural repairs. The LASEMA estimates repair cost at ₦4.2B over eighteen months.
+      Your Deputy Chief of Staff notes that an election is eighteen months away and urges visible,
+      decisive action before public opinion hardens.
+    </p>
+  )
+}
+
+function ConsequenceOverlay({ theme, showCq }: { theme: Theme; showCq: boolean }) {
+  if (!showCq) return null
+  return (
+    <div
+      className="sl-cq"
+      style={{
+        background: theme.accentMuted,
+        border: `${theme.bw} solid ${theme.accent}`,
+        borderRadius: theme.radius,
+        padding: '14px 18px',
+        marginBottom: '16px',
+        fontFamily: theme.fontUI,
+        fontSize: '12px',
+        color: theme.text,
+        transition: tr(theme),
+      }}
+    >
+      <span style={{ color: theme.accent, fontWeight: 600 }}>Choice registered.</span> Consequence
+      resolved next week. The city is watching.
+    </div>
+  )
+}
+
+function EventCardHeader({
+  theme,
+  variant,
+  showCq,
+}: {
+  theme: Theme
+  variant: Variant
+  showCq: boolean
+}) {
+  const titleSize = variant === 'bold' ? '26px' : variant === 'clean' ? '30px' : '29px'
+  const titleWeight = variant === 'bold' ? 700 : 400
+  return (
+    <>
+      <EventCardAtmosphere theme={theme} variant={variant} />
+      <p
+        style={{
+          fontFamily: theme.fontUI,
+          fontSize: '10px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.14em',
+          color: theme.textFaint,
+          marginBottom: '10px',
+          transition: tr(theme),
+        }}
+      >
+        Infrastructure Crisis · Week 34
+      </p>
+      <h2
+        style={{
+          fontFamily: theme.fontHead,
+          fontSize: titleSize,
+          fontWeight: titleWeight,
+          lineHeight: variant === 'bold' ? 1.12 : 1.28,
+          color: theme.text,
+          marginBottom: '16px',
+          transition: tr(theme),
+          letterSpacing: variant === 'bold' ? '.01em' : '0',
+        }}
+      >
+        Eko Bridge Protesters Block Morning Traffic
+      </h2>
+      <EventCardDivider theme={theme} variant={variant} />
+      <EventCardBody theme={theme} variant={variant} />
+      <ConsequenceOverlay theme={theme} showCq={showCq} />
+    </>
+  )
+}
+
+function ChoiceButton({
+  choice,
+  index,
+  committed,
+  theme,
+  variant,
+  onClick,
+}: {
+  choice: (typeof CHOICES)[number]
+  index: number
+  committed: number | null
+  theme: Theme
+  variant: Variant
+  onClick: () => void
+}) {
+  const isChosen = committed === index
+  const isOther = committed !== null && committed !== index
+  const fxColor =
+    choice.fxC === 'success' ? theme.success : choice.fxC === 'danger' ? theme.danger : theme.text2
+
+  return (
+    <button
+      type="button"
+      key={choice.id}
+      className={`sl-choice ${isChosen ? 'sl-commit' : ''}`}
+      onClick={onClick}
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: variant === 'bold' ? '11px 14px' : '12px 16px',
+        borderRadius: theme.radius,
+        border: `${theme.bw} solid ${isChosen ? theme.accent : index === 0 ? theme.borderStrong : theme.border}`,
+        background: isChosen
+          ? theme.accentMuted
+          : variant === 'atmospheric' && index === 0
+            ? `${theme.accentMuted}`
+            : 'transparent',
+        opacity: isOther ? 0.42 : 1,
+        gap: '16px',
+        transition:
+          'transform .15s ease,box-shadow .15s ease,opacity .25s ease,background-color .15s ease,border-color .15s ease',
+        cursor: committed !== null ? 'default' : 'pointer',
+      }}
+    >
+      <span
+        style={{
+          fontFamily: variant === 'bold' ? theme.fontHead : theme.fontBody,
+          fontSize: '14px',
+          fontWeight: variant === 'bold' ? 600 : 400,
+          color: index === 0 ? theme.text : theme.text2,
+          lineHeight: 1.3,
+          fontStyle: variant === 'bold' ? 'normal' : index > 0 ? 'italic' : 'normal',
+          transition: tr(theme),
+        }}
+      >
+        {choice.label}
+      </span>
+      <span
+        style={{
+          fontFamily: theme.fontUI,
+          fontSize: '10px',
+          color: fxColor,
+          whiteSpace: 'nowrap',
+          flexShrink: 0,
+          transition: tr(theme),
+        }}
+      >
+        {choice.fx}
+      </span>
+    </button>
+  )
+}
+
 function EventCard({
   theme,
   variant,
@@ -639,9 +898,6 @@ function EventCard({
     }, 2800)
   }
 
-  const titleSize = variant === 'bold' ? '26px' : variant === 'clean' ? '30px' : '29px'
-  const titleWeight = variant === 'bold' ? 700 : 400
-
   return (
     <div
       className={gr(variant)}
@@ -656,203 +912,20 @@ function EventCard({
         transition: tr(theme),
       }}
     >
-      {/* Accent rule at top (the Federal Gazette signature move, adapted) */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '2px',
-          background: theme.accent,
-          transition: tr(theme),
-        }}
-      />
+      <EventCardHeader theme={theme} variant={variant} showCq={showCq} />
 
-      {/* Atmospheric: faint light-leak top-right */}
-      {variant === 'atmospheric' && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            width: '40%',
-            height: '60%',
-            background: `radial-gradient(ellipse at 100% 0%, ${theme.accentMuted} 0%, transparent 70%)`,
-            pointerEvents: 'none',
-            transition: tr(theme),
-          }}
-        />
-      )}
-
-      {/* Kicker */}
-      <p
-        style={{
-          fontFamily: theme.fontUI,
-          fontSize: '10px',
-          textTransform: 'uppercase',
-          letterSpacing: '0.14em',
-          color: theme.textFaint,
-          marginBottom: '10px',
-          transition: tr(theme),
-        }}
-      >
-        Infrastructure Crisis · Week 34
-      </p>
-
-      {/* Title */}
-      <h2
-        style={{
-          fontFamily: theme.fontHead,
-          fontSize: titleSize,
-          fontWeight: titleWeight,
-          lineHeight: variant === 'bold' ? 1.12 : 1.28,
-          color: theme.text,
-          marginBottom: '16px',
-          transition: tr(theme),
-          letterSpacing: variant === 'bold' ? '.01em' : '0',
-        }}
-      >
-        Eko Bridge Protesters Block Morning Traffic
-      </h2>
-
-      {/* Divider — atmospheric gets ornamental rule */}
-      {variant === 'atmospheric' ? (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            marginBottom: '16px',
-            color: theme.textFaint,
-          }}
-        >
-          <div
-            style={{
-              flex: 1,
-              height: '1px',
-              background: `linear-gradient(90deg, transparent, ${theme.border})`,
-            }}
-          />
-          <span style={{ fontSize: '10px', letterSpacing: '0.2em' }}>✦</span>
-          <div
-            style={{
-              flex: 1,
-              height: '1px',
-              background: `linear-gradient(90deg, ${theme.border}, transparent)`,
-            }}
-          />
-        </div>
-      ) : (
-        <div
-          style={{
-            height: '1px',
-            background: theme.border,
-            marginBottom: '16px',
-            transition: tr(theme),
-          }}
-        />
-      )}
-
-      {/* Body */}
-      <p
-        style={{
-          fontFamily: theme.fontBody,
-          fontSize: variant === 'bold' ? '14px' : '15px',
-          lineHeight: variant === 'bold' ? 1.55 : 1.78,
-          color: theme.text2,
-          marginBottom: '24px',
-          fontStyle: variant === 'bold' ? 'normal' : 'italic',
-          transition: tr(theme),
-        }}
-      >
-        Several hundred residents have blockaded the Carter Bridge approach since dawn, demanding
-        immediate structural repairs. The LASEMA estimates repair cost at ₦4.2B over eighteen
-        months. Your Deputy Chief of Staff notes that an election is eighteen months away and urges
-        visible, decisive action before public opinion hardens.
-      </p>
-
-      {/* Consequence overlay */}
-      {showCq && (
-        <div
-          className="sl-cq"
-          style={{
-            background: theme.accentMuted,
-            border: `${theme.bw} solid ${theme.accent}`,
-            borderRadius: theme.radius,
-            padding: '14px 18px',
-            marginBottom: '16px',
-            fontFamily: theme.fontUI,
-            fontSize: '12px',
-            color: theme.text,
-            transition: tr(theme),
-          }}
-        >
-          <span style={{ color: theme.accent, fontWeight: 600 }}>Choice registered.</span>{' '}
-          Consequence resolved next week. The city is watching.
-        </div>
-      )}
-
-      {/* Choices */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {CHOICES.map((c, i) => {
-          const isChosen = committed === i
-          const isOther = committed !== null && committed !== i
-          const fxColor =
-            c.fxC === 'success' ? theme.success : c.fxC === 'danger' ? theme.danger : theme.text2
-          return (
-            <button
-              type="button"
-              key={c.id}
-              className={`sl-choice ${isChosen ? 'sl-commit' : ''}`}
-              onClick={() => handleChoice(i)}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: variant === 'bold' ? '11px 14px' : '12px 16px',
-                borderRadius: theme.radius,
-                border: `${theme.bw} solid ${isChosen ? theme.accent : i === 0 ? theme.borderStrong : theme.border}`,
-                background: isChosen
-                  ? theme.accentMuted
-                  : variant === 'atmospheric' && i === 0
-                    ? `${theme.accentMuted}`
-                    : 'transparent',
-                opacity: isOther ? 0.42 : 1,
-                gap: '16px',
-                transition:
-                  'transform .15s ease,box-shadow .15s ease,opacity .25s ease,background-color .15s ease,border-color .15s ease',
-                cursor: committed !== null ? 'default' : 'pointer',
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: variant === 'bold' ? theme.fontHead : theme.fontBody,
-                  fontSize: '14px',
-                  fontWeight: variant === 'bold' ? 600 : 400,
-                  color: i === 0 ? theme.text : theme.text2,
-                  lineHeight: 1.3,
-                  fontStyle: variant === 'bold' ? 'normal' : i > 0 ? 'italic' : 'normal',
-                  transition: tr(theme),
-                }}
-              >
-                {c.label}
-              </span>
-              <span
-                style={{
-                  fontFamily: theme.fontUI,
-                  fontSize: '10px',
-                  color: fxColor,
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                  transition: tr(theme),
-                }}
-              >
-                {c.fx}
-              </span>
-            </button>
-          )
-        })}
+        {CHOICES.map((c, i) => (
+          <ChoiceButton
+            key={c.id}
+            choice={c}
+            index={i}
+            committed={committed}
+            theme={theme}
+            variant={variant}
+            onClick={() => handleChoice(i)}
+          />
+        ))}
       </div>
     </div>
   )
@@ -941,6 +1014,97 @@ function NavDock({ theme, variant, state }: { theme: Theme; variant: Variant; st
   )
 }
 
+function SealRule({ theme }: { theme: Theme }) {
+  return (
+    <div
+      style={{
+        width: '65%',
+        height: '1px',
+        background: `linear-gradient(90deg, transparent, ${theme.borderStrong}, transparent)`,
+        transition: tr(theme),
+      }}
+    />
+  )
+}
+
+function SealDiamonds({ theme }: { theme: Theme }) {
+  return (
+    <div
+      style={{
+        fontSize: '9px',
+        color: theme.borderStrong,
+        letterSpacing: '0.22em',
+        lineHeight: 1,
+        transition: tr(theme),
+      }}
+    >
+      ✦&nbsp;&nbsp;✦&nbsp;&nbsp;✦
+    </div>
+  )
+}
+
+function SealFace({ theme, variant }: { theme: Theme; variant: Variant }) {
+  return (
+    <>
+      <SealDiamonds theme={theme} />
+      <SealRule theme={theme} />
+      <div
+        style={{
+          fontFamily: theme.fontUI,
+          fontSize: '8px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.14em',
+          color: theme.textFaint,
+          lineHeight: 1.4,
+          transition: tr(theme),
+        }}
+      >
+        Government of
+      </div>
+      <div
+        style={{
+          fontFamily: theme.fontHead,
+          fontSize: variant === 'bold' ? '15px' : '14px',
+          fontWeight: variant === 'bold' ? 700 : 600,
+          color: theme.accent,
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          lineHeight: 1.1,
+          transition: tr(theme),
+        }}
+      >
+        Lagos State
+      </div>
+      <div
+        style={{
+          fontSize: variant === 'atmospheric' ? '24px' : '20px',
+          color: theme.accent,
+          lineHeight: 1,
+          filter: variant === 'atmospheric' ? `drop-shadow(0 0 5px ${theme.accentMuted})` : 'none',
+          transition: tr(theme),
+        }}
+      >
+        ⚜
+      </div>
+      <div
+        style={{
+          fontFamily: theme.fontUI,
+          fontSize: '8px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.14em',
+          color: theme.textFaint,
+          fontStyle: 'italic',
+          transition: tr(theme),
+        }}
+      >
+        Est. MCMLXVII
+      </div>
+      <SealRule theme={theme} />
+      <SealDiamonds theme={theme} />
+    </>
+  )
+}
+
 // ─── 5. STATE SEAL ───────────────────────────────────────────────────────────
 function StateSeal({ theme, variant }: { theme: Theme; variant: Variant }) {
   const size = variant === 'atmospheric' ? 160 : 140
@@ -975,96 +1139,7 @@ function StateSeal({ theme, variant }: { theme: Theme; variant: Variant }) {
           transition: tr(theme),
         }}
       >
-        <div
-          style={{
-            fontSize: '9px',
-            color: theme.borderStrong,
-            letterSpacing: '0.22em',
-            lineHeight: 1,
-            transition: tr(theme),
-          }}
-        >
-          ✦&nbsp;&nbsp;✦&nbsp;&nbsp;✦
-        </div>
-        <div
-          style={{
-            width: '65%',
-            height: '1px',
-            background: `linear-gradient(90deg, transparent, ${theme.borderStrong}, transparent)`,
-            transition: tr(theme),
-          }}
-        />
-        <div
-          style={{
-            fontFamily: theme.fontUI,
-            fontSize: '8px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.14em',
-            color: theme.textFaint,
-            lineHeight: 1.4,
-            transition: tr(theme),
-          }}
-        >
-          Government of
-        </div>
-        <div
-          style={{
-            fontFamily: theme.fontHead,
-            fontSize: variant === 'bold' ? '15px' : '14px',
-            fontWeight: variant === 'bold' ? 700 : 600,
-            color: theme.accent,
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-            lineHeight: 1.1,
-            transition: tr(theme),
-          }}
-        >
-          Lagos State
-        </div>
-        <div
-          style={{
-            fontSize: variant === 'atmospheric' ? '24px' : '20px',
-            color: theme.accent,
-            lineHeight: 1,
-            filter:
-              variant === 'atmospheric' ? `drop-shadow(0 0 5px ${theme.accentMuted})` : 'none',
-            transition: tr(theme),
-          }}
-        >
-          ⚜
-        </div>
-        <div
-          style={{
-            fontFamily: theme.fontUI,
-            fontSize: '8px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.14em',
-            color: theme.textFaint,
-            fontStyle: 'italic',
-            transition: tr(theme),
-          }}
-        >
-          Est. MCMLXVII
-        </div>
-        <div
-          style={{
-            width: '65%',
-            height: '1px',
-            background: `linear-gradient(90deg, transparent, ${theme.borderStrong}, transparent)`,
-            transition: tr(theme),
-          }}
-        />
-        <div
-          style={{
-            fontSize: '9px',
-            color: theme.borderStrong,
-            letterSpacing: '0.22em',
-            lineHeight: 1,
-            transition: tr(theme),
-          }}
-        >
-          ✦&nbsp;&nbsp;✦&nbsp;&nbsp;✦
-        </div>
+        <SealFace theme={theme} variant={variant} />
       </div>
     </div>
   )
@@ -1089,6 +1164,214 @@ const VARIANT_META: Record<Variant, { label: string; sub: string }> = {
   clean: { label: 'Clean', sub: 'Light, restrained, legible' },
   bold: { label: 'Bold', sub: 'Stronger type, saturated, confident' },
   atmospheric: { label: 'Atmospheric', sub: 'Depth, gradient light, grain' },
+}
+
+function ChromeTitle({ gameState }: { gameState: GameState }) {
+  return (
+    <div style={{ marginRight: 'auto' }}>
+      <div
+        style={{
+          fontFamily: "'Archivo Narrow', sans-serif",
+          fontSize: '9px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.18em',
+          color: gameState === 'storm' ? 'rgba(200,220,240,.6)' : 'rgba(15,32,30,.45)',
+          transition: 'color 600ms ease',
+        }}
+      >
+        Lagos Governor Sim
+      </div>
+      <div
+        style={{
+          fontFamily: "'Archivo Narrow', sans-serif",
+          fontSize: '12px',
+          fontWeight: 600,
+          color: gameState === 'storm' ? 'rgba(200,220,240,.8)' : 'rgba(15,32,30,.7)',
+          transition: 'color 600ms ease',
+        }}
+      >
+        Style Lab — Art Direction Sandbox
+      </div>
+    </div>
+  )
+}
+
+function StateSwitcher({
+  gameState,
+  chromeText,
+  onState,
+}: {
+  gameState: GameState
+  chromeText: string
+  onState: (s: GameState) => void
+}) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <span
+        style={{
+          fontFamily: "'Archivo Narrow', sans-serif",
+          fontSize: '9px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.12em',
+          color: chromeText,
+          marginRight: '2px',
+          transition: 'color 600ms ease',
+        }}
+      >
+        Mood
+      </span>
+      {(['calm', 'election', 'crisis', 'storm'] as GameState[]).map((s) => {
+        const m = STATE_META[s]
+        const isActive = gameState === s
+        return (
+          <button
+            type="button"
+            key={s}
+            onClick={() => onState(s)}
+            style={{
+              padding: '5px 12px',
+              fontFamily: "'Archivo Narrow', sans-serif",
+              fontSize: '11px',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              border: `1px solid ${isActive ? m.color : 'rgba(128,128,128,.25)'}`,
+              borderRadius: '3px',
+              background: isActive ? `${m.color}15` : 'transparent',
+              color: isActive ? m.color : chromeText,
+              cursor: 'pointer',
+              transition: 'all .2s ease',
+            }}
+          >
+            {m.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function VariantSwitcher({
+  variant,
+  gameState,
+  chromeText,
+  onVariant,
+}: {
+  variant: Variant
+  gameState: GameState
+  chromeText: string
+  onVariant: (v: Variant) => void
+}) {
+  const accent = gameState === 'storm' ? '#5899D2' : '#1A9B8E'
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <span
+        style={{
+          fontFamily: "'Archivo Narrow', sans-serif",
+          fontSize: '9px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.12em',
+          color: chromeText,
+          marginRight: '2px',
+          transition: 'color 600ms ease',
+        }}
+      >
+        Style
+      </span>
+      {(['clean', 'bold', 'atmospheric'] as Variant[]).map((v) => {
+        const isActive = variant === v
+        return (
+          <button
+            type="button"
+            key={v}
+            onClick={() => onVariant(v)}
+            style={{
+              padding: '5px 10px',
+              fontFamily: "'Archivo Narrow', sans-serif",
+              fontSize: '11px',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              border: `1px solid ${isActive ? accent : 'rgba(128,128,128,.25)'}`,
+              borderRadius: '3px',
+              background: isActive ? `${accent}19` : 'transparent',
+              color: isActive ? accent : chromeText,
+              cursor: 'pointer',
+              transition: 'all .2s ease',
+            }}
+          >
+            {VARIANT_META[v].label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function SoundToggle({
+  soundOn,
+  chromeText,
+  onSound,
+}: {
+  soundOn: boolean
+  chromeText: string
+  onSound: (b: boolean) => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSound(!soundOn)}
+      style={{
+        padding: '5px 10px',
+        fontFamily: "'Archivo Narrow', sans-serif",
+        fontSize: '10px',
+        textTransform: 'uppercase',
+        letterSpacing: '0.1em',
+        border: `1px solid ${soundOn ? '#1A9B8E' : 'rgba(128,128,128,.3)'}`,
+        borderRadius: '3px',
+        background: soundOn ? 'rgba(26,155,142,.1)' : 'transparent',
+        color: soundOn ? '#1A9B8E' : chromeText,
+        cursor: 'pointer',
+        transition: 'all .2s ease',
+      }}
+    >
+      {soundOn ? '🔊 Sound' : '🔇 Sound'}
+    </button>
+  )
+}
+
+function ChromeDescription({
+  gameState,
+  variant,
+  chromeText,
+  chromeBorder,
+}: {
+  gameState: GameState
+  variant: Variant
+  chromeText: string
+  chromeBorder: string
+}) {
+  return (
+    <div
+      style={{
+        width: '100%',
+        fontFamily: "'Archivo Narrow', sans-serif",
+        fontSize: '10px',
+        color: chromeText,
+        paddingTop: '2px',
+        borderTop: `1px solid ${chromeBorder}`,
+        transition: 'color 600ms ease, border-color 600ms ease',
+      }}
+    >
+      <span style={{ color: STATE_META[gameState].color, fontWeight: 600, marginRight: '4px' }}>
+        {STATE_META[gameState].label}:
+      </span>
+      {STATE_META[gameState].sub}
+      <span style={{ marginLeft: '16px', opacity: 0.6 }}>
+        · Variant: {VARIANT_META[variant].sub}
+      </span>
+    </div>
+  )
 }
 
 function LabChrome({
@@ -1126,169 +1409,23 @@ function LabChrome({
         transition: `background-color 600ms ease, border-color 600ms ease`,
       }}
     >
-      {/* Title */}
-      <div style={{ marginRight: 'auto' }}>
-        <div
-          style={{
-            fontFamily: "'Archivo Narrow', sans-serif",
-            fontSize: '9px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.18em',
-            color: chromeText,
-            transition: 'color 600ms ease',
-          }}
-        >
-          Lagos Governor Sim
-        </div>
-        <div
-          style={{
-            fontFamily: "'Archivo Narrow', sans-serif",
-            fontSize: '12px',
-            fontWeight: 600,
-            color: gameState === 'storm' ? 'rgba(200,220,240,.8)' : 'rgba(15,32,30,.7)',
-            transition: 'color 600ms ease',
-          }}
-        >
-          Style Lab — Art Direction Sandbox
-        </div>
-      </div>
-
-      {/* State switcher */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-        <span
-          style={{
-            fontFamily: "'Archivo Narrow', sans-serif",
-            fontSize: '9px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.12em',
-            color: chromeText,
-            marginRight: '2px',
-            transition: 'color 600ms ease',
-          }}
-        >
-          Mood
-        </span>
-        {(['calm', 'election', 'crisis', 'storm'] as GameState[]).map((s) => {
-          const m = STATE_META[s]
-          const isActive = gameState === s
-          return (
-            <button
-              type="button"
-              key={s}
-              onClick={() => onState(s)}
-              style={{
-                padding: '5px 12px',
-                fontFamily: "'Archivo Narrow', sans-serif",
-                fontSize: '11px',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                border: `1px solid ${isActive ? m.color : 'rgba(128,128,128,.25)'}`,
-                borderRadius: '3px',
-                background: isActive ? `${m.color}15` : 'transparent',
-                color: isActive ? m.color : chromeText,
-                cursor: 'pointer',
-                transition: 'all .2s ease',
-              }}
-            >
-              {m.label}
-            </button>
-          )
-        })}
-      </div>
-
+      <ChromeTitle gameState={gameState} />
+      <StateSwitcher gameState={gameState} chromeText={chromeText} onState={onState} />
       <div style={{ width: '1px', height: '24px', background: chromeBorder }} />
-
-      {/* Variant switcher */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-        <span
-          style={{
-            fontFamily: "'Archivo Narrow', sans-serif",
-            fontSize: '9px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.12em',
-            color: chromeText,
-            marginRight: '2px',
-            transition: 'color 600ms ease',
-          }}
-        >
-          Style
-        </span>
-        {(['clean', 'bold', 'atmospheric'] as Variant[]).map((v) => {
-          const isActive = variant === v
-          return (
-            <button
-              type="button"
-              key={v}
-              onClick={() => onVariant(v)}
-              style={{
-                padding: '5px 10px',
-                fontFamily: "'Archivo Narrow', sans-serif",
-                fontSize: '11px',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                border: `1px solid ${isActive ? (gameState === 'storm' ? '#5899D2' : '#1A9B8E') : 'rgba(128,128,128,.25)'}`,
-                borderRadius: '3px',
-                background: isActive
-                  ? gameState === 'storm'
-                    ? 'rgba(88,153,210,.12)'
-                    : 'rgba(26,155,142,.1)'
-                  : 'transparent',
-                color: isActive ? (gameState === 'storm' ? '#5899D2' : '#1A9B8E') : chromeText,
-                cursor: 'pointer',
-                transition: 'all .2s ease',
-              }}
-            >
-              {VARIANT_META[v].label}
-            </button>
-          )
-        })}
-      </div>
-
+      <VariantSwitcher
+        variant={variant}
+        gameState={gameState}
+        chromeText={chromeText}
+        onVariant={onVariant}
+      />
       <div style={{ width: '1px', height: '24px', background: chromeBorder }} />
-
-      {/* Sound toggle */}
-      <button
-        type="button"
-        onClick={() => onSound(!soundOn)}
-        style={{
-          padding: '5px 10px',
-          fontFamily: "'Archivo Narrow', sans-serif",
-          fontSize: '10px',
-          textTransform: 'uppercase',
-          letterSpacing: '0.1em',
-          border: `1px solid ${soundOn ? '#1A9B8E' : 'rgba(128,128,128,.3)'}`,
-          borderRadius: '3px',
-          background: soundOn ? 'rgba(26,155,142,.1)' : 'transparent',
-          color: soundOn ? '#1A9B8E' : chromeText,
-          cursor: 'pointer',
-          transition: 'all .2s ease',
-        }}
-      >
-        {soundOn ? '🔊 Sound' : '🔇 Sound'}
-      </button>
-
-      {/* State description */}
-      <div
-        style={{
-          width: '100%',
-          fontFamily: "'Archivo Narrow', sans-serif",
-          fontSize: '10px',
-          color: chromeText,
-          paddingTop: '2px',
-          borderTop: `1px solid ${chromeBorder}`,
-          transition: 'color 600ms ease, border-color 600ms ease',
-        }}
-      >
-        <span style={{ color: STATE_META[gameState].color, fontWeight: 600, marginRight: '4px' }}>
-          {STATE_META[gameState].label}:
-        </span>
-        {STATE_META[gameState].sub}
-        <span style={{ marginLeft: '16px', opacity: 0.6 }}>
-          · Variant: {VARIANT_META[variant].sub}
-        </span>
-      </div>
+      <SoundToggle soundOn={soundOn} chromeText={chromeText} onSound={onSound} />
+      <ChromeDescription
+        gameState={gameState}
+        variant={variant}
+        chromeText={chromeText}
+        chromeBorder={chromeBorder}
+      />
     </div>
   )
 }
@@ -1363,6 +1500,142 @@ const CATEGORY_META: Record<ArticleCategory, { label: string; color: string }> =
   milestone: { label: 'Milestone', color: '#3AA048' },
 }
 
+function MediaCategoryNav({
+  category,
+  setCategory,
+}: {
+  category: ArticleCategory
+  setCategory: (c: ArticleCategory) => void
+}) {
+  return (
+    <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+      {(['fiscal', 'political', 'crisis', 'milestone'] as ArticleCategory[]).map((cat) => {
+        const isActive = category === cat
+        const m = CATEGORY_META[cat]
+        return (
+          <button
+            type="button"
+            key={cat}
+            onClick={() => setCategory(cat)}
+            style={{
+              padding: '5px 14px',
+              fontFamily: "'Archivo Narrow', sans-serif",
+              fontSize: '10px',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              border: `1px solid ${isActive ? m.color : 'rgba(128,128,128,.25)'}`,
+              borderRadius: '3px',
+              background: isActive ? `${m.color}18` : 'transparent',
+              color: isActive ? m.color : 'rgba(15,32,30,.55)',
+              cursor: 'pointer',
+              transition: 'all .15s ease',
+            }}
+          >
+            {m.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function MediaFormatStack({
+  article,
+  category,
+  theme,
+}: {
+  article: typeof FIXTURE_ARTICLES.fiscal
+  category: ArticleCategory
+  theme: Theme
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      <div>
+        <div
+          className="label-caps"
+          style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}
+        >
+          LagosHerald · {article.channelMeta?.channel}
+        </div>
+        <LagosHerald />
+      </div>
+      <div>
+        <div
+          className="label-caps"
+          style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}
+        >
+          ViralClip · shortVideo
+        </div>
+        <ViralClip
+          article={{
+            ...article,
+            channelMeta: { channel: 'shortVideo', views: 1400000, creatorHandle: '@Lagospedia' },
+          }}
+        />
+      </div>
+      <div>
+        <div
+          className="label-caps"
+          style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}
+        >
+          SocialPost · tweet
+        </div>
+        <SocialPost
+          article={{
+            ...article,
+            channelMeta: {
+              channel: 'tweet',
+              handle: '@LagosPunch',
+              hashtag: '#LagosReports',
+              retweets: 2340,
+              likes: 8700,
+            },
+          }}
+        />
+      </div>
+      <div>
+        <div
+          className="label-caps"
+          style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}
+        >
+          PodcastCard · podcast
+        </div>
+        <PodcastCard
+          article={{
+            ...article,
+            channelMeta: {
+              channel: 'podcast',
+              showName: 'Lagos Minute',
+              hostName: 'Yetunde Bello',
+              duration: '12:34',
+              keyQuote: 'This changes everything for the lagoon economy.',
+            },
+          }}
+        />
+      </div>
+      <div>
+        <div
+          className="label-caps"
+          style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}
+        >
+          WhatsAppChain · whatsapp
+        </div>
+        <WhatsAppChain
+          article={{
+            ...article,
+            channelMeta: {
+              channel: 'whatsapp',
+              forwardCount: 8400,
+              isRumor: category === 'crisis',
+            },
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
 function MediaTab({ theme }: { theme: Theme }) {
   const [category, setCategory] = useState<ArticleCategory>('fiscal')
   const article = FIXTURE_ARTICLES[category]
@@ -1395,126 +1668,115 @@ function MediaTab({ theme }: { theme: Theme }) {
       className="sl-tab-section"
       style={{ padding: '20px 24px', maxWidth: '900px', margin: '0 auto', width: '100%' }}
     >
-      {/* Category picker */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
-        {(['fiscal', 'political', 'crisis', 'milestone'] as ArticleCategory[]).map((cat) => {
-          const isActive = category === cat
-          const m = CATEGORY_META[cat]
-          return (
-            <button
-              type="button"
-              key={cat}
-              onClick={() => setCategory(cat)}
-              style={{
-                padding: '5px 14px',
-                fontFamily: "'Archivo Narrow', sans-serif",
-                fontSize: '10px',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                border: `1px solid ${isActive ? m.color : 'rgba(128,128,128,.25)'}`,
-                borderRadius: '3px',
-                background: isActive ? `${m.color}18` : 'transparent',
-                color: isActive ? m.color : 'rgba(15,32,30,.55)',
-                cursor: 'pointer',
-                transition: 'all .15s ease',
-              }}
-            >
-              {m.label}
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Format components — stacked vertically */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        <div>
-          <div
-            className="label-caps"
-            style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}
-          >
-            LagosHerald · {article.channelMeta?.channel}
-          </div>
-          <LagosHerald />
-        </div>
-        <div>
-          <div
-            className="label-caps"
-            style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}
-          >
-            ViralClip · shortVideo
-          </div>
-          <ViralClip
-            article={{
-              ...article,
-              channelMeta: { channel: 'shortVideo', views: 1400000, creatorHandle: '@Lagospedia' },
-            }}
-          />
-        </div>
-        <div>
-          <div
-            className="label-caps"
-            style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}
-          >
-            SocialPost · tweet
-          </div>
-          <SocialPost
-            article={{
-              ...article,
-              channelMeta: {
-                channel: 'tweet',
-                handle: '@LagosPunch',
-                hashtag: '#LagosReports',
-                retweets: 2340,
-                likes: 8700,
-              },
-            }}
-          />
-        </div>
-        <div>
-          <div
-            className="label-caps"
-            style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}
-          >
-            PodcastCard · podcast
-          </div>
-          <PodcastCard
-            article={{
-              ...article,
-              channelMeta: {
-                channel: 'podcast',
-                showName: 'Lagos Minute',
-                hostName: 'Yetunde Bello',
-                duration: '12:34',
-                keyQuote: 'This changes everything for the lagoon economy.',
-              },
-            }}
-          />
-        </div>
-        <div>
-          <div
-            className="label-caps"
-            style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '8px' }}
-          >
-            WhatsAppChain · whatsapp
-          </div>
-          <WhatsAppChain
-            article={{
-              ...article,
-              channelMeta: {
-                channel: 'whatsapp',
-                forwardCount: 8400,
-                isRumor: category === 'crisis',
-              },
-            }}
-          />
-        </div>
-      </div>
+      <MediaCategoryNav category={category} setCategory={setCategory} />
+      <MediaFormatStack article={article} category={category} theme={theme} />
     </div>
   )
 }
 
 // ─── Tab 2: Onboarding ────────────────────────────────────────────────────────
+function ArchetypeNav({
+  archetype,
+  setArchetype,
+}: {
+  archetype: ArchetypeKey
+  setArchetype: (a: ArchetypeKey) => void
+}) {
+  return (
+    <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+      {(['technocrat', 'loyalist', 'outsider'] as ArchetypeKey[]).map((a) => {
+        const isActive = archetype === a
+        return (
+          <button
+            type="button"
+            key={a}
+            onClick={() => setArchetype(a)}
+            style={{
+              padding: '5px 14px',
+              fontFamily: "'Archivo Narrow', sans-serif",
+              fontSize: '10px',
+              fontWeight: 600,
+              textTransform: 'capitalize',
+              letterSpacing: '0.08em',
+              border: `1px solid ${isActive ? '#1A9B8E' : 'rgba(128,128,128,.25)'}`,
+              borderRadius: '3px',
+              background: isActive ? 'rgba(26,155,142,.12)' : 'transparent',
+              color: isActive ? '#1A9B8E' : 'rgba(15,32,30,.55)',
+              cursor: 'pointer',
+              transition: 'all .15s ease',
+            }}
+          >
+            {a}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function OnboardingPreview({
+  title,
+  children,
+  minHeight,
+}: {
+  title: string
+  children: React.ReactNode
+  minHeight?: string
+}) {
+  return (
+    <div>
+      <div
+        className="label-caps"
+        style={{
+          fontSize: '9px',
+          color: 'var(--text-tertiary, rgba(0,0,0,.35))',
+          marginBottom: '6px',
+        }}
+      >
+        {title}
+      </div>
+      <div
+        style={{
+          border: '1px dashed rgba(0,0,0,.15)',
+          borderRadius: '4px',
+          overflow: 'hidden',
+          minHeight,
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function OnboardingStack({ archetype }: { archetype: ArchetypeKey }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <OnboardingPreview title="WelcomeScreen · onNewGame/onContinue stubbed">
+        <WelcomeScreen onNewGame={() => {}} onContinue={() => {}} canContinue={true} />
+      </OnboardingPreview>
+      <OnboardingPreview
+        title="WelcomeModal · CTA navigates away — use browser back"
+        minHeight="400px"
+      >
+        <WelcomeModal onStart={() => {}} />
+      </OnboardingPreview>
+      <OnboardingPreview title="ArchetypeSelectionScreen · CTA navigates away" minHeight="400px">
+        <ArchetypeSelectionScreen onSelect={() => {}} />
+      </OnboardingPreview>
+      <OnboardingPreview title="DeputySelectionScreen · CTA navigates away" minHeight="400px">
+        <DeputySelectionScreen onSelect={() => {}} archetypeKey={archetype} />
+      </OnboardingPreview>
+      <OnboardingPreview title="HandoverNotesModal · onClose stubbed" minHeight="400px">
+        <HandoverNotesModal onClose={() => {}} archetypeKey={archetype} />
+      </OnboardingPreview>
+      <OnboardingPreview title="GoalSelectionScreen · CTA navigates away" minHeight="400px">
+        <GoalSelectionScreen onSelect={() => {}} context="new-game" />
+      </OnboardingPreview>
+    </div>
+  )
+}
+
 function OnboardingTab() {
   const [archetype, setArchetype] = useState<ArchetypeKey>('technocrat')
 
@@ -1531,180 +1793,8 @@ function OnboardingTab() {
       className="sl-tab-section"
       style={{ padding: '20px 24px', maxWidth: '800px', margin: '0 auto', width: '100%' }}
     >
-      {/* Archetype picker */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
-        {(['technocrat', 'loyalist', 'outsider'] as ArchetypeKey[]).map((a) => {
-          const isActive = archetype === a
-          return (
-            <button
-              type="button"
-              key={a}
-              onClick={() => setArchetype(a)}
-              style={{
-                padding: '5px 14px',
-                fontFamily: "'Archivo Narrow', sans-serif",
-                fontSize: '10px',
-                fontWeight: 600,
-                textTransform: 'capitalize',
-                letterSpacing: '0.08em',
-                border: `1px solid ${isActive ? '#1A9B8E' : 'rgba(128,128,128,.25)'}`,
-                borderRadius: '3px',
-                background: isActive ? 'rgba(26,155,142,.12)' : 'transparent',
-                color: isActive ? '#1A9B8E' : 'rgba(15,32,30,.55)',
-                cursor: 'pointer',
-                transition: 'all .15s ease',
-              }}
-            >
-              {a}
-            </button>
-          )
-        })}
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        {/* 1. WelcomeScreen */}
-        <div>
-          <div
-            className="label-caps"
-            style={{
-              fontSize: '9px',
-              color: 'var(--text-tertiary, rgba(0,0,0,.35))',
-              marginBottom: '6px',
-            }}
-          >
-            WelcomeScreen · onNewGame/onContinue stubbed
-          </div>
-          <div
-            style={{
-              border: '1px dashed rgba(0,0,0,.15)',
-              borderRadius: '4px',
-              overflow: 'hidden',
-            }}
-          >
-            <WelcomeScreen onNewGame={() => {}} onContinue={() => {}} canContinue={true} />
-          </div>
-        </div>
-
-        {/* 2. WelcomeModal */}
-        <div>
-          <div
-            className="label-caps"
-            style={{
-              fontSize: '9px',
-              color: 'var(--text-tertiary, rgba(0,0,0,.35))',
-              marginBottom: '6px',
-            }}
-          >
-            WelcomeModal · CTA navigates away — use browser back
-          </div>
-          <div
-            style={{
-              border: '1px dashed rgba(0,0,0,.15)',
-              borderRadius: '4px',
-              overflow: 'hidden',
-              minHeight: '400px',
-            }}
-          >
-            <WelcomeModal onStart={() => {}} />
-          </div>
-        </div>
-
-        {/* 3. ArchetypeSelectionScreen */}
-        <div>
-          <div
-            className="label-caps"
-            style={{
-              fontSize: '9px',
-              color: 'var(--text-tertiary, rgba(0,0,0,.35))',
-              marginBottom: '6px',
-            }}
-          >
-            ArchetypeSelectionScreen · CTA navigates away
-          </div>
-          <div
-            style={{
-              border: '1px dashed rgba(0,0,0,.15)',
-              borderRadius: '4px',
-              overflow: 'hidden',
-              minHeight: '400px',
-            }}
-          >
-            <ArchetypeSelectionScreen onSelect={() => {}} />
-          </div>
-        </div>
-
-        {/* 4. DeputySelectionScreen */}
-        <div>
-          <div
-            className="label-caps"
-            style={{
-              fontSize: '9px',
-              color: 'var(--text-tertiary, rgba(0,0,0,.35))',
-              marginBottom: '6px',
-            }}
-          >
-            DeputySelectionScreen · CTA navigates away
-          </div>
-          <div
-            style={{
-              border: '1px dashed rgba(0,0,0,.15)',
-              borderRadius: '4px',
-              overflow: 'hidden',
-              minHeight: '400px',
-            }}
-          >
-            <DeputySelectionScreen onSelect={() => {}} archetypeKey={archetype} />
-          </div>
-        </div>
-
-        {/* 5. HandoverNotesModal */}
-        <div>
-          <div
-            className="label-caps"
-            style={{
-              fontSize: '9px',
-              color: 'var(--text-tertiary, rgba(0,0,0,.35))',
-              marginBottom: '6px',
-            }}
-          >
-            HandoverNotesModal · onClose stubbed
-          </div>
-          <div
-            style={{
-              border: '1px dashed rgba(0,0,0,.15)',
-              borderRadius: '4px',
-              overflow: 'hidden',
-              minHeight: '400px',
-            }}
-          >
-            <HandoverNotesModal onClose={() => {}} archetypeKey={archetype} />
-          </div>
-        </div>
-
-        {/* 6. GoalSelectionScreen */}
-        <div>
-          <div
-            className="label-caps"
-            style={{
-              fontSize: '9px',
-              color: 'var(--text-tertiary, rgba(0,0,0,.35))',
-              marginBottom: '6px',
-            }}
-          >
-            GoalSelectionScreen · CTA navigates away
-          </div>
-          <div
-            style={{
-              border: '1px dashed rgba(0,0,0,.15)',
-              borderRadius: '4px',
-              overflow: 'hidden',
-              minHeight: '400px',
-            }}
-          >
-            <GoalSelectionScreen onSelect={() => {}} context="new-game" />
-          </div>
-        </div>
-      </div>
+      <ArchetypeNav archetype={archetype} setArchetype={setArchetype} />
+      <OnboardingStack archetype={archetype} />
     </div>
   )
 }
@@ -1712,7 +1802,90 @@ function OnboardingTab() {
 // ─── Tab 3: Overlays ──────────────────────────────────────────────────────────
 const FAKE_SITUATION_CTX_VALUE: Situation = 'crisis'
 
-function OverlaysTab({ theme }: { theme: Theme }) {
+function OverlayPreview({
+  title,
+  children,
+  maxHeight,
+  height,
+}: {
+  title: string
+  children: React.ReactNode
+  maxHeight?: string
+  height?: string
+}) {
+  return (
+    <div>
+      <div
+        className="label-caps"
+        style={{ fontSize: '9px', color: 'var(--text-faint, rgba(0,0,0,.5))', marginBottom: '6px' }}
+      >
+        {title}
+      </div>
+      <div
+        style={{
+          maxHeight,
+          height,
+          overflowY: maxHeight ? 'auto' : undefined,
+          border: '1px solid rgba(0,0,0,.1)',
+          borderRadius: '4px',
+          position: height ? 'relative' : undefined,
+          overflow: height ? 'hidden' : undefined,
+          background: height ? 'var(--surface, #fff)' : undefined,
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function OverlayStack() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      <OverlayPreview title="HelpReference · onClose stubbed">
+        <HelpReference onClose={() => {}} />
+      </OverlayPreview>
+      <OverlayPreview title="Inbox · reads from Zustand (fixture data injected)">
+        <Inbox />
+      </OverlayPreview>
+      <OverlayPreview title="GoalTracker · reads selectedGoalId from store">
+        <GoalTracker />
+      </OverlayPreview>
+      <OverlayPreview title="GameDiagnosisBanner · wrapped in fake SituationCtx (crisis)">
+        <GameDiagnosisBanner />
+      </OverlayPreview>
+      <OverlayPreview title="StateOfTheState · reads stats/factions from store" maxHeight="500px">
+        <GameStateOfTheState />
+      </OverlayPreview>
+      <OverlayPreview
+        title="ProjectsPanel · reads projects from store, onClose stubbed"
+        maxHeight="500px"
+      >
+        <ProjectsPanel onClose={() => {}} />
+      </OverlayPreview>
+      <OverlayPreview
+        title="ResearchTree · reads research from store, onClose stubbed"
+        maxHeight="500px"
+      >
+        <ResearchTree onClose={() => {}} />
+      </OverlayPreview>
+      <OverlayPreview
+        title="ElectionWatermark · renders when inCampaignMode (toggle via dirty-mock)"
+        height="120px"
+      >
+        <ElectionWatermark />
+      </OverlayPreview>
+      <OverlayPreview
+        title="CampaignTracker · reads campaignDecisions/voteShare from store"
+        maxHeight="500px"
+      >
+        <CampaignTracker />
+      </OverlayPreview>
+    </div>
+  )
+}
+
+function OverlaysTab() {
   // Hydrate store
   useEffect(() => {
     useGameStore.setState({
@@ -1741,155 +1914,7 @@ function OverlaysTab({ theme }: { theme: Theme }) {
         className="sl-tab-section"
         style={{ padding: '20px 24px', maxWidth: '800px', margin: '0 auto', width: '100%' }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-          {/* HelpReference */}
-          <div>
-            <div
-              className="label-caps"
-              style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}
-            >
-              HelpReference · onClose stubbed
-            </div>
-            <HelpReference onClose={() => {}} />
-          </div>
-
-          {/* Inbox */}
-          <div>
-            <div
-              className="label-caps"
-              style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}
-            >
-              Inbox · reads from Zustand (fixture data injected)
-            </div>
-            <Inbox />
-          </div>
-
-          {/* ContextualHint — replaced ToastHint (renders via Driver.js, not shown in StyleLab) */}
-
-          {/* GoalTracker */}
-          <div>
-            <div
-              className="label-caps"
-              style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}
-            >
-              GoalTracker · reads selectedGoalId from store
-            </div>
-            <GoalTracker />
-          </div>
-
-          {/* DiagnosisBanner (game) */}
-          <div>
-            <div
-              className="label-caps"
-              style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}
-            >
-              GameDiagnosisBanner · wrapped in fake SituationCtx (crisis)
-            </div>
-            <GameDiagnosisBanner />
-          </div>
-
-          {/* StateOfTheState */}
-          <div>
-            <div
-              className="label-caps"
-              style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}
-            >
-              StateOfTheState · reads stats/factions from store
-            </div>
-            <div
-              style={{
-                maxHeight: '500px',
-                overflowY: 'auto',
-                border: '1px solid rgba(0,0,0,.1)',
-                borderRadius: '4px',
-              }}
-            >
-              <GameStateOfTheState />
-            </div>
-          </div>
-
-          {/* ProjectsPanel */}
-          <div>
-            <div
-              className="label-caps"
-              style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}
-            >
-              ProjectsPanel · reads projects from store, onClose stubbed
-            </div>
-            <div
-              style={{
-                maxHeight: '500px',
-                overflowY: 'auto',
-                border: '1px solid rgba(0,0,0,.1)',
-                borderRadius: '4px',
-              }}
-            >
-              <ProjectsPanel onClose={() => {}} />
-            </div>
-          </div>
-
-          {/* ResearchTree */}
-          <div>
-            <div
-              className="label-caps"
-              style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}
-            >
-              ResearchTree · reads research from store, onClose stubbed
-            </div>
-            <div
-              style={{
-                maxHeight: '500px',
-                overflowY: 'auto',
-                border: '1px solid rgba(0,0,0,.1)',
-                borderRadius: '4px',
-              }}
-            >
-              <ResearchTree onClose={() => {}} />
-            </div>
-          </div>
-
-          {/* ElectionWatermark */}
-          <div>
-            <div
-              className="label-caps"
-              style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}
-            >
-              ElectionWatermark · renders when inCampaignMode (toggle via dirty-mock)
-            </div>
-            <div
-              style={{
-                position: 'relative',
-                height: '120px',
-                border: '1px solid rgba(0,0,0,.1)',
-                borderRadius: '4px',
-                overflow: 'hidden',
-                background: 'var(--surface, #fff)',
-              }}
-            >
-              <ElectionWatermark />
-            </div>
-          </div>
-
-          {/* CampaignTracker */}
-          <div>
-            <div
-              className="label-caps"
-              style={{ fontSize: '9px', color: theme.textFaint, marginBottom: '6px' }}
-            >
-              CampaignTracker · reads campaignDecisions/voteShare from store
-            </div>
-            <div
-              style={{
-                maxHeight: '500px',
-                overflowY: 'auto',
-                border: '1px solid rgba(0,0,0,.1)',
-                borderRadius: '4px',
-              }}
-            >
-              <CampaignTracker />
-            </div>
-          </div>
-        </div>
+        <OverlayStack />
       </div>
     </SituationCtx.Provider>
   )
@@ -2220,6 +2245,203 @@ function DeskTab({
   )
 }
 
+function StyleLabAtmosphere({
+  showBlackout,
+  gameState,
+  reduced,
+}: {
+  showBlackout: boolean
+  gameState: GameState
+  reduced: boolean
+}) {
+  return (
+    <>
+      {showBlackout && <div className="sl-bko" />}
+      {gameState === 'storm' && !reduced && <Rain />}
+    </>
+  )
+}
+
+function ReducedMotionIndicator() {
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        bottom: 12,
+        left: 12,
+        zIndex: 70,
+        padding: '4px 8px',
+        fontSize: '10px',
+        fontWeight: 600,
+        fontFamily: "'Archivo Narrow', sans-serif",
+        letterSpacing: '.04em',
+        color: '#8a6d1a',
+        background: 'rgba(240,220,140,.18)',
+        border: '1px solid rgba(180,150,40,.4)',
+        pointerEvents: 'none',
+      }}
+    >
+      ⏸ REDUCED MOTION — rain/shimmer off
+    </div>
+  )
+}
+
+function StyleLabBackground({
+  gameState,
+  variant,
+  reduced,
+}: {
+  gameState: GameState
+  variant: Variant
+  reduced: boolean
+}) {
+  return (
+    <>
+      {gameState === 'calm' && variant === 'atmospheric' && !reduced && (
+        <div
+          className="sl-shimmer"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            pointerEvents: 'none',
+            zIndex: 0,
+            background:
+              'radial-gradient(ellipse at 60% 20%, rgba(26,155,142,.04) 0%, transparent 55%)',
+          }}
+        />
+      )}
+      {gameState === 'election' && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '3px',
+            background: 'linear-gradient(90deg, #C82020, #1A7A3C, #C82020)',
+            backgroundSize: '200% 100%',
+            animation: 'campaign 3.5s ease-in-out infinite',
+            zIndex: 25,
+            pointerEvents: 'none',
+          }}
+        />
+      )}
+    </>
+  )
+}
+
+function StyleLabCoreTab({
+  theme,
+  variant,
+  gameState,
+  showDiagnosis,
+  diagKey,
+}: {
+  theme: Theme
+  variant: Variant
+  gameState: GameState
+  showDiagnosis: boolean
+  diagKey: number
+}) {
+  return (
+    <div
+      style={{
+        position: 'relative',
+        zIndex: 10,
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <StatusBar theme={theme} variant={variant} state={gameState} />
+      {showDiagnosis && <DiagnosisBanner key={diagKey} theme={theme} variant={variant} />}
+      <div
+        style={{
+          flex: 1,
+          padding: `20px ${variant === 'atmospheric' ? '24px' : '20px'}`,
+          maxWidth: '720px',
+          margin: '0 auto',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0',
+        }}
+      >
+        <EventCard theme={theme} variant={variant} onCommit={() => {}} />
+        <StateSeal theme={theme} variant={variant} />
+        <div
+          style={{
+            textAlign: 'center',
+            paddingBottom: '24px',
+            fontFamily: "'Archivo Narrow', sans-serif",
+            fontSize: '9px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.14em',
+            color: theme.textFaint,
+            transition: tr(theme),
+          }}
+        >
+          /style-lab · throwaway · flip the mood switcher to see the system
+        </div>
+      </div>
+      <div style={{ position: 'sticky', bottom: 0, zIndex: 20 }}>
+        <NavDock theme={theme} variant={variant} state={gameState} />
+      </div>
+    </div>
+  )
+}
+
+function StyleLabTabContent({
+  activeTab,
+  theme,
+  variant,
+  gameState,
+  showDiagnosis,
+  diagKey,
+}: {
+  activeTab: TabId
+  theme: Theme
+  variant: Variant
+  gameState: GameState
+  showDiagnosis: boolean
+  diagKey: number
+}) {
+  switch (activeTab) {
+    case 0:
+      return (
+        <StyleLabCoreTab
+          theme={theme}
+          variant={variant}
+          gameState={gameState}
+          showDiagnosis={showDiagnosis}
+          diagKey={diagKey}
+        />
+      )
+    case 1:
+      return <MediaTab theme={theme} />
+    case 2:
+      return <OnboardingTab />
+    case 3:
+      return <OverlaysTab />
+    case 4:
+      return <AtomsTab />
+    case 5:
+      return <DeskTab theme={theme} variant={variant} gameState={gameState} />
+    case 6:
+      return <ResearchTab />
+    case 7:
+      return <GoalJourneyTab />
+    case 8:
+      return <SealsTab />
+    case 9:
+      return <CastGallery />
+    case 10:
+      return <ShareLabPanel />
+    default:
+      return null
+  }
+}
+
 // ─── Root ─────────────────────────────────────────────────────────────────────
 export function StyleLab() {
   const [gameState, setGameState] = useState<GameState>('calm')
@@ -2227,12 +2449,11 @@ export function StyleLab() {
   const [soundOn, setSoundOn] = useState(false)
   const [showBlackout, setShowBlackout] = useState(false)
   const [showDiagnosis, setShowDiagnosis] = useState(false)
-  const [diagKey, setDiagKey] = useState(0) // force re-mount for re-animation
+  const [diagKey, setDiagKey] = useState(0)
   const [activeTab, setActiveTab] = useState<TabId>(0)
   const theme = useMemo(() => mkTheme(gameState, variant), [gameState, variant])
   const reduced = useReducedMotion()
 
-  // Silence the ambient bed when leaving the lab
   useEffect(
     () => () => {
       stopAll()
@@ -2241,18 +2462,15 @@ export function StyleLab() {
   )
 
   function changeState(next: GameState) {
-    // Transition stings + cross-fade the ambient bed to the new situation
     if (next === 'storm') playCue('blackout')
     if (next === 'crisis') playCue('crisis')
     setAmbient(next)
 
-    // Blackout flash for storm transition
     if (next === 'storm' || gameState === 'storm') {
       setShowBlackout(true)
       setTimeout(() => setShowBlackout(false), 250)
     }
 
-    // Diagnosis banner: show in crisis/storm
     const willShow = next === 'crisis' || next === 'storm'
     if (willShow && !showDiagnosis) {
       setShowDiagnosis(true)
@@ -2269,32 +2487,8 @@ export function StyleLab() {
       <style>{SL_CSS}</style>
       <style>{FIXED_OVERRIDE_CSS}</style>
 
-      {/* ── Atmospheric overlays (skipped when the OS asks for reduced motion) ── */}
-      {showBlackout && <div className="sl-bko" />}
-      {gameState === 'storm' && !reduced && <Rain />}
-
-      {/* Reduced-motion indicator (verifies the accessibility gate in the lab) */}
-      {reduced && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 12,
-            left: 12,
-            zIndex: 70,
-            padding: '4px 8px',
-            fontSize: '10px',
-            fontWeight: 600,
-            fontFamily: "'Archivo Narrow', sans-serif",
-            letterSpacing: '.04em',
-            color: '#8a6d1a',
-            background: 'rgba(240,220,140,.18)',
-            border: '1px solid rgba(180,150,40,.4)',
-            pointerEvents: 'none',
-          }}
-        >
-          ⏸ REDUCED MOTION — rain/shimmer off
-        </div>
-      )}
+      <StyleLabAtmosphere showBlackout={showBlackout} gameState={gameState} reduced={reduced} />
+      {reduced && <ReducedMotionIndicator />}
 
       <div
         className="sl-scroll"
@@ -2308,40 +2502,7 @@ export function StyleLab() {
           position: 'relative',
         }}
       >
-        {/* Calm: very faint ambient shimmer on the page background */}
-        {gameState === 'calm' && variant === 'atmospheric' && !reduced && (
-          <div
-            className="sl-shimmer"
-            style={{
-              position: 'fixed',
-              inset: 0,
-              pointerEvents: 'none',
-              zIndex: 0,
-              background:
-                'radial-gradient(ellipse at 60% 20%, rgba(26,155,142,.04) 0%, transparent 55%)',
-            }}
-          />
-        )}
-
-        {/* Election: subtle political-heat tint at the very top of the page */}
-        {gameState === 'election' && (
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '3px',
-              background: 'linear-gradient(90deg, #C82020, #1A7A3C, #C82020)',
-              backgroundSize: '200% 100%',
-              animation: 'campaign 3.5s ease-in-out infinite',
-              zIndex: 25,
-              pointerEvents: 'none',
-            }}
-          />
-        )}
-
-        {/* Lab chrome — sticky */}
+        <StyleLabBackground gameState={gameState} variant={variant} reduced={reduced} />
         <LabChrome
           gameState={gameState}
           variant={variant}
@@ -2350,85 +2511,19 @@ export function StyleLab() {
           onVariant={setVariant}
           onSound={(on) => {
             setSoundOn(on)
-            setMuted(!on) // resumes the AudioContext (this is the user gesture)
-            if (on) setAmbient(gameState) // start the bed for the current situation
+            setMuted(!on)
+            if (on) setAmbient(gameState)
           }}
         />
-
-        {/* Tab bar — sticky below chrome */}
         <TabBar activeTab={activeTab} onChange={setActiveTab} />
-
-        {/* ── Tab Content ── */}
-        {activeTab === 0 && (
-          /* ════════ CORE (existing content — unchanged) ════════ */
-          <div
-            style={{
-              position: 'relative',
-              zIndex: 10,
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            {/* Status Bar */}
-            <StatusBar theme={theme} variant={variant} state={gameState} />
-
-            {/* Diagnosis Banner — crisis + storm only */}
-            {showDiagnosis && <DiagnosisBanner key={diagKey} theme={theme} variant={variant} />}
-
-            {/* Main content */}
-            <div
-              style={{
-                flex: 1,
-                padding: `20px ${variant === 'atmospheric' ? '24px' : '20px'}`,
-                maxWidth: '720px',
-                margin: '0 auto',
-                width: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0',
-              }}
-            >
-              {/* Event Card — the hero */}
-              <EventCard theme={theme} variant={variant} onCommit={() => {}} />
-
-              {/* State Seal */}
-              <StateSeal theme={theme} variant={variant} />
-
-              {/* Sandbox note */}
-              <div
-                style={{
-                  textAlign: 'center',
-                  paddingBottom: '24px',
-                  fontFamily: "'Archivo Narrow', sans-serif",
-                  fontSize: '9px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.14em',
-                  color: theme.textFaint,
-                  transition: tr(theme),
-                }}
-              >
-                /style-lab · throwaway · flip the mood switcher to see the system
-              </div>
-            </div>
-
-            {/* Nav Dock — pinned at bottom */}
-            <div style={{ position: 'sticky', bottom: 0, zIndex: 20 }}>
-              <NavDock theme={theme} variant={variant} state={gameState} />
-            </div>
-          </div>
-        )}
-
-        {activeTab === 1 && <MediaTab theme={theme} />}
-        {activeTab === 2 && <OnboardingTab />}
-        {activeTab === 3 && <OverlaysTab theme={theme} />}
-        {activeTab === 4 && <AtomsTab />}
-        {activeTab === 5 && <DeskTab theme={theme} variant={variant} gameState={gameState} />}
-        {activeTab === 6 && <ResearchTab />}
-        {activeTab === 7 && <GoalJourneyTab />}
-        {activeTab === 8 && <SealsTab />}
-        {activeTab === 9 && <CastGallery />}
-        {activeTab === 10 && <ShareLabPanel />}
+        <StyleLabTabContent
+          activeTab={activeTab}
+          theme={theme}
+          variant={variant}
+          gameState={gameState}
+          showDiagnosis={showDiagnosis}
+          diagKey={diagKey}
+        />
       </div>
     </>
   )

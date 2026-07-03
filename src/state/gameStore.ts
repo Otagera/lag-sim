@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+import { create, type StoreApi } from 'zustand'
 import { DEPUTY_PROFILES } from '../data/deputies'
 import { STARTING_STATE } from '../data/startingState'
 import { takeLoan as takeLoanAction } from '../engine/debtEngine'
@@ -50,64 +50,77 @@ export interface GameStore extends GameState {
   ) => void
   economyTakeLoan: (amount: number, source: LoanSource) => void
   courtGodfathers: () => void
-  // Phase D — inbox
   inboxMarkRead: (id: string) => void
   inboxMarkAllRead: () => void
-  // Onboarding hints
   dismissHint: (id: string) => void
-  // Goal tracking
   setGoal: (id: string | null) => void
   beginSecondTerm: () => void
-  // Phase E — research tree
   commissionResearchNode: (nodeId: string) => void
-  // Projects
   commissionProject: (projectId: string) => void
 }
 
-export const useGameStore = create<GameStore>((set, get) => ({
-  ...STARTING_STATE,
-  lastWeekRevenue: calculateWeeklyRevenue(STARTING_STATE as GameState),
-  lastWeekExpenditure: calculateWeeklyExpenditure(STARTING_STATE as GameState),
-  seenHints: loadSeenHints(),
-  tick: () => {
-    set(gameLoopTick(get()))
-  },
-  acceptGodfather: () => {
-    const state = get()
-    if (!state.activeGodfatherMessage) return
-    const pendingInbox = state.inbox.find((m) => m.isGodfatherAsk && !m.actioned)
-    set(resolveGodfather(state, state.activeGodfatherMessage, true, pendingInbox?.id))
-  },
-  refuseGodfather: () => {
-    const state = get()
-    if (!state.activeGodfatherMessage) return
-    const pendingInbox = state.inbox.find((m) => m.isGodfatherAsk && !m.actioned)
-    set(resolveGodfather(state, state.activeGodfatherMessage, false, pendingInbox?.id))
-  },
-  resolveEvent: (choiceId: string) => {
+type StoreSet = StoreApi<GameStore>['setState']
+type StoreGet = StoreApi<GameStore>['getState']
+type CoreActions = Pick<
+  GameStore,
+  | 'tick'
+  | 'acceptGodfather'
+  | 'refuseGodfather'
+  | 'resolveEvent'
+  | 'setMode'
+  | 'setDeputy'
+  | 'fastForward'
+  | 'appointCommissioner'
+  | 'dismissConsequenceBeat'
+>
+type EconomyLeverActions = Pick<
+  GameStore,
+  'economyCutSubventions' | 'economyReduceOverheads' | 'economyRaiseLuc'
+>
+type EconomyInvestmentActions = Pick<
+  GameStore,
+  'economyLaunchInitiative' | 'economyTakeLoan' | 'courtGodfathers'
+>
+type MetaActions = Pick<
+  GameStore,
+  | 'beginSecondTerm'
+  | 'clearNewspaperHeadline'
+  | 'inboxMarkRead'
+  | 'inboxMarkAllRead'
+  | 'dismissHint'
+  | 'setGoal'
+  | 'commissionResearchNode'
+  | 'commissionProject'
+>
+
+const resolveGodfatherAsk = (set: StoreSet, get: StoreGet, accepted: boolean) => {
+  const state = get()
+  if (!state.activeGodfatherMessage) return
+  const pendingInbox = state.inbox.find((m) => m.isGodfatherAsk && !m.actioned)
+  set(resolveGodfather(state, state.activeGodfatherMessage, accepted, pendingInbox?.id))
+}
+
+const createCoreActions = (set: StoreSet, get: StoreGet): CoreActions => ({
+  tick: () => set(gameLoopTick(get())),
+  acceptGodfather: () => resolveGodfatherAsk(set, get, true),
+  refuseGodfather: () => resolveGodfatherAsk(set, get, false),
+  resolveEvent: (choiceId) => {
     const state = get()
     if (!state.activeEvent) return
     set(resolveEventAction(state, state.activeEvent, choiceId))
   },
-  setMode: (mode: 'simple' | 'detailed') => {
-    set({ mode })
-  },
-  setDeputy: (key: DeputyKey) => {
+  setMode: (mode) => set({ mode }),
+  setDeputy: (key) => {
     const state = get()
     const profile = DEPUTY_PROFILES[key]
-    let next: GameState = {
-      ...state,
-      deputy: { key, resentment: 0, revealed: false },
-    }
+    let next: GameState = { ...state, deputy: { key, resentment: 0, revealed: false } }
     if (Object.keys(profile.factionBonuses).length > 0) {
       next = { ...next, factions: applyFactionDelta(next.factions, profile.factionBonuses) }
     }
-    if (Object.keys(profile.statBonuses).length > 0) {
-      next = applyDelta(next, profile.statBonuses)
-    }
+    if (Object.keys(profile.statBonuses).length > 0) next = applyDelta(next, profile.statBonuses)
     set(next)
   },
-  fastForward: (n: number, options?: SimulateOptions) => {
+  fastForward: (n, options) => {
     const prevState = get()
     const result = simulateWeeks(prevState, n, options)
     const skipArticle = evaluateSkipNews(prevState, result.state, n)
@@ -123,7 +136,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     })
     return result
   },
-  appointCommissioner: (role: CommissionerRole, candidate: CommissionerState) => {
+  appointCommissioner: (role, candidate) => {
     const state = get()
     const pcCost = 8
     if (state.stats.politicalCapital < pcCost) return
@@ -135,10 +148,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set(msg ? { ...afterAppoint, inbox: [...afterAppoint.inbox, msg] } : afterAppoint)
   },
   dismissConsequenceBeat: () => set((s) => ({ consequenceBeats: s.consequenceBeats.slice(1) })),
+})
+
+const createEconomyLeverActions = (set: StoreSet, get: StoreGet): EconomyLeverActions => ({
   economyCutSubventions: () => {
     const s = get()
-    if (s.stats.politicalCapital < 10) return
-    if (s.stats.subventionCutRate >= 0.4) return
+    if (s.stats.politicalCapital < 10 || s.stats.subventionCutRate >= 0.4) return
     const cooldownKey = 'cut-subventions'
     if ((s.economyCooldowns[cooldownKey] ?? 0) > s.week) return
     const newRate = Math.min(0.4, s.stats.subventionCutRate + 0.2)
@@ -164,8 +179,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
   economyRaiseLuc: () => {
     const s = get()
-    if (s.stats.politicalCapital < 10) return
-    if (s.stats.landUseChargeEnforcement >= 3) return
+    if (s.stats.politicalCapital < 10 || s.stats.landUseChargeEnforcement >= 3) return
     const cooldownKey = 'raise-luc'
     if ((s.economyCooldowns[cooldownKey] ?? 0) > s.week) return
     const newLuc = Math.min(3, s.stats.landUseChargeEnforcement + 0.5)
@@ -178,6 +192,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
       factions: applyFactionDelta(afterStat.factions, { businessCommunity: -6 }),
     })
   },
+})
+
+const createEconomyInvestmentActions = (
+  set: StoreSet,
+  get: StoreGet,
+): EconomyInvestmentActions => ({
   economyLaunchInitiative: (
     id,
     name,
@@ -188,10 +208,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     statDelta,
   ) => {
     const s = get()
-    if (s.activeInitiative) return
-    if (s.stats.politicalCapital < pcCost) return
-    const delta: StatDelta = { ...statDelta, politicalCapital: -pcCost }
-    let next = applyDelta(s, delta)
+    if (s.activeInitiative || s.stats.politicalCapital < pcCost) return
+    let next = applyDelta(s, { ...statDelta, politicalCapital: -pcCost })
     if (Object.keys(factionImpact).length > 0) {
       next = { ...next, factions: applyFactionDelta(next.factions, factionImpact) }
     }
@@ -203,14 +221,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
       activeInitiative: { id, name, weeksRemaining: totalWeeks, totalWeeks, completionEventId },
     })
   },
-  economyTakeLoan: (amount: number, source: LoanSource) => {
+  economyTakeLoan: (amount, source) => {
     const s = get()
     let pcCost = 5
     if (source === 'bond_issuance') pcCost = 10
     if (source === 'federal_govt') pcCost = 15
     if (s.stats.politicalCapital < pcCost) return
-    const afterPc = applyDelta(s, { politicalCapital: -pcCost })
-    set(takeLoanAction(afterPc, amount, source))
+    set(takeLoanAction(applyDelta(s, { politicalCapital: -pcCost }), amount, source))
   },
   courtGodfathers: () => {
     const s = get()
@@ -223,7 +240,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     )
     set({ ...afterStat, factions: applyFactionDelta(afterStat.factions, { partyGodfathers: 5 }) })
   },
-  beginSecondTerm: () => {
+})
+
+const createMetaActions = (set: StoreSet, get: StoreGet): MetaActions => ({
+  beginSecondTerm: () =>
     set((s) => ({
       ...s,
       isGameOver: false,
@@ -232,41 +252,42 @@ export const useGameStore = create<GameStore>((set, get) => ({
       endingNarrative: undefined,
       electionResult: null,
       reElected: false,
-    }))
-  },
-  clearNewspaperHeadline: () => {
-    set({ newspaperHeadline: undefined })
-  },
-  inboxMarkRead: (id: string) => {
-    set((s) => ({
-      inbox: s.inbox.map((m) => (m.id === id ? { ...m, read: true } : m)),
-    }))
-  },
-  inboxMarkAllRead: () => {
-    set((s) => ({
-      inbox: s.inbox.map((m) => ({ ...m, read: true })),
-    }))
-  },
-  dismissHint: (id: string) => {
+    })),
+  clearNewspaperHeadline: () => set({ newspaperHeadline: undefined }),
+  inboxMarkRead: (id) =>
+    set((s) => ({ inbox: s.inbox.map((m) => (m.id === id ? { ...m, read: true } : m)) })),
+  inboxMarkAllRead: () => set((s) => ({ inbox: s.inbox.map((m) => ({ ...m, read: true })) })),
+  dismissHint: (id) => {
     set((s) => {
       const seenHints = [...s.seenHints, id]
       saveSeenHints(seenHints)
       return { seenHints, hintQueue: s.hintQueue.filter((h) => h !== id) }
     })
   },
-  setGoal: (id: string | null) => set({ selectedGoalId: id }),
-  commissionResearchNode: (nodeId: string) => {
+  setGoal: (id) => set({ selectedGoalId: id }),
+  commissionResearchNode: (nodeId) => {
     const state = get()
     const node = state.researchNodeStatuses[nodeId]
     if (node === 'commissioned' || node === 'completed') return
     set(commissionNode(nodeId, state))
   },
-  commissionProject: (projectId: string) => {
+  commissionProject: (projectId) => {
     const state = get()
     const status = state.projectStatuses[projectId]
     if (status === 'commissioned' || status === 'completed') return
     set(commissionProjectAction(projectId, state))
   },
+})
+
+export const useGameStore = create<GameStore>((set, get) => ({
+  ...STARTING_STATE,
+  lastWeekRevenue: calculateWeeklyRevenue(STARTING_STATE as GameState),
+  lastWeekExpenditure: calculateWeeklyExpenditure(STARTING_STATE as GameState),
+  seenHints: loadSeenHints(),
+  ...createCoreActions(set, get),
+  ...createEconomyLeverActions(set, get),
+  ...createEconomyInvestmentActions(set, get),
+  ...createMetaActions(set, get),
 }))
 
 let saveTimeout: ReturnType<typeof setTimeout> | null = null

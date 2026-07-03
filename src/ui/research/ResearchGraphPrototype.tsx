@@ -67,22 +67,13 @@ export interface ResearchGraphPrototypeProps {
   onNodeClick?: (nodeId: string) => void
 }
 
-export function ResearchGraphPrototype({
-  overrides,
-  currentWeek,
-  baseState,
-  forceReducedMotion,
-  onNodeClick,
-}: ResearchGraphPrototypeProps) {
-  const osReduced = useReducedMotion()
-  const reduced = Boolean(forceReducedMotion) || osReduced
+type ResearchLayout = ReturnType<typeof computeTreeLayout>[number]
+type PrereqLine = ReturnType<typeof getPrereqLines>[number]
 
-  const layouts = useMemo(
-    () => computeTreeLayout(NODE_WIDTH, NODE_HEIGHT, COL_GAP, ROW_GAP, LANE_GAP, PAD),
-    [],
-  )
-  const lines = useMemo(() => getPrereqLines(), [])
-
+function useResearchStatuses(
+  overrides: Record<string, MockResearchOverride>,
+  baseState: GameState,
+) {
   const statuses = useMemo(() => {
     const map = new Map<string, ResearchNodeStatus>()
     for (const node of RESEARCH_TREE)
@@ -115,6 +106,148 @@ export function ResearchGraphPrototype({
     })
   }
 
+  return { statuses, justCompleted, clearFlash }
+}
+
+function ResearchGraphDefs() {
+  return (
+    <defs>
+      {Object.entries(DOMAIN_COLORS).map(([domain, c]) => (
+        <marker
+          key={domain}
+          id={`research-arrow-${domain}`}
+          viewBox="0 0 10 10"
+          refX="8.5"
+          refY="5"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" fill={c.line} />
+        </marker>
+      ))}
+    </defs>
+  )
+}
+
+interface ResearchGraphEdgesProps {
+  lines: PrereqLine[]
+  layouts: ResearchLayout[]
+  statuses: Map<string, ResearchNodeStatus>
+  overrides: Record<string, MockResearchOverride>
+  currentWeek: number
+  reduced: boolean
+}
+
+function ResearchGraphEdges({
+  lines,
+  layouts,
+  statuses,
+  overrides,
+  currentWeek,
+  reduced,
+}: ResearchGraphEdgesProps) {
+  return lines.map((line) => {
+    const from = layouts.find((l) => l.nodeId === line.from)
+    const to = layouts.find((l) => l.nodeId === line.to)
+    const fromNode = getNodeDef(line.from)
+    const toNode = getNodeDef(line.to)
+    if (!from || !to || !fromNode || !toNode) return null
+
+    const targetStatus = statuses.get(line.to) ?? 'locked'
+    const toOverride = overrides[line.to]
+    const progress =
+      targetStatus === 'commissioned' && toOverride
+        ? computeProgress(toOverride, currentWeek)
+        : null
+    const arrowMarkerId = `research-arrow-${fromNode.domain}`
+    const d = line.crossDomain
+      ? buildCrossDomainPath(from.x, from.y, to.x, to.y)
+      : buildTreePath(from.x + NODE_WIDTH / 2, from.y + NODE_HEIGHT, to.x + NODE_WIDTH / 2, to.y)
+
+    return (
+      <ResearchEdge
+        key={`${line.from}-${line.to}`}
+        d={d}
+        color={DOMAIN_COLORS[fromNode.domain]?.line ?? '#666'}
+        targetStatus={targetStatus}
+        progress={progress}
+        reduced={reduced}
+        arrowMarkerId={arrowMarkerId}
+      />
+    )
+  })
+}
+
+interface ResearchGraphNodesProps {
+  layouts: ResearchLayout[]
+  statuses: Map<string, ResearchNodeStatus>
+  overrides: Record<string, MockResearchOverride>
+  currentWeek: number
+  justCompleted: Set<string>
+  clearFlash: (nodeId: string) => void
+  reduced: boolean
+  onNodeClick?: (nodeId: string) => void
+}
+
+function ResearchGraphNodes({
+  layouts,
+  statuses,
+  overrides,
+  currentWeek,
+  justCompleted,
+  clearFlash,
+  reduced,
+  onNodeClick,
+}: ResearchGraphNodesProps) {
+  return layouts.map((layout) => {
+    const node = getNodeDef(layout.nodeId)
+    if (!node) return null
+    const status = statuses.get(layout.nodeId) ?? 'locked'
+    const override = overrides[layout.nodeId]
+    const progress =
+      status === 'commissioned' && override ? computeProgress(override, currentWeek) : null
+    const domainColor = DOMAIN_COLORS[node.domain] ?? { solid: '#666', bg: '#222', text: '#999' }
+    const isClickable = status === 'available' || status === 'locked'
+
+    return (
+      <ResearchNodeCard
+        key={layout.nodeId}
+        x={layout.x}
+        y={layout.y}
+        width={NODE_WIDTH}
+        height={NODE_HEIGHT}
+        node={node}
+        status={status}
+        progress={progress}
+        domainColor={domainColor}
+        isClickable={isClickable}
+        flash={justCompleted.has(layout.nodeId)}
+        reduced={reduced}
+        onClick={() => onNodeClick?.(layout.nodeId)}
+        onFlashDone={() => clearFlash(layout.nodeId)}
+      />
+    )
+  })
+}
+
+export function ResearchGraphPrototype({
+  overrides,
+  currentWeek,
+  baseState,
+  forceReducedMotion,
+  onNodeClick,
+}: ResearchGraphPrototypeProps) {
+  const osReduced = useReducedMotion()
+  const reduced = Boolean(forceReducedMotion) || osReduced
+
+  const layouts = useMemo(
+    () => computeTreeLayout(NODE_WIDTH, NODE_HEIGHT, COL_GAP, ROW_GAP, LANE_GAP, PAD),
+    [],
+  )
+  const lines = useMemo(() => getPrereqLines(), [])
+  const { statuses, justCompleted, clearFlash } = useResearchStatuses(overrides, baseState)
+
   const bounds = useMemo(() => {
     if (layouts.length === 0) return { minX: 0, minY: 0, maxX: 800, maxY: 300 }
     const xs = layouts.flatMap((l) => [l.x, l.x + NODE_WIDTH])
@@ -142,94 +275,25 @@ export function ResearchGraphPrototype({
         role="img"
         aria-label="Research tree graph"
       >
-        <defs>
-          {Object.entries(DOMAIN_COLORS).map(([domain, c]) => (
-            <marker
-              key={domain}
-              id={`research-arrow-${domain}`}
-              viewBox="0 0 10 10"
-              refX="8.5"
-              refY="5"
-              markerWidth="7"
-              markerHeight="7"
-              orient="auto-start-reverse"
-            >
-              <path d="M0,0 L10,5 L0,10 z" fill={c.line} />
-            </marker>
-          ))}
-        </defs>
-
-        {lines.map((line) => {
-          const from = layouts.find((l) => l.nodeId === line.from)
-          const to = layouts.find((l) => l.nodeId === line.to)
-          const fromNode = getNodeDef(line.from)
-          const toNode = getNodeDef(line.to)
-          if (!from || !to || !fromNode || !toNode) return null
-
-          const targetStatus = statuses.get(line.to) ?? 'locked'
-          const toOverride = overrides[line.to]
-          const progress =
-            targetStatus === 'commissioned' && toOverride
-              ? computeProgress(toOverride, currentWeek)
-              : null
-
-          const arrowMarkerId = `research-arrow-${fromNode.domain}`
-
-          const d = line.crossDomain
-            ? buildCrossDomainPath(from.x, from.y, to.x, to.y)
-            : buildTreePath(
-                from.x + NODE_WIDTH / 2,
-                from.y + NODE_HEIGHT,
-                to.x + NODE_WIDTH / 2,
-                to.y,
-              )
-
-          return (
-            <ResearchEdge
-              key={`${line.from}-${line.to}`}
-              d={d}
-              color={DOMAIN_COLORS[fromNode.domain]?.line ?? '#666'}
-              targetStatus={targetStatus}
-              progress={progress}
-              reduced={reduced}
-              arrowMarkerId={arrowMarkerId}
-            />
-          )
-        })}
-
-        {layouts.map((layout) => {
-          const node = getNodeDef(layout.nodeId)
-          if (!node) return null
-          const status = statuses.get(layout.nodeId) ?? 'locked'
-          const override = overrides[layout.nodeId]
-          const progress =
-            status === 'commissioned' && override ? computeProgress(override, currentWeek) : null
-          const domainColor = DOMAIN_COLORS[node.domain] ?? {
-            solid: '#666',
-            bg: '#222',
-            text: '#999',
-          }
-          const isClickable = status === 'available' || status === 'locked'
-
-          return (
-            <ResearchNodeCard
-              key={layout.nodeId}
-              x={layout.x}
-              y={layout.y}
-              width={NODE_WIDTH}
-              height={NODE_HEIGHT}
-              node={node}
-              status={status}
-              progress={progress}
-              domainColor={domainColor}
-              isClickable={isClickable}
-              flash={justCompleted.has(layout.nodeId)}
-              reduced={reduced}
-              onClick={() => onNodeClick?.(layout.nodeId)}
-              onFlashDone={() => clearFlash(layout.nodeId)}
-            />
-          )
-        })}
+        <ResearchGraphDefs />
+        <ResearchGraphEdges
+          lines={lines}
+          layouts={layouts}
+          statuses={statuses}
+          overrides={overrides}
+          currentWeek={currentWeek}
+          reduced={reduced}
+        />
+        <ResearchGraphNodes
+          layouts={layouts}
+          statuses={statuses}
+          overrides={overrides}
+          currentWeek={currentWeek}
+          justCompleted={justCompleted}
+          clearFlash={clearFlash}
+          reduced={reduced}
+          onNodeClick={onNodeClick}
+        />
       </svg>
     </div>
   )

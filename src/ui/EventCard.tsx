@@ -2,7 +2,7 @@ import type { LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FACTION_ICONS, SEVERITY_GLYPH, STAT_ICONS } from '../data/icons'
 import { useGameStore } from '../state/gameStore'
-import type { Choice, ConsequenceBeat } from '../state/types'
+import type { Choice, ConsequenceBeat, EventCard as EventCardData } from '../state/types'
 import { electionYear } from '../utils/calendar'
 import { Pill } from './components'
 
@@ -210,6 +210,165 @@ function AftermathPanel({ beat, onDismiss }: { beat: ConsequenceBeat; onDismiss:
   )
 }
 
+function EmptyEventState() {
+  return (
+    <div
+      className="p-4 text-center border"
+      style={{
+        borderColor: 'var(--border)',
+        backgroundColor: 'var(--surface)',
+        color: 'var(--text-secondary)',
+      }}
+    >
+      No active event. Click "Next Week" to advance.
+    </div>
+  )
+}
+
+function FinaleBadge({
+  event,
+  electionYearLabel,
+}: {
+  event: EventCardData
+  electionYearLabel: number
+}) {
+  if (!event.id.startsWith('finale-')) return null
+
+  const isElectionDay = event.id === 'finale-election-eve'
+  return (
+    <div
+      style={{
+        textAlign: 'center',
+        padding: '5px 8px',
+        marginBottom: '12px',
+        fontSize: '10px',
+        fontFamily: "'Archivo Narrow', sans-serif",
+        fontWeight: 700,
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
+        background: 'var(--accent-solid)',
+        color: 'var(--accent-on-solid)',
+        borderRadius: '2px',
+        animation: 'pulse-glow 1.5s ease-in-out infinite alternate',
+      }}
+    >
+      {isElectionDay
+        ? 'LIVE ELECTION COVERAGE'
+        : `ELECTION ${isElectionDay ? 'DAY' : 'SEASON'} ${electionYearLabel}`}
+    </div>
+  )
+}
+
+function CampaignBadge({ electionYearLabel }: { electionYearLabel: number }) {
+  return (
+    <span
+      style={{
+        fontSize: '9px',
+        fontWeight: 700,
+        fontFamily: "'Archivo Narrow', sans-serif",
+        letterSpacing: '0.06em',
+        padding: '1px 5px',
+        borderRadius: '2px',
+        background: 'var(--accent-solid)',
+        color: 'var(--accent-on-solid)',
+        textTransform: 'uppercase',
+      }}
+    >
+      ELECTION '{String(electionYearLabel).slice(2)}
+    </span>
+  )
+}
+
+function EventMeta({
+  event,
+  inCampaignMode,
+  electionYearLabel,
+}: {
+  event: EventCardData
+  inCampaignMode: boolean
+  electionYearLabel: number
+}) {
+  const sevLabel = SEVERITY_GLYPH[event.severity] ?? { glyph: '•', color: 'var(--text-secondary)' }
+  const isGodfather = event.category === 'godfather'
+  return (
+    <div className="flex items-center gap-2 mb-2">
+      {isGodfather ? (
+        <span className="label-caps" style={{ color: '#8b0000' }}>
+          Chief Fashemu
+        </span>
+      ) : (
+        <span className="label-caps" style={{ color: sevLabel.color }}>
+          {sevLabel.glyph} {sevLabel.label}
+        </span>
+      )}
+      <span className="label-caps" style={{ color: 'var(--text-secondary)' }}>
+        {event.category}
+      </span>
+      {inCampaignMode && <CampaignBadge electionYearLabel={electionYearLabel} />}
+    </div>
+  )
+}
+
+function ChoiceButton({ choice, onResolve }: { choice: Choice; onResolve: (id: string) => void }) {
+  const pills = buildImpactPills(choice)
+  return (
+    <button
+      type="button"
+      onClick={() => onResolve(choice.id)}
+      className="w-full text-left p-3 border transition-colors"
+      style={{
+        borderColor: 'var(--border)',
+        backgroundColor: 'var(--background)',
+        color: 'var(--text)',
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--surface-hover)')}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--background)')}
+    >
+      <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)' }}>
+        {choice.label}
+      </span>
+      {choice.description && (
+        <p
+          style={{
+            fontSize: '11px',
+            marginTop: '4px',
+            lineHeight: 1.3,
+            color: 'var(--text-secondary)',
+          }}
+        >
+          {choice.description}
+        </p>
+      )}
+      {pills.length > 0 && (
+        <div
+          className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1.5 pt-1.5"
+          style={{ borderTop: '1px solid var(--border-subtle)' }}
+        >
+          {pills.map((p) => (
+            <Pill key={p.text} text={p.text} isGood={p.isGood} icon={p.icon} />
+          ))}
+        </div>
+      )}
+    </button>
+  )
+}
+
+function EventChoices({
+  event,
+  onResolve,
+}: {
+  event: EventCardData
+  onResolve: (id: string) => void
+}) {
+  return (
+    <div className="space-y-2">
+      {event.choices.map((choice) => (
+        <ChoiceButton key={choice.id} choice={choice} onResolve={onResolve} />
+      ))}
+    </div>
+  )
+}
+
 export function EventCard() {
   const activeEvent = useGameStore((s) => s.activeEvent)
   const inCampaignMode = useGameStore((s) => s.inCampaignMode)
@@ -226,32 +385,14 @@ export function EventCard() {
 
   // Empty state
   if (!activeEvent) {
-    return (
-      <div
-        className="p-4 text-center border"
-        style={{
-          borderColor: 'var(--border)',
-          backgroundColor: 'var(--surface)',
-          color: 'var(--text-secondary)',
-        }}
-      >
-        No active event. Click "Next Week" to advance.
-      </div>
-    )
+    return <EmptyEventState />
   }
 
   // Active event view
-  const severityKey = activeEvent.severity
-  const sevLabel = SEVERITY_GLYPH[severityKey] ?? { glyph: '•', color: 'var(--text-secondary)' }
-  const sevColor = sevLabel.color
   const isGodfather = activeEvent.category === 'godfather'
   const godfatherColor = '#8b0000'
   const accentColor = isGodfather ? godfatherColor : 'var(--accent-solid)'
-
   const eYear = electionYear(currentTerm)
-
-  const isFinale = activeEvent.id.startsWith('finale-')
-  const isElectionDay = activeEvent.id === 'finale-election-eve'
 
   return (
     <div
@@ -265,59 +406,8 @@ export function EventCard() {
       }}
     >
       <div style={{ padding: '20px 24px' }}>
-        {isFinale && (
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '5px 8px',
-              marginBottom: '12px',
-              fontSize: '10px',
-              fontFamily: "'Archivo Narrow', sans-serif",
-              fontWeight: 700,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              background: 'var(--accent-solid)',
-              color: 'var(--accent-on-solid)',
-              borderRadius: '2px',
-              animation: 'pulse-glow 1.5s ease-in-out infinite alternate',
-            }}
-          >
-            {isElectionDay
-              ? 'LIVE ELECTION COVERAGE'
-              : `ELECTION ${isElectionDay ? 'DAY' : 'SEASON'} ${eYear}`}
-          </div>
-        )}
-        <div className="flex items-center gap-2 mb-2">
-          {isGodfather ? (
-            <span className="label-caps" style={{ color: godfatherColor }}>
-              Chief Fashemu
-            </span>
-          ) : (
-            <span className="label-caps" style={{ color: sevColor }}>
-              {sevLabel.glyph} {sevLabel.label}
-            </span>
-          )}
-          <span className="label-caps" style={{ color: 'var(--text-secondary)' }}>
-            {activeEvent.category}
-          </span>
-          {inCampaignMode && (
-            <span
-              style={{
-                fontSize: '9px',
-                fontWeight: 700,
-                fontFamily: "'Archivo Narrow', sans-serif",
-                letterSpacing: '0.06em',
-                padding: '1px 5px',
-                borderRadius: '2px',
-                background: 'var(--accent-solid)',
-                color: 'var(--accent-on-solid)',
-                textTransform: 'uppercase',
-              }}
-            >
-              ELECTION '{String(eYear).slice(2)}
-            </span>
-          )}
-        </div>
+        <FinaleBadge event={activeEvent} electionYearLabel={eYear} />
+        <EventMeta event={activeEvent} inCampaignMode={inCampaignMode} electionYearLabel={eYear} />
 
         <div
           style={{
@@ -340,54 +430,7 @@ export function EventCard() {
           {activeEvent.body}
         </p>
 
-        <div className="space-y-2">
-          {activeEvent.choices.map((choice) => {
-            const pills = buildImpactPills(choice)
-            return (
-              <button
-                type="button"
-                key={choice.id}
-                onClick={() => resolveEvent(choice.id)}
-                className="w-full text-left p-3 border transition-colors"
-                style={{
-                  borderColor: 'var(--border)',
-                  backgroundColor: 'var(--background)',
-                  color: 'var(--text)',
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = 'var(--surface-hover)')
-                }
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--background)')}
-              >
-                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)' }}>
-                  {choice.label}
-                </span>
-                {choice.description && (
-                  <p
-                    style={{
-                      fontSize: '11px',
-                      marginTop: '4px',
-                      lineHeight: 1.3,
-                      color: 'var(--text-secondary)',
-                    }}
-                  >
-                    {choice.description}
-                  </p>
-                )}
-                {pills.length > 0 && (
-                  <div
-                    className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1.5 pt-1.5"
-                    style={{ borderTop: '1px solid var(--border-subtle)' }}
-                  >
-                    {pills.map((p) => (
-                      <Pill key={p.text} text={p.text} isGood={p.isGood} icon={p.icon} />
-                    ))}
-                  </div>
-                )}
-              </button>
-            )
-          })}
-        </div>
+        <EventChoices event={activeEvent} onResolve={resolveEvent} />
       </div>
     </div>
   )

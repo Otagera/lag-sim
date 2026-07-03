@@ -1,6 +1,7 @@
 import { PROJECTS } from '../data/projects'
 import { RESEARCH_TREE } from '../data/researchTree'
 import { useGameStore } from '../state/gameStore'
+import type { CapitalProject, CommissionedProject, CommissionedResearchNode } from '../state/types'
 import { EconomyPanel } from './EconomyPanel'
 import { GoalTracker } from './GoalTracker'
 import { useStrategicSelectors } from './useStrategicSelectors'
@@ -10,6 +11,141 @@ const colorVar = {
   success: 'var(--success-11)',
   warning: 'var(--warning-11)',
   error: 'var(--error-11)',
+}
+
+type TrackedInitiative = NonNullable<ReturnType<typeof useStrategicSelectors>['initiative']>
+
+function ProgressBar({ progress, color }: { progress: number; color: string }) {
+  return (
+    <div className="w-full h-1 mb-1" style={{ backgroundColor: 'var(--neutral-4)' }}>
+      <div
+        className="h-full"
+        style={{
+          width: `${(progress * 100).toFixed(0)}%`,
+          backgroundColor: color,
+          transition: 'width 0.3s ease',
+        }}
+      />
+    </div>
+  )
+}
+
+function InitiativeProgressCard({ initiative }: { initiative: TrackedInitiative }) {
+  return (
+    <div
+      className="mb-2 p-1.5 border text-[10px]"
+      style={{ borderColor: 'var(--accent-solid)', backgroundColor: 'var(--accent-bg-subtle)' }}
+    >
+      <div className="flex justify-between mb-1">
+        <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
+          {initiative.name}
+        </span>
+        <span style={{ color: 'var(--text-secondary)' }}>{initiative.weeksRemaining}w left</span>
+      </div>
+      <ProgressBar progress={initiative.progress} color="var(--accent-solid)" />
+      {initiative.payoff && (
+        <p className="text-[9px] font-medium" style={{ color: 'var(--accent-text)' }}>
+          On completion: {initiative.payoff}
+        </p>
+      )}
+    </div>
+  )
+}
+
+function progressFromDeadline(total: number, weeksLeft: number): number {
+  const elapsed = total - weeksLeft
+  return total > 0 ? elapsed / total : 0
+}
+
+function ResearchProgressCard({
+  nodeRef,
+  week,
+}: {
+  nodeRef: CommissionedResearchNode
+  week: number
+}) {
+  const node = RESEARCH_TREE.find((n) => n.id === nodeRef.nodeId)
+  if (!node) return null
+
+  const weeksLeft = Math.max(0, nodeRef.completionWeek - week)
+  const progress = progressFromDeadline(node.weeksToComplete, weeksLeft)
+  const hasOutcomes = !!node.outcomes
+
+  return (
+    <div
+      className="p-1.5 border text-[10px]"
+      style={{ borderColor: 'var(--accent-solid)', backgroundColor: 'var(--accent-bg-subtle)' }}
+    >
+      <div className="flex justify-between mb-1">
+        <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
+          {node.title}
+        </span>
+        <span style={{ color: 'var(--text-secondary)' }}>{weeksLeft}w left</span>
+      </div>
+      <ProgressBar
+        progress={progress}
+        color={hasOutcomes ? 'var(--warning-9)' : 'var(--accent-solid)'}
+      />
+      <p className="text-[9px] font-medium" style={{ color: 'var(--accent-text)' }}>
+        {node.domain} · {hasOutcomes ? 'uncertain outcome' : 'reliable progress'}
+      </p>
+    </div>
+  )
+}
+
+function CommissionedProjectCard({
+  projectRef,
+  week,
+}: {
+  projectRef: CommissionedProject
+  week: number
+}) {
+  const def = PROJECTS.find((p) => p.id === projectRef.id)
+  if (!def) return null
+
+  const weeksLeft = Math.max(0, projectRef.completionWeek - week)
+  const progress = progressFromDeadline(def.weeksToComplete, weeksLeft)
+
+  return (
+    <div
+      className="p-1.5 border text-[10px]"
+      style={{ borderColor: 'var(--success-9)', backgroundColor: 'var(--accent-bg-subtle)' }}
+    >
+      <div className="flex justify-between mb-1">
+        <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
+          {def.title}
+        </span>
+        <span style={{ color: 'var(--text-secondary)' }}>{weeksLeft}w left</span>
+      </div>
+      <ProgressBar progress={progress} color="var(--success-9)" />
+      <p className="text-[9px] font-medium" style={{ color: 'var(--success-11)' }}>
+        {def.category} · reliable progress
+      </p>
+    </div>
+  )
+}
+
+function ActiveProjectCard({ project }: { project: CapitalProject }) {
+  return (
+    <div className="text-[10px]">
+      <div className="flex justify-between mb-0.5">
+        <span style={{ color: 'var(--text)' }}>{project.name}</span>
+        <span style={{ color: 'var(--text-secondary)' }}>
+          {project.weeksRemaining}w · {naira(project.weeklyDraw)}/wk
+        </span>
+      </div>
+      <ProgressBar
+        progress={Math.min(100, project.effectiveProgress) / 100}
+        color="var(--success-9)"
+      />
+      <div className="flex justify-between text-[9px]" style={{ color: 'var(--text-secondary)' }}>
+        <span>{project.effectiveProgress.toFixed(0)}% complete</span>
+        <span>
+          {naira(project.totalSpent)} / {naira(project.totalCost)}
+        </span>
+      </div>
+    </div>
+  )
 }
 
 function BankruptcyClock() {
@@ -86,154 +222,28 @@ function InitiativeTracker() {
     >
       <h3 className="label-caps mb-1.5">In Flight</h3>
 
-      {initiative && (
-        <div
-          className="mb-2 p-1.5 border text-[10px]"
-          style={{ borderColor: 'var(--accent-solid)', backgroundColor: 'var(--accent-bg-subtle)' }}
-        >
-          <div className="flex justify-between mb-1">
-            <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
-              {initiative.name}
-            </span>
-            <span style={{ color: 'var(--text-secondary)' }}>
-              {initiative.weeksRemaining}w left
-            </span>
-          </div>
-          <div className="w-full h-1 mb-1" style={{ backgroundColor: 'var(--neutral-4)' }}>
-            <div
-              className="h-full"
-              style={{
-                width: `${(initiative.progress * 100).toFixed(0)}%`,
-                backgroundColor: 'var(--accent-solid)',
-                transition: 'width 0.3s ease',
-              }}
-            />
-          </div>
-          {initiative.payoff && (
-            <p className="text-[9px] font-medium" style={{ color: 'var(--accent-text)' }}>
-              On completion: {initiative.payoff}
-            </p>
-          )}
-        </div>
-      )}
+      {initiative && <InitiativeProgressCard initiative={initiative} />}
 
       {commissionedNodes.length > 0 && (
         <div className="space-y-1.5 mb-2">
-          {commissionedNodes.map((crn) => {
-            const node = RESEARCH_TREE.find((n) => n.id === crn.nodeId)
-            if (!node) return null
-            const weeksLeft = Math.max(0, crn.completionWeek - week)
-            const total = node.weeksToComplete
-            const elapsed = total - weeksLeft
-            const progress = total > 0 ? elapsed / total : 0
-            const hasOutcomes = !!node.outcomes
-            return (
-              <div
-                key={crn.nodeId}
-                className="p-1.5 border text-[10px]"
-                style={{
-                  borderColor: 'var(--accent-solid)',
-                  backgroundColor: 'var(--accent-bg-subtle)',
-                }}
-              >
-                <div className="flex justify-between mb-1">
-                  <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
-                    {node.title}
-                  </span>
-                  <span style={{ color: 'var(--text-secondary)' }}>{weeksLeft}w left</span>
-                </div>
-                <div className="w-full h-1 mb-1" style={{ backgroundColor: 'var(--neutral-4)' }}>
-                  <div
-                    className="h-full"
-                    style={{
-                      width: `${(progress * 100).toFixed(0)}%`,
-                      backgroundColor: hasOutcomes ? 'var(--warning-9)' : 'var(--accent-solid)',
-                      transition: 'width 0.3s ease',
-                    }}
-                  />
-                </div>
-                <p className="text-[9px] font-medium" style={{ color: 'var(--accent-text)' }}>
-                  {node.domain} · {hasOutcomes ? 'uncertain outcome' : 'reliable progress'}
-                </p>
-              </div>
-            )
-          })}
+          {commissionedNodes.map((nodeRef) => (
+            <ResearchProgressCard key={nodeRef.nodeId} nodeRef={nodeRef} week={week} />
+          ))}
         </div>
       )}
 
       {commissionedProjects.length > 0 && (
         <div className="space-y-1.5 mb-2">
-          {commissionedProjects.map((cp) => {
-            const def = PROJECTS.find((p) => p.id === cp.id)
-            if (!def) return null
-            const weeksLeft = Math.max(0, cp.completionWeek - week)
-            const total = def.weeksToComplete
-            const elapsed = total - weeksLeft
-            const progress = total > 0 ? elapsed / total : 0
-            return (
-              <div
-                key={cp.id}
-                className="p-1.5 border text-[10px]"
-                style={{
-                  borderColor: 'var(--success-9)',
-                  backgroundColor: 'var(--accent-bg-subtle)',
-                }}
-              >
-                <div className="flex justify-between mb-1">
-                  <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
-                    {def.title}
-                  </span>
-                  <span style={{ color: 'var(--text-secondary)' }}>{weeksLeft}w left</span>
-                </div>
-                <div className="w-full h-1 mb-1" style={{ backgroundColor: 'var(--neutral-4)' }}>
-                  <div
-                    className="h-full"
-                    style={{
-                      width: `${(progress * 100).toFixed(0)}%`,
-                      backgroundColor: 'var(--success-9)',
-                      transition: 'width 0.3s ease',
-                    }}
-                  />
-                </div>
-                <p className="text-[9px] font-medium" style={{ color: 'var(--success-11)' }}>
-                  {def.category} · reliable progress
-                </p>
-              </div>
-            )
-          })}
+          {commissionedProjects.map((projectRef) => (
+            <CommissionedProjectCard key={projectRef.id} projectRef={projectRef} week={week} />
+          ))}
         </div>
       )}
 
       {activeProjects.length > 0 && (
         <div className="space-y-1.5">
-          {activeProjects.map((p) => (
-            <div key={p.id} className="text-[10px]">
-              <div className="flex justify-between mb-0.5">
-                <span style={{ color: 'var(--text)' }}>{p.name}</span>
-                <span style={{ color: 'var(--text-secondary)' }}>
-                  {p.weeksRemaining}w · {naira(p.weeklyDraw)}/wk
-                </span>
-              </div>
-              <div className="w-full h-1" style={{ backgroundColor: 'var(--neutral-4)' }}>
-                <div
-                  className="h-full"
-                  style={{
-                    width: `${Math.min(100, p.effectiveProgress).toFixed(0)}%`,
-                    backgroundColor: 'var(--success-9)',
-                    transition: 'width 0.3s ease',
-                  }}
-                />
-              </div>
-              <div
-                className="flex justify-between text-[9px]"
-                style={{ color: 'var(--text-secondary)' }}
-              >
-                <span>{p.effectiveProgress.toFixed(0)}% complete</span>
-                <span>
-                  {naira(p.totalSpent)} / {naira(p.totalCost)}
-                </span>
-              </div>
-            </div>
+          {activeProjects.map((project) => (
+            <ActiveProjectCard key={project.id} project={project} />
           ))}
         </div>
       )}

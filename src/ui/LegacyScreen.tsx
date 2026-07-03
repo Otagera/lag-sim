@@ -65,37 +65,71 @@ function gradeColor(g: string): string {
   }
 }
 
+type LegacyData = ReturnType<typeof buildLegacy>
+type LegacyDecision = ReturnType<typeof pickKeyMomentsForLegacy>[number]
+
+const EXIT_REASONS: Partial<Record<string, string>> = {
+  bankruptcy: 'State Insolvency — Term Cut Short',
+  federalTakeover: 'Federal Takeover — Term Ended',
+  massUprising: 'Mass Uprising — Government Overwhelmed',
+  impeachment: 'Removal by Assembly',
+  primaryLoss: 'Primary Defeat — Re-Election Ended',
+  termEndLoss: 'Term Ended — Not Re-Elected',
+  secondTermEnd: 'Two Terms Complete — Legacy Sealed',
+}
+
+const GRADED_STATS = [
+  'publicTrust',
+  'infrastructureScore',
+  'securityIndex',
+  'youthTension',
+] as const
+
+function isTermEndState(state: GameState): boolean {
+  return state.gameOverType === 'termEndLoss' || state.gameOverType === 'secondTermEnd'
+}
+
+function getExitLabel(state: GameState): string {
+  return state.gameOverType ? (EXIT_REASONS[state.gameOverType] ?? 'Game Over') : 'Game Over'
+}
+
+function getLegacyTitle(state: GameState): string {
+  if (state.currentTerm === 2 && isTermEndState(state)) return 'Two Terms: Legacy Sealed'
+  if (state.reElected) return 'Re-Election Victory'
+  if (state.gameOverType === 'termEndLoss') return 'Term Ended — Defeat'
+  return ''
+}
+
+function getMonologueLabel(style: LegacyData['monologueStyle']): string {
+  if (style === 'compliant') return 'The Pragmatist'
+  if (style === 'reformer') return 'The Reformer'
+  return 'The Survivor'
+}
+
+function getNarrativeBorderColor(gameOverType: GameState['gameOverType']): string {
+  switch (gameOverType) {
+    case 'bankruptcy':
+    case 'massUprising':
+      return 'var(--error-9)'
+    case 'impeachment':
+    case 'federalTakeover':
+      return 'var(--warning-9)'
+    case 'primaryLoss':
+    case 'termEndLoss':
+      return 'var(--warning-7)'
+    case 'termEndWin':
+    case 'secondTermEnd':
+      return 'var(--success-9)'
+    default:
+      return 'var(--accent-solid)'
+  }
+}
+
 export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
   const state = useGameStore((s) => s)
   const legacy = buildLegacy(state)
-  const [btnHover, setBtnHover] = useState(false)
-
-  const endDate = formatGameDate(state.week)
-  const totalEvents = state.resolvedEvents.length
-  const isTermEnd = state.gameOverType === 'termEndLoss' || state.gameOverType === 'secondTermEnd'
   const verdictHeadline = state.gameOverType ? pickVerdictHeadline(state, state.gameOverType) : ''
-  const keyMoments = pickKeyMomentsForLegacy(state)
-
-  const exitReasons: Partial<Record<string, string>> = {
-    bankruptcy: 'State Insolvency — Term Cut Short',
-    federalTakeover: 'Federal Takeover — Term Ended',
-    massUprising: 'Mass Uprising — Government Overwhelmed',
-    impeachment: 'Removal by Assembly',
-    primaryLoss: 'Primary Defeat — Re-Election Ended',
-    termEndLoss: 'Term Ended — Not Re-Elected',
-    secondTermEnd: 'Two Terms Complete — Legacy Sealed',
-  }
-  const exitLabel = state.gameOverType
-    ? (exitReasons[state.gameOverType] ?? 'Game Over')
-    : 'Game Over'
-
-  const monologueStyle = legacy.monologueStyle
-  const monologueLabel =
-    monologueStyle === 'compliant'
-      ? 'The Pragmatist'
-      : monologueStyle === 'reformer'
-        ? 'The Reformer'
-        : 'The Survivor'
+  const decisions = pickKeyMomentsForLegacy(state)
 
   function handleNewGame() {
     clearSave()
@@ -108,423 +142,466 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
       style={{ backgroundColor: 'var(--background)', color: 'var(--text)' }}
     >
       <div className="max-w-2xl mx-auto space-y-8">
-        {/* Masthead */}
-        <div className="text-center">
-          <div
-            style={{
-              height: '1px',
-              background:
-                'linear-gradient(to right, transparent, var(--accent-solid) 30%, transparent)',
-              border: 'none',
-              marginBottom: '16px',
-            }}
-          />
-          <p className="label-caps mb-1">Lagos State Government — {exitLabel}</p>
-          <h1 className="font-display text-2xl font-semibold" style={{ color: 'var(--text)' }}>
-            {state.currentTerm === 2 && isTermEnd
-              ? 'Two Terms: Legacy Sealed'
-              : state.reElected
-                ? 'Re-Election Victory'
-                : state.gameOverType === 'termEndLoss'
-                  ? 'Term Ended — Defeat'
-                  : ''}
-          </h1>
-          <p className="text-[11px] mt-1" style={{ color: 'var(--text-secondary)' }}>
-            {endDate} &middot; {totalEvents} major decisions &middot; {state.week} weeks in office
-          </p>
-          {state.electionResult !== null && (
-            <p
-              className="mt-2 text-sm font-semibold"
-              style={{ color: state.reElected ? 'var(--success-11)' : 'var(--error-11)' }}
-            >
-              Election result: {state.electionResult.toFixed(1)}% vote share
-            </p>
-          )}
-        </div>
-
-        {/* Narrative Passage — the ending story */}
-        {state.endingNarrative && (
-          <div
-            className="p-5 border-l-4"
-            style={{
-              borderLeftColor: (() => {
-                switch (state.gameOverType) {
-                  case 'bankruptcy':
-                  case 'massUprising':
-                    return 'var(--error-9)'
-                  case 'impeachment':
-                  case 'federalTakeover':
-                    return 'var(--warning-9)'
-                  case 'primaryLoss':
-                  case 'termEndLoss':
-                    return 'var(--warning-7)'
-                  case 'termEndWin':
-                  case 'secondTermEnd':
-                    return 'var(--success-9)'
-                  default:
-                    return 'var(--accent-solid)'
-                }
-              })(),
-              backgroundColor: 'var(--surface)',
-              borderTopRightRadius: '4px',
-              borderBottomRightRadius: '4px',
-            }}
-          >
-            <p
-              className="text-sm leading-relaxed italic"
-              style={{ color: 'var(--text)', lineHeight: '1.7' }}
-            >
-              {state.endingNarrative.split('\n\n').map((p) => (
-                <span key={`para-${p.slice(0, 32)}`}>
-                  {p}
-                  <br />
-                  <br />
-                </span>
-              ))}
-            </p>
-          </div>
-        )}
-
-        {/* Verdict Headline */}
-        {verdictHeadline && (
-          <div className="text-center">
-            <p className="text-[10px] label-caps mb-1" style={{ color: 'var(--text-secondary)' }}>
-              VERDICT
-            </p>
-            <Heading level={1} display style={{ color: 'var(--accent-text)' }}>
-              {verdictHeadline}
-            </Heading>
-          </div>
-        )}
-
-        {/* Key Moments */}
-        {keyMoments.length > 0 && (
-          <div className="space-y-3">
-            <h2 className="label-caps">Key Moments</h2>
-            <div className="space-y-2">
-              {keyMoments.map((m) => (
-                <div
-                  key={`moment-${m.week}-${m.title.slice(0, 16)}`}
-                  style={{ borderLeft: '2px solid var(--border)', paddingLeft: '12px' }}
-                >
-                  <p
-                    className="text-[9px] mb-0.5 label-caps"
-                    style={{ color: 'var(--border-strong)' }}
-                  >
-                    Week {m.week} &middot; {m.type.toUpperCase()}
-                  </p>
-                  <p className="text-xs font-semibold" style={{ color: 'var(--text)' }}>
-                    {m.title}
-                  </p>
-                  <p
-                    className="text-[10px] mt-0.5 leading-relaxed"
-                    style={{ color: 'var(--text-secondary)' }}
-                  >
-                    {m.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Headlines — only for term-end */}
-        {isTermEnd && (
-          <div className="space-y-4">
-            <h2 className="label-caps">The Record — As History Will Judge It</h2>
-            {legacy.headlines.map((headline, i) => (
-              <div
-                key={headline.key}
-                style={{ borderLeft: '2px solid var(--border)', paddingLeft: '16px' }}
-              >
-                <p className="text-[9px] mb-0.5" style={{ color: 'var(--border-strong)' }}>
-                  VANGUARD / PUNCH / THE NATION #{i + 1}
-                </p>
-                <h3
-                  className="font-display text-sm font-semibold leading-snug"
-                  style={{ color: 'var(--text)' }}
-                >
-                  {headline.headline}
-                </h3>
-                <p
-                  className="text-[11px] mt-1 leading-relaxed"
-                  style={{ color: 'var(--text-secondary)' }}
-                >
-                  {headline.subhead}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Governor's Final Address — only for term-end */}
-        {isTermEnd && (
-          <div
-            className="p-4 border transition-all"
-            style={{
-              borderColor: 'var(--border)',
-              backgroundColor: 'var(--surface)',
-            }}
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <p className="label-caps">Governor's Final Press Address</p>
-              <span
-                className="text-[9px] px-1.5 py-0.5"
-                style={{ backgroundColor: 'var(--neutral-4)', color: 'var(--text-secondary)' }}
-              >
-                {monologueLabel}
-              </span>
-            </div>
-            <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text)' }}>
-              "{legacy.monologue}"
-            </p>
-          </div>
-        )}
-
-        {/* Election Journey — only for term-end */}
-        {isTermEnd && (state.electionResult !== null || state.stateFlags['primary-lost']) && (
-          <div className="space-y-3">
-            <h2 className="label-caps">The Road to the Election</h2>
-            <div style={{ borderLeft: '2px solid var(--accent-solid)', paddingLeft: '16px' }}>
-              <p className="text-[9px] mb-0.5 label-caps" style={{ color: 'var(--border-strong)' }}>
-                {legacy.primaryNarrative.path === 'lost'
-                  ? 'PRIMARY \u2014 DEFEATED'
-                  : `PRIMARY PATH \u2014 SCENARIO ${legacy.primaryNarrative.path.toUpperCase()}`}
-              </p>
-              <h3 className="font-display text-sm font-semibold" style={{ color: 'var(--text)' }}>
-                {legacy.primaryNarrative.title}
-              </h3>
-              <p
-                className="text-[11px] mt-1 leading-relaxed"
-                style={{ color: 'var(--text-secondary)' }}
-              >
-                {legacy.primaryNarrative.summary}
-              </p>
-            </div>
-            <div
-              className="text-[10px] p-3"
-              style={{
-                backgroundColor: 'var(--surface)',
-                borderColor: 'var(--border)',
-                border: '1px solid',
-              }}
-            >
-              <p className="label-caps mb-1">Endorsement Picture</p>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                {legacy.endorsementSummary}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Stats Grid */}
+        <LegacyHeader legacy={legacy} state={state} />
+        <EndingNarrative state={state} />
+        <VerdictHeadlineSection verdictHeadline={verdictHeadline} />
+        <DecisionSummary decisions={decisions} />
+        <LegacyTermSections legacy={legacy} state={state} />
         <div>
           <h2 className="label-caps mb-3">Final Scorecard</h2>
-          <div className="flex justify-center gap-4 mb-4">
-            {(['publicTrust', 'infrastructureScore', 'securityIndex', 'youthTension'] as const).map(
-              (key) => {
-                const val = key === 'youthTension' ? 100 - state.stats[key] : state.stats[key]
-                const g = grade(val, 100)
-                const label =
-                  key === 'publicTrust'
-                    ? 'Trust'
-                    : key === 'infrastructureScore'
-                      ? 'Infra'
-                      : key === 'securityIndex'
-                        ? 'Security'
-                        : 'Youth'
-                const change =
-                  val -
-                  (key === 'youthTension'
-                    ? 100 - STARTING_STATE.stats[key]
-                    : STARTING_STATE.stats[key])
-                return (
-                  <div key={key} className="flex flex-col items-center">
-                    <span className="text-2xl font-bold" style={{ color: gradeColor(g) }}>
-                      {g}
-                    </span>
-                    <span className="label-caps">{label}</span>
-                    <span
-                      className="text-[9px]"
-                      style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}
-                    >
-                      {change >= 0 ? '+' : ''}
-                      {change.toFixed(0)}
-                    </span>
-                  </div>
-                )
-              },
-            )}
-          </div>
-
+          <LegacyStatGrid stats={state.stats} />
           <div className="grid grid-cols-2 gap-3 text-[10px]">
-            <div className="space-y-1">
-              <p className="label-caps">Factions</p>
-              {(Object.keys(state.factions) as FactionKey[]).map((key) => {
-                const change = state.factions[key] - STARTING_STATE.factions[key]
-                return (
-                  <div key={key} className="flex justify-between">
-                    <span className="truncate mr-1" style={{ color: 'var(--text-secondary)' }}>
-                      {FACTION_LABELS[key]}
-                    </span>
-                    <span className="shrink-0" style={{ color: 'var(--text)' }}>
-                      {state.factions[key]}
-                      <span
-                        className="ml-0.5"
-                        style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}
-                      >
-                        ({change >= 0 ? '+' : ''}
-                        {change})
-                      </span>
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
-            <div className="space-y-1">
-              <p className="label-caps">Constituencies</p>
-              {(Object.keys(state.constituencyApproval) as ConstituencyKey[]).map((key) => {
-                const change =
-                  state.constituencyApproval[key] - STARTING_STATE.constituencyApproval[key]
-                return (
-                  <div key={key} className="flex justify-between">
-                    <span className="truncate mr-1" style={{ color: 'var(--text-secondary)' }}>
-                      {CONSTITUENCY_LABELS[key]}
-                    </span>
-                    <span className="shrink-0" style={{ color: 'var(--text)' }}>
-                      {state.constituencyApproval[key]}%
-                      <span
-                        className="ml-0.5"
-                        style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}
-                      >
-                        ({change >= 0 ? '+' : ''}
-                        {change})
-                      </span>
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
+            <FactionSummary factions={state.factions} />
+            <ConstituencySummary constituencyApproval={state.constituencyApproval} />
           </div>
-
-          <div className="mt-3 grid grid-cols-4 gap-2 text-center text-[10px]">
-            <div>
-              <p className="label-caps">Cash</p>
-              <p
-                className="font-bold"
-                style={{
-                  color: state.stats.cashReserve >= 0 ? 'var(--success-11)' : 'var(--error-11)',
-                }}
-              >
-                {state.stats.cashReserve >= 0 ? 'A' : 'F'}
-              </p>
-              <p style={{ color: 'var(--text-secondary)' }}>
-                ₦{state.stats.cashReserve.toFixed(0)}bn
-              </p>
-            </div>
-            <div>
-              <p className="label-caps">Fashemu</p>
-              <p className="font-semibold capitalize" style={{ color: 'var(--text)' }}>
-                {state.fashemuPhase}
-              </p>
-              <p style={{ color: 'var(--text-secondary)' }}>
-                Path {state.fashemuEndingPath ?? '—'}
-              </p>
-            </div>
-            <div>
-              <p className="label-caps">Compliance</p>
-              <p className="font-semibold" style={{ color: 'var(--text)' }}>
-                {state.godfatherComplianceCount}/
-                {state.godfatherComplianceCount + state.godfatherRefusalCount}
-              </p>
-              <p style={{ color: 'var(--text-secondary)' }}>accepted</p>
-            </div>
-            <div>
-              <p className="label-caps">Personal Goal</p>
-              <GoalLegacyOutcome state={state} />
-            </div>
-          </div>
+          <LegacyOperationalStats state={state} />
         </div>
+        <EightYearAccountability state={state} />
+        <LegacyFooter onNewGame={handleNewGame} />
+      </div>
+    </div>
+  )
+}
 
-        {state.currentTerm === 2 && (
-          <div>
-            <h2 className="label-caps mb-3">Eight-Year Accountability Index</h2>
-            <div className="grid grid-cols-2 gap-3 text-[10px]">
-              <div
-                className="p-3"
-                style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
-              >
-                <p className="label-caps mb-1">Corruption at Exit</p>
-                <p
-                  className="text-xl font-bold"
-                  style={{
-                    color:
-                      state.stats.corruptionPressure >= 70
-                        ? 'var(--error-11)'
-                        : state.stats.corruptionPressure >= 50
-                          ? 'var(--warning-11)'
-                          : 'var(--success-11)',
-                  }}
-                >
-                  {state.stats.corruptionPressure.toFixed(0)}%
-                </p>
-                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                  {state.stats.corruptionPressure >= 70
-                    ? 'Accountability crisis — EFCC inquiry pending'
-                    : state.stats.corruptionPressure >= 50
-                      ? 'Under scrutiny — irregularities noted'
-                      : 'Clean exit — no material findings'}
-                </p>
-              </div>
-              <div
-                className="p-3"
-                style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
-              >
-                <p className="label-caps mb-1">Cash at Handover</p>
-                <p className="text-xl font-bold" style={{ color: 'var(--text)' }}>
-                  ₦{state.stats.cashReserve.toFixed(0)}bn
-                </p>
-                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                  {state.stats.cashReserve >= 150
-                    ? `Fiscal surplus — ₦${(state.stats.cashReserve - 50).toFixed(0)}bn above operational floor`
-                    : state.stats.cashReserve >= 0
-                      ? 'Stable — books balanced at handover'
-                      : 'Deficit — successor faces liquidity gap'}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+function LegacyHeader(props: { legacy: LegacyData; state: GameState }) {
+  const { state } = props
+  const endDate = formatGameDate(state.week)
+  const totalEvents = state.resolvedEvents.length
 
-        <div className="text-center space-x-3">
-          {state.gameOverType === 'termEndWin' && (
-            <button
-              type="button"
-              onClick={() => useGameStore.getState().beginSecondTerm()}
-              className="px-8 py-3 text-sm font-semibold transition-colors"
-              style={{
-                backgroundColor: 'var(--success-9)',
-                color: '#fff',
-              }}
+  return (
+    <div className="text-center">
+      <div
+        style={{
+          height: '1px',
+          background:
+            'linear-gradient(to right, transparent, var(--accent-solid) 30%, transparent)',
+          border: 'none',
+          marginBottom: '16px',
+        }}
+      />
+      <p className="label-caps mb-1">Lagos State Government — {getExitLabel(state)}</p>
+      <h1 className="font-display text-2xl font-semibold" style={{ color: 'var(--text)' }}>
+        {getLegacyTitle(state)}
+      </h1>
+      <p className="text-[11px] mt-1" style={{ color: 'var(--text-secondary)' }}>
+        {endDate} &middot; {totalEvents} major decisions &middot; {state.week} weeks in office
+      </p>
+      {state.electionResult !== null && (
+        <p
+          className="mt-2 text-sm font-semibold"
+          style={{ color: state.reElected ? 'var(--success-11)' : 'var(--error-11)' }}
+        >
+          Election result: {state.electionResult.toFixed(1)}% vote share
+        </p>
+      )}
+    </div>
+  )
+}
+
+function EndingNarrative({ state }: { state: GameState }) {
+  if (!state.endingNarrative) return null
+
+  return (
+    <div
+      className="p-5 border-l-4"
+      style={{
+        borderLeftColor: getNarrativeBorderColor(state.gameOverType),
+        backgroundColor: 'var(--surface)',
+        borderTopRightRadius: '4px',
+        borderBottomRightRadius: '4px',
+      }}
+    >
+      <p
+        className="text-sm leading-relaxed italic"
+        style={{ color: 'var(--text)', lineHeight: '1.7' }}
+      >
+        {state.endingNarrative.split('\n\n').map((paragraph) => (
+          <span key={`para-${paragraph.slice(0, 32)}`}>
+            {paragraph}
+            <br />
+            <br />
+          </span>
+        ))}
+      </p>
+    </div>
+  )
+}
+
+function VerdictHeadlineSection({ verdictHeadline }: { verdictHeadline: string }) {
+  if (!verdictHeadline) return null
+
+  return (
+    <div className="text-center">
+      <p className="text-[10px] label-caps mb-1" style={{ color: 'var(--text-secondary)' }}>
+        VERDICT
+      </p>
+      <Heading level={1} display style={{ color: 'var(--accent-text)' }}>
+        {verdictHeadline}
+      </Heading>
+    </div>
+  )
+}
+
+function DecisionSummary({ decisions }: { decisions: LegacyDecision[] }) {
+  if (decisions.length === 0) return null
+
+  return (
+    <div className="space-y-3">
+      <h2 className="label-caps">Key Moments</h2>
+      <div className="space-y-2">
+        {decisions.map((decision) => (
+          <RankedDecisionItem
+            key={`moment-${decision.week}-${decision.title.slice(0, 16)}`}
+            decision={decision}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function RankedDecisionItem({ decision }: { decision: LegacyDecision }) {
+  return (
+    <div style={{ borderLeft: '2px solid var(--border)', paddingLeft: '12px' }}>
+      <p className="text-[9px] mb-0.5 label-caps" style={{ color: 'var(--border-strong)' }}>
+        Week {decision.week} &middot; {decision.type.toUpperCase()}
+      </p>
+      <p className="text-xs font-semibold" style={{ color: 'var(--text)' }}>
+        {decision.title}
+      </p>
+      <p className="text-[10px] mt-0.5 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+        {decision.description}
+      </p>
+    </div>
+  )
+}
+
+function LegacyTermSections({ legacy, state }: { legacy: LegacyData; state: GameState }) {
+  if (!isTermEndState(state)) return null
+
+  return (
+    <>
+      <LegacyHeadlines legacy={legacy} />
+      <LegacyFinalAddress legacy={legacy} />
+      <LegacyElectionJourney legacy={legacy} state={state} />
+    </>
+  )
+}
+
+function LegacyHeadlines({ legacy }: { legacy: LegacyData }) {
+  return (
+    <div className="space-y-4">
+      <h2 className="label-caps">The Record — As History Will Judge It</h2>
+      {legacy.headlines.map((headline, index) => (
+        <div
+          key={headline.key}
+          style={{ borderLeft: '2px solid var(--border)', paddingLeft: '16px' }}
+        >
+          <p className="text-[9px] mb-0.5" style={{ color: 'var(--border-strong)' }}>
+            VANGUARD / PUNCH / THE NATION #{index + 1}
+          </p>
+          <h3
+            className="font-display text-sm font-semibold leading-snug"
+            style={{ color: 'var(--text)' }}
+          >
+            {headline.headline}
+          </h3>
+          <p
+            className="text-[11px] mt-1 leading-relaxed"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            {headline.subhead}
+          </p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function LegacyFinalAddress({ legacy }: { legacy: LegacyData }) {
+  return (
+    <div
+      className="p-4 border transition-all"
+      style={{
+        borderColor: 'var(--border)',
+        backgroundColor: 'var(--surface)',
+      }}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <p className="label-caps">Governor's Final Press Address</p>
+        <span
+          className="text-[9px] px-1.5 py-0.5"
+          style={{ backgroundColor: 'var(--neutral-4)', color: 'var(--text-secondary)' }}
+        >
+          {getMonologueLabel(legacy.monologueStyle)}
+        </span>
+      </div>
+      <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text)' }}>
+        "{legacy.monologue}"
+      </p>
+    </div>
+  )
+}
+
+function LegacyElectionJourney({ legacy, state }: { legacy: LegacyData; state: GameState }) {
+  if (state.electionResult === null && !state.stateFlags['primary-lost']) return null
+
+  return (
+    <div className="space-y-3">
+      <h2 className="label-caps">The Road to the Election</h2>
+      <div style={{ borderLeft: '2px solid var(--accent-solid)', paddingLeft: '16px' }}>
+        <p className="text-[9px] mb-0.5 label-caps" style={{ color: 'var(--border-strong)' }}>
+          {legacy.primaryNarrative.path === 'lost'
+            ? 'PRIMARY — DEFEATED'
+            : `PRIMARY PATH — SCENARIO ${legacy.primaryNarrative.path.toUpperCase()}`}
+        </p>
+        <h3 className="font-display text-sm font-semibold" style={{ color: 'var(--text)' }}>
+          {legacy.primaryNarrative.title}
+        </h3>
+        <p className="text-[11px] mt-1 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+          {legacy.primaryNarrative.summary}
+        </p>
+      </div>
+      <div
+        className="text-[10px] p-3"
+        style={{
+          backgroundColor: 'var(--surface)',
+          borderColor: 'var(--border)',
+          border: '1px solid',
+        }}
+      >
+        <p className="label-caps mb-1">Endorsement Picture</p>
+        <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+          {legacy.endorsementSummary}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function LegacyStatGrid({ stats }: { stats: GameState['stats'] }) {
+  return (
+    <div className="flex justify-center gap-4 mb-4">
+      {GRADED_STATS.map((key) => {
+        const value = key === 'youthTension' ? 100 - stats[key] : stats[key]
+        const label =
+          key === 'publicTrust'
+            ? 'Trust'
+            : key === 'infrastructureScore'
+              ? 'Infra'
+              : key === 'securityIndex'
+                ? 'Security'
+                : 'Youth'
+        const change =
+          value -
+          (key === 'youthTension' ? 100 - STARTING_STATE.stats[key] : STARTING_STATE.stats[key])
+        const letterGrade = grade(value, 100)
+
+        return (
+          <div key={key} className="flex flex-col items-center">
+            <span className="text-2xl font-bold" style={{ color: gradeColor(letterGrade) }}>
+              {letterGrade}
+            </span>
+            <span className="label-caps">{label}</span>
+            <span
+              className="text-[9px]"
+              style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}
             >
-              Begin Second Term
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={handleNewGame}
-            onMouseEnter={() => setBtnHover(true)}
-            onMouseLeave={() => setBtnHover(false)}
-            className="px-8 py-3 text-sm font-semibold transition-colors"
+              {change >= 0 ? '+' : ''}
+              {change.toFixed(0)}
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function FactionSummary({ factions }: { factions: GameState['factions'] }) {
+  return (
+    <div className="space-y-1">
+      <p className="label-caps">Factions</p>
+      {(Object.keys(factions) as FactionKey[]).map((key) => {
+        const change = factions[key] - STARTING_STATE.factions[key]
+
+        return (
+          <div key={key} className="flex justify-between">
+            <span className="truncate mr-1" style={{ color: 'var(--text-secondary)' }}>
+              {FACTION_LABELS[key]}
+            </span>
+            <span className="shrink-0" style={{ color: 'var(--text)' }}>
+              {factions[key]}
+              <span
+                className="ml-0.5"
+                style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}
+              >
+                ({change >= 0 ? '+' : ''}
+                {change})
+              </span>
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function ConstituencySummary({
+  constituencyApproval,
+}: {
+  constituencyApproval: GameState['constituencyApproval']
+}) {
+  return (
+    <div className="space-y-1">
+      <p className="label-caps">Constituencies</p>
+      {(Object.keys(constituencyApproval) as ConstituencyKey[]).map((key) => {
+        const change = constituencyApproval[key] - STARTING_STATE.constituencyApproval[key]
+
+        return (
+          <div key={key} className="flex justify-between">
+            <span className="truncate mr-1" style={{ color: 'var(--text-secondary)' }}>
+              {CONSTITUENCY_LABELS[key]}
+            </span>
+            <span className="shrink-0" style={{ color: 'var(--text)' }}>
+              {constituencyApproval[key]}%
+              <span
+                className="ml-0.5"
+                style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}
+              >
+                ({change >= 0 ? '+' : ''}
+                {change})
+              </span>
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function LegacyOperationalStats({ state }: { state: GameState }) {
+  return (
+    <div className="mt-3 grid grid-cols-4 gap-2 text-center text-[10px]">
+      <div>
+        <p className="label-caps">Cash</p>
+        <p
+          className="font-bold"
+          style={{ color: state.stats.cashReserve >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}
+        >
+          {state.stats.cashReserve >= 0 ? 'A' : 'F'}
+        </p>
+        <p style={{ color: 'var(--text-secondary)' }}>₦{state.stats.cashReserve.toFixed(0)}bn</p>
+      </div>
+      <div>
+        <p className="label-caps">Fashemu</p>
+        <p className="font-semibold capitalize" style={{ color: 'var(--text)' }}>
+          {state.fashemuPhase}
+        </p>
+        <p style={{ color: 'var(--text-secondary)' }}>Path {state.fashemuEndingPath ?? '—'}</p>
+      </div>
+      <div>
+        <p className="label-caps">Compliance</p>
+        <p className="font-semibold" style={{ color: 'var(--text)' }}>
+          {state.godfatherComplianceCount}/
+          {state.godfatherComplianceCount + state.godfatherRefusalCount}
+        </p>
+        <p style={{ color: 'var(--text-secondary)' }}>accepted</p>
+      </div>
+      <div>
+        <p className="label-caps">Personal Goal</p>
+        <GoalLegacyOutcome state={state} />
+      </div>
+    </div>
+  )
+}
+
+function EightYearAccountability({ state }: { state: GameState }) {
+  if (state.currentTerm !== 2) return null
+
+  return (
+    <div>
+      <h2 className="label-caps mb-3">Eight-Year Accountability Index</h2>
+      <div className="grid grid-cols-2 gap-3 text-[10px]">
+        <div
+          className="p-3"
+          style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+        >
+          <p className="label-caps mb-1">Corruption at Exit</p>
+          <p
+            className="text-xl font-bold"
             style={{
-              backgroundColor: btnHover ? 'var(--accent-10)' : 'var(--accent-solid)',
-              color: 'var(--accent-on-solid)',
+              color:
+                state.stats.corruptionPressure >= 70
+                  ? 'var(--error-11)'
+                  : state.stats.corruptionPressure >= 50
+                    ? 'var(--warning-11)'
+                    : 'var(--success-11)',
             }}
           >
-            New Game
-          </button>
+            {state.stats.corruptionPressure.toFixed(0)}%
+          </p>
+          <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+            {state.stats.corruptionPressure >= 70
+              ? 'Accountability crisis — EFCC inquiry pending'
+              : state.stats.corruptionPressure >= 50
+                ? 'Under scrutiny — irregularities noted'
+                : 'Clean exit — no material findings'}
+          </p>
+        </div>
+        <div
+          className="p-3"
+          style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+        >
+          <p className="label-caps mb-1">Cash at Handover</p>
+          <p className="text-xl font-bold" style={{ color: 'var(--text)' }}>
+            ₦{state.stats.cashReserve.toFixed(0)}bn
+          </p>
+          <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+            {state.stats.cashReserve >= 150
+              ? `Fiscal surplus — ₦${(state.stats.cashReserve - 50).toFixed(0)}bn above operational floor`
+              : state.stats.cashReserve >= 0
+                ? 'Stable — books balanced at handover'
+                : 'Deficit — successor faces liquidity gap'}
+          </p>
         </div>
       </div>
+    </div>
+  )
+}
+
+function LegacyFooter({ onNewGame }: { onNewGame: () => void }) {
+  const [btnHover, setBtnHover] = useState(false)
+  const beginSecondTerm = useGameStore((s) => s.beginSecondTerm)
+  const gameOverType = useGameStore((s) => s.gameOverType)
+
+  return (
+    <div className="text-center space-x-3">
+      {gameOverType === 'termEndWin' && (
+        <button
+          type="button"
+          onClick={beginSecondTerm}
+          className="px-8 py-3 text-sm font-semibold transition-colors"
+          style={{
+            backgroundColor: 'var(--success-9)',
+            color: '#fff',
+          }}
+        >
+          Begin Second Term
+        </button>
+      )}
+      <button
+        type="button"
+        onClick={onNewGame}
+        onMouseEnter={() => setBtnHover(true)}
+        onMouseLeave={() => setBtnHover(false)}
+        className="px-8 py-3 text-sm font-semibold transition-colors"
+        style={{
+          backgroundColor: btnHover ? 'var(--accent-10)' : 'var(--accent-solid)',
+          color: 'var(--accent-on-solid)',
+        }}
+      >
+        New Game
+      </button>
     </div>
   )
 }

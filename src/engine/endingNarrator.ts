@@ -373,6 +373,24 @@ const SECOND_TERM_VERDICTS = [
   'The Full Arc',
 ]
 
+type EndingNarrativeContext = {
+  seed: string
+  momentsText: string
+  goalFrag: string
+  trust: string
+  security: string
+  infra: string
+  infraDelta: string
+  cash: string
+  youth: string
+  fedRel: string
+  corruption: string
+  voteShare: string
+  project: string | null
+  csDescription: string
+  worstLGA: { key: string; label: string; approval: number }
+}
+
 function pickVerdict(exit: GameOverType, seed: string): string {
   switch (exit) {
     case 'bankruptcy':
@@ -394,125 +412,152 @@ function pickVerdict(exit: GameOverType, seed: string): string {
   }
 }
 
+function buildEndingContext(state: GameState, exit: GameOverType): EndingNarrativeContext {
+  const seed = `ending-${exit}-${state.week}-${state.stats.publicTrust.toFixed(0)}-${state.stats.cashReserve.toFixed(0)}-${state.timeline.length}`
+  const moments = pickKeyMoments(state, 2, seed)
+  const csScore = state.factions.civilSocietyMedia
+  return {
+    seed,
+    momentsText:
+      moments.length > 0 ? `${moments.map((m) => `${capitalise(m.title)}`).join('. ')}.` : '',
+    goalFrag: goalLine(state),
+    trust: state.stats.publicTrust.toFixed(0),
+    security: state.stats.securityIndex.toFixed(0),
+    infra: state.stats.infrastructureScore.toFixed(0),
+    infraDelta: formatDelta(state.stats.infrastructureScore - 42),
+    cash: state.stats.cashReserve.toFixed(1),
+    youth: state.stats.youthTension.toFixed(0),
+    fedRel: state.stats.federalRelationship.toFixed(0),
+    corruption: state.stats.corruptionPressure.toFixed(0),
+    voteShare: state.electionResult !== null ? state.electionResult.toFixed(1) : '?',
+    project: pickProject(state, seed),
+    csDescription:
+      csScore >= 60 ? 'endorsed you' : csScore >= 40 ? 'stayed engaged' : 'turned against you',
+    worstLGA: worstLGA(state),
+  }
+}
+
+function fillEndingTemplate(text: string, state: GameState, ctx: EndingNarrativeContext): string {
+  return text
+    .replace(/\{diagnosis\}/g, overheadsDiagnosis(state))
+    .replace(/\{trust\}/g, ctx.trust)
+    .replace(/\{security\}/g, ctx.security)
+    .replace(/\{infra\}/g, ctx.infra)
+    .replace(/\{infraDelta\}/g, ctx.infraDelta)
+    .replace(/\{infraStart\}/g, '42')
+    .replace(/\{cash\}/g, ctx.cash)
+    .replace(/\{youth\}/g, ctx.youth)
+    .replace(/\{fedRel\}/g, ctx.fedRel)
+    .replace(/\{corruption\}/g, ctx.corruption)
+    .replace(/\{project\}/g, ctx.project ?? 'your work')
+    .replace(/\{goalFragment\}/g, ctx.goalFrag)
+    .replace(/\{voteShare\}/g, ctx.voteShare)
+    .replace(/\{csDescription\}/g, ctx.csDescription)
+    .replace(/\{worstLGA\}/g, ctx.worstLGA.label)
+    .replace(/\{worstLGAVal\}/g, ctx.worstLGA.approval.toFixed(0))
+    .replace(/\{badFaction\}/g, lossBadFaction(state))
+    .replace(/\{primaryWhy\}/g, primaryWhy(state))
+    .replace(/\{moments\}/g, ctx.momentsText)
+}
+
+function composeEndingParagraphs(
+  state: GameState,
+  ctx: EndingNarrativeContext,
+  opening: string,
+  achievements: string,
+  closing: string,
+): string {
+  const fill = (text: string) => fillEndingTemplate(text, state, ctx)
+  const momentsPrefix = ctx.momentsText ? `${ctx.momentsText} ` : ''
+  return `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsPrefix}${fill(closing)}`
+}
+
+function buildNarrativeForExit(
+  state: GameState,
+  exit: GameOverType,
+  ctx: EndingNarrativeContext,
+): string {
+  switch (exit) {
+    case 'bankruptcy':
+      return composeEndingParagraphs(
+        state,
+        ctx,
+        pickVariant(BANKRUPTCY_OPENINGS, `${ctx.seed}o`),
+        pickVariant(BANKRUPTCY_ACHIEVEMENTS, `${ctx.seed}a`),
+        pickVariant(BANKRUPTCY_CLOSINGS, `${ctx.seed}c`),
+      )
+    case 'federalTakeover':
+      return composeEndingParagraphs(
+        state,
+        ctx,
+        pickVariant(FEDERAL_OPENINGS, `${ctx.seed}o`),
+        pickVariant(FEDERAL_ACHIEVEMENTS, `${ctx.seed}a`),
+        pickVariant(FEDERAL_CLOSINGS, `${ctx.seed}c`),
+      )
+    case 'massUprising':
+      return composeEndingParagraphs(
+        state,
+        ctx,
+        pickVariant(UPRISING_OPENINGS, `${ctx.seed}o`),
+        pickVariant(UPRISING_ACHIEVEMENTS, `${ctx.seed}a`),
+        pickVariant(UPRISING_CLOSINGS, `${ctx.seed}c`),
+      )
+    case 'impeachment':
+      return buildImpeachmentNarrative(state, ctx)
+    case 'primaryLoss':
+      return composeEndingParagraphs(
+        state,
+        ctx,
+        pickVariant(PRIMARY_OPENINGS, `${ctx.seed}o`),
+        pickVariant(PRIMARY_ACHIEVEMENTS, `${ctx.seed}a`),
+        pickVariant(PRIMARY_CLOSINGS, `${ctx.seed}c`),
+      )
+    case 'termEndLoss':
+      return composeEndingParagraphs(
+        state,
+        ctx,
+        pickVariant(LOSS_WHY_DIAGNOSES, `${ctx.seed}w`),
+        pickVariant(LOSS_ACHIEVEMENTS, `${ctx.seed}a`),
+        pickVariant(LOSS_CLOSINGS, `${ctx.seed}c`),
+      )
+    case 'termEndWin':
+      return composeEndingParagraphs(
+        state,
+        ctx,
+        pickVariant(WIN_NARRATIVES, `${ctx.seed}n`),
+        pickVariant(WIN_ACHIEVEMENTS, `${ctx.seed}a`),
+        pickVariant(WIN_CLOSINGS, `${ctx.seed}c`),
+      )
+    case 'secondTermEnd':
+      return composeEndingParagraphs(
+        state,
+        ctx,
+        pickVariant(SECOND_TERM_NARRATIVES, `${ctx.seed}n`),
+        pickVariant(SECOND_TERM_ACHIEVEMENTS, `${ctx.seed}a`),
+        pickVariant(SECOND_TERM_CLOSINGS, `${ctx.seed}c`),
+      )
+  }
+}
+
+function buildImpeachmentNarrative(state: GameState, ctx: EndingNarrativeContext): string {
+  const defied = state.timeline.some(
+    (e) => e.title === 'Removal Resolution: First Reading' && e.description === 'Defy the Assembly',
+  )
+  const openings = defied ? IMPEACHMENT_OPENINGS_DEFIED : IMPEACHMENT_OPENINGS_CONCEDED
+  return composeEndingParagraphs(
+    state,
+    ctx,
+    pickVariant(openings, `${ctx.seed}o`),
+    pickVariant(IMPEACHMENT_ACHIEVEMENTS, `${ctx.seed}a`),
+    pickVariant(IMPEACHMENT_CLOSINGS, `${ctx.seed}c`),
+  )
+}
+
 // ── Main assembly ─────────────────────────────────────────────
 
 export function buildEndingNarrative(state: GameState, exit: GameOverType): string {
-  const seed = `ending-${exit}-${state.week}-${state.stats.publicTrust.toFixed(0)}-${state.stats.cashReserve.toFixed(0)}-${state.timeline.length}`
-
-  const moments = pickKeyMoments(state, 2, seed)
-  const momentsText =
-    moments.length > 0 ? `${moments.map((m) => `${capitalise(m.title)}`).join('. ')}.` : ''
-
-  const goalFrag = goalLine(state)
-  const trust = state.stats.publicTrust.toFixed(0)
-  const security = state.stats.securityIndex.toFixed(0)
-  const infra = state.stats.infrastructureScore.toFixed(0)
-  const cash = state.stats.cashReserve.toFixed(1)
-  const youth = state.stats.youthTension.toFixed(0)
-  const fedRel = state.stats.federalRelationship.toFixed(0)
-  const corruption = state.stats.corruptionPressure.toFixed(0)
-  const infraStart = '42'
-  const infraDelta = formatDelta(state.stats.infrastructureScore - 42)
-  const voteShare = state.electionResult !== null ? state.electionResult.toFixed(1) : '?'
-  const project = pickProject(state, seed)
-
-  const csScore = state.factions.civilSocietyMedia
-  const csDescription =
-    csScore >= 60 ? 'endorsed you' : csScore >= 40 ? 'stayed engaged' : 'turned against you'
-
-  const wLGA = worstLGA(state)
-  const worstLGAVal = wLGA.approval.toFixed(0)
-
-  function fill(text: string): string {
-    return text
-      .replace(/\{diagnosis\}/g, overheadsDiagnosis(state))
-      .replace(/\{trust\}/g, trust)
-      .replace(/\{security\}/g, security)
-      .replace(/\{infra\}/g, infra)
-      .replace(/\{infraDelta\}/g, infraDelta)
-      .replace(/\{infraStart\}/g, infraStart)
-      .replace(/\{cash\}/g, cash)
-      .replace(/\{youth\}/g, youth)
-      .replace(/\{fedRel\}/g, fedRel)
-      .replace(/\{corruption\}/g, corruption)
-      .replace(/\{project\}/g, project ?? 'your work')
-      .replace(/\{goalFragment\}/g, goalFrag)
-      .replace(/\{voteShare\}/g, voteShare)
-      .replace(/\{csDescription\}/g, csDescription)
-      .replace(/\{worstLGA\}/g, wLGA.label)
-      .replace(/\{worstLGAVal\}/g, worstLGAVal)
-      .replace(/\{badFaction\}/g, lossBadFaction(state))
-      .replace(/\{primaryWhy\}/g, primaryWhy(state))
-      .replace(/\{moments\}/g, momentsText)
-  }
-
-  let narrative = ''
-
-  switch (exit) {
-    case 'bankruptcy': {
-      const opening = pickVariant(BANKRUPTCY_OPENINGS, `${seed}o`)
-      const achievements = pickVariant(BANKRUPTCY_ACHIEVEMENTS, `${seed}a`)
-      const closing = pickVariant(BANKRUPTCY_CLOSINGS, `${seed}c`)
-      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
-      break
-    }
-    case 'federalTakeover': {
-      const opening = pickVariant(FEDERAL_OPENINGS, `${seed}o`)
-      const achievements = pickVariant(FEDERAL_ACHIEVEMENTS, `${seed}a`)
-      const closing = pickVariant(FEDERAL_CLOSINGS, `${seed}c`)
-      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
-      break
-    }
-    case 'massUprising': {
-      const opening = pickVariant(UPRISING_OPENINGS, `${seed}o`)
-      const achievements = pickVariant(UPRISING_ACHIEVEMENTS, `${seed}a`)
-      const closing = pickVariant(UPRISING_CLOSINGS, `${seed}c`)
-      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
-      break
-    }
-    case 'impeachment': {
-      const defied = state.timeline.some(
-        (e) =>
-          e.title === 'Removal Resolution: First Reading' && e.description === 'Defy the Assembly',
-      )
-      const openings = defied ? IMPEACHMENT_OPENINGS_DEFIED : IMPEACHMENT_OPENINGS_CONCEDED
-      const opening = pickVariant(openings, `${seed}o`)
-      const achievements = pickVariant(IMPEACHMENT_ACHIEVEMENTS, `${seed}a`)
-      const closing = pickVariant(IMPEACHMENT_CLOSINGS, `${seed}c`)
-      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
-      break
-    }
-    case 'primaryLoss': {
-      const opening = pickVariant(PRIMARY_OPENINGS, `${seed}o`)
-      const achievements = pickVariant(PRIMARY_ACHIEVEMENTS, `${seed}a`)
-      const closing = pickVariant(PRIMARY_CLOSINGS, `${seed}c`)
-      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
-      break
-    }
-    case 'termEndLoss': {
-      const why = pickVariant(LOSS_WHY_DIAGNOSES, `${seed}w`)
-      const achievements = pickVariant(LOSS_ACHIEVEMENTS, `${seed}a`)
-      const closing = pickVariant(LOSS_CLOSINGS, `${seed}c`)
-      narrative = `${fill(why)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
-      break
-    }
-    case 'termEndWin': {
-      const narr = pickVariant(WIN_NARRATIVES, `${seed}n`)
-      const achievements = pickVariant(WIN_ACHIEVEMENTS, `${seed}a`)
-      const closing = pickVariant(WIN_CLOSINGS, `${seed}c`)
-      narrative = `${fill(narr)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
-      break
-    }
-    case 'secondTermEnd': {
-      const narr = pickVariant(SECOND_TERM_NARRATIVES, `${seed}n`)
-      const achievements = pickVariant(SECOND_TERM_ACHIEVEMENTS, `${seed}a`)
-      const closing = pickVariant(SECOND_TERM_CLOSINGS, `${seed}c`)
-      narrative = `${fill(narr)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
-      break
-    }
-  }
-
-  return narrative.trim()
+  const ctx = buildEndingContext(state, exit)
+  return buildNarrativeForExit(state, exit, ctx).trim()
 }
 
 export function pickVerdictHeadline(state: GameState, exit: GameOverType): string {

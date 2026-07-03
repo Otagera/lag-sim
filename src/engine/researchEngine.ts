@@ -12,6 +12,8 @@ import { applyDelta } from './statEngine'
 
 let _msgSeq = 0
 
+type CommissionedResearchNode = GameState['commissionedResearchNodes'][number]
+
 function researchInboxMessage(
   state: GameState,
   node: ResearchNode,
@@ -143,6 +145,84 @@ export function pickOutcome(node: ResearchNode, state: GameState, seed: number):
   return outcomes[outcomes.length - 1]
 }
 
+function completeStepResearchNode(
+  next: GameState,
+  node: ResearchNode,
+  inbox: InboxMessage[],
+  timeline: GameState['timeline'],
+): GameState {
+  const updated = applyDelta(next, node.stepEffect ?? {})
+  timeline.push({
+    week: updated.week,
+    type: 'milestone' as const,
+    title: `Completed: ${node.title}`,
+    description: `${node.domain} research step delivered.`,
+  })
+  inbox.push(
+    researchInboxMessage(
+      updated,
+      node,
+      `${node.title} is operational. The investment is delivering as planned.`,
+      false,
+    ),
+  )
+  return updated
+}
+
+function unlockOutcomeNodes(next: GameState, outcome: PathOutcome): GameState {
+  if (!outcome.unlocks) return next
+
+  const unlockStatuses = { ...next.researchNodeStatuses }
+  for (const unlockId of outcome.unlocks) {
+    if (!unlockStatuses[unlockId]) {
+      unlockStatuses[unlockId] = 'available'
+    }
+  }
+  return { ...next, researchNodeStatuses: unlockStatuses }
+}
+
+function completeOutcomeResearchNode(
+  state: GameState,
+  next: GameState,
+  crn: CommissionedResearchNode,
+  node: ResearchNode,
+  inbox: InboxMessage[],
+  timeline: GameState['timeline'],
+): GameState {
+  const subSeed = hashSeed(state.runSeed, `research:${node.id}:${crn.completionWeek}`)
+  const outcome = pickOutcome(node, next, subSeed)
+
+  let updated = applyDelta(next, outcome.payoff)
+  if (outcome.factionImpact && Object.keys(outcome.factionImpact).length > 0) {
+    updated = applyFactionDeltaState(updated, outcome.factionImpact)
+  }
+  updated = unlockOutcomeNodes(updated, outcome)
+
+  timeline.push({
+    week: updated.week,
+    type: 'milestone' as const,
+    title: `${node.title}: ${outcome.kind.charAt(0).toUpperCase() + outcome.kind.slice(1)}`,
+    description: outcome.resultText.slice(0, 120),
+  })
+
+  inbox.push(researchInboxMessage(updated, node, outcome.resultText, true))
+
+  return {
+    ...updated,
+    consequenceBeats: [
+      ...updated.consequenceBeats,
+      {
+        text: outcome.resultText,
+        tone: toneForKind(outcome.kind),
+        choiceLabel: node.title,
+        choiceDescription: outcome.kind.charAt(0).toUpperCase() + outcome.kind.slice(1),
+        immediate: outcome.payoff,
+        factionImpact: outcome.factionImpact ?? {},
+      },
+    ],
+  }
+}
+
 export function tickResearchNodes(state: GameState): GameState {
   const due = state.commissionedResearchNodes.filter((crn) => state.week >= crn.completionWeek)
   if (due.length === 0) return state
@@ -163,65 +243,11 @@ export function tickResearchNodes(state: GameState): GameState {
     statuses[crn.nodeId] = 'completed'
 
     if (node.stepEffect && !node.outcomes) {
-      next = applyDelta(next, node.stepEffect)
-      timeline.push({
-        week: next.week,
-        type: 'milestone' as const,
-        title: `Completed: ${node.title}`,
-        description: `${node.domain} research step delivered.`,
-      })
-      inbox.push(
-        researchInboxMessage(
-          next,
-          node,
-          `${node.title} is operational. The investment is delivering as planned.`,
-          false,
-        ),
-      )
+      next = completeStepResearchNode(next, node, inbox, timeline)
     }
 
     if (node.outcomes) {
-      const subSeed = hashSeed(state.runSeed, `research:${node.id}:${crn.completionWeek}`)
-      const outcome = pickOutcome(node, next, subSeed)
-
-      next = applyDelta(next, outcome.payoff)
-      if (outcome.factionImpact && Object.keys(outcome.factionImpact).length > 0) {
-        next = applyFactionDeltaState(next, outcome.factionImpact)
-      }
-
-      if (outcome.unlocks) {
-        const unlockStatuses = { ...next.researchNodeStatuses }
-        for (const unlockId of outcome.unlocks) {
-          if (!unlockStatuses[unlockId]) {
-            unlockStatuses[unlockId] = 'available'
-          }
-        }
-        next = { ...next, researchNodeStatuses: unlockStatuses }
-      }
-
-      timeline.push({
-        week: next.week,
-        type: 'milestone' as const,
-        title: `${node.title}: ${outcome.kind.charAt(0).toUpperCase() + outcome.kind.slice(1)}`,
-        description: outcome.resultText.slice(0, 120),
-      })
-
-      inbox.push(researchInboxMessage(next, node, outcome.resultText, true))
-
-      next = {
-        ...next,
-        consequenceBeats: [
-          ...next.consequenceBeats,
-          {
-            text: outcome.resultText,
-            tone: toneForKind(outcome.kind),
-            choiceLabel: node.title,
-            choiceDescription: outcome.kind.charAt(0).toUpperCase() + outcome.kind.slice(1),
-            immediate: outcome.payoff,
-            factionImpact: outcome.factionImpact ?? {},
-          },
-        ],
-      }
+      next = completeOutcomeResearchNode(state, next, crn, node, inbox, timeline)
     }
   }
 

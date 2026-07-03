@@ -24,7 +24,7 @@ import type {
   GameState,
   PendingEvent,
   SecondaryFactionKey,
-  StatKey,
+  StatDelta,
   TimelineEntry,
 } from '../state/types'
 import { hashSeed, mulberry32 } from '../utils/prng'
@@ -163,53 +163,83 @@ export function drawNextEvent(state: GameState): EventCard | null {
   return weightedSelect(pool, drawSeed, floodEventWeightMultiplier, mediaDampening)
 }
 
-export function resolveEvent(state: GameState, event: EventCard, choiceId: string): GameState {
-  const choice = event.choices.find((c) => c.id === choiceId)
-  if (!choice) return state
+type EventChoice = EventCard['choices'][number]
 
-  // Diminishing returns: read usage count from original state before any mutations
+function getEffectiveImmediate(
+  state: GameState,
+  event: EventCard,
+  choice: EventChoice,
+): { immediate: StatDelta; drKey: string; drUses: number } {
   const drKey = `${event.id}:${choice.id}`
   const drUses = choice.diminishingReturns ? (state.choiceUseCounts?.[drKey] ?? 0) : 0
-
-  // Scale positive stat gains down on repeat use; costs (negative values) are never discounted
-  let effectiveImmediate = choice.immediate
-  if (choice.diminishingReturns && drUses > 0) {
-    const scale = Math.max(0.2, 1 - drUses * 0.25)
-    effectiveImmediate = Object.fromEntries(
-      Object.entries(choice.immediate ?? {}).map(([k, v]) => [
-        k,
-        typeof v === 'number' && v > 0 ? Math.round(v * scale * 10) / 10 : v,
-      ]),
-    ) as Record<StatKey, number>
+  if (!choice.diminishingReturns || drUses === 0) {
+    return { immediate: choice.immediate, drKey, drUses }
   }
 
+  const scale = Math.max(0.2, 1 - drUses * 0.25)
+  const immediate = Object.fromEntries(
+    Object.entries(choice.immediate ?? {}).map(([key, value]) => [
+      key,
+      typeof value === 'number' && value > 0 ? Math.round(value * scale * 10) / 10 : value,
+    ]),
+  ) as StatDelta
+  return { immediate, drKey, drUses }
+}
+
+function applySecondaryFactionImpact(
+  state: GameState,
+  impact: Partial<Record<SecondaryFactionKey, number>> | null | undefined,
+): GameState {
+  if (!impact) return state
+
+  const updated = { ...state.secondaryFactions }
+  for (const [key, delta] of Object.entries(impact)) {
+    if (typeof delta === 'number') {
+      updated[key as SecondaryFactionKey] = Math.max(
+        0,
+        Math.min(100, updated[key as SecondaryFactionKey] + delta),
+      )
+    }
+  }
+  return { ...state, secondaryFactions: updated }
+}
+
+function applyNpcImpact(state: GameState, choice: EventChoice): GameState {
+  if (!choice.npcImpact) return state
+
+  const npcs = { ...state.activeNPCs }
+  for (const [archetypeKey, delta] of Object.entries(choice.npcImpact)) {
+    for (const slot of ['npc1', 'npc2', 'npc3'] as const) {
+      if (npcs[slot].archetypeKey === archetypeKey) {
+        npcs[slot] = {
+          ...npcs[slot],
+          relationship: Math.max(-100, Math.min(100, npcs[slot].relationship + delta)),
+        }
+      }
+    }
+  }
+  return { ...state, activeNPCs: npcs }
+}
+
+function applyChoiceStateChanges(
+  state: GameState,
+  choice: EventChoice,
+  effectiveImmediate: StatDelta,
+): GameState {
   let next = applyDelta(state, effectiveImmediate)
 
   if (choice.factionImpact) {
-    next = {
-      ...next,
-      factions: applyFactionDelta(next.factions, choice.factionImpact),
-    }
+    next = { ...next, factions: applyFactionDelta(next.factions, choice.factionImpact) }
   }
-
-  if (choice.constituencyImpact) {
-    next = applyConstituencyImpact(next, choice.constituencyImpact)
-  }
-
+  if (choice.constituencyImpact) next = applyConstituencyImpact(next, choice.constituencyImpact)
   if (choice.politicalCapitalCost) {
     const { politicalCapitalCostScale } = getSeasonModifier(state.week)
-    const scaledCost = Math.round(choice.politicalCapitalCost * politicalCapitalCostScale)
-    next = applyDelta(next, { politicalCapital: -scaledCost })
+    next = applyDelta(next, {
+      politicalCapital: -Math.round(choice.politicalCapitalCost * politicalCapitalCostScale),
+    })
   }
-
-  if (choice.corruptionTrigger) {
-    next = applyDelta(next, { corruptionPressure: 3 })
-  }
-
-  if (choice.setFlags) {
-    next = { ...next, stateFlags: { ...next.stateFlags, ...choice.setFlags } }
-  }
-
+  if (choice.corruptionTrigger) next = applyDelta(next, { corruptionPressure: 3 })
+  if (choice.setFlags) next = { ...next, stateFlags: { ...next.stateFlags, ...choice.setFlags } }
   if (choice.resentmentDelta !== undefined && next.deputy) {
     next = {
       ...next,
@@ -219,19 +249,15 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
       },
     }
   }
-
-  if (choice.clearDeputy) {
-    next = { ...next, deputy: null }
-  }
-
-  if (choice.setDeputy) {
+  if (choice.clearDeputy) next = { ...next, deputy: null }
+  if (choice.setDeputy)
     next = { ...next, deputy: { key: choice.setDeputy, resentment: 0, revealed: false } }
-  }
+  if (choice.launchInitiative) next = { ...next, activeInitiative: choice.launchInitiative }
+  return applyNpcImpact(applyProjectAndLegalChanges(next, choice), choice)
+}
 
-  if (choice.launchInitiative) {
-    next = { ...next, activeInitiative: choice.launchInitiative }
-  }
-
+function applyProjectAndLegalChanges(state: GameState, choice: EventChoice): GameState {
+  let next = state
   if (choice.launchProject) {
     const p = choice.launchProject
     const project = createProject(
@@ -244,11 +270,9 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     )
     next = { ...next, capitalProjects: [...next.capitalProjects, project] }
   }
-
   if (choice.setSuspensionWeeks !== undefined) {
     next = { ...next, emergencySuspensionWeeks: choice.setSuspensionWeeks }
   }
-
   if (choice.setLitigationTimer !== undefined) {
     next = {
       ...next,
@@ -256,77 +280,36 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
       litigationTimer: choice.setLitigationTimer,
     }
   }
+  return next
+}
 
-  if (choice.npcImpact) {
-    const npcs = { ...next.activeNPCs }
-    for (const [archetypeKey, delta] of Object.entries(choice.npcImpact)) {
-      for (const slot of ['npc1', 'npc2', 'npc3'] as const) {
-        if (npcs[slot].archetypeKey === archetypeKey) {
-          npcs[slot] = {
-            ...npcs[slot],
-            relationship: Math.max(-100, Math.min(100, npcs[slot].relationship + delta)),
-          }
-        }
-      }
-    }
-    next = { ...next, activeNPCs: npcs }
+function buildPendingDelayed(
+  state: GameState,
+  next: GameState,
+  event: EventCard,
+  choice: EventChoice,
+) {
+  if (!choice.delayed) return [...next.pendingDelayed]
+  const pending: PendingEvent = {
+    id: `${event.id}-${choice.id}`,
+    firesOnWeek: state.week + choice.delayed.weekOffset,
+    consequence: choice.delayed,
+    sourceEventTitle: event.title,
   }
+  return [...next.pendingDelayed, pending].sort((a, b) => a.firesOnWeek - b.firesOnWeek)
+}
 
-  // Apply secondary faction impact from choice
-  if (choice.secondaryFactionImpact) {
-    const updated = { ...next.secondaryFactions }
-    for (const [key, delta] of Object.entries(choice.secondaryFactionImpact)) {
-      if (typeof delta === 'number') {
-        updated[key as SecondaryFactionKey] = Math.max(
-          0,
-          Math.min(100, updated[key as SecondaryFactionKey] + delta),
-        )
-      }
-    }
-    next = { ...next, secondaryFactions: updated }
-  }
-
-  // Auto-hook: known seasonal/research events affect secondary factions
-  const autoHook = getSecondaryFactionImpact(event.id)
-  if (autoHook) {
-    const updated = { ...next.secondaryFactions }
-    for (const [key, delta] of Object.entries(autoHook)) {
-      if (typeof delta === 'number') {
-        updated[key as SecondaryFactionKey] = Math.max(
-          0,
-          Math.min(100, updated[key as SecondaryFactionKey] + delta),
-        )
-      }
-    }
-    next = { ...next, secondaryFactions: updated }
-  }
-
-  let pendingDelayed = [...next.pendingDelayed]
-  if (choice.delayed) {
-    const pending: PendingEvent = {
-      id: `${event.id}-${choice.id}`,
-      firesOnWeek: state.week + choice.delayed.weekOffset,
-      consequence: choice.delayed,
-      sourceEventTitle: event.title,
-    }
-    pendingDelayed = [...pendingDelayed, pending].sort((a, b) => a.firesOnWeek - b.firesOnWeek)
-  }
-
-  // Manage event queue:
-  // 1. If this event came from the front of the queue, remove it
+function updateEventQueue(next: GameState, event: EventCard, choice: EventChoice): EventCard[] {
   let eventQueue = [...next.eventQueue]
-  if (eventQueue.length > 0 && eventQueue[0].id === event.id) {
-    eventQueue = eventQueue.slice(1)
-  }
-
-  // 2. If the choice chains to a follow-up event, enqueue it
+  if (eventQueue.length > 0 && eventQueue[0].id === event.id) eventQueue = eventQueue.slice(1)
   if (choice.followUpEventId) {
     const followUp = ALL_EVENTS.find((e) => e.id === choice.followUpEventId)
-    if (followUp && isEventAvailable(next, followUp)) {
-      eventQueue = [...eventQueue, followUp]
-    }
+    if (followUp && isEventAvailable(next, followUp)) eventQueue = [...eventQueue, followUp]
   }
+  return eventQueue
+}
 
+function updateResolvedEventBookkeeping(state: GameState, next: GameState, event: EventCard) {
   let resolvedEvents = [...next.resolvedEvents]
   const eventCooldowns = { ...next.eventCooldowns }
   if (event.isRecurring && event.cooldownWeeks) {
@@ -334,6 +317,72 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
   } else {
     resolvedEvents = [...resolvedEvents, event.id]
   }
+  return { resolvedEvents, eventCooldowns }
+}
+
+function applyDiminishingReturnPenalties(
+  next: GameState,
+  choice: EventChoice,
+  drKey: string,
+  drUses: number,
+): { next: GameState; choiceUseCounts: GameState['choiceUseCounts'] } {
+  let choiceUseCounts = next.choiceUseCounts ?? {}
+  if (!choice.diminishingReturns) return { next, choiceUseCounts }
+
+  let updated = next
+  if (drUses >= 2) updated = applyDelta(updated, { corruptionPressure: drUses * 2 })
+  if (drUses >= 3) {
+    updated = {
+      ...updated,
+      factions: applyFactionDelta(updated.factions, { civilSocietyMedia: -(drUses * 3) }),
+    }
+  }
+  choiceUseCounts = { ...choiceUseCounts, [drKey]: drUses + 1 }
+  return { next: updated, choiceUseCounts }
+}
+
+function applyGodfatherBookkeeping(next: GameState, event: EventCard, choiceId: string): GameState {
+  if (event.category !== 'godfather') return next
+
+  const accepted = choiceId.endsWith(':accept')
+  const isFashemuAsk = fashemuAsks.some((a) => a.id === event.id)
+  let updated = { ...next, activeGodfatherMessage: null }
+
+  if (accepted) {
+    updated = { ...updated, godfatherComplianceCount: updated.godfatherComplianceCount + 1 }
+    if (isFashemuAsk) {
+      updated = {
+        ...updated,
+        fashemuAskIndex: updated.fashemuAskIndex + 1,
+        fashemuRelationship: Math.min(100, updated.fashemuRelationship + 15),
+      }
+    }
+    return updated
+  }
+
+  updated = { ...updated, godfatherRefusalCount: updated.godfatherRefusalCount + 1 }
+  if (isFashemuAsk) {
+    updated = {
+      ...updated,
+      fashemuAskIndex: updated.fashemuAskIndex + 1,
+      fashemuRelationship: Math.max(0, updated.fashemuRelationship - 20),
+    }
+  }
+  return applyGodfatherEscalation(updated, updated.godfatherRefusalCount)
+}
+
+export function resolveEvent(state: GameState, event: EventCard, choiceId: string): GameState {
+  const choice = event.choices.find((c) => c.id === choiceId)
+  if (!choice) return state
+
+  const { immediate, drKey, drUses } = getEffectiveImmediate(state, event, choice)
+  let next = applyChoiceStateChanges(state, choice, immediate)
+  next = applySecondaryFactionImpact(next, choice.secondaryFactionImpact)
+  next = applySecondaryFactionImpact(next, getSecondaryFactionImpact(event.id))
+
+  const pendingDelayed = buildPendingDelayed(state, next, event, choice)
+  const eventQueue = updateEventQueue(next, event, choice)
+  const { resolvedEvents, eventCooldowns } = updateResolvedEventBookkeeping(state, next, event)
 
   const timelineEntry: TimelineEntry = {
     week: state.week,
@@ -348,18 +397,8 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
   const campaignDecisions =
     event.category === 'election' ? [...next.campaignDecisions, choice.id] : next.campaignDecisions
 
-  // Diminishing returns: escalating penalties and counter increment
-  let choiceUseCounts = next.choiceUseCounts ?? {}
-  if (choice.diminishingReturns) {
-    if (drUses >= 2) next = applyDelta(next, { corruptionPressure: drUses * 2 })
-    if (drUses >= 3) {
-      next = {
-        ...next,
-        factions: applyFactionDelta(next.factions, { civilSocietyMedia: -(drUses * 3) }),
-      }
-    }
-    choiceUseCounts = { ...choiceUseCounts, [drKey]: drUses + 1 }
-  }
+  const diminishing = applyDiminishingReturnPenalties(next, choice, drKey, drUses)
+  next = diminishing.next
 
   const consequenceBeat = narrateConsequence(
     choice,
@@ -372,37 +411,7 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     ? [...state.consequenceBeats, consequenceBeat]
     : state.consequenceBeats
 
-  // Godfather-specific bookkeeping (category-based, not inbox-ask)
-  if (event.category === 'godfather') {
-    const accepted = choiceId.endsWith(':accept')
-    const isFashemuAsk = fashemuAsks.some((a) => a.id === event.id)
-
-    next = {
-      ...next,
-      activeGodfatherMessage: null,
-    }
-
-    if (accepted) {
-      next = { ...next, godfatherComplianceCount: next.godfatherComplianceCount + 1 }
-      if (isFashemuAsk) {
-        next = {
-          ...next,
-          fashemuAskIndex: next.fashemuAskIndex + 1,
-          fashemuRelationship: Math.min(100, next.fashemuRelationship + 15),
-        }
-      }
-    } else {
-      next = { ...next, godfatherRefusalCount: next.godfatherRefusalCount + 1 }
-      if (isFashemuAsk) {
-        next = {
-          ...next,
-          fashemuAskIndex: next.fashemuAskIndex + 1,
-          fashemuRelationship: Math.max(0, next.fashemuRelationship - 20),
-        }
-      }
-      next = applyGodfatherEscalation(next, next.godfatherRefusalCount)
-    }
-  }
+  next = applyGodfatherBookkeeping(next, event, choiceId)
 
   return {
     ...next,
@@ -414,7 +423,7 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     eventsResolvedThisWeek: next.eventsResolvedThisWeek + 1,
     timeline: [...next.timeline, timelineEntry],
     campaignDecisions,
-    choiceUseCounts,
+    choiceUseCounts: diminishing.choiceUseCounts,
     consequenceBeats: updatedBeats,
   }
 }

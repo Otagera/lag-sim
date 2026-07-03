@@ -71,6 +71,155 @@ type Props = {
   archetypeKey: ArchetypeKey
 }
 
+type DeputyProfile = (typeof DEPUTY_PROFILES)[DeputyKey]
+type DeputyBonus = { k: string; v: number }
+
+function getDeputyBonuses(profile: DeputyProfile): DeputyBonus[] {
+  return [
+    ...Object.entries(profile.statBonuses ?? {}).map(([k, v]) => ({ k, v: v as number })),
+    ...Object.entries(profile.factionBonuses ?? {}).map(([k, v]) => ({ k, v: v as number })),
+  ].filter(({ v }) => v !== 0 && v !== undefined)
+}
+
+function RecommendedBadge() {
+  return (
+    <span
+      style={{
+        fontSize: '9px',
+        fontWeight: 600,
+        textTransform: 'uppercase',
+        letterSpacing: '0.06em',
+        padding: '2px 6px',
+        backgroundColor: 'var(--accent-solid)',
+        color: 'var(--accent-on-solid)',
+      }}
+    >
+      Suits your path
+    </span>
+  )
+}
+
+function EffectBadge({ bonus }: { bonus: DeputyBonus }) {
+  return (
+    <span
+      style={{
+        fontSize: '10px',
+        padding: '2px 6px',
+        backgroundColor: isGoodEffect(bonus.k, bonus.v) ? 'var(--success-3)' : 'var(--error-3)',
+        color: isGoodEffect(bonus.k, bonus.v) ? 'var(--success-11)' : 'var(--error-11)',
+      }}
+    >
+      {fmtEffect(bonus.k, bonus.v)}
+    </span>
+  )
+}
+
+function DeputyHeader({ profile, recommended }: { profile: DeputyProfile; recommended: boolean }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between">
+        <div className="label-caps" style={{ color: 'var(--accent-text)' }}>
+          {profile.shortName}
+        </div>
+        {recommended && <RecommendedBadge />}
+      </div>
+      <h2 style={{ fontSize: '13px', fontWeight: 600, marginTop: '2px', color: 'var(--text)' }}>
+        {profile.name}
+      </h2>
+      <p style={{ fontSize: '11px', marginTop: '2px', color: 'var(--text-secondary)' }}>
+        {profile.title}
+      </p>
+    </div>
+  )
+}
+
+function DeputyBonusList({ bonuses }: { bonuses: DeputyBonus[] }) {
+  if (bonuses.length === 0) return null
+  return (
+    <div>
+      <p className="label-caps mb-1">At game start</p>
+      <div className="flex flex-wrap gap-1">
+        {bonuses.map((bonus) => (
+          <EffectBadge key={bonus.k} bonus={bonus} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function VisitLine({ text }: { text: string }) {
+  if (!text) return null
+  return (
+    <p style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+      <span className="label-caps" style={{ display: 'inline', marginRight: '4px' }}>
+        Per visit:
+      </span>
+      {text}
+    </p>
+  )
+}
+
+function StrengthRisk({ profile }: { profile: DeputyProfile }) {
+  return (
+    <div style={{ fontSize: '11px', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
+      <div>
+        <span className="font-semibold" style={{ color: 'var(--success-11)' }}>
+          Strength:{' '}
+        </span>
+        <span style={{ color: 'var(--text)' }}>{profile.strength}</span>
+      </div>
+      <div>
+        <span className="font-semibold" style={{ color: 'var(--error-11)' }}>
+          Risk:{' '}
+        </span>
+        <span style={{ color: 'var(--text)' }}>{profile.risk}</span>
+      </div>
+    </div>
+  )
+}
+
+function DeputyCard({
+  deputyKey,
+  archetypeKey,
+  onSelect,
+}: {
+  deputyKey: DeputyKey
+  archetypeKey: ArchetypeKey
+  onSelect: (key: DeputyKey) => void
+}) {
+  const profile = DEPUTY_PROFILES[deputyKey]
+  const recommended = PAIRING[deputyKey]?.includes(archetypeKey) ?? false
+  const visitLine = buildVisitLine(
+    profile.visitStatDelta as Record<string, number>,
+    profile.visitFactionDelta as Record<string, number> | undefined,
+  )
+  const bonuses = getDeputyBonuses(profile)
+
+  return (
+    <Surface
+      elevation="raised"
+      padding="16px"
+      style={{
+        borderTop: '2px solid var(--accent-solid)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+      }}
+    >
+      <DeputyHeader profile={profile} recommended={recommended} />
+      <p style={{ fontSize: '11px', lineHeight: 1.7, color: 'var(--text)', flex: 1 }}>
+        {profile.description}
+      </p>
+      <DeputyBonusList bonuses={bonuses} />
+      <VisitLine text={visitLine} />
+      <StrengthRisk profile={profile} />
+      <Button variant="primary" fullWidth onClick={() => onSelect(deputyKey)}>
+        Select {profile.shortName}
+      </Button>
+    </Surface>
+  )
+}
+
 export function DeputySelectionScreen({ onSelect, archetypeKey }: Props) {
   const setDeputy = useGameStore((s) => s.setDeputy)
   const offeredDeputies = useGameStore((s) => s.offeredDeputies)
@@ -107,133 +256,14 @@ export function DeputySelectionScreen({ onSelect, archetypeKey }: Props) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {keys.map((key) => {
-            const profile = DEPUTY_PROFILES[key]
-            const recommended = PAIRING[key]?.includes(archetypeKey) ?? false
-            const visitLine = buildVisitLine(
-              profile.visitStatDelta as Record<string, number>,
-              profile.visitFactionDelta as Record<string, number> | undefined,
-            )
-
-            const allBonuses: { k: string; v: number }[] = [
-              ...Object.entries(profile.statBonuses ?? {}).map(([k, v]) => ({ k, v: v as number })),
-              ...Object.entries(profile.factionBonuses ?? {}).map(([k, v]) => ({
-                k,
-                v: v as number,
-              })),
-            ].filter(({ v }) => v !== 0 && v !== undefined)
-
-            return (
-              <Surface
-                key={key}
-                elevation="raised"
-                padding="16px"
-                style={{
-                  borderTop: '2px solid var(--accent-solid)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                }}
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="label-caps" style={{ color: 'var(--accent-text)' }}>
-                      {profile.shortName}
-                    </div>
-                    {recommended && (
-                      <span
-                        style={{
-                          fontSize: '9px',
-                          fontWeight: 600,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.06em',
-                          padding: '2px 6px',
-                          backgroundColor: 'var(--accent-solid)',
-                          color: 'var(--accent-on-solid)',
-                        }}
-                      >
-                        Suits your path
-                      </span>
-                    )}
-                  </div>
-                  <h2
-                    style={{
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      marginTop: '2px',
-                      color: 'var(--text)',
-                    }}
-                  >
-                    {profile.name}
-                  </h2>
-                  <p style={{ fontSize: '11px', marginTop: '2px', color: 'var(--text-secondary)' }}>
-                    {profile.title}
-                  </p>
-                </div>
-
-                <p style={{ fontSize: '11px', lineHeight: 1.7, color: 'var(--text)', flex: 1 }}>
-                  {profile.description}
-                </p>
-
-                {allBonuses.length > 0 && (
-                  <div>
-                    <p className="label-caps mb-1">At game start</p>
-                    <div className="flex flex-wrap gap-1">
-                      {allBonuses.map(({ k, v }) => (
-                        <span
-                          key={k}
-                          style={{
-                            fontSize: '10px',
-                            padding: '2px 6px',
-                            backgroundColor: isGoodEffect(k, v)
-                              ? 'var(--success-3)'
-                              : 'var(--error-3)',
-                            color: isGoodEffect(k, v) ? 'var(--success-11)' : 'var(--error-11)',
-                          }}
-                        >
-                          {fmtEffect(k, v)}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {visitLine && (
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                    <span className="label-caps" style={{ display: 'inline', marginRight: '4px' }}>
-                      Per visit:
-                    </span>
-                    {visitLine}
-                  </p>
-                )}
-
-                <div
-                  style={{
-                    fontSize: '11px',
-                    borderTop: '1px solid var(--border)',
-                    paddingTop: '8px',
-                  }}
-                >
-                  <div>
-                    <span className="font-semibold" style={{ color: 'var(--success-11)' }}>
-                      Strength:{' '}
-                    </span>
-                    <span style={{ color: 'var(--text)' }}>{profile.strength}</span>
-                  </div>
-                  <div>
-                    <span className="font-semibold" style={{ color: 'var(--error-11)' }}>
-                      Risk:{' '}
-                    </span>
-                    <span style={{ color: 'var(--text)' }}>{profile.risk}</span>
-                  </div>
-                </div>
-
-                <Button variant="primary" fullWidth onClick={() => handleSelect(key)}>
-                  Select {profile.shortName}
-                </Button>
-              </Surface>
-            )
-          })}
+          {keys.map((key) => (
+            <DeputyCard
+              key={key}
+              deputyKey={key}
+              archetypeKey={archetypeKey}
+              onSelect={handleSelect}
+            />
+          ))}
         </div>
 
         <p className="text-center mt-6" style={{ fontSize: '11px', color: 'var(--border-strong)' }}>

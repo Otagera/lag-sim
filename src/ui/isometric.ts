@@ -125,6 +125,300 @@ export function drawRoad(ctx: CanvasRenderingContext2D, sx: number, sy: number, 
 //            'pyramid' = hip roof (residential/waterfront)
 //            'glass' = tall box with floor-line details (upscale)
 
+type BuildingStyle = 'flat' | 'pyramid' | 'glass'
+
+interface BuildingFaceColors {
+  left: string
+  right: string
+  top: string
+  style: BuildingStyle
+}
+
+function buildingShadowPath(
+  ctx: CanvasRenderingContext2D,
+  sx: number,
+  sy: number,
+  w: number,
+  h: number,
+  d: number,
+  isoH: number,
+) {
+  const shadowLift = Math.min(h * 0.04, isoH * 0.35)
+
+  ctx.beginPath()
+  ctx.moveTo(sx, sy + d - shadowLift)
+  ctx.lineTo(sx + w * 0.9, sy + d + isoH * 0.45 - shadowLift)
+  ctx.lineTo(sx + w * 0.15, sy + d + isoH * 0.9 - shadowLift)
+  ctx.lineTo(sx - w * 0.75, sy + d + isoH * 0.45 - shadowLift)
+  ctx.closePath()
+}
+
+function drawBuildingFaces(
+  ctx: CanvasRenderingContext2D,
+  sx: number,
+  sy: number,
+  w: number,
+  h: number,
+  d: number,
+  isoH: number,
+  faceColors: BuildingFaceColors,
+) {
+  ctx.fillStyle = faceColors.left
+  ctx.beginPath()
+  ctx.moveTo(sx - w, sy + isoH)
+  ctx.lineTo(sx, sy + d)
+  ctx.lineTo(sx, sy + d - h)
+  ctx.lineTo(sx - w, sy + isoH - h)
+  ctx.closePath()
+  ctx.fill()
+
+  ctx.fillStyle = 'rgba(45,30,20,0.13)'
+  ctx.fill()
+  ctx.strokeStyle = 'rgba(0,0,0,0.12)'
+  ctx.lineWidth = 0.5
+  ctx.stroke()
+
+  ctx.fillStyle = faceColors.right
+  ctx.beginPath()
+  ctx.moveTo(sx + w, sy + isoH)
+  ctx.lineTo(sx, sy + d)
+  ctx.lineTo(sx, sy + d - h)
+  ctx.lineTo(sx + w, sy + isoH - h)
+  ctx.closePath()
+  ctx.fill()
+  ctx.strokeStyle = 'rgba(0,0,0,0.12)'
+  ctx.stroke()
+
+  if (faceColors.style === 'pyramid') return
+
+  ctx.fillStyle = faceColors.top
+  ctx.beginPath()
+  ctx.moveTo(sx, sy - h)
+  ctx.lineTo(sx + w, sy + isoH - h)
+  ctx.lineTo(sx, sy + d - h)
+  ctx.lineTo(sx - w, sy + isoH - h)
+  ctx.closePath()
+  ctx.fill()
+  ctx.strokeStyle = 'rgba(0,0,0,0.12)'
+  ctx.stroke()
+}
+
+function drawBuildingStilts(
+  ctx: CanvasRenderingContext2D,
+  sx: number,
+  sy: number,
+  w: number,
+  h: number,
+  d: number,
+  isoH: number,
+  style: BuildingStyle,
+) {
+  void ctx
+  void sx
+  void sy
+  void w
+  void h
+  void d
+  void isoH
+  void style
+}
+
+function drawLeftFaceWindows(
+  ctx: CanvasRenderingContext2D,
+  sx: number,
+  sy: number,
+  w: number,
+  h: number,
+  isoH: number,
+  fill: string,
+) {
+  const floors = Math.round(h / FLOOR_H)
+
+  if (floors < 2) return
+
+  const mx = 5
+  const mv = 3
+
+  ctx.fillStyle = fill
+  for (let f = 1; f < floors; f++) {
+    const yBot = sy + isoH - (f - 1) * FLOOR_H - mv
+    const yTop = sy + isoH - f * FLOOR_H + mv
+    const x1 = sx - w + mx
+    const x2 = sx - mx
+
+    ctx.beginPath()
+    ctx.moveTo(x1, yBot + (x1 - (sx - w)) * 0.5)
+    ctx.lineTo(x2, yBot + (x2 - (sx - w)) * 0.5)
+    ctx.lineTo(x2, yTop + (x2 - (sx - w)) * 0.5)
+    ctx.lineTo(x1, yTop + (x1 - (sx - w)) * 0.5)
+    ctx.closePath()
+    ctx.fill()
+  }
+}
+
+function drawRightFaceWindows(
+  ctx: CanvasRenderingContext2D,
+  sx: number,
+  sy: number,
+  w: number,
+  h: number,
+  d: number,
+  fill: string,
+) {
+  const floors = Math.round(h / FLOOR_H)
+
+  if (floors < 2) return
+
+  const mx = 5
+  const mv = 3
+
+  ctx.fillStyle = fill
+  for (let f = 1; f < floors; f++) {
+    const yBot = sy + d - (f - 1) * FLOOR_H - mv
+    const yTop = sy + d - f * FLOOR_H + mv
+    const x1 = sx + mx
+    const x2 = sx + w - mx
+
+    ctx.beginPath()
+    ctx.moveTo(x1, yBot - (x1 - sx) * 0.5)
+    ctx.lineTo(x2, yBot - (x2 - sx) * 0.5)
+    ctx.lineTo(x2, yTop - (x2 - sx) * 0.5)
+    ctx.lineTo(x1, yTop - (x1 - sx) * 0.5)
+    ctx.closePath()
+    ctx.fill()
+  }
+}
+
+function drawBuildingWindowDetails(
+  ctx: CanvasRenderingContext2D,
+  sx: number,
+  sy: number,
+  w: number,
+  h: number,
+  d: number,
+  isoH: number,
+  style: BuildingStyle,
+) {
+  if (style === 'glass') return
+
+  if (style === 'pyramid') {
+    drawLeftFaceWindows(ctx, sx, sy, w, h, isoH, 'rgba(200,170,130,0.45)')
+    return
+  }
+
+  drawLeftFaceWindows(ctx, sx, sy, w, h, isoH, 'rgba(155,205,235,0.48)')
+  drawRightFaceWindows(ctx, sx, sy, w, h, d, 'rgba(130,175,210,0.42)')
+}
+
+function drawBuildingGlassDetails(
+  ctx: CanvasRenderingContext2D,
+  sx: number,
+  sy: number,
+  w: number,
+  h: number,
+  d: number,
+  isoH: number,
+  style: BuildingStyle,
+) {
+  if (style !== 'glass') return
+
+  const floors = Math.round(h / FLOOR_H)
+
+  if (floors < 2) return
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.20)'
+  ctx.lineWidth = 0.6
+  for (let f = 1; f < floors; f++) {
+    const lineY = sy + d - h + f * FLOOR_H
+
+    ctx.beginPath()
+    ctx.moveTo(sx + w, lineY - isoH)
+    ctx.lineTo(sx, lineY)
+    ctx.stroke()
+
+    ctx.beginPath()
+    ctx.moveTo(sx - w, lineY - isoH)
+    ctx.lineTo(sx, lineY)
+    ctx.stroke()
+  }
+
+  drawLeftFaceWindows(ctx, sx, sy, w, h, isoH, 'rgba(170,230,245,0.50)')
+  drawRightFaceWindows(ctx, sx, sy, w, h, d, 'rgba(140,200,220,0.44)')
+}
+
+function drawBuildingRoofDetail(
+  ctx: CanvasRenderingContext2D,
+  sx: number,
+  sy: number,
+  w: number,
+  h: number,
+  d: number,
+  isoH: number,
+  style: BuildingStyle,
+) {
+  if (style !== 'pyramid') return
+
+  const pitchH = 9
+  const peakX = sx
+  const peakY = sy + isoH - h - pitchH
+
+  ctx.fillStyle = '#C23828'
+  ctx.beginPath()
+  ctx.moveTo(sx, sy - h)
+  ctx.lineTo(sx - w, sy + isoH - h)
+  ctx.lineTo(peakX, peakY)
+  ctx.closePath()
+  ctx.fill()
+
+  ctx.beginPath()
+  ctx.moveTo(sx, sy - h)
+  ctx.lineTo(sx + w, sy + isoH - h)
+  ctx.lineTo(peakX, peakY)
+  ctx.closePath()
+  ctx.fill()
+
+  ctx.fillStyle = '#A82818'
+  ctx.beginPath()
+  ctx.moveTo(sx - w, sy + isoH - h)
+  ctx.lineTo(sx, sy + d - h)
+  ctx.lineTo(peakX, peakY)
+  ctx.closePath()
+  ctx.fill()
+  ctx.strokeStyle = 'rgba(0,0,0,0.15)'
+  ctx.lineWidth = 0.5
+  ctx.stroke()
+
+  ctx.fillStyle = '#8C1C0C'
+  ctx.beginPath()
+  ctx.moveTo(sx + w, sy + isoH - h)
+  ctx.lineTo(sx, sy + d - h)
+  ctx.lineTo(peakX, peakY)
+  ctx.closePath()
+  ctx.fill()
+  ctx.strokeStyle = 'rgba(0,0,0,0.15)'
+  ctx.stroke()
+}
+
+function drawBuildingWalkway(
+  ctx: CanvasRenderingContext2D,
+  sx: number,
+  sy: number,
+  w: number,
+  h: number,
+  d: number,
+  isoH: number,
+  style: BuildingStyle,
+) {
+  void ctx
+  void sx
+  void sy
+  void w
+  void h
+  void d
+  void isoH
+  void style
+}
+
 export function drawBuilding(
   ctx: CanvasRenderingContext2D,
   sx: number,
@@ -134,211 +428,27 @@ export function drawBuilding(
   roofStyle: 'flat' | 'pyramid' | 'glass' = 'flat',
 ) {
   const h = floors * FLOOR_H
-  const hw = TILE_W / 2 // 24
-  const hh = TILE_H / 2 // 12
-
-  // Left face: D → C → C' → D'
-  ctx.fillStyle = colors.left
-  ctx.beginPath()
-  ctx.moveTo(sx - hw, sy + hh)
-  ctx.lineTo(sx, sy + TILE_H)
-  ctx.lineTo(sx, sy + TILE_H - h)
-  ctx.lineTo(sx - hw, sy + hh - h)
-  ctx.closePath()
-  ctx.fill()
-  // Warm amber shadow overlay (sun from upper-right → left face in deep shade)
-  ctx.fillStyle = 'rgba(45,30,20,0.13)'
-  ctx.fill()
-  ctx.strokeStyle = 'rgba(0,0,0,0.12)'
-  ctx.lineWidth = 0.5
-  ctx.stroke()
-
-  // Right face: B → C → C' → B'
-  ctx.fillStyle = colors.right
-  ctx.beginPath()
-  ctx.moveTo(sx + hw, sy + hh)
-  ctx.lineTo(sx, sy + TILE_H)
-  ctx.lineTo(sx, sy + TILE_H - h)
-  ctx.lineTo(sx + hw, sy + hh - h)
-  ctx.closePath()
-  ctx.fill()
-  ctx.strokeStyle = 'rgba(0,0,0,0.12)'
-  ctx.stroke()
-
-  if (roofStyle === 'glass') {
-    // Roof: A' → B' → C' → D'
-    ctx.fillStyle = colors.roof
-    ctx.beginPath()
-    ctx.moveTo(sx, sy - h)
-    ctx.lineTo(sx + hw, sy + hh - h)
-    ctx.lineTo(sx, sy + TILE_H - h)
-    ctx.lineTo(sx - hw, sy + hh - h)
-    ctx.closePath()
-    ctx.fill()
-    ctx.strokeStyle = 'rgba(0,0,0,0.12)'
-    ctx.stroke()
-
-    // Horizontal floor lines on right face (glass grid)
-    if (floors >= 2) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.20)'
-      ctx.lineWidth = 0.6
-      for (let f = 1; f < floors; f++) {
-        const lineY = sy + TILE_H - h + f * FLOOR_H
-        ctx.beginPath()
-        ctx.moveTo(sx + hw, lineY - hh)
-        ctx.lineTo(sx, lineY)
-        ctx.stroke()
-        // Left face
-        ctx.beginPath()
-        ctx.moveTo(sx - hw, lineY - hh)
-        ctx.lineTo(sx, lineY)
-        ctx.stroke()
-      }
-    }
-
-    // Window parallelograms (both faces)
-    if (floors >= 2) {
-      const mx = 5
-      const mv = 3
-      ctx.fillStyle = 'rgba(170,230,245,0.50)'
-      for (let f = 1; f < floors; f++) {
-        const yBot = sy + hh - (f - 1) * FLOOR_H - mv
-        const yTop = sy + hh - f * FLOOR_H + mv
-        const x1 = sx - hw + mx,
-          x2 = sx - mx
-        ctx.beginPath()
-        ctx.moveTo(x1, yBot + (x1 - (sx - hw)) * 0.5)
-        ctx.lineTo(x2, yBot + (x2 - (sx - hw)) * 0.5)
-        ctx.lineTo(x2, yTop + (x2 - (sx - hw)) * 0.5)
-        ctx.lineTo(x1, yTop + (x1 - (sx - hw)) * 0.5)
-        ctx.closePath()
-        ctx.fill()
-      }
-      ctx.fillStyle = 'rgba(140,200,220,0.44)'
-      for (let f = 1; f < floors; f++) {
-        const yBot = sy + TILE_H - (f - 1) * FLOOR_H - mv
-        const yTop = sy + TILE_H - f * FLOOR_H + mv
-        const x1 = sx + mx,
-          x2 = sx + hw - mx
-        ctx.beginPath()
-        ctx.moveTo(x1, yBot - (x1 - sx) * 0.5)
-        ctx.lineTo(x2, yBot - (x2 - sx) * 0.5)
-        ctx.lineTo(x2, yTop - (x2 - sx) * 0.5)
-        ctx.lineTo(x1, yTop - (x1 - sx) * 0.5)
-        ctx.closePath()
-        ctx.fill()
-      }
-    }
-  } else if (roofStyle === 'pyramid') {
-    // Hip/pyramid roof instead of flat top
-    const pitchH = 9
-    const Px = sx,
-      Py = sy + hh - h - pitchH // peak above roof center
-
-    // Back slopes — always terracotta (Lagos zinc/tile roof colour)
-    ctx.fillStyle = '#C23828'
-    ctx.beginPath() // back-left: A' → D' → Peak
-    ctx.moveTo(sx, sy - h)
-    ctx.lineTo(sx - hw, sy + hh - h)
-    ctx.lineTo(Px, Py)
-    ctx.closePath()
-    ctx.fill()
-    ctx.beginPath() // back-right: A' → B' → Peak
-    ctx.moveTo(sx, sy - h)
-    ctx.lineTo(sx + hw, sy + hh - h)
-    ctx.lineTo(Px, Py)
-    ctx.closePath()
-    ctx.fill()
-
-    // Left front slope: D' → C' → Peak
-    ctx.fillStyle = '#A82818'
-    ctx.beginPath()
-    ctx.moveTo(sx - hw, sy + hh - h)
-    ctx.lineTo(sx, sy + TILE_H - h)
-    ctx.lineTo(Px, Py)
-    ctx.closePath()
-    ctx.fill()
-    ctx.strokeStyle = 'rgba(0,0,0,0.15)'
-    ctx.lineWidth = 0.5
-    ctx.stroke()
-
-    // Right front slope: B' → C' → Peak (darkest, most in shadow)
-    ctx.fillStyle = '#8C1C0C'
-    ctx.beginPath()
-    ctx.moveTo(sx + hw, sy + hh - h)
-    ctx.lineTo(sx, sy + TILE_H - h)
-    ctx.lineTo(Px, Py)
-    ctx.closePath()
-    ctx.fill()
-    ctx.strokeStyle = 'rgba(0,0,0,0.15)'
-    ctx.stroke()
-
-    // Small window hints on left face
-    if (floors >= 2) {
-      const mx = 5,
-        mv = 3
-      ctx.fillStyle = 'rgba(200,170,130,0.45)'
-      for (let f = 1; f < floors; f++) {
-        const yBot = sy + hh - (f - 1) * FLOOR_H - mv
-        const yTop = sy + hh - f * FLOOR_H + mv
-        const x1 = sx - hw + mx,
-          x2 = sx - mx
-        ctx.beginPath()
-        ctx.moveTo(x1, yBot + (x1 - (sx - hw)) * 0.5)
-        ctx.lineTo(x2, yBot + (x2 - (sx - hw)) * 0.5)
-        ctx.lineTo(x2, yTop + (x2 - (sx - hw)) * 0.5)
-        ctx.lineTo(x1, yTop + (x1 - (sx - hw)) * 0.5)
-        ctx.closePath()
-        ctx.fill()
-      }
-    }
-  } else {
-    // Flat roof: A' → B' → C' → D'
-    ctx.fillStyle = colors.roof
-    ctx.beginPath()
-    ctx.moveTo(sx, sy - h)
-    ctx.lineTo(sx + hw, sy + hh - h)
-    ctx.lineTo(sx, sy + TILE_H - h)
-    ctx.lineTo(sx - hw, sy + hh - h)
-    ctx.closePath()
-    ctx.fill()
-    ctx.strokeStyle = 'rgba(0,0,0,0.12)'
-    ctx.stroke()
-
-    // Window parallelograms (both faces)
-    if (floors >= 2) {
-      const mx = 5,
-        mv = 3
-      ctx.fillStyle = 'rgba(155,205,235,0.48)'
-      for (let f = 1; f < floors; f++) {
-        const yBot = sy + hh - (f - 1) * FLOOR_H - mv
-        const yTop = sy + hh - f * FLOOR_H + mv
-        const x1 = sx - hw + mx,
-          x2 = sx - mx
-        ctx.beginPath()
-        ctx.moveTo(x1, yBot + (x1 - (sx - hw)) * 0.5)
-        ctx.lineTo(x2, yBot + (x2 - (sx - hw)) * 0.5)
-        ctx.lineTo(x2, yTop + (x2 - (sx - hw)) * 0.5)
-        ctx.lineTo(x1, yTop + (x1 - (sx - hw)) * 0.5)
-        ctx.closePath()
-        ctx.fill()
-      }
-      ctx.fillStyle = 'rgba(130,175,210,0.42)'
-      for (let f = 1; f < floors; f++) {
-        const yBot = sy + TILE_H - (f - 1) * FLOOR_H - mv
-        const yTop = sy + TILE_H - f * FLOOR_H + mv
-        const x1 = sx + mx,
-          x2 = sx + hw - mx
-        ctx.beginPath()
-        ctx.moveTo(x1, yBot - (x1 - sx) * 0.5)
-        ctx.lineTo(x2, yBot - (x2 - sx) * 0.5)
-        ctx.lineTo(x2, yTop - (x2 - sx) * 0.5)
-        ctx.lineTo(x1, yTop - (x1 - sx) * 0.5)
-        ctx.closePath()
-        ctx.fill()
-      }
-    }
+  const w = TILE_W / 2
+  const d = TILE_H
+  const isoH = TILE_H / 2
+  const style: BuildingStyle = roofStyle
+  const faceColors: BuildingFaceColors = {
+    left: colors.left,
+    right: colors.right,
+    top: colors.roof,
+    style,
   }
+
+  ctx.fillStyle = 'rgba(0,0,0,0)'
+  buildingShadowPath(ctx, sx, sy, w, h, d, isoH)
+  ctx.fill()
+
+  drawBuildingFaces(ctx, sx, sy, w, h, d, isoH, faceColors)
+  drawBuildingStilts(ctx, sx, sy, w, h, d, isoH, style)
+  drawBuildingWindowDetails(ctx, sx, sy, w, h, d, isoH, style)
+  drawBuildingGlassDetails(ctx, sx, sy, w, h, d, isoH, style)
+  drawBuildingRoofDetail(ctx, sx, sy, w, h, d, isoH, style)
+  drawBuildingWalkway(ctx, sx, sy, w, h, d, isoH, style)
 }
 
 // ── Cascading skyscraper (3-tier stepback) ────────────────────────────────────
@@ -478,22 +588,20 @@ export function drawTree(ctx: CanvasRenderingContext2D, sx: number, sy: number, 
 // ── Danfo bus ─────────────────────────────────────────────────────────────────
 // Sits flush on the road tile — bottom edges align with tile surface.
 
-export function drawDanfo(ctx: CanvasRenderingContext2D, sx: number, sy: number) {
-  const bw = TILE_W * 0.21 // ~10px half-width — fits neatly in road lane
-  const bd = TILE_H * 0.25 // ~6px depth
-  const bh = 8 // height
-
-  const bx = sx
-  const by = sy + TILE_H * 0.1
-
-  // Road contact patch — ellipse flush with pavement
+function drawDanfoShadow(
+  ctx: CanvasRenderingContext2D,
+  bx: number,
+  by: number,
+  bw: number,
+  bd: number,
+  bh: number,
+) {
   ctx.fillStyle = 'rgba(0,0,0,0.18)'
   ctx.beginPath()
   ctx.ellipse(bx, by + bd * 1.65, bw * 0.88, bd * 0.55, 0, 0, Math.PI * 2)
   ctx.fill()
 
-  // Chassis cast shadow — offset isometric twin shifted bottom-right
-  const os = 1.8 // shadow offset in screen px (sun from upper-right)
+  const os = 1.8
   ctx.fillStyle = 'rgba(0,0,0,0.22)'
   ctx.beginPath()
   ctx.moveTo(bx - bw + os, by + bd + os)
@@ -516,8 +624,16 @@ export function drawDanfo(ctx: CanvasRenderingContext2D, sx: number, sy: number)
   ctx.lineTo(bx - bw + os, by + bd - bh + os)
   ctx.closePath()
   ctx.fill()
+}
 
-  // Left face (deep gold)
+function drawDanfoBody(
+  ctx: CanvasRenderingContext2D,
+  bx: number,
+  by: number,
+  bw: number,
+  bd: number,
+  bh: number,
+) {
   ctx.fillStyle = '#C8A800'
   ctx.beginPath()
   ctx.moveTo(bx - bw, by + bd)
@@ -527,7 +643,6 @@ export function drawDanfo(ctx: CanvasRenderingContext2D, sx: number, sy: number)
   ctx.closePath()
   ctx.fill()
 
-  // Right face (vivid canary yellow)
   ctx.fillStyle = '#FFD100'
   ctx.beginPath()
   ctx.moveTo(bx + bw, by + bd)
@@ -537,7 +652,6 @@ export function drawDanfo(ctx: CanvasRenderingContext2D, sx: number, sy: number)
   ctx.closePath()
   ctx.fill()
 
-  // Charcoal stripe 1 — upper band (right face)
   ctx.fillStyle = '#1A1A26'
   ctx.beginPath()
   ctx.moveTo(bx + bw, by + bd - bh * 0.28)
@@ -547,8 +661,6 @@ export function drawDanfo(ctx: CanvasRenderingContext2D, sx: number, sy: number)
   ctx.closePath()
   ctx.fill()
 
-  // Charcoal stripe 2 — lower band (right face)
-  ctx.fillStyle = '#1A1A26'
   ctx.beginPath()
   ctx.moveTo(bx + bw, by + bd - bh * 0.57)
   ctx.lineTo(bx, by + bd * 2 - bh * 0.57)
@@ -557,7 +669,6 @@ export function drawDanfo(ctx: CanvasRenderingContext2D, sx: number, sy: number)
   ctx.closePath()
   ctx.fill()
 
-  // Windscreen (right face, bright cyan)
   ctx.fillStyle = 'rgba(185,240,255,0.68)'
   ctx.beginPath()
   ctx.moveTo(bx + bw * 0.22, by + bd * 1.78 - bh)
@@ -566,20 +677,39 @@ export function drawDanfo(ctx: CanvasRenderingContext2D, sx: number, sy: number)
   ctx.lineTo(bx + bw * 0.22, by + bd * 1.78 - bh * 0.78)
   ctx.closePath()
   ctx.fill()
+}
 
-  // Roof — A'→B'→C'→D' (shifted up by bh so it caps the walls)
+function drawDanfoRoof(
+  ctx: CanvasRenderingContext2D,
+  bx: number,
+  by: number,
+  bw: number,
+  bd: number,
+  bh: number,
+) {
   ctx.fillStyle = '#E8B800'
   ctx.beginPath()
-  ctx.moveTo(bx, by - bh) // A' far
-  ctx.lineTo(bx + bw, by + bd - bh) // B' right
-  ctx.lineTo(bx, by + bd * 2 - bh) // C' near
-  ctx.lineTo(bx - bw, by + bd - bh) // D' left
+  ctx.moveTo(bx, by - bh)
+  ctx.lineTo(bx + bw, by + bd - bh)
+  ctx.lineTo(bx, by + bd * 2 - bh)
+  ctx.lineTo(bx - bw, by + bd - bh)
   ctx.closePath()
   ctx.fill()
-  // Roof edge outline to separate from sky
   ctx.strokeStyle = 'rgba(0,0,0,0.18)'
   ctx.lineWidth = 0.6
   ctx.stroke()
+}
+
+export function drawDanfo(ctx: CanvasRenderingContext2D, sx: number, sy: number) {
+  const bw = TILE_W * 0.21
+  const bd = TILE_H * 0.25
+  const bh = 8
+  const bx = sx
+  const by = sy + TILE_H * 0.1
+
+  drawDanfoShadow(ctx, bx, by, bw, bd, bh)
+  drawDanfoBody(ctx, bx, by, bw, bd, bh)
+  drawDanfoRoof(ctx, bx, by, bw, bd, bh)
 }
 
 // ── Crane ─────────────────────────────────────────────────────────────────────
@@ -675,21 +805,14 @@ export function drawMarketStall(
 // ── Ferry ─────────────────────────────────────────────────────────────────────
 // Large passenger ferry — white hull, blue cabin, 2.3× wider than a danfo.
 
-export function drawFerry(ctx: CanvasRenderingContext2D, sx: number, sy: number) {
-  const bw = TILE_W * 0.46
-  const bd = TILE_H * 0.28
-  const bh = 11
-
-  const bx = sx
-  const by = sy + TILE_H * 0.05
-
-  // Water contact shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.14)'
-  ctx.beginPath()
-  ctx.ellipse(bx, by + bd * 1.7, bw * 0.9, bd * 0.48, 0, 0, Math.PI * 2)
-  ctx.fill()
-
-  // Hull — left face (shadow side)
+function drawFerryHull(
+  ctx: CanvasRenderingContext2D,
+  bx: number,
+  by: number,
+  bw: number,
+  bd: number,
+  bh: number,
+) {
   ctx.fillStyle = '#B8C2C8'
   ctx.beginPath()
   ctx.moveTo(bx - bw, by + bd)
@@ -701,7 +824,6 @@ export function drawFerry(ctx: CanvasRenderingContext2D, sx: number, sy: number)
   ctx.fillStyle = 'rgba(30,20,15,0.12)'
   ctx.fill()
 
-  // Hull — right face (lit, white)
   ctx.fillStyle = '#E8EEF2'
   ctx.beginPath()
   ctx.moveTo(bx + bw, by + bd)
@@ -711,7 +833,6 @@ export function drawFerry(ctx: CanvasRenderingContext2D, sx: number, sy: number)
   ctx.closePath()
   ctx.fill()
 
-  // Blue waterline stripe on right face
   ctx.fillStyle = '#1A5880'
   ctx.beginPath()
   ctx.moveTo(bx + bw, by + bd - bh * 0.18)
@@ -721,7 +842,6 @@ export function drawFerry(ctx: CanvasRenderingContext2D, sx: number, sy: number)
   ctx.closePath()
   ctx.fill()
 
-  // Hull roof / deck (white)
   ctx.fillStyle = '#F0F4F8'
   ctx.beginPath()
   ctx.moveTo(bx, by - bh)
@@ -730,11 +850,19 @@ export function drawFerry(ctx: CanvasRenderingContext2D, sx: number, sy: number)
   ctx.lineTo(bx - bw, by + bd - bh)
   ctx.closePath()
   ctx.fill()
+}
 
-  // Superstructure (cabin) — smaller box on deck
-  const ch = 7,
-    cw = bw * 0.5,
-    cd = bd * 0.5
+function drawFerryCabin(
+  ctx: CanvasRenderingContext2D,
+  bx: number,
+  by: number,
+  bw: number,
+  bd: number,
+  bh: number,
+) {
+  const ch = 7
+  const cw = bw * 0.5
+  const cd = bd * 0.5
   const cabY = by - bh
 
   ctx.fillStyle = '#1E5490'
@@ -757,7 +885,6 @@ export function drawFerry(ctx: CanvasRenderingContext2D, sx: number, sy: number)
   ctx.closePath()
   ctx.fill()
 
-  // Cabin windows
   ctx.fillStyle = 'rgba(180,225,250,0.72)'
   ctx.beginPath()
   ctx.moveTo(bx + cw * 0.2, cabY + cd * 1.8 - ch * 0.25)
@@ -766,6 +893,22 @@ export function drawFerry(ctx: CanvasRenderingContext2D, sx: number, sy: number)
   ctx.lineTo(bx + cw * 0.2, cabY + cd * 1.8 - ch * 0.75)
   ctx.closePath()
   ctx.fill()
+}
+
+export function drawFerry(ctx: CanvasRenderingContext2D, sx: number, sy: number) {
+  const bw = TILE_W * 0.46
+  const bd = TILE_H * 0.28
+  const bh = 11
+  const bx = sx
+  const by = sy + TILE_H * 0.05
+
+  ctx.fillStyle = 'rgba(0,0,0,0.14)'
+  ctx.beginPath()
+  ctx.ellipse(bx, by + bd * 1.7, bw * 0.9, bd * 0.48, 0, 0, Math.PI * 2)
+  ctx.fill()
+
+  drawFerryHull(ctx, bx, by, bw, bd, bh)
+  drawFerryCabin(ctx, bx, by, bw, bd, bh)
 }
 
 // ── Keke (tricycle) ───────────────────────────────────────────────────────────

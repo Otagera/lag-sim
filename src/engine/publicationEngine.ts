@@ -1,139 +1,73 @@
 import { PUBLICATIONS, type Publication } from '../data/publications'
 import type { GameState } from '../state/types'
 
+type PublicationWeightProfile = Record<string, number>
+
+const DEFAULT_PUBLICATION_WEIGHTS: PublicationWeightProfile = {
+  punch: 1,
+  vanguard: 1.2,
+  'the-nation': 1.2,
+  guardian: 1,
+  'business-day': 0.8,
+  'daily-trust': 0.8,
+}
+
+const RIOT_PUBLICATION_WEIGHTS: PublicationWeightProfile = {
+  punch: 3,
+  vanguard: 0.8,
+  'the-nation': 0.5,
+  guardian: 2,
+  'business-day': 0.5,
+  'daily-trust': 1,
+}
+
+const EMERGENCY_PUBLICATION_WEIGHTS: PublicationWeightProfile = {
+  punch: 4,
+  vanguard: 0.5,
+  'the-nation': 0.3,
+  guardian: 2,
+  'business-day': 0.5,
+  'daily-trust': 1.5,
+}
+
+const CORRUPTION_PUBLICATION_WEIGHTS: PublicationWeightProfile = {
+  punch: 2,
+  vanguard: 1,
+  'the-nation': 0.8,
+  guardian: 1.5,
+  'business-day': 0.8,
+  'daily-trust': 2,
+}
+
+const DEFICIT_PUBLICATION_WEIGHTS: PublicationWeightProfile = {
+  punch: 1.5,
+  vanguard: 1,
+  'the-nation': 0.8,
+  guardian: 1.5,
+  'business-day': 2.5,
+  'daily-trust': 1,
+}
+
+const LOW_TRUST_PUBLICATION_WEIGHTS: PublicationWeightProfile = {
+  punch: 1,
+  vanguard: 1.8,
+  'the-nation': 2,
+  guardian: 1.2,
+  'business-day': 0.8,
+  'daily-trust': 1,
+}
+
+function activePublicationWeights(state: GameState): PublicationWeightProfile {
+  if (state.riotModeActive) return RIOT_PUBLICATION_WEIGHTS
+  if (state.emergencySuspensionWeeks > 0) return EMERGENCY_PUBLICATION_WEIGHTS
+  if (state.stats.corruptionPressure > 60) return CORRUPTION_PUBLICATION_WEIGHTS
+  if (state.stats.cashReserve < -10) return DEFICIT_PUBLICATION_WEIGHTS
+  if (state.stats.publicTrust < 30) return LOW_TRUST_PUBLICATION_WEIGHTS
+  return DEFAULT_PUBLICATION_WEIGHTS
+}
+
 function stateModifier(pub: Publication, state: GameState): number {
-  let mod = 1
-  if (state.riotModeActive) {
-    switch (pub.id) {
-      case 'punch':
-        mod = 3
-        break
-      case 'vanguard':
-        mod = 0.8
-        break
-      case 'the-nation':
-        mod = 0.5
-        break
-      case 'guardian':
-        mod = 2
-        break
-      case 'business-day':
-        mod = 0.5
-        break
-      case 'daily-trust':
-        mod = 1
-        break
-    }
-    return mod
-  }
-  if (state.emergencySuspensionWeeks > 0) {
-    switch (pub.id) {
-      case 'punch':
-        mod = 4
-        break
-      case 'vanguard':
-        mod = 0.5
-        break
-      case 'the-nation':
-        mod = 0.3
-        break
-      case 'guardian':
-        mod = 2
-        break
-      case 'business-day':
-        mod = 0.5
-        break
-      case 'daily-trust':
-        mod = 1.5
-        break
-    }
-    return mod
-  }
-  if (state.stats.corruptionPressure > 60) {
-    switch (pub.id) {
-      case 'punch':
-        mod = 2
-        break
-      case 'vanguard':
-        mod = 1
-        break
-      case 'the-nation':
-        mod = 0.8
-        break
-      case 'guardian':
-        mod = 1.5
-        break
-      case 'business-day':
-        mod = 0.8
-        break
-      case 'daily-trust':
-        mod = 2
-        break
-    }
-    return mod
-  }
-  if (state.stats.cashReserve < -10) {
-    switch (pub.id) {
-      case 'punch':
-        mod = 1.5
-        break
-      case 'vanguard':
-        mod = 1
-        break
-      case 'the-nation':
-        mod = 0.8
-        break
-      case 'guardian':
-        mod = 1.5
-        break
-      case 'business-day':
-        mod = 2.5
-        break
-      case 'daily-trust':
-        mod = 1
-        break
-    }
-    return mod
-  }
-  if (state.stats.publicTrust < 30) {
-    switch (pub.id) {
-      case 'punch':
-        mod = 1
-        break
-      case 'vanguard':
-        mod = 1.8
-        break
-      case 'the-nation':
-        mod = 2
-        break
-      case 'guardian':
-        mod = 1.2
-        break
-      case 'business-day':
-        mod = 0.8
-        break
-      case 'daily-trust':
-        mod = 1
-        break
-    }
-    return mod
-  }
-  switch (pub.id) {
-    case 'punch':
-      return 1
-    case 'vanguard':
-      return 1.2
-    case 'the-nation':
-      return 1.2
-    case 'guardian':
-      return 1
-    case 'business-day':
-      return 0.8
-    case 'daily-trust':
-      return 0.8
-    default:
-      return 1
-  }
+  return activePublicationWeights(state)[pub.id] ?? 1
 }
 
 function pickVariant<T>(arr: T[]): T {

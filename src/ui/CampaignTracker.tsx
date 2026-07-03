@@ -2,6 +2,7 @@ import { AlertTriangle, ArrowRight, Flag, ThumbsUp, Users, Vote } from 'lucide-r
 import { STAT_ICONS } from '../data/icons'
 import { calculateVoteShare } from '../engine/electionEngine'
 import { useGameStore } from '../state/gameStore'
+import type { GameState } from '../state/types'
 
 const CAMPAIGN_DECISION_LABELS: Record<string, string> = {
   'rally-alimosho': 'Rally in Alimosho & Periphery',
@@ -110,6 +111,353 @@ function ConfidenceMeter({ value }: { value: number }) {
 
 const ELECTION_WEEK = 200
 
+const buildDecisionRows = (campaignDecisions: string[]): DecisionRow[] =>
+  campaignDecisions.map((id) => {
+    if (CAMPAIGN_DECISION_LABELS[id]) {
+      return { id, label: CAMPAIGN_DECISION_LABELS[id], source: 'campaign' }
+    }
+    if (OPPONENT_ATTACK_LABELS[id]) {
+      return { id, label: OPPONENT_ATTACK_LABELS[id], source: 'opponent' }
+    }
+    return {
+      id,
+      label: id.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      source: 'event',
+    }
+  })
+
+const getEndorsementCount = (factions: GameState['factions']) =>
+  [
+    factions.businessCommunity >= 60,
+    factions.civilSocietyMedia >= 60,
+    factions.lgChairmen >= 65,
+    factions.informalEconomy >= 60,
+  ].filter(Boolean).length
+
+function CampaignHeader({ inCampaignMode }: { inCampaignMode: boolean }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <Vote size={16} style={{ color: 'var(--accent-solid)' }} />
+        <span
+          className="font-display"
+          style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text)' }}
+        >
+          Campaign Dashboard
+        </span>
+      </div>
+      <ElectionBadge variant={inCampaignMode ? 'good' : 'neutral'}>
+        {inCampaignMode ? 'ACTIVE' : 'INACTIVE'}
+      </ElectionBadge>
+    </div>
+  )
+}
+
+function CountdownCard({
+  week,
+  weeksUntilElection,
+  isPostElection,
+}: {
+  week: number
+  weeksUntilElection: number
+  isPostElection: boolean
+}) {
+  const countdownLabel = isPostElection
+    ? 'Results Pending'
+    : weeksUntilElection === 0
+      ? 'Today!'
+      : `Week ${ELECTION_WEEK} · ${weeksUntilElection} week${weeksUntilElection !== 1 ? 's' : ''} remaining`
+
+  return (
+    <div
+      style={{
+        padding: '10px 12px',
+        background: 'var(--surface)',
+        borderRadius: '2px',
+        border: '1px solid var(--border)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+      }}
+    >
+      <Flag size={14} style={{ color: 'var(--accent-solid)', flexShrink: 0 }} />
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>
+          Election Day
+        </div>
+        <div style={{ fontSize: '11px', color: 'var(--text)', fontWeight: 600 }}>
+          {countdownLabel}
+        </div>
+      </div>
+      <ProgressPill value={Math.min(100, (week / ELECTION_WEEK) * 100)} />
+    </div>
+  )
+}
+
+function ProgressPill({ value }: { value: number }) {
+  return (
+    <div
+      style={{
+        width: '80px',
+        height: '6px',
+        background: 'var(--border-subtle)',
+        borderRadius: '3px',
+        overflow: 'hidden',
+        flexShrink: 0,
+      }}
+    >
+      <div
+        style={{
+          height: '100%',
+          width: `${value}%`,
+          background: 'var(--accent-solid)',
+          borderRadius: '3px',
+          transition: 'width 600ms ease',
+        }}
+      />
+    </div>
+  )
+}
+
+function VoteProjectionCard({
+  voteShare,
+  lgaElectionResult,
+}: {
+  voteShare: number
+  lgaElectionResult: number | null
+}) {
+  return (
+    <div
+      style={{
+        padding: '12px',
+        background: 'var(--surface)',
+        borderRadius: '2px',
+        border: '1px solid var(--border)',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '8px',
+        }}
+      >
+        <div className="label-caps" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <ThumbsUp size={10} />
+          Projected Vote Share
+        </div>
+        {lgaElectionResult !== null && (
+          <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
+            LGA result: {lgaElectionResult.toFixed(0)}%
+          </span>
+        )}
+      </div>
+      <ConfidenceMeter value={voteShare} />
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          marginTop: '6px',
+          fontSize: '9px',
+          color: 'var(--text-secondary)',
+        }}
+      >
+        <span>Majority: 50%</span>
+        {voteShare >= 50 ? (
+          <span style={{ color: 'var(--success-11)' }}>Projected to win</span>
+        ) : (
+          <span style={{ color: 'var(--error-11)' }}>Projected to lose</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function ElectionStatsGrid({ stats }: { stats: GameState['stats'] }) {
+  const rows = [
+    { label: 'Public Trust', value: stats.publicTrust, icon: STAT_ICONS.publicTrust.icon },
+    { label: 'Youth Tension', value: stats.youthTension, icon: STAT_ICONS.youthTension.icon },
+    {
+      label: 'Corruption',
+      value: stats.corruptionPressure,
+      icon: STAT_ICONS.corruptionPressure.icon,
+    },
+    {
+      label: 'Infrastructure',
+      value: stats.infrastructureScore,
+      icon: STAT_ICONS.infrastructureScore.icon,
+    },
+  ]
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+      {rows.map(({ label, value, icon: Icon }) => (
+        <div
+          key={label}
+          style={{
+            padding: '8px 10px',
+            background: 'var(--surface)',
+            borderRadius: '2px',
+            border: '1px solid var(--border)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          {Icon && <Icon size={12} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />}
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>{label}</div>
+            <div
+              style={{
+                fontSize: '13px',
+                fontWeight: 600,
+                color: 'var(--text)',
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              {value.toFixed(1)}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function FactionEndorsements({
+  factions,
+  endorsementCount,
+}: {
+  factions: GameState['factions']
+  endorsementCount: number
+}) {
+  const rows = [
+    { key: 'businessCommunity', label: 'Business', threshold: 60 },
+    { key: 'civilSocietyMedia', label: 'Civil Soc.', threshold: 60 },
+    { key: 'lgChairmen', label: 'LG', threshold: 65 },
+    { key: 'informalEconomy', label: 'Informal', threshold: 60 },
+  ] as const
+
+  return (
+    <div
+      style={{
+        padding: '10px 12px',
+        background: 'var(--surface)',
+        borderRadius: '2px',
+        border: '1px solid var(--border)',
+      }}
+    >
+      <div
+        className="label-caps"
+        style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}
+      >
+        <Users size={10} />
+        Faction Endorsements
+      </div>
+      <div style={{ fontSize: '12px', color: 'var(--text)' }}>
+        {endorsementCount}/4 factions aligned
+      </div>
+      <div style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
+        {rows.map(({ key, label, threshold }) => {
+          const val = factions[key]
+          const aligned = val >= threshold
+          return <EndorsementChip key={key} label={label} value={val} aligned={aligned} />
+        })}
+      </div>
+    </div>
+  )
+}
+
+function EndorsementChip({
+  label,
+  value,
+  aligned,
+}: {
+  label: string
+  value: number
+  aligned: boolean
+}) {
+  return (
+    <span
+      style={{
+        fontSize: '9px',
+        padding: '2px 5px',
+        borderRadius: '2px',
+        background: aligned ? 'var(--success-3)' : 'var(--error-3)',
+        color: aligned ? 'var(--success-11)' : 'var(--error-11)',
+        fontWeight: 600,
+      }}
+    >
+      {label}: {value.toFixed(0)} {aligned ? '✓' : '✗'}
+    </span>
+  )
+}
+
+function DecisionList({
+  title,
+  icon,
+  decisions,
+}: {
+  title: string
+  icon: 'campaign' | 'opponent'
+  decisions: DecisionRow[]
+}) {
+  const Icon = icon === 'campaign' ? ArrowRight : AlertTriangle
+  if (decisions.length === 0) return null
+  return (
+    <div>
+      <div
+        className="label-caps"
+        style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}
+      >
+        <Icon size={10} />
+        {title}
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+        {decisions.map((d) => (
+          <DecisionItem key={d.id} decision={d} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function DecisionItem({ decision }: { decision: DecisionRow }) {
+  return (
+    <div
+      style={{
+        padding: '6px 10px',
+        background: 'var(--surface)',
+        borderRadius: '2px',
+        border: '1px solid var(--border)',
+        fontSize: '11px',
+        color: 'var(--text)',
+      }}
+    >
+      {decision.label}
+    </div>
+  )
+}
+
+function EmptyCampaignState() {
+  return (
+    <div
+      style={{
+        padding: '16px',
+        textAlign: 'center',
+        fontSize: '11px',
+        color: 'var(--text-secondary)',
+        background: 'var(--surface)',
+        borderRadius: '2px',
+        border: '1px dashed var(--border)',
+      }}
+    >
+      No campaign decisions made yet.
+    </div>
+  )
+}
+
 export function CampaignTracker() {
   const week = useGameStore((s) => s.week)
   const campaignDecisions = useGameStore((s) => s.campaignDecisions)
@@ -123,325 +471,30 @@ export function CampaignTracker() {
 
   const weeksUntilElection = Math.max(0, ELECTION_WEEK - week)
 
-  const decisions: DecisionRow[] = campaignDecisions.map((id) => {
-    if (CAMPAIGN_DECISION_LABELS[id])
-      return { id, label: CAMPAIGN_DECISION_LABELS[id], source: 'campaign' as const }
-    if (OPPONENT_ATTACK_LABELS[id])
-      return { id, label: OPPONENT_ATTACK_LABELS[id], source: 'opponent' as const }
-    return {
-      id,
-      label: id.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-      source: 'event' as const,
-    }
-  })
+  const decisions = buildDecisionRows(campaignDecisions)
 
   const campaignDecisionsList = decisions.filter((d) => d.source === 'campaign')
   const opponentDecisionsList = decisions.filter((d) => d.source === 'opponent')
 
-  const endorsementCount = [
-    factions.businessCommunity >= 60,
-    factions.civilSocietyMedia >= 60,
-    factions.lgChairmen >= 65,
-    factions.informalEconomy >= 60,
-  ].filter(Boolean).length
-
+  const endorsementCount = getEndorsementCount(factions)
   const isPostElection = weeksUntilElection === 0 && inCampaignMode
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Vote size={16} style={{ color: 'var(--accent-solid)' }} />
-          <span
-            className="font-display"
-            style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text)' }}
-          >
-            Campaign Dashboard
-          </span>
-        </div>
-        <ElectionBadge variant={inCampaignMode ? 'good' : 'neutral'}>
-          {inCampaignMode ? 'ACTIVE' : 'INACTIVE'}
-        </ElectionBadge>
-      </div>
-
-      {/* Countdown bar */}
-      <div
-        style={{
-          padding: '10px 12px',
-          background: 'var(--surface)',
-          borderRadius: '2px',
-          border: '1px solid var(--border)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-        }}
-      >
-        <Flag size={14} style={{ color: 'var(--accent-solid)', flexShrink: 0 }} />
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600 }}>
-            Election Day
-          </div>
-          <div style={{ fontSize: '11px', color: 'var(--text)', fontWeight: 600 }}>
-            {isPostElection
-              ? 'Results Pending'
-              : weeksUntilElection === 0
-                ? 'Today!'
-                : `Week ${ELECTION_WEEK} · ${weeksUntilElection} week${weeksUntilElection !== 1 ? 's' : ''} remaining`}
-          </div>
-        </div>
-        <div
-          style={{
-            width: '80px',
-            height: '6px',
-            background: 'var(--border-subtle)',
-            borderRadius: '3px',
-            overflow: 'hidden',
-            flexShrink: 0,
-          }}
-        >
-          <div
-            style={{
-              height: '100%',
-              width: `${Math.min(100, (week / ELECTION_WEEK) * 100)}%`,
-              background: 'var(--accent-solid)',
-              borderRadius: '3px',
-              transition: 'width 600ms ease',
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Vote Share Projection */}
-      <div
-        style={{
-          padding: '12px',
-          background: 'var(--surface)',
-          borderRadius: '2px',
-          border: '1px solid var(--border)',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '8px',
-          }}
-        >
-          <div className="label-caps" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <ThumbsUp size={10} />
-            Projected Vote Share
-          </div>
-          {lgaElectionResult !== null && (
-            <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
-              LGA result: {lgaElectionResult.toFixed(0)}%
-            </span>
-          )}
-        </div>
-        <ConfidenceMeter value={voteShare} />
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginTop: '6px',
-            fontSize: '9px',
-            color: 'var(--text-secondary)',
-          }}
-        >
-          <span>Majority: 50%</span>
-          {voteShare >= 50 ? (
-            <span style={{ color: 'var(--success-11)' }}>Projected to win</span>
-          ) : (
-            <span style={{ color: 'var(--error-11)' }}>Projected to lose</span>
-          )}
-        </div>
-      </div>
-
-      {/* Key election stats */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '6px',
-        }}
-      >
-        {[
-          { label: 'Public Trust', value: s.publicTrust, icon: STAT_ICONS.publicTrust.icon },
-          { label: 'Youth Tension', value: s.youthTension, icon: STAT_ICONS.youthTension.icon },
-          {
-            label: 'Corruption',
-            value: s.corruptionPressure,
-            icon: STAT_ICONS.corruptionPressure.icon,
-          },
-          {
-            label: 'Infrastructure',
-            value: s.infrastructureScore,
-            icon: STAT_ICONS.infrastructureScore.icon,
-          },
-        ].map(({ label, value, icon: Icon }) => (
-          <div
-            key={label}
-            style={{
-              padding: '8px 10px',
-              background: 'var(--surface)',
-              borderRadius: '2px',
-              border: '1px solid var(--border)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
-            {Icon && <Icon size={12} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />}
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>{label}</div>
-              <div
-                style={{
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  color: 'var(--text)',
-                  fontVariantNumeric: 'tabular-nums',
-                }}
-              >
-                {value.toFixed(1)}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Faction endorsements */}
+      <CampaignHeader inCampaignMode={inCampaignMode} />
+      <CountdownCard
+        week={week}
+        weeksUntilElection={weeksUntilElection}
+        isPostElection={isPostElection}
+      />
+      <VoteProjectionCard voteShare={voteShare} lgaElectionResult={lgaElectionResult} />
+      <ElectionStatsGrid stats={s} />
       {lgaElectionResult !== null && (
-        <div
-          style={{
-            padding: '10px 12px',
-            background: 'var(--surface)',
-            borderRadius: '2px',
-            border: '1px solid var(--border)',
-          }}
-        >
-          <div
-            className="label-caps"
-            style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}
-          >
-            <Users size={10} />
-            Faction Endorsements
-          </div>
-          <div style={{ fontSize: '12px', color: 'var(--text)' }}>
-            {endorsementCount}/4 factions aligned
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              gap: '6px',
-              marginTop: '4px',
-              flexWrap: 'wrap',
-            }}
-          >
-            {[
-              { key: 'businessCommunity', label: 'Business' },
-              { key: 'civilSocietyMedia', label: 'Civil Soc.' },
-              { key: 'lgChairmen', label: 'LG' },
-              { key: 'informalEconomy', label: 'Informal' },
-            ].map(({ key, label }) => {
-              const val = factions[key as keyof typeof factions] as number
-              const aligned = key === 'lgChairmen' ? val >= 65 : val >= 60
-              return (
-                <span
-                  key={key}
-                  style={{
-                    fontSize: '9px',
-                    padding: '2px 5px',
-                    borderRadius: '2px',
-                    background: aligned ? 'var(--success-3)' : 'var(--error-3)',
-                    color: aligned ? 'var(--success-11)' : 'var(--error-11)',
-                    fontWeight: 600,
-                  }}
-                >
-                  {label}: {val.toFixed(0)} {aligned ? '✓' : '✗'}
-                </span>
-              )
-            })}
-          </div>
-        </div>
+        <FactionEndorsements factions={factions} endorsementCount={endorsementCount} />
       )}
-
-      {/* Campaign decisions */}
-      {campaignDecisionsList.length > 0 && (
-        <div>
-          <div
-            className="label-caps"
-            style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}
-          >
-            <ArrowRight size={10} />
-            Campaign Decisions
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-            {campaignDecisionsList.map((d) => (
-              <div
-                key={d.id}
-                style={{
-                  padding: '6px 10px',
-                  background: 'var(--surface)',
-                  borderRadius: '2px',
-                  border: '1px solid var(--border)',
-                  fontSize: '11px',
-                  color: 'var(--text)',
-                }}
-              >
-                {d.label}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Opponent attacks */}
-      {opponentDecisionsList.length > 0 && (
-        <div>
-          <div
-            className="label-caps"
-            style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}
-          >
-            <AlertTriangle size={10} />
-            Opponent Responses
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-            {opponentDecisionsList.map((d) => (
-              <div
-                key={d.id}
-                style={{
-                  padding: '6px 10px',
-                  background: 'var(--surface)',
-                  borderRadius: '2px',
-                  border: '1px solid var(--border)',
-                  fontSize: '11px',
-                  color: 'var(--text)',
-                }}
-              >
-                {d.label}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Empty state */}
-      {campaignDecisionsList.length === 0 && (
-        <div
-          style={{
-            padding: '16px',
-            textAlign: 'center',
-            fontSize: '11px',
-            color: 'var(--text-secondary)',
-            background: 'var(--surface)',
-            borderRadius: '2px',
-            border: '1px dashed var(--border)',
-          }}
-        >
-          No campaign decisions made yet.
-        </div>
-      )}
+      <DecisionList title="Campaign Decisions" icon="campaign" decisions={campaignDecisionsList} />
+      <DecisionList title="Opponent Responses" icon="opponent" decisions={opponentDecisionsList} />
+      {campaignDecisionsList.length === 0 && <EmptyCampaignState />}
     </div>
   )
 }

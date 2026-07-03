@@ -70,8 +70,10 @@ export const WINNING_STRATEGY = {
   },
 }
 
+type SimChoice = EventCard['choices'][number]
+
 // Scores a choice higher if it keeps the governor alive (cash, trust, low corruption)
-function scoreChoice(choice: EventCard['choices'][number]): number {
+function scoreChoice(choice: SimChoice): number {
   const d = choice.immediate
   return (
     (d.cashReserve ?? 0) * 3 +
@@ -85,34 +87,42 @@ function scoreChoice(choice: EventCard['choices'][number]): number {
   )
 }
 
-function scoreWinningChoice(
-  choice: EventCard['choices'][number],
-  state: GameState,
-  _eventId: string,
-): number {
+function scoreContinuousEffects(choice: SimChoice): number {
+  const d = choice.immediate
+  const cont = WINNING_STRATEGY.continuous
+  return (
+    (d.cashReserve ?? 0) * cont.cashReserve +
+    (d.igr ?? 0) * cont.igr -
+    (d.corruptionPressure ?? 0) * cont.corruptionPressure +
+    (d.politicalCapital ?? 0) * cont.politicalCapital +
+    (d.infrastructureScore ?? 0) * cont.infrastructureScore +
+    (d.securityIndex ?? 0) * cont.securityIndex +
+    (d.youthTension ?? 0) * cont.youthTension
+  )
+}
+
+function scorePoliticalCapitalCost(choice: SimChoice, state: GameState): number {
+  // Penalize political capital cost — choices that burn PC are costly
+  const pcCost = choice.politicalCapitalCost ?? 0
+  const lowCapitalPenalty = state.stats.politicalCapital < 30 ? pcCost * 1.5 : 0
+  return -(pcCost * 0.8 + lowCapitalPenalty)
+}
+
+function scoreFederalEmergencyEffects(choice: SimChoice, state: GameState): number {
   const d = choice.immediate
   const f = choice.factionImpact ?? {}
   const cfg = WINNING_STRATEGY.emergency
-  const cont = WINNING_STRATEGY.continuous
-  let score = WINNING_STRATEGY.baselineScore
+  if (state.stats.federalRelationship >= cfg.fedRel.threshold) return 0
+  return (
+    (d.federalRelationship ?? 0) * cfg.fedRel.statWeight +
+    (f.federalGovt ?? 0) * cfg.fedRel.factionWeight
+  )
+}
 
-  score += (d.cashReserve ?? 0) * cont.cashReserve
-  score += (d.igr ?? 0) * cont.igr
-  score -= (d.corruptionPressure ?? 0) * cont.corruptionPressure
-  score += (d.politicalCapital ?? 0) * cont.politicalCapital
-  score += (d.infrastructureScore ?? 0) * cont.infrastructureScore
-  score += (d.securityIndex ?? 0) * cont.securityIndex
-  score += (d.youthTension ?? 0) * cont.youthTension
-
-  // Penalize political capital cost — choices that burn PC are costly
-  const pcCost = choice.politicalCapitalCost ?? 0
-  score -= pcCost * 0.8
-  if (state.stats.politicalCapital < 30) score -= pcCost * 1.5
-
-  if (state.stats.federalRelationship < cfg.fedRel.threshold) {
-    score += (d.federalRelationship ?? 0) * cfg.fedRel.statWeight
-    score += (f.federalGovt ?? 0) * cfg.fedRel.factionWeight
-  }
+function scoreFiscalEmergencyEffects(choice: SimChoice, state: GameState): number {
+  const d = choice.immediate
+  const cfg = WINNING_STRATEGY.emergency
+  let score = 0
 
   if (state.stats.cashReserve < cfg.cashReserve.threshold) {
     score += (d.cashReserve ?? 0) * cfg.cashReserve.weight
@@ -121,6 +131,23 @@ function scoreWinningChoice(
   if (state.stats.cashReserve < cfg.cashCritical.threshold) {
     score += (d.cashReserve ?? 0) * cfg.cashCritical.weight
   }
+
+  if (d.expenditure && d.expenditure > 0) {
+    const weight =
+      state.stats.cashReserve < cfg.expenditure.cashThreshold
+        ? cfg.expenditure.crisisWeight
+        : cfg.expenditure.normalWeight
+    score -= d.expenditure * weight
+  }
+
+  return score
+}
+
+function scoreGovernanceEmergencyEffects(choice: SimChoice, state: GameState): number {
+  const d = choice.immediate
+  const f = choice.factionImpact ?? {}
+  const cfg = WINNING_STRATEGY.emergency
+  let score = 0
 
   if (state.stats.corruptionPressure > cfg.corruption.threshold) {
     score -= (d.corruptionPressure ?? 0) * cfg.corruption.weight
@@ -141,13 +168,13 @@ function scoreWinningChoice(
     score += (d.publicTrust ?? 0) * cfg.publicTrust.weight
   }
 
-  if (d.expenditure && d.expenditure > 0) {
-    const weight =
-      state.stats.cashReserve < cfg.expenditure.cashThreshold
-        ? cfg.expenditure.crisisWeight
-        : cfg.expenditure.normalWeight
-    score -= d.expenditure * weight
-  }
+  return score
+}
+
+function scoreLateTermEmergencyEffects(choice: SimChoice, state: GameState): number {
+  const d = choice.immediate
+  const cfg = WINNING_STRATEGY.emergency
+  let score = 0
 
   if (
     state.stats.politicalCapital < cfg.politicalCapital.threshold &&
@@ -160,6 +187,22 @@ function scoreWinningChoice(
     score += (d.igr ?? 0) * cfg.igrLoss.weight
   }
 
+  return score
+}
+
+function scoreEmergencyEffects(choice: SimChoice, state: GameState): number {
+  return (
+    scoreFederalEmergencyEffects(choice, state) +
+    scoreFiscalEmergencyEffects(choice, state) +
+    scoreGovernanceEmergencyEffects(choice, state) +
+    scoreLateTermEmergencyEffects(choice, state)
+  )
+}
+
+function scoreFactionFloorEffects(choice: SimChoice, state: GameState): number {
+  const f = choice.factionImpact ?? {}
+  let score = 0
+
   const ff = WINNING_STRATEGY.factionFloors
   if (state.factions.civilSocietyMedia < ff.civilSocietyMedia.threshold)
     score += (f.civilSocietyMedia ?? 0) * ff.civilSocietyMedia.weight
@@ -171,6 +214,16 @@ function scoreWinningChoice(
     score += (f.informalEconomy ?? 0) * ff.informalEconomy.weight
 
   return score
+}
+
+function scoreWinningChoice(choice: SimChoice, state: GameState, _eventId: string): number {
+  return (
+    WINNING_STRATEGY.baselineScore +
+    scoreContinuousEffects(choice) +
+    scorePoliticalCapitalCost(choice, state) +
+    scoreEmergencyEffects(choice, state) +
+    scoreFactionFloorEffects(choice, state)
+  )
 }
 
 function pickChoiceId(

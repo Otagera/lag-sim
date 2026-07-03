@@ -50,6 +50,231 @@ function bgColorFor(status: ResearchNodeStatus, domainColor: DomainColor): strin
   }
 }
 
+interface NodeFlashProps {
+  children: import('react').ReactNode
+  flash: boolean
+  reduced: boolean
+  onFlashDone: () => void
+}
+
+function NodeFlash({ children, flash, reduced, onFlashDone }: NodeFlashProps) {
+  // Reduced motion has no animation event to hook, so the flash needs its own timer-based cleanup.
+  useEffect(() => {
+    if (flash && reduced) {
+      const t = setTimeout(onFlashDone, 900)
+      return () => clearTimeout(t)
+    }
+  }, [flash, reduced, onFlashDone])
+
+  const flashStyle =
+    flash && !reduced
+      ? {
+          animation: 'research-lightup 0.9s ease-out 1',
+          transformBox: 'fill-box' as const,
+          transformOrigin: 'center',
+        }
+      : undefined
+
+  return (
+    <g style={flashStyle} onAnimationEnd={flash && !reduced ? onFlashDone : undefined}>
+      {children}
+    </g>
+  )
+}
+
+interface NodeProgressRingProps {
+  cx: number
+  cy: number
+  progress: number
+  border: string
+  radius: number
+  circumference: number
+}
+
+function NodeProgressRing({
+  cx,
+  cy,
+  progress,
+  border,
+  radius,
+  circumference,
+}: NodeProgressRingProps) {
+  return (
+    <g transform={`rotate(-90 ${cx} ${cy})`}>
+      <circle
+        cx={cx}
+        cy={cy}
+        r={radius}
+        fill="none"
+        stroke={border}
+        strokeWidth={2}
+        opacity={0.25}
+      />
+      <circle
+        cx={cx}
+        cy={cy}
+        r={radius}
+        fill="none"
+        stroke={border}
+        strokeWidth={2}
+        strokeDasharray={`${progress * circumference} ${circumference}`}
+        strokeLinecap="round"
+      />
+    </g>
+  )
+}
+
+interface NodeCardContentProps {
+  node: ResearchNode
+  status: ResearchNodeStatus
+  progress: number | null
+  domainColor: DomainColor
+}
+
+function NodeStatusIcon({ status, progress }: Pick<NodeCardContentProps, 'status' | 'progress'>) {
+  if (status === 'completed') {
+    return <CheckCircle width={15} height={15} stroke="#16a34a" />
+  }
+
+  if (status === 'locked') {
+    return <Lock width={15} height={15} stroke="#888" />
+  }
+
+  if (status === 'commissioned' && progress === null) {
+    return <Clock width={15} height={15} stroke="#a855f7" />
+  }
+
+  return null
+}
+
+function NodeStatusSubtitle({ node, status, progress }: Omit<NodeCardContentProps, 'domainColor'>) {
+  if (status === 'commissioned') {
+    return (
+      <span style={{ fontSize: '12px', color: '#c9a4fb', marginTop: '3px' }}>
+        {Math.round((progress ?? 0) * 100)}% underway
+      </span>
+    )
+  }
+
+  if (status === 'completed') {
+    return <span style={{ fontSize: '12px', color: '#4ade80', marginTop: '3px' }}>Complete</span>
+  }
+
+  if (status === 'available') {
+    return (
+      <span style={{ fontSize: '12px', color: '#d5d5d5', marginTop: '3px' }}>
+        ₦{node.cost.toFixed(1)}bn · {node.weeksToComplete}w
+      </span>
+    )
+  }
+
+  return (
+    <span style={{ fontSize: '11px', color: '#999', marginTop: '3px' }}>
+      {node.prerequisites[0]?.label ?? `₦${node.cost.toFixed(1)}bn needed`}
+    </span>
+  )
+}
+
+function NodeCardContent({ node, status, progress, domainColor }: NodeCardContentProps) {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '10px 12px',
+        boxSizing: 'border-box',
+        fontFamily: "'Archivo Narrow', sans-serif",
+        overflow: 'hidden',
+      }}
+      title={node.title}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '2px',
+        }}
+      >
+        <span
+          style={{
+            fontSize: '10px',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            color: domainColor.text,
+          }}
+        >
+          {node.domain.toUpperCase()}
+        </span>
+        <NodeStatusIcon status={status} progress={progress} />
+      </div>
+
+      <span
+        style={{
+          fontSize: '15px',
+          fontWeight: 700,
+          color: status === 'locked' ? '#aaa' : '#f2f2f2',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          lineHeight: 1.3,
+        }}
+      >
+        {node.title}
+      </span>
+
+      <NodeStatusSubtitle node={node} status={status} progress={progress} />
+    </div>
+  )
+}
+
+interface NodeCardShellProps {
+  x: number
+  y: number
+  width: number
+  height: number
+  border: string
+  bg: string
+  status: ResearchNodeStatus
+  reduced: boolean
+  pulseStyle: import('react').CSSProperties | undefined
+  children: import('react').ReactNode
+}
+
+function NodeCardShell({
+  x,
+  y,
+  width,
+  height,
+  border,
+  bg,
+  status,
+  reduced,
+  pulseStyle,
+  children,
+}: NodeCardShellProps) {
+  return (
+    <>
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        rx={6}
+        fill={bg}
+        stroke={border}
+        strokeWidth={status === 'available' ? 2 : reduced ? 3 : 1}
+        opacity={status === 'locked' ? 0.5 : 1}
+        style={pulseStyle}
+      />
+      {children}
+    </>
+  )
+}
+
 export function ResearchNodeCard({
   x,
   y,
@@ -65,33 +290,18 @@ export function ResearchNodeCard({
   onClick,
   onFlashDone,
 }: ResearchNodeCardProps) {
-  // Reduced motion has no animation event to hook, so the flash needs its own timer-based cleanup.
-  useEffect(() => {
-    if (flash && reduced) {
-      const t = setTimeout(onFlashDone, 900)
-      return () => clearTimeout(t)
-    }
-  }, [flash, reduced, onFlashDone])
-
   const border = borderColorFor(status, domainColor)
   const bg = bgColorFor(status, domainColor)
   const cx = x + width - 16
   const cy = y + 16
-  const r = 10
-  const circumference = 2 * Math.PI * r
+  const radius = 10
+  const circumference = 2 * Math.PI * radius
+  const bounds = { x, y, width, height }
+  const ring = { cx, cy, radius, circumference }
 
   const pulseStyle =
     status === 'commissioned' && !reduced
       ? { animation: 'research-pulse 1.8s ease-in-out infinite', color: border }
-      : undefined
-
-  const flashStyle =
-    flash && !reduced
-      ? {
-          animation: 'research-lightup 0.9s ease-out 1',
-          transformBox: 'fill-box' as const,
-          transformOrigin: 'center',
-        }
       : undefined
 
   function handleKeyDown(event: KeyboardEvent<SVGGElement>) {
@@ -110,121 +320,30 @@ export function ResearchNodeCard({
       role="button"
       style={{ cursor: isClickable ? 'pointer' : 'default' }}
       tabIndex={0}
-      onAnimationEnd={flash && !reduced ? onFlashDone : undefined}
     >
-      <g style={flashStyle}>
-        <rect
-          x={x}
-          y={y}
-          width={width}
-          height={height}
-          rx={6}
-          fill={bg}
-          stroke={border}
-          strokeWidth={status === 'available' ? 2 : flash && reduced ? 3 : 1}
-          opacity={status === 'locked' ? 0.5 : 1}
-          style={pulseStyle}
-        />
+      <NodeFlash flash={flash} reduced={reduced} onFlashDone={onFlashDone}>
+        <NodeCardShell
+          {...bounds}
+          border={border}
+          bg={bg}
+          status={status}
+          reduced={flash && reduced}
+          pulseStyle={pulseStyle}
+        >
+          {status === 'commissioned' && progress !== null && (
+            <NodeProgressRing {...ring} progress={progress} border={border} />
+          )}
 
-        {status === 'commissioned' && progress !== null && (
-          <g transform={`rotate(-90 ${cx} ${cy})`}>
-            <circle
-              cx={cx}
-              cy={cy}
-              r={r}
-              fill="none"
-              stroke={border}
-              strokeWidth={2}
-              opacity={0.25}
+          <foreignObject {...bounds}>
+            <NodeCardContent
+              node={node}
+              status={status}
+              progress={progress}
+              domainColor={domainColor}
             />
-            <circle
-              cx={cx}
-              cy={cy}
-              r={r}
-              fill="none"
-              stroke={border}
-              strokeWidth={2}
-              strokeDasharray={`${progress * circumference} ${circumference}`}
-              strokeLinecap="round"
-            />
-          </g>
-        )}
-
-        <foreignObject x={x} y={y} width={width} height={height}>
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              padding: '10px 12px',
-              boxSizing: 'border-box',
-              fontFamily: "'Archivo Narrow', sans-serif",
-              overflow: 'hidden',
-            }}
-            title={node.title}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '2px',
-              }}
-            >
-              <span
-                style={{
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  color: domainColor.text,
-                }}
-              >
-                {node.domain.toUpperCase()}
-              </span>
-              {status === 'completed' && <CheckCircle width={15} height={15} stroke="#16a34a" />}
-              {status === 'locked' && <Lock width={15} height={15} stroke="#888" />}
-              {status === 'commissioned' && progress === null && (
-                <Clock width={15} height={15} stroke="#a855f7" />
-              )}
-            </div>
-
-            <span
-              style={{
-                fontSize: '15px',
-                fontWeight: 700,
-                color: status === 'locked' ? '#aaa' : '#f2f2f2',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                lineHeight: 1.3,
-              }}
-            >
-              {node.title}
-            </span>
-
-            {status === 'commissioned' && (
-              <span style={{ fontSize: '12px', color: '#c9a4fb', marginTop: '3px' }}>
-                {Math.round((progress ?? 0) * 100)}% underway
-              </span>
-            )}
-            {status === 'completed' && (
-              <span style={{ fontSize: '12px', color: '#4ade80', marginTop: '3px' }}>Complete</span>
-            )}
-            {status === 'available' && (
-              <span style={{ fontSize: '12px', color: '#d5d5d5', marginTop: '3px' }}>
-                ₦{node.cost.toFixed(1)}bn · {node.weeksToComplete}w
-              </span>
-            )}
-            {status === 'locked' && (
-              <span style={{ fontSize: '11px', color: '#999', marginTop: '3px' }}>
-                {node.prerequisites[0]?.label ?? `₦${node.cost.toFixed(1)}bn needed`}
-              </span>
-            )}
-          </div>
-        </foreignObject>
-      </g>
+          </foreignObject>
+        </NodeCardShell>
+      </NodeFlash>
     </g>
   )
 }

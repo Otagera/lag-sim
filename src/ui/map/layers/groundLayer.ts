@@ -6,7 +6,7 @@
 import { Container, Graphics, Sprite, Texture } from 'pixi.js'
 import type { MapState } from '../../../state/mapSelectors'
 import { getLGAGeometry, getProjectedBounds } from '../geoProjection'
-import { isoToScreen, TILE_H } from '../projection'
+import { isoToScreen, TILE_H, TILE_W } from '../projection'
 import type { MapLayer } from '../types'
 
 // ── Water palette (deep blue-black, reads unmistakably as night water) ────
@@ -84,154 +84,255 @@ function pointInPolygon(a: number, b: number, polygon: [number, number][]): bool
   return inside
 }
 
-export function createGroundLayer(): MapLayer {
+interface Shimmer {
+  sprite: Sprite
+  phase: number
+  speed: number
+}
+
+interface GroundLayerState {
+  width: number
+  height: number
+  ox: number
+  oy: number
+  t: number
+}
+
+interface GroundLayerRuntime {
+  container: Container
+  graphics: Graphics
+  shimmerContainer: Container
+  shimmers: Shimmer[]
+}
+
+function toScreenPath(polygon: [number, number][], ox: number, oy: number): number[] {
+  return polygon.flatMap(([a, b]) => {
+    const { x, y } = isoToScreen(a, b, ox, oy)
+    return [x, y]
+  })
+}
+
+function buildWaterBase(ctx: Graphics, ox: number, oy: number, w: number, h: number) {
+  if (w === 0 || h === 0) return
+
+  const isoBounds = getProjectedBounds()
+  ctx.rect(0, 0, w, h).fill(0x07090f)
+
+  const gridCorners = [
+    isoToScreen(isoBounds.aMin, isoBounds.bMin, ox, oy),
+    isoToScreen(isoBounds.aMin, isoBounds.bMax + 5, ox, oy),
+    isoToScreen(isoBounds.aMax + 5, isoBounds.bMax + 5, ox, oy),
+    isoToScreen(isoBounds.aMax + 5, isoBounds.bMin, ox, oy),
+  ]
+  ctx.poly(gridCorners.flatMap((p) => [p.x, p.y])).fill(WATER_BASE)
+
+  const atlPts = toScreenPath(atlanticPolygon(isoBounds), ox, oy)
+  ctx.poly(atlPts).fill(ATLANTIC)
+
+  const lagPts = toScreenPath(LAGOON, ox, oy)
+  ctx.poly(lagPts).fill(LAGOON_FILL)
+}
+
+function buildGroundTiles(
+  ctx: Graphics,
+  ox: number,
+  oy: number,
+  w: number,
+  h: number,
+  tileW: number,
+  tileH: number,
+) {
+  if (w === 0 || h === 0) return
+
+  void tileW
+  void tileH
+
+  for (const lga of getLGAGeometry()) {
+    const pts = toScreenPath(lga.isoPolygon, ox, oy)
+    ctx.poly(pts).fill(lgaFill(lga.key, lga.zoneId))
+  }
+}
+
+function buildWaterEdge(ctx: Graphics, ox: number, oy: number, w: number, h: number) {
+  if (w === 0 || h === 0) return
+  ctx.poly(toScreenPath(LAGOON, ox, oy)).stroke({ color: LAGOON_EDGE, width: 1.5, alpha: 0.5 })
+}
+
+function buildGroundBoundaries(ctx: Graphics, ox: number, oy: number) {
+  const lgas = getLGAGeometry()
+
+  for (const lga of lgas) {
+    const pts = toScreenPath(lga.isoPolygon, ox, oy)
+    ctx.poly(pts).stroke({ color: 0x0e1828, width: 0.8, alpha: 0.35 })
+  }
+
+  for (const lga of lgas) {
+    const pts = toScreenPath(lga.isoPolygon, ox, oy)
+    ctx.poly(pts).stroke({ color: LAGOON_EDGE, width: 1.2, alpha: 0.5 })
+  }
+}
+
+function buildGroundGrid(ctx: Graphics, ox: number, oy: number, w: number, h: number) {
+  if (w === 0 || h === 0) return
+
+  const isoBounds = getProjectedBounds()
+  const STEP = 10
+  for (let a = Math.floor(isoBounds.aMin / STEP) * STEP; a <= isoBounds.aMax; a += STEP) {
+    const s = isoToScreen(a, isoBounds.bMin, ox, oy)
+    const e = isoToScreen(a, isoBounds.bMax, ox, oy)
+    ctx.moveTo(s.x, s.y).lineTo(e.x, e.y).stroke({ color: 0x26293a, width: 0.5, alpha: 0.1 })
+  }
+
+  for (let b = Math.floor(isoBounds.bMin / STEP) * STEP; b <= isoBounds.bMax; b += STEP) {
+    const s = isoToScreen(isoBounds.aMin, b, ox, oy)
+    const e = isoToScreen(isoBounds.aMax, b, ox, oy)
+    ctx.moveTo(s.x, s.y).lineTo(e.x, e.y).stroke({ color: 0x26293a, width: 0.5, alpha: 0.1 })
+  }
+}
+
+function polygonBounds(polygon: [number, number][]) {
+  let aMin = Infinity
+  let aMax = -Infinity
+  let bMin = Infinity
+  let bMax = -Infinity
+
+  for (const [a, b] of polygon) {
+    if (a < aMin) aMin = a
+    if (a > aMax) aMax = a
+    if (b < bMin) bMin = b
+    if (b > bMax) bMax = b
+  }
+
+  return { aMin, aMax, bMin, bMax }
+}
+
+function createShimmer(x: number, y: number): Shimmer {
+  const sprite = new Sprite(Texture.WHITE)
+  sprite.width = 4
+  sprite.height = 1
+  sprite.anchor.set(0.5, 0.5)
+  sprite.x = x
+  sprite.y = y + TILE_H
+  sprite.tint = 0x88bbee
+  sprite.alpha = 0
+
+  return {
+    sprite,
+    phase: Math.random() * Math.PI * 2,
+    speed: 0.3 + Math.random() * 0.5,
+  }
+}
+
+function addShimmerDots(
+  shimmerC: Container,
+  ox: number,
+  oy: number,
+  polygon: [number, number][],
+  count: number,
+  shimmers: Shimmer[],
+) {
+  const { aMin, aMax, bMin, bMax } = polygonBounds(polygon)
+  let placed = 0
+
+  for (let attempt = 0; attempt < count * 30 && placed < count; attempt++) {
+    const a = aMin + Math.random() * (aMax - aMin)
+    const b = bMin + Math.random() * (bMax - bMin)
+    if (!pointInPolygon(a, b, polygon)) continue
+
+    const { x, y } = isoToScreen(a, b, ox, oy)
+    const shimmer = createShimmer(x, y)
+    shimmerC.addChild(shimmer.sprite)
+    shimmers.push(shimmer)
+    placed++
+  }
+}
+
+function buildShimmerSparkles(
+  shimmerC: Container,
+  ox: number,
+  oy: number,
+  w: number,
+  h: number,
+  layer: GroundLayerRuntime,
+) {
+  shimmerC.removeChildren()
+  layer.shimmers.length = 0
+  if (w === 0 || h === 0) return
+
+  addShimmerDots(shimmerC, ox, oy, LAGOON, 80, layer.shimmers)
+  addShimmerDots(shimmerC, ox, oy, atlanticPolygon(getProjectedBounds()), 40, layer.shimmers)
+}
+
+function renderGroundLayer(state: GroundLayerState, layer: GroundLayerRuntime) {
+  const { graphics } = layer
+  graphics.clear()
+  if (state.width === 0 || state.height === 0) return
+
+  buildWaterBase(graphics, state.ox, state.oy, state.width, state.height)
+  buildWaterEdge(graphics, state.ox, state.oy, state.width, state.height)
+  buildGroundTiles(graphics, state.ox, state.oy, state.width, state.height, TILE_W, TILE_H)
+  buildGroundBoundaries(graphics, state.ox, state.oy)
+  buildGroundGrid(graphics, state.ox, state.oy, state.width, state.height)
+}
+
+function configureGroundLayer(state: GroundLayerState, w: number, h: number) {
+  state.width = w
+  state.height = h
+  state.ox = w / 2 - 10
+  state.oy = (h - 324) / 2 + 4
+  state.t = 0
+}
+
+function updateShimmerAlpha(shimmers: Shimmer[], t: number) {
+  for (const sh of shimmers) {
+    sh.sprite.alpha = 0.03 + 0.1 * (0.5 + 0.5 * Math.sin(t * sh.speed + sh.phase))
+  }
+}
+
+function updateGroundLayer(state: GroundLayerState, layer: GroundLayerRuntime) {
+  updateShimmerAlpha(layer.shimmers, state.t)
+}
+
+function createGroundLayerRuntime(): GroundLayerRuntime {
   const container = new Container()
-  const g = new Graphics()
-  const shimmerC = new Container()
-  container.addChild(g)
-  container.addChild(shimmerC)
-
-  let _w = 0,
-    _h = 0
-  let _ox = 0,
-    _oy = 0
-  let _t = 0
-  interface Shimmer {
-    sprite: Sprite
-    phase: number
-    speed: number
-  }
-  const _shimmers: Shimmer[] = []
-
-  function draw() {
-    g.clear()
-    if (_w === 0 || _h === 0) return
-
-    const lgas = getLGAGeometry()
-    const isoBounds = getProjectedBounds()
-
-    // ── Sky ───────────────────────────────────────────────────────────────
-    g.rect(0, 0, _w, _h).fill(0x07090f)
-
-    // ── Water base (entire iso grid area) ─────────────────────────────────
-    const gridCorners = [
-      isoToScreen(isoBounds.aMin, isoBounds.bMin, _ox, _oy),
-      isoToScreen(isoBounds.aMin, isoBounds.bMax + 5, _ox, _oy),
-      isoToScreen(isoBounds.aMax + 5, isoBounds.bMax + 5, _ox, _oy),
-      isoToScreen(isoBounds.aMax + 5, isoBounds.bMin, _ox, _oy),
-    ]
-    g.poly(gridCorners.flatMap((p) => [p.x, p.y])).fill(WATER_BASE)
-
-    // ── Atlantic Ocean (deeper, darker) ──────────────────────────────────
-    const atlPts = atlanticPolygon(isoBounds).map(([a, b]) => isoToScreen(a, b, _ox, _oy))
-    g.poly(atlPts.flatMap((p) => [p.x, p.y])).fill(ATLANTIC)
-
-    // ── Lagoon (shallower, slightly lighter — the key geographic feature) ─
-    const lagPts = LAGOON.map(([a, b]) => isoToScreen(a, b, _ox, _oy))
-    g.poly(lagPts.flatMap((p) => [p.x, p.y])).fill(LAGOON_FILL)
-    g.poly(lagPts.flatMap((p) => [p.x, p.y])).stroke({ color: LAGOON_EDGE, width: 1.5, alpha: 0.5 })
-
-    // ── LGA land polygons (warm dark brown-grey — contrast with cool water) ─
-    for (const lga of lgas) {
-      const pts = lga.isoPolygon.map(([a, b]) => isoToScreen(a, b, _ox, _oy))
-      const fill = lgaFill(lga.key, lga.zoneId)
-      g.poly(pts.flatMap((p) => [p.x, p.y])).fill(fill)
-    }
-
-    // ── LGA boundary strokes ──────────────────────────────────────────────
-    for (const lga of lgas) {
-      const pts = lga.isoPolygon.map(([a, b]) => isoToScreen(a, b, _ox, _oy))
-      g.poly(pts.flatMap((p) => [p.x, p.y])).stroke({ color: 0x0e1828, width: 0.8, alpha: 0.35 })
-    }
-
-    // ── Coastline (land-water edge — brighter to separate land from water) ─
-    for (const lga of lgas) {
-      const pts = lga.isoPolygon.map(([a, b]) => isoToScreen(a, b, _ox, _oy))
-      g.poly(pts.flatMap((p) => [p.x, p.y])).stroke({ color: LAGOON_EDGE, width: 1.2, alpha: 0.5 })
-    }
-
-    // ── Faint iso grid lines ──────────────────────────────────────────────
-    const STEP = 10
-    for (let a = Math.floor(isoBounds.aMin / STEP) * STEP; a <= isoBounds.aMax; a += STEP) {
-      const s = isoToScreen(a, isoBounds.bMin, _ox, _oy)
-      const e = isoToScreen(a, isoBounds.bMax, _ox, _oy)
-      g.moveTo(s.x, s.y).lineTo(e.x, e.y).stroke({ color: 0x26293a, width: 0.5, alpha: 0.1 })
-    }
-    for (let b = Math.floor(isoBounds.bMin / STEP) * STEP; b <= isoBounds.bMax; b += STEP) {
-      const s = isoToScreen(isoBounds.aMin, b, _ox, _oy)
-      const e = isoToScreen(isoBounds.aMax, b, _ox, _oy)
-      g.moveTo(s.x, s.y).lineTo(e.x, e.y).stroke({ color: 0x26293a, width: 0.5, alpha: 0.1 })
-    }
-  }
-
-  function buildShimmer() {
-    shimmerC.removeChildren()
-    _shimmers.length = 0
-    const isoBounds = getProjectedBounds()
-    const atl = atlanticPolygon(isoBounds)
-
-    // Inject 80 shimmer points into lagoon and 40 into Atlantic
-    const allWater = [LAGOON, atl]
-    const counts = [80, 40]
-    for (let wi = 0; wi < allWater.length; wi++) {
-      const poly = allWater[wi]
-      let aMin = Infinity,
-        aMax = -Infinity,
-        bMin = Infinity,
-        bMax = -Infinity
-      for (const [a, b] of poly) {
-        if (a < aMin) aMin = a
-        if (a > aMax) aMax = a
-        if (b < bMin) bMin = b
-        if (b > bMax) bMax = b
-      }
-      const N = counts[wi]
-      let placed = 0
-      for (let attempt = 0; attempt < N * 30 && placed < N; attempt++) {
-        const a = aMin + Math.random() * (aMax - aMin)
-        const b = bMin + Math.random() * (bMax - bMin)
-        if (!pointInPolygon(a, b, poly)) continue
-        const { x, y } = isoToScreen(a, b, _ox, _oy)
-        const sp = new Sprite(Texture.WHITE)
-        sp.width = 4
-        sp.height = 1
-        sp.anchor.set(0.5, 0.5)
-        sp.x = x
-        sp.y = y + TILE_H
-        sp.tint = 0x88bbee
-        sp.alpha = 0
-        shimmerC.addChild(sp)
-        _shimmers.push({
-          sprite: sp,
-          phase: Math.random() * Math.PI * 2,
-          speed: 0.3 + Math.random() * 0.5,
-        })
-        placed++
-      }
-    }
-  }
+  const graphics = new Graphics()
+  const shimmerContainer = new Container()
+  container.addChild(graphics)
+  container.addChild(shimmerContainer)
 
   return {
     container,
+    graphics,
+    shimmerContainer,
+    shimmers: [],
+  }
+}
+
+export function createGroundLayer(): MapLayer {
+  const state: GroundLayerState = { width: 0, height: 0, ox: 0, oy: 0, t: 0 }
+  const layer = createGroundLayerRuntime()
+
+  return {
+    container: layer.container,
     init(_state: MapState, w: number, h: number) {
-      _w = w
-      _h = h
-      _ox = w / 2 - 10
-      _oy = (h - 324) / 2 + 4
-      _t = 0
-      draw()
-      buildShimmer()
+      configureGroundLayer(state, w, h)
+      renderGroundLayer(state, layer)
+      buildShimmerSparkles(
+        layer.shimmerContainer,
+        state.ox,
+        state.oy,
+        state.width,
+        state.height,
+        layer,
+      )
     },
     update(_state: MapState, dt: number) {
-      _t += dt / 1000
-      for (const sh of _shimmers) {
-        const a = 0.03 + 0.1 * (0.5 + 0.5 * Math.sin(_t * sh.speed + sh.phase))
-        sh.sprite.alpha = a
-      }
+      state.t += dt / 1000
+      updateGroundLayer(state, layer)
     },
     destroy() {
-      container.destroy({ children: true })
-      _shimmers.length = 0
+      layer.container.destroy({ children: true })
+      layer.shimmers.length = 0
     },
   }
 }

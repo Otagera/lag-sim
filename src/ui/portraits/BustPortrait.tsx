@@ -208,6 +208,510 @@ export function BustPortrait({
  * with strokes thick enough to survive 28px. Expression flags derive from the
  * same FaceParams data that drives the full tier.
  */
+type CompactBustPalette = {
+  accent: string
+  bgTint: string
+  fabric: string
+  ink: string
+  skin: string
+  skinShade: string
+}
+
+type CompactBustSeed = {
+  browTilt: number
+  browY: number
+  fem: boolean
+  heavyLids: boolean
+  isFrown: boolean
+  isSmirk: boolean
+}
+
+type CompactBustParts = {
+  accent: string
+  accessories: BustSpec['accessories']
+  face: BustSpec['face']
+  hair: BustSpec['hair']
+  headwear: BustSpec['headwear']
+}
+
+const COMPACT_ARCH_PATH = 'M3 64 L3 24 Q3 3 32 3 Q61 3 61 24 L61 64 Z'
+const COMPACT_ARCH_KEYLINE_PATH = 'M3 64 L3 24 Q3 3 32 3 Q61 3 61 24 L61 64'
+
+const COMPACT_SQUARE_FRAME = {
+  height: 60,
+  rx: 5,
+  width: 60,
+  x: 2,
+  y: 2,
+}
+
+function buildCompactPalette(spec: BustSpec, skin: string, fabric: string): CompactBustPalette {
+  return {
+    accent: spec.accentColor ?? '#D4AF37',
+    bgTint: spec.bgTint,
+    fabric,
+    ink: '#17100C',
+    skin,
+    skinShade: shade(skin, 0.66),
+  }
+}
+
+function buildCompactSeed(face: BustSpec['face']): CompactBustSeed {
+  const isFrown = face.mouth === 'frown'
+  const isSmirk = face.mouth === 'smirk'
+  const isStern = !isFrown && (face.browTilt ?? 0) >= 1.8
+  const fem = !!face.lash
+
+  return {
+    browTilt: isFrown || isStern ? 1.3 : fem ? -0.7 : 0,
+    browY: isStern ? 26.4 : 25.8,
+    fem,
+    heavyLids: face.eyes === 'heavy',
+    isFrown,
+    isSmirk,
+  }
+}
+
+function pickCompactParts(spec: BustSpec): CompactBustParts {
+  return {
+    accent: spec.accentColor ?? '#D4AF37',
+    accessories: spec.accessories,
+    face: spec.face,
+    hair: spec.hair,
+    headwear: spec.headwear,
+  }
+}
+
+function BustFrame({ shape, children }: { shape: FrameShape; children: React.ReactNode }) {
+  const clipId = `compact-bust-${useId()}`
+
+  return (
+    <>
+      <defs>
+        <clipPath id={clipId}>
+          <rect x="0" y="0" width="64" height="64" />
+        </clipPath>
+      </defs>
+      <g clipPath={`url(#${clipId})`}>{children}</g>
+      {shape === 'arch' ? (
+        <path
+          d={COMPACT_ARCH_KEYLINE_PATH}
+          fill="none"
+          stroke="rgba(255,255,255,0.07)"
+          strokeWidth="1"
+        />
+      ) : (
+        <rect
+          {...COMPACT_SQUARE_FRAME}
+          fill="none"
+          stroke="rgba(255,255,255,0.07)"
+          strokeWidth="1"
+        />
+      )}
+    </>
+  )
+}
+
+function BustBackground({
+  shape,
+  palette,
+}: {
+  shape: FrameShape
+  seed: CompactBustSeed
+  palette: CompactBustPalette
+}) {
+  if (shape === 'arch') {
+    return <path d={COMPACT_ARCH_PATH} fill={palette.bgTint} />
+  }
+
+  return <rect {...COMPACT_SQUARE_FRAME} fill={palette.bgTint} />
+}
+
+function BustBody({ palette }: { palette: CompactBustPalette; seed: CompactBustSeed }) {
+  return (
+    <>
+      <path
+        d="M8 64 Q10 50 22 46.5 Q27 45 32 45 Q37 45 42 46.5 Q54 50 56 64 Z"
+        fill={palette.fabric}
+      />
+      <path
+        d="M8 64 Q10 50 22 46.5 Q27 45 32 45 Q37 45 42 46.5 Q54 50 56 64"
+        fill="none"
+        stroke={shade(palette.fabric, 0.65)}
+        strokeWidth="1"
+        opacity="0.5"
+      />
+    </>
+  )
+}
+
+function BustHead({ palette, seed }: { palette: CompactBustPalette; seed: CompactBustSeed }) {
+  return (
+    <>
+      <rect x="27.5" y="38" width="9" height="10" fill={palette.skin} />
+      <path
+        d="M27.5 39.5 Q32 43.5 36.5 39.5 L36.5 45 Q32 47 27.5 45 Z"
+        fill={shade(palette.skin, 0.6)}
+        opacity="0.6"
+      />
+      <path
+        d={
+          seed.fem
+            ? 'M32 9.5 Q41.5 9.5 43.5 19 Q44.8 26 42.5 32 Q40 39.5 34 42.3 Q32 43 32 43 Q32 43 30 42.3 Q24 39.5 21.5 32 Q19.2 26 20.5 19 Q22.5 9.5 32 9.5 Z'
+            : 'M32 9 Q42.5 9 44.5 18.5 Q46 26 43.5 32.5 Q41 40 34.5 42.6 Q32 43.4 32 43.4 Q32 43.4 29.5 42.6 Q23 40 20.5 32.5 Q18 26 19.5 18.5 Q21.5 9 32 9 Z'
+        }
+        fill={palette.skin}
+      />
+      <path
+        d="M38 11 Q44 15 44 25 Q44 34 39 40 Q42.5 32 42.5 24 Q42.5 15.5 38 11 Z"
+        fill="#000"
+        opacity="0.1"
+      />
+    </>
+  )
+}
+
+function FilaHeadwear({ fabric }: { fabric: string }) {
+  return (
+    <g>
+      <path
+        d="M41 15.5 Q47.5 14.5 49.8 18.5 Q51.8 22 50.8 26.5 Q49.8 31 45.5 33 Q47.3 28 46.5 23.5 Q45.8 19.5 41.8 17.8 Z"
+        fill={fabric}
+      />
+      <path
+        d="M42.8 17.2 Q46.8 19 47.6 23.5 Q48.3 27.5 46.8 31.2"
+        fill="none"
+        stroke={shade(fabric, 0.55)}
+        strokeWidth="0.8"
+        opacity="0.8"
+        strokeLinecap="round"
+      />
+      <path
+        d="M21 20 Q20.2 12.5 21.8 6.5 Q23.5 1 28.5 -0.3 Q33.8 -1.6 38 1 Q41.5 3.2 42.6 8.5 Q43.6 13 43.4 18.8 Q38.5 15.2 32 15.2 Q25.5 15.2 21 20 Z"
+        fill={fabric}
+      />
+      <path
+        d="M27 0.2 Q31.5 4.5 33.8 10 Q35 13 35.2 15.4"
+        fill="none"
+        stroke={shade(fabric, 0.55)}
+        strokeWidth="0.9"
+        strokeLinecap="round"
+        opacity="0.85"
+      />
+      <path
+        d="M27 0.2 Q33 -2 38 1 Q41.5 3.2 42.6 8.5 Q43.6 13 43.4 18.8 Q39.8 16.2 35.2 15.5 Q35 13 33.8 10 Q31.5 4.5 27 0.2 Z"
+        fill={shade(fabric, 0.55)}
+        opacity="0.45"
+      />
+      <path
+        d="M21 20 Q25.5 15.4 32 15.4 Q38.5 15.4 43.4 18.9 L43.4 21.6 Q38.5 18.2 32 18.2 Q25.5 18.2 21 23 Z"
+        fill={shade(fabric, 0.45)}
+      />
+    </g>
+  )
+}
+
+function PlainCapHeadwear({ fabric }: { fabric: string }) {
+  return (
+    <g>
+      <path
+        d="M20.5 20 Q19.8 11.5 26 8 Q29 6.4 32 6.4 Q35 6.4 38 8 Q44.2 11.5 43.5 20 Q38.5 16.5 32 16.5 Q25.5 16.5 20.5 20 Z"
+        fill={fabric}
+      />
+      <path
+        d="M20.5 20 Q25.5 16.7 32 16.7 Q38.5 16.7 43.5 20 L43.5 22.5 Q38.5 19.2 32 19.2 Q25.5 19.2 20.5 22.5 Z"
+        fill={shade(fabric, 0.6)}
+      />
+    </g>
+  )
+}
+
+function NaturalVolumeHair({ ink }: { ink: string }) {
+  return (
+    <path
+      d="M18.5 25 Q13.5 22 13.8 14.5 Q14 8 20 4.5 Q25.5 1.2 32 1.2 Q38.5 1.2 44 4.5 Q50 8 50.2 14.5 Q50.5 22 45.5 25 Q46.5 19 44 14.5 Q42 10.5 37.5 8.5 Q34.8 7.4 32 7.4 Q29.2 7.4 26.5 8.5 Q22 10.5 20 14.5 Q17.5 19 18.5 25 Z"
+      fill={ink}
+    />
+  )
+}
+
+function GeleWrapHair({ accent }: { accent: string }) {
+  return (
+    <g>
+      <path
+        d="M20 22 Q18.5 12.5 25.5 8 Q29 5.8 32 5.8 Q35 5.8 38.5 8 Q45.5 12.5 44 22 Q38.5 17.5 32 17.5 Q25.5 17.5 20 22 Z"
+        fill={shade(accent, 0.85)}
+      />
+      <path
+        d="M22 12 Q19.5 6 24.5 2.8 Q28.5 0.4 32.5 2 Q28 3.2 26 7 Q24.8 9.4 25 12 Q23.2 11.6 22 12 Z"
+        fill={shade(accent, 0.55)}
+      />
+      <path
+        d="M26.5 9.5 Q27 2.5 34 1 Q38.5 0.2 41.5 2.6 Q36 3.4 33.2 7 Q31.4 9.4 31.5 12 Q28.6 11 26.5 9.5 Z"
+        fill={shade(accent, 1.25)}
+      />
+      <path
+        d="M33.5 9.5 Q36.5 3 42.5 3.4 Q47 3.8 48.5 7.5 Q44 6.6 40.5 9.2 Q38 11.2 37.5 13.8 Q35.2 11.8 33.5 9.5 Z"
+        fill={shade(accent, 0.85)}
+      />
+      <path
+        d="M42 12 Q46.5 10.8 48 13.5 Q49.2 16 47 18 Q44.8 19.6 42.5 18.4 Q43.8 16.4 43.4 14.6 Q43 13 42 12 Z"
+        fill={shade(accent, 0.55)}
+      />
+    </g>
+  )
+}
+
+function CroppedHair({ hair, ink }: { hair: BustSpec['hair']; ink: string }) {
+  return (
+    <g>
+      <path
+        d="M20.5 21.5 Q19.5 11 26.5 7.2 Q29.5 5.6 32 5.6 Q34.5 5.6 37.5 7.2 Q44.5 11 43.5 21.5 Q42.8 15.5 39.5 12.8 L39 15.8 Q35.8 13.8 32 13.8 Q28.2 13.8 25 15.8 L24.5 12.8 Q21.2 15.5 20.5 21.5 Z"
+        fill={ink}
+      />
+      {hair === 'greyTemp' && (
+        <path
+          d="M20.8 20.5 Q21.2 15.5 23.8 12.8 L24.2 16.8 Q22.2 18 21.5 21.5 Z M43.2 20.5 Q42.8 15.5 40.2 12.8 L39.8 16.8 Q41.8 18 42.5 21.5 Z"
+          fill="#948C82"
+        />
+      )}
+    </g>
+  )
+}
+
+function BustHair({
+  palette,
+  parts,
+}: {
+  palette: CompactBustPalette
+  seed: CompactBustSeed
+  parts: CompactBustParts
+}) {
+  if (parts.headwear === 'fila') {
+    return <FilaHeadwear fabric={palette.fabric} />
+  }
+
+  if (parts.headwear === 'plainCap') {
+    return <PlainCapHeadwear fabric={palette.fabric} />
+  }
+
+  if (parts.headwear && parts.headwear !== 'none') {
+    return null
+  }
+
+  if (parts.hair === 'naturalVolume') {
+    return <NaturalVolumeHair ink={palette.ink} />
+  }
+
+  if (parts.hair === 'geleWrap') {
+    return <GeleWrapHair accent={palette.accent} />
+  }
+
+  if (parts.hair === 'lowFade' || parts.hair === 'shortCrop' || parts.hair === 'greyTemp') {
+    return <CroppedHair hair={parts.hair} ink={palette.ink} />
+  }
+
+  return null
+}
+
+function CompactMouth({ ink, seed }: { ink: string; seed: CompactBustSeed }) {
+  if (seed.isFrown) {
+    return (
+      <path
+        d="M28.5 38.6 Q32 37 35.5 38.6"
+        fill="none"
+        stroke={ink}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    )
+  }
+
+  if (seed.isSmirk) {
+    return (
+      <path
+        d="M28.5 37.6 Q32 38.8 35.5 36.9"
+        fill="none"
+        stroke={ink}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    )
+  }
+
+  return <path d="M28.7 37.8 L35.3 37.8" stroke={ink} strokeWidth="1.5" strokeLinecap="round" />
+}
+
+function CompactFacialHair({ face, ink }: { face: BustSpec['face']; ink: string }) {
+  switch (face.facialHair) {
+    case 'greyMoustacheGoatee':
+      return (
+        <g>
+          <path
+            d="M27.2 36.6 Q27.5 34.4 29.6 33.8 Q30.8 33.4 32 33.4 Q33.2 33.4 34.4 33.8 Q36.5 34.4 36.8 36.6 Q35.4 37 34.2 36.4 Q33.1 35.9 32 35.9 Q30.9 35.9 29.8 36.4 Q28.6 37 27.2 36.6 Z"
+            fill="#8E857C"
+          />
+          <path
+            d="M28.6 38.2 Q28.2 41.2 30 43.2 Q31 44.2 32 44.2 Q33 44.2 34 43.2 Q35.8 41.2 35.4 38.2 Q34.8 40.6 33.4 41.6 Q32.7 42.1 32 42.1 Q31.3 42.1 30.6 41.6 Q29.2 40.6 28.6 38.2 Z"
+            fill="#8E857C"
+          />
+        </g>
+      )
+    case 'greyMoustache':
+      return (
+        <path
+          d="M27.2 36.6 Q27.5 34.4 29.6 33.8 Q30.8 33.4 32 33.4 Q33.2 33.4 34.4 33.8 Q36.5 34.4 36.8 36.6 Q35.4 37 34.2 36.4 Q33.1 35.9 32 35.9 Q30.9 35.9 29.8 36.4 Q28.6 37 27.2 36.6 Z"
+          fill="#8E857C"
+        />
+      )
+    case 'fullGreyBeard':
+      return (
+        <g>
+          <path
+            d="M22.5 31 Q22.2 38.5 26.5 42.8 Q29 45.2 32 45.2 Q35 45.2 37.5 42.8 Q41.8 38.5 41.5 31 Q40 34.5 37 35.6 Q34.5 36.4 32 36.4 Q29.5 36.4 27 35.6 Q24 34.5 22.5 31 Z"
+            fill="#655C53"
+          />
+          <path
+            d="M26 35 Q26.5 39.5 29 42.5 M38 35 Q37.5 39.5 35 42.5 M32 37 L32 42.5"
+            fill="none"
+            stroke="#A39A8F"
+            strokeWidth="0.6"
+            opacity="0.8"
+            strokeLinecap="round"
+          />
+        </g>
+      )
+    case 'darkGoatee':
+      return (
+        <path
+          d="M28.5 40 Q30 42.6 32 42.8 Q34 42.6 35.5 40 Q35.8 43 33.8 44.4 Q32.9 45 32 45 Q31.1 45 30.2 44.4 Q28.2 43 28.5 40 Z"
+          fill={ink}
+          opacity="0.85"
+        />
+      )
+    default:
+      return null
+  }
+}
+
+function BustFace({
+  palette,
+  seed,
+  parts,
+}: {
+  palette: CompactBustPalette
+  seed: CompactBustSeed
+  parts: CompactBustParts
+}) {
+  return (
+    <>
+      <path
+        d={`M23.5 ${seed.browY + seed.browTilt} Q26.5 ${seed.browY - 1} 29.5 ${seed.browY - seed.browTilt * 0.2} L29.5 ${seed.browY + 1.8 - seed.browTilt * 0.2} Q26.5 ${seed.browY + 1} 23.5 ${seed.browY + 1.8 + seed.browTilt} Z`}
+        fill={palette.ink}
+      />
+      <path
+        d={`M34.5 ${seed.browY - seed.browTilt * 0.2} Q37.5 ${seed.browY - 1} 40.5 ${seed.browY + seed.browTilt} L40.5 ${seed.browY + 1.8 + seed.browTilt} Q37.5 ${seed.browY + 1} 34.5 ${seed.browY + 1.8 - seed.browTilt * 0.2} Z`}
+        fill={palette.ink}
+      />
+      <circle cx="26.5" cy={seed.browY + 5} r="1.7" fill={palette.ink} />
+      <circle cx="37.5" cy={seed.browY + 5} r="1.7" fill={palette.ink} />
+      {(seed.isFrown || seed.isSmirk || seed.heavyLids) && (
+        <path
+          d={`M24.5 ${seed.browY + 3.6} L28.5 ${seed.browY + 3.6} M35.5 ${seed.browY + 3.6} L39.5 ${seed.browY + 3.6}`}
+          stroke={palette.skinShade}
+          strokeWidth="1.1"
+          strokeLinecap="round"
+        />
+      )}
+      <path
+        d={`M31 ${seed.browY + 10} Q32 ${seed.browY + 11} 33 ${seed.browY + 10}`}
+        fill="none"
+        stroke={palette.skinShade}
+        strokeWidth="1.1"
+        strokeLinecap="round"
+      />
+      <CompactMouth ink={palette.ink} seed={seed} />
+      <CompactFacialHair face={parts.face} ink={palette.ink} />
+    </>
+  )
+}
+
+function HeavyGlassesAccessory({ browY, ink }: { browY: number; ink: string }) {
+  return (
+    <g>
+      <rect
+        x="21.5"
+        y={browY + 1.6}
+        width="9.6"
+        height="7"
+        rx="2"
+        fill="none"
+        stroke={ink}
+        strokeWidth="1.5"
+      />
+      <rect
+        x="32.9"
+        y={browY + 1.6}
+        width="9.6"
+        height="7"
+        rx="2"
+        fill="none"
+        stroke={ink}
+        strokeWidth="1.5"
+      />
+      <path d={`M31.1 ${browY + 4.4} L32.9 ${browY + 4.4}`} stroke={ink} strokeWidth="1.3" />
+    </g>
+  )
+}
+
+function RoundGlassesAccessory({ browY }: { browY: number }) {
+  return (
+    <g>
+      <circle cx="26.5" cy={browY + 4.6} r="4.4" fill="none" stroke="#C9A227" strokeWidth="1.2" />
+      <circle cx="37.5" cy={browY + 4.6} r="4.4" fill="none" stroke="#C9A227" strokeWidth="1.2" />
+      <path d={`M30.9 ${browY + 3.8} L33.1 ${browY + 3.8}`} stroke="#C9A227" strokeWidth="1.1" />
+    </g>
+  )
+}
+
+function CoralBeadsAccessory() {
+  return (
+    <g>
+      {[
+        [24, 49.5],
+        [28, 51.5],
+        [32, 52.2],
+        [36, 51.5],
+        [40, 49.5],
+      ].map(([x, y], i) => (
+        <circle key={`cb-${x}`} cx={x} cy={y} r="1.9" fill={i % 2 === 0 ? '#C2452D' : '#D96B4A'} />
+      ))}
+    </g>
+  )
+}
+
+function EarringsAccessory({ accent }: { accent: string }) {
+  return (
+    <g>
+      <circle cx="20.5" cy="33.5" r="1.6" fill="none" stroke={accent} strokeWidth="1" />
+      <circle cx="43.5" cy="33.5" r="1.6" fill="none" stroke={accent} strokeWidth="1" />
+    </g>
+  )
+}
+
+function BustAccessories({ seed, parts }: { seed: CompactBustSeed; parts: CompactBustParts }) {
+  return (
+    <>
+      {parts.accessories.includes('heavyGlasses') && (
+        <HeavyGlassesAccessory browY={seed.browY} ink="#17100C" />
+      )}
+      {parts.accessories.includes('roundGlasses') && <RoundGlassesAccessory browY={seed.browY} />}
+      {parts.accessories.includes('coralBeads') && <CoralBeadsAccessory />}
+      {parts.accessories.includes('earrings') && <EarringsAccessory accent={parts.accent} />}
+    </>
+  )
+}
+
 function CompactBust({
   spec,
   skin,
@@ -223,18 +727,9 @@ function CompactBust({
   shape: FrameShape
   label: string
 }) {
-  const accent = spec.accentColor ?? '#D4AF37'
-  const ink = '#17100C'
-  const skinShade = shade(skin, 0.66)
-  const face = spec.face
-  const isFrown = face.mouth === 'frown'
-  const isSmirk = face.mouth === 'smirk'
-  const isStern = !isFrown && (face.browTilt ?? 0) >= 1.8
-  const heavyLids = face.eyes === 'heavy'
-  const fem = !!face.lash
-
-  const browY = isStern ? 26.4 : 25.8
-  const browTilt = isFrown || isStern ? 1.3 : fem ? -0.7 : 0
+  const palette = buildCompactPalette(spec, skin, fabric)
+  const seed = buildCompactSeed(spec.face)
+  const parts = pickCompactParts(spec)
 
   return (
     <svg
@@ -244,338 +739,14 @@ function CompactBust({
       aria-label={label}
       style={{ display: 'block' }}
     >
-      {shape === 'arch' ? (
-        <path d="M3 64 L3 24 Q3 3 32 3 Q61 3 61 24 L61 64 Z" fill={spec.bgTint} />
-      ) : (
-        <rect x="2" y="2" width="60" height="60" rx="5" fill={spec.bgTint} />
-      )}
-
-      {/* shoulders */}
-      <path d="M8 64 Q10 50 22 46.5 Q27 45 32 45 Q37 45 42 46.5 Q54 50 56 64 Z" fill={fabric} />
-      <path
-        d="M8 64 Q10 50 22 46.5 Q27 45 32 45 Q37 45 42 46.5 Q54 50 56 64"
-        fill="none"
-        stroke={shade(fabric, 0.65)}
-        strokeWidth="1"
-        opacity="0.5"
-      />
-
-      {/* neck */}
-      <rect x="27.5" y="38" width="9" height="10" fill={skin} />
-      <path
-        d="M27.5 39.5 Q32 43.5 36.5 39.5 L36.5 45 Q32 47 27.5 45 Z"
-        fill={shade(skin, 0.6)}
-        opacity="0.6"
-      />
-
-      {/* head */}
-      <path
-        d={
-          fem
-            ? 'M32 9.5 Q41.5 9.5 43.5 19 Q44.8 26 42.5 32 Q40 39.5 34 42.3 Q32 43 32 43 Q32 43 30 42.3 Q24 39.5 21.5 32 Q19.2 26 20.5 19 Q22.5 9.5 32 9.5 Z'
-            : 'M32 9 Q42.5 9 44.5 18.5 Q46 26 43.5 32.5 Q41 40 34.5 42.6 Q32 43.4 32 43.4 Q32 43.4 29.5 42.6 Q23 40 20.5 32.5 Q18 26 19.5 18.5 Q21.5 9 32 9 Z'
-        }
-        fill={skin}
-      />
-      <path
-        d="M38 11 Q44 15 44 25 Q44 34 39 40 Q42.5 32 42.5 24 Q42.5 15.5 38 11 Z"
-        fill="#000"
-        opacity="0.1"
-      />
-
-      {/* hair / headwear silhouettes */}
-      {spec.headwear === 'fila' && (
-        <g>
-          {/* dog-ear flap — hangs outside the head edge */}
-          <path
-            d="M41 15.5 Q47.5 14.5 49.8 18.5 Q51.8 22 50.8 26.5 Q49.8 31 45.5 33 Q47.3 28 46.5 23.5 Q45.8 19.5 41.8 17.8 Z"
-            fill={fabric}
-          />
-          <path
-            d="M42.8 17.2 Q46.8 19 47.6 23.5 Q48.3 27.5 46.8 31.2"
-            fill="none"
-            stroke={shade(fabric, 0.55)}
-            strokeWidth="0.8"
-            opacity="0.8"
-            strokeLinecap="round"
-          />
-          {/* tall leaning crown with pinch crease */}
-          <path
-            d="M21 20 Q20.2 12.5 21.8 6.5 Q23.5 1 28.5 -0.3 Q33.8 -1.6 38 1 Q41.5 3.2 42.6 8.5 Q43.6 13 43.4 18.8 Q38.5 15.2 32 15.2 Q25.5 15.2 21 20 Z"
-            fill={fabric}
-          />
-          <path
-            d="M27 0.2 Q31.5 4.5 33.8 10 Q35 13 35.2 15.4"
-            fill="none"
-            stroke={shade(fabric, 0.55)}
-            strokeWidth="0.9"
-            strokeLinecap="round"
-            opacity="0.85"
-          />
-          <path
-            d="M27 0.2 Q33 -2 38 1 Q41.5 3.2 42.6 8.5 Q43.6 13 43.4 18.8 Q39.8 16.2 35.2 15.5 Q35 13 33.8 10 Q31.5 4.5 27 0.2 Z"
-            fill={shade(fabric, 0.55)}
-            opacity="0.45"
-          />
-          {/* band */}
-          <path
-            d="M21 20 Q25.5 15.4 32 15.4 Q38.5 15.4 43.4 18.9 L43.4 21.6 Q38.5 18.2 32 18.2 Q25.5 18.2 21 23 Z"
-            fill={shade(fabric, 0.45)}
-          />
-        </g>
-      )}
-      {spec.headwear === 'plainCap' && (
-        <g>
-          <path
-            d="M20.5 20 Q19.8 11.5 26 8 Q29 6.4 32 6.4 Q35 6.4 38 8 Q44.2 11.5 43.5 20 Q38.5 16.5 32 16.5 Q25.5 16.5 20.5 20 Z"
-            fill={fabric}
-          />
-          <path
-            d="M20.5 20 Q25.5 16.7 32 16.7 Q38.5 16.7 43.5 20 L43.5 22.5 Q38.5 19.2 32 19.2 Q25.5 19.2 20.5 22.5 Z"
-            fill={shade(fabric, 0.6)}
-          />
-        </g>
-      )}
-      {!spec.headwear || spec.headwear === 'none' ? (
-        <>
-          {spec.hair === 'naturalVolume' && (
-            <path
-              d="M18.5 25 Q13.5 22 13.8 14.5 Q14 8 20 4.5 Q25.5 1.2 32 1.2 Q38.5 1.2 44 4.5 Q50 8 50.2 14.5 Q50.5 22 45.5 25 Q46.5 19 44 14.5 Q42 10.5 37.5 8.5 Q34.8 7.4 32 7.4 Q29.2 7.4 26.5 8.5 Q22 10.5 20 14.5 Q17.5 19 18.5 25 Z"
-              fill={ink}
-            />
-          )}
-          {spec.hair === 'geleWrap' && (
-            <g>
-              <path
-                d="M20 22 Q18.5 12.5 25.5 8 Q29 5.8 32 5.8 Q35 5.8 38.5 8 Q45.5 12.5 44 22 Q38.5 17.5 32 17.5 Q25.5 17.5 20 22 Z"
-                fill={shade(accent, 0.85)}
-              />
-              <path
-                d="M22 12 Q19.5 6 24.5 2.8 Q28.5 0.4 32.5 2 Q28 3.2 26 7 Q24.8 9.4 25 12 Q23.2 11.6 22 12 Z"
-                fill={shade(accent, 0.55)}
-              />
-              <path
-                d="M26.5 9.5 Q27 2.5 34 1 Q38.5 0.2 41.5 2.6 Q36 3.4 33.2 7 Q31.4 9.4 31.5 12 Q28.6 11 26.5 9.5 Z"
-                fill={shade(accent, 1.25)}
-              />
-              <path
-                d="M33.5 9.5 Q36.5 3 42.5 3.4 Q47 3.8 48.5 7.5 Q44 6.6 40.5 9.2 Q38 11.2 37.5 13.8 Q35.2 11.8 33.5 9.5 Z"
-                fill={shade(accent, 0.85)}
-              />
-              <path
-                d="M42 12 Q46.5 10.8 48 13.5 Q49.2 16 47 18 Q44.8 19.6 42.5 18.4 Q43.8 16.4 43.4 14.6 Q43 13 42 12 Z"
-                fill={shade(accent, 0.55)}
-              />
-            </g>
-          )}
-          {(spec.hair === 'lowFade' || spec.hair === 'shortCrop' || spec.hair === 'greyTemp') && (
-            <g>
-              <path
-                d="M20.5 21.5 Q19.5 11 26.5 7.2 Q29.5 5.6 32 5.6 Q34.5 5.6 37.5 7.2 Q44.5 11 43.5 21.5 Q42.8 15.5 39.5 12.8 L39 15.8 Q35.8 13.8 32 13.8 Q28.2 13.8 25 15.8 L24.5 12.8 Q21.2 15.5 20.5 21.5 Z"
-                fill={ink}
-              />
-              {spec.hair === 'greyTemp' && (
-                <path
-                  d="M20.8 20.5 Q21.2 15.5 23.8 12.8 L24.2 16.8 Q22.2 18 21.5 21.5 Z M43.2 20.5 Q42.8 15.5 40.2 12.8 L39.8 16.8 Q41.8 18 42.5 21.5 Z"
-                  fill="#948C82"
-                />
-              )}
-            </g>
-          )}
-        </>
-      ) : null}
-
-      {/* brows */}
-      <path
-        d={`M23.5 ${browY + browTilt} Q26.5 ${browY - 1} 29.5 ${browY - browTilt * 0.2} L29.5 ${browY + 1.8 - browTilt * 0.2} Q26.5 ${browY + 1} 23.5 ${browY + 1.8 + browTilt} Z`}
-        fill={ink}
-      />
-      <path
-        d={`M34.5 ${browY - browTilt * 0.2} Q37.5 ${browY - 1} 40.5 ${browY + browTilt} L40.5 ${browY + 1.8 + browTilt} Q37.5 ${browY + 1} 34.5 ${browY + 1.8 - browTilt * 0.2} Z`}
-        fill={ink}
-      />
-
-      {/* eyes */}
-      <circle cx="26.5" cy={browY + 5} r="1.7" fill={ink} />
-      <circle cx="37.5" cy={browY + 5} r="1.7" fill={ink} />
-      {(isFrown || isSmirk || heavyLids) && (
-        <path
-          d={`M24.5 ${browY + 3.6} L28.5 ${browY + 3.6} M35.5 ${browY + 3.6} L39.5 ${browY + 3.6}`}
-          stroke={skinShade}
-          strokeWidth="1.1"
-          strokeLinecap="round"
-        />
-      )}
-
-      {/* nose hint */}
-      <path
-        d={`M31 ${browY + 10} Q32 ${browY + 11} 33 ${browY + 10}`}
-        fill="none"
-        stroke={skinShade}
-        strokeWidth="1.1"
-        strokeLinecap="round"
-      />
-
-      {/* mouth */}
-      {isFrown ? (
-        <path
-          d="M28.5 38.6 Q32 37 35.5 38.6"
-          fill="none"
-          stroke={ink}
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      ) : isSmirk ? (
-        <path
-          d="M28.5 37.6 Q32 38.8 35.5 36.9"
-          fill="none"
-          stroke={ink}
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      ) : (
-        <path d="M28.7 37.8 L35.3 37.8" stroke={ink} strokeWidth="1.5" strokeLinecap="round" />
-      )}
-
-      {/* facial hair — derived from the same FaceParams as the full tier */}
-      {face.facialHair === 'greyMoustacheGoatee' && (
-        <g>
-          <path
-            d="M27.2 36.6 Q27.5 34.4 29.6 33.8 Q30.8 33.4 32 33.4 Q33.2 33.4 34.4 33.8 Q36.5 34.4 36.8 36.6 Q35.4 37 34.2 36.4 Q33.1 35.9 32 35.9 Q30.9 35.9 29.8 36.4 Q28.6 37 27.2 36.6 Z"
-            fill="#8E857C"
-          />
-          <path
-            d="M28.6 38.2 Q28.2 41.2 30 43.2 Q31 44.2 32 44.2 Q33 44.2 34 43.2 Q35.8 41.2 35.4 38.2 Q34.8 40.6 33.4 41.6 Q32.7 42.1 32 42.1 Q31.3 42.1 30.6 41.6 Q29.2 40.6 28.6 38.2 Z"
-            fill="#8E857C"
-          />
-        </g>
-      )}
-      {face.facialHair === 'greyMoustache' && (
-        <path
-          d="M27.2 36.6 Q27.5 34.4 29.6 33.8 Q30.8 33.4 32 33.4 Q33.2 33.4 34.4 33.8 Q36.5 34.4 36.8 36.6 Q35.4 37 34.2 36.4 Q33.1 35.9 32 35.9 Q30.9 35.9 29.8 36.4 Q28.6 37 27.2 36.6 Z"
-          fill="#8E857C"
-        />
-      )}
-      {face.facialHair === 'fullGreyBeard' && (
-        <g>
-          <path
-            d="M22.5 31 Q22.2 38.5 26.5 42.8 Q29 45.2 32 45.2 Q35 45.2 37.5 42.8 Q41.8 38.5 41.5 31 Q40 34.5 37 35.6 Q34.5 36.4 32 36.4 Q29.5 36.4 27 35.6 Q24 34.5 22.5 31 Z"
-            fill="#655C53"
-          />
-          <path
-            d="M26 35 Q26.5 39.5 29 42.5 M38 35 Q37.5 39.5 35 42.5 M32 37 L32 42.5"
-            fill="none"
-            stroke="#A39A8F"
-            strokeWidth="0.6"
-            opacity="0.8"
-            strokeLinecap="round"
-          />
-        </g>
-      )}
-      {face.facialHair === 'darkGoatee' && (
-        <path
-          d="M28.5 40 Q30 42.6 32 42.8 Q34 42.6 35.5 40 Q35.8 43 33.8 44.4 Q32.9 45 32 45 Q31.1 45 30.2 44.4 Q28.2 43 28.5 40 Z"
-          fill={ink}
-          opacity="0.85"
-        />
-      )}
-
-      {/* signature accessory */}
-      {spec.accessories.includes('heavyGlasses') && (
-        <g>
-          <rect
-            x="21.5"
-            y={browY + 1.6}
-            width="9.6"
-            height="7"
-            rx="2"
-            fill="none"
-            stroke={ink}
-            strokeWidth="1.5"
-          />
-          <rect
-            x="32.9"
-            y={browY + 1.6}
-            width="9.6"
-            height="7"
-            rx="2"
-            fill="none"
-            stroke={ink}
-            strokeWidth="1.5"
-          />
-          <path d={`M31.1 ${browY + 4.4} L32.9 ${browY + 4.4}`} stroke={ink} strokeWidth="1.3" />
-        </g>
-      )}
-      {spec.accessories.includes('roundGlasses') && (
-        <g>
-          <circle
-            cx="26.5"
-            cy={browY + 4.6}
-            r="4.4"
-            fill="none"
-            stroke="#C9A227"
-            strokeWidth="1.2"
-          />
-          <circle
-            cx="37.5"
-            cy={browY + 4.6}
-            r="4.4"
-            fill="none"
-            stroke="#C9A227"
-            strokeWidth="1.2"
-          />
-          <path
-            d={`M30.9 ${browY + 3.8} L33.1 ${browY + 3.8}`}
-            stroke="#C9A227"
-            strokeWidth="1.1"
-          />
-        </g>
-      )}
-      {spec.accessories.includes('coralBeads') && (
-        <g>
-          {[
-            [24, 49.5],
-            [28, 51.5],
-            [32, 52.2],
-            [36, 51.5],
-            [40, 49.5],
-          ].map(([x, y], i) => (
-            <circle
-              key={`cb-${x}`}
-              cx={x}
-              cy={y}
-              r="1.9"
-              fill={i % 2 === 0 ? '#C2452D' : '#D96B4A'}
-            />
-          ))}
-        </g>
-      )}
-      {spec.accessories.includes('earrings') && (
-        <g>
-          <circle cx="20.5" cy="33.5" r="1.6" fill="none" stroke={accent} strokeWidth="1" />
-          <circle cx="43.5" cy="33.5" r="1.6" fill="none" stroke={accent} strokeWidth="1" />
-        </g>
-      )}
-
-      {shape === 'arch' ? (
-        <path
-          d="M3 64 L3 24 Q3 3 32 3 Q61 3 61 24 L61 64"
-          fill="none"
-          stroke="rgba(255,255,255,0.07)"
-          strokeWidth="1"
-        />
-      ) : (
-        <rect
-          x="2"
-          y="2"
-          width="60"
-          height="60"
-          rx="5"
-          fill="none"
-          stroke="rgba(255,255,255,0.07)"
-          strokeWidth="1"
-        />
-      )}
+      <BustFrame shape={shape}>
+        <BustBackground shape={shape} seed={seed} palette={palette} />
+        <BustBody palette={palette} seed={seed} />
+        <BustHead palette={palette} seed={seed} />
+        <BustHair palette={palette} seed={seed} parts={parts} />
+        <BustFace palette={palette} seed={seed} parts={parts} />
+        <BustAccessories seed={seed} parts={parts} />
+      </BustFrame>
     </svg>
   )
 }

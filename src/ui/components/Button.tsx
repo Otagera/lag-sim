@@ -30,6 +30,12 @@ const BASE: CSSProperties = {
   lineHeight: 1.3,
 }
 
+function transformForVariant(v: Variant, active: boolean, hover: boolean): string {
+  if (active) return 'scale(.97)'
+  if (v === 'danger') return 'none'
+  return hover ? 'translateY(-1px)' : 'none'
+}
+
 function variantStyle(v: Variant, hover: boolean, active: boolean): CSSProperties {
   switch (v) {
     case 'primary':
@@ -37,14 +43,14 @@ function variantStyle(v: Variant, hover: boolean, active: boolean): CSSPropertie
         background: hover ? 'var(--accent-solid-hover)' : 'var(--accent-solid)',
         color: 'var(--accent-on-solid)',
         borderColor: 'transparent',
-        transform: active ? 'scale(.97)' : hover ? 'translateY(-1px)' : 'none',
+        transform: transformForVariant(v, active, hover),
       }
     case 'choice':
       return {
         background: hover ? 'var(--surface-hover)' : 'var(--surface)',
         color: 'var(--text)',
         borderColor: hover ? 'var(--border-strong)' : 'var(--border)',
-        transform: active ? 'scale(.97)' : hover ? 'translateY(-1px)' : 'none',
+        transform: transformForVariant(v, active, hover),
         textAlign: 'left',
       }
     case 'danger':
@@ -52,7 +58,7 @@ function variantStyle(v: Variant, hover: boolean, active: boolean): CSSPropertie
         background: hover ? 'var(--error-9)' : 'var(--error-3)',
         color: hover ? '#fff' : 'var(--error-11)',
         borderColor: hover ? 'var(--error-9)' : 'transparent',
-        transform: active ? 'scale(.97)' : 'none',
+        transform: transformForVariant(v, active, hover),
       }
     case 'ghost':
       return {
