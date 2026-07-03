@@ -20,7 +20,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'full-disclosure',
         label: 'Full Disclosure',
-        description: 'Release all documentation. Corruption -5, Trust +6, Civil Society +10. {NPC} relationship improves.',
+        description:
+          'Release all documentation. Corruption -5, Trust +6, Civil Society +10. {NPC} relationship improves.',
         immediate: { publicTrust: 6, corruptionPressure: -5 },
         factionImpact: { civilSocietyMedia: 10, partyGodfathers: -5 },
         npcImpact: { journalist: 18 },
@@ -28,7 +29,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'manage-narrative',
         label: 'Spin the Story',
-        description: 'Commission an "independent" review. Buys 4 weeks. Corruption +5. {NPC} escalates further.',
+        description:
+          'Commission an "independent" review. Buys 4 weeks. Corruption +5. {NPC} escalates further.',
         immediate: { corruptionPressure: 5 },
         factionImpact: { civilSocietyMedia: -6 },
         npcImpact: { journalist: -10 },
@@ -42,7 +44,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'challenge-reporting',
         label: 'Challenge the Reporting',
-        description: 'Issue legal letters threatening defamation claims. Trust -8. Civil Society -12. Buys silence for 6 weeks.',
+        description:
+          'Issue legal letters threatening defamation claims. Trust -8. Civil Society -12. Buys silence for 6 weeks.',
         immediate: { publicTrust: -8 },
         factionImpact: { civilSocietyMedia: -12, businessCommunity: -3 },
         npcImpact: { journalist: -20 },
@@ -62,7 +65,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'accept-board',
         label: 'Establish the Board',
-        description: 'Agree and announce the monitoring board. Corruption -4, {NPC} relationship +25. Godfathers unhappy.',
+        description:
+          'Agree and announce the monitoring board. Corruption -4, {NPC} relationship +25. Godfathers unhappy.',
         immediate: { corruptionPressure: -4 },
         factionImpact: { civilSocietyMedia: 12, partyGodfathers: -8 },
         npcImpact: { journalist: 25 },
@@ -70,7 +74,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'decline-truce',
         label: 'Decline',
-        description: 'Reject the offer. {NPC} escalates. Civil Society respects the transparency instinct.',
+        description:
+          'Reject the offer. {NPC} escalates. Civil Society respects the transparency instinct.',
         immediate: {},
         factionImpact: { civilSocietyMedia: 5 },
         npcImpact: { journalist: -8 },
@@ -93,7 +98,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'send-liaison',
         label: 'Send a Liaison',
-        description: 'Offer a technical briefing on youth employment numbers. Youth Tension -4. {NPC} relationship +12.',
+        description:
+          'Offer a technical briefing on youth employment numbers. Youth Tension -4. {NPC} relationship +12.',
         immediate: { youthTension: -4 },
         factionImpact: { civilSocietyMedia: 5, informalEconomy: 4 },
         npcImpact: { 'youth-organiser': 12 },
@@ -109,7 +115,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'heavy-police',
         label: 'Heavy Police Presence',
-        description: 'Deter the rally. Trust -10, Youth Tension +12. Civil Society will document everything.',
+        description:
+          'Deter the rally. Trust -10, Youth Tension +12. Civil Society will document everything.',
         immediate: { publicTrust: -10, youthTension: 12, securityIndex: 3 },
         factionImpact: { civilSocietyMedia: -15, informalEconomy: -6 },
         npcImpact: { 'youth-organiser': -20 },
@@ -129,7 +136,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'youth-employment-fund',
         label: 'Launch Youth Employment Initiative',
-        description: 'Announce a ₦10bn fund. Trust +6, Youth Tension -10, Cash -10. {NPC} loses traction.',
+        description:
+          'Announce a ₦10bn fund. Trust +6, Youth Tension -10, Cash -10. {NPC} loses traction.',
         immediate: { publicTrust: 6, youthTension: -10, cashReserve: -10 },
         factionImpact: { informalEconomy: 8, civilSocietyMedia: 6 },
         npcImpact: { 'youth-organiser': 15 },
@@ -137,7 +145,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'co-opt-demands',
         label: 'Adopt Key Demands',
-        description: 'Steal the policy agenda. PC -20, Trust +5. {NPC} cries foul but loses the narrative.',
+        description:
+          'Steal the policy agenda. PC -20, Trust +5. {NPC} cries foul but loses the narrative.',
         immediate: { publicTrust: 5, politicalCapital: -20 },
         factionImpact: { civilSocietyMedia: 5, informalEconomy: 4, partyGodfathers: -5 },
         npcImpact: { 'youth-organiser': 10 },
@@ -182,7 +191,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'absorb-quietly',
         label: 'Absorb and Move On',
-        description: 'Re-issue the approval. Project resumes. Infrastructure -2. {NPC} remains in the shadows.',
+        description:
+          'Re-issue the approval. Project resumes. Infrastructure -2. {NPC} remains in the shadows.',
         immediate: { infrastructureScore: -2 },
         factionImpact: {},
         npcImpact: { insider: 5 },
@@ -249,7 +259,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'negotiate-phased',
         label: 'Negotiate Phased Payments',
-        description: 'Agree to 3-week payment plan. Strike deferred. {NPC} +8. Cash -3 spread over 3 weeks.',
+        description:
+          'Agree to 3-week payment plan. Strike deferred. {NPC} +8. Cash -3 spread over 3 weeks.',
         immediate: { cashReserve: -3 },
         factionImpact: { informalEconomy: 2 },
         npcImpact: { 'union-leader': 8 },
@@ -288,7 +299,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'accept-deal',
         label: 'Accept the Deal',
-        description: 'Agree to wage uplift. {NPC} relationship +30. Civil Service Reform +3. Political Capital +10.',
+        description:
+          'Agree to wage uplift. {NPC} relationship +30. Civil Service Reform +3. Political Capital +10.',
         immediate: { politicalCapital: 10 },
         factionImpact: { informalEconomy: 6, lgChairmen: 4 },
         npcImpact: { 'union-leader': 30 },
@@ -324,7 +336,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'cooperate-fully',
         label: 'Full Cooperation',
-        description: 'Send AG with all documents. Federal Relationship +5. {NPC} loses the narrative. Trust +4.',
+        description:
+          'Send AG with all documents. Federal Relationship +5. {NPC} loses the narrative. Trust +4.',
         immediate: { publicTrust: 4 },
         factionImpact: { federalGovt: 5, civilSocietyMedia: 8 },
         npcImpact: { 'opposition-senator': 15 },
@@ -332,7 +345,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'deflect-legally',
         label: 'Legal Obstruction',
-        description: 'Cite constitutional separation. Federal Relationship -5. Hearing stalled for 6 weeks.',
+        description:
+          'Cite constitutional separation. Federal Relationship -5. Hearing stalled for 6 weeks.',
         immediate: {},
         factionImpact: { federalGovt: -5, partyGodfathers: 3 },
         npcImpact: { 'opposition-senator': -8 },
@@ -340,7 +354,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'federal-ally-counter',
         label: 'Call Presidential Ally',
-        description: 'Use a federal favour to shut the hearing down. Federal Relationship -8 (favour spent). Hearing collapses.',
+        description:
+          'Use a federal favour to shut the hearing down. Federal Relationship -8 (favour spent). Hearing collapses.',
         immediate: {},
         factionImpact: { federalGovt: -8, partyGodfathers: 5 },
         npcImpact: { 'opposition-senator': -12 },
@@ -360,7 +375,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'engage-bloc-senators',
         label: 'Engage the Bloc',
-        description: 'Back-channel negotiations with bloc members. PC -25. Motion is quietly shelved.',
+        description:
+          'Back-channel negotiations with bloc members. PC -25. Motion is quietly shelved.',
         immediate: { politicalCapital: -25 },
         factionImpact: { federalGovt: 5 },
         npcImpact: { 'opposition-senator': 10 },
@@ -368,7 +384,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'presidential-intervention',
         label: 'Presidential Intervention',
-        description: 'Ask Aso Rock to whip the bloc. Big favour. Federal Relationship -10. Motion killed.',
+        description:
+          'Ask Aso Rock to whip the bloc. Big favour. Federal Relationship -10. Motion killed.',
         immediate: {},
         factionImpact: { federalGovt: -10 },
         npcImpact: { 'opposition-senator': -5 },
@@ -405,7 +422,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'engage-report',
         label: 'Invite {NPC} for Dialogue',
-        description: 'Publicly acknowledge the report and invite dialogue. Civil Society +10, {NPC} relationship +20. Trust +5.',
+        description:
+          'Publicly acknowledge the report and invite dialogue. Civil Society +10, {NPC} relationship +20. Trust +5.',
         immediate: { publicTrust: 5 },
         factionImpact: { civilSocietyMedia: 10 },
         npcImpact: { 'diaspora-activist': 20 },
@@ -413,7 +431,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'dispute-report',
         label: 'Dispute the Findings',
-        description: 'Release counter-data. Civil Society -8. FDI leads re-engage. {NPC} relationship -12.',
+        description:
+          'Release counter-data. Civil Society -8. FDI leads re-engage. {NPC} relationship -12.',
         immediate: {},
         factionImpact: { civilSocietyMedia: -8, businessCommunity: 3 },
         npcImpact: { 'diaspora-activist': -12 },
@@ -433,7 +452,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'accept-consortium',
         label: 'Accept the Consortium',
-        description: 'Cash Reserve +₦15bn. {NPC} relationship +30. Godfathers see this as a threat to their contract influence.',
+        description:
+          'Cash Reserve +₦15bn. {NPC} relationship +30. Godfathers see this as a threat to their contract influence.',
         immediate: { cashReserve: 15, infrastructureScore: 3 },
         factionImpact: { partyGodfathers: -8, civilSocietyMedia: 10, businessCommunity: 5 },
         npcImpact: { 'diaspora-activist': 30 },
@@ -464,7 +484,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'halt-project',
         label: 'Halt and Renegotiate',
-        description: 'Pause the project. Infrastructure -3. {NPC} relationship +20. LG Chairmen +6.',
+        description:
+          'Pause the project. Infrastructure -3. {NPC} relationship +20. LG Chairmen +6.',
         immediate: { infrastructureScore: -3 },
         factionImpact: { lgChairmen: 6, informalEconomy: 4 },
         npcImpact: { 'oba-liaison': 20 },
@@ -472,7 +493,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'compensate-community',
         label: 'Offer Compensation',
-        description: 'Cash -5. Project proceeds. {NPC} relationship +10. Precedent set for future claims.',
+        description:
+          'Cash -5. Project proceeds. {NPC} relationship +10. Precedent set for future claims.',
         immediate: { cashReserve: -5 },
         factionImpact: { lgChairmen: 4 },
         npcImpact: { 'oba-liaison': 10 },
@@ -480,7 +502,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'proceed-anyway',
         label: 'Proceed with Project',
-        description: 'Government asserts eminent domain. {NPC} condemns publicly. LG Chairmen -10, Trust -5.',
+        description:
+          'Government asserts eminent domain. {NPC} condemns publicly. LG Chairmen -10, Trust -5.',
         immediate: { publicTrust: -5 },
         factionImpact: { lgChairmen: -10, informalEconomy: -6 },
         npcImpact: { 'oba-liaison': -20 },
@@ -500,7 +523,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'accept-endorsement',
         label: 'Accept the Deal',
-        description: 'Board seat granted. LG Chairmen +10, Informal Economy +5. {NPC} relationship +25.',
+        description:
+          'Board seat granted. LG Chairmen +10, Informal Economy +5. {NPC} relationship +25.',
         immediate: {},
         factionImpact: { lgChairmen: 10, informalEconomy: 5 },
         npcImpact: { 'oba-liaison': 25 },
@@ -573,7 +597,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'accept-ppp',
         label: 'Accept the PPP',
-        description: 'Infrastructure +8, Cash +10 (government share). {NPC} relationship +25. Godfathers see contract lock-out as threatening.',
+        description:
+          'Infrastructure +8, Cash +10 (government share). {NPC} relationship +25. Godfathers see contract lock-out as threatening.',
         immediate: { infrastructureScore: 8, cashReserve: 10 },
         factionImpact: { businessCommunity: 10, partyGodfathers: -6 },
         npcImpact: { 'business-mogul': 25 },
@@ -581,7 +606,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'counter-ppp',
         label: 'Counter-Propose Open Tender',
-        description: 'Insist on open bidding for the contracts. {NPC} may walk. Civil Society +6. Trust +4.',
+        description:
+          'Insist on open bidding for the contracts. {NPC} may walk. Civil Society +6. Trust +4.',
         immediate: { publicTrust: 4 },
         factionImpact: { civilSocietyMedia: 6, businessCommunity: -3 },
         npcImpact: { 'business-mogul': -8 },

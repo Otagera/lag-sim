@@ -2,11 +2,10 @@
 
 ## Overview
 
-The news engine generates newspaper-style articles from week-to-week state changes. Each article is published by one of six competing publications, each with its own editorial slant and small gameplay effects. Three systems work together:
+The news engine generates newspaper-style articles from week-to-week state changes. Each article is published by one of six competing publications, each with its own editorial slant and small gameplay effects. Two systems work together:
 
 1. **`evaluateNews`**: Generates articles for normal tick-by-tick play
 2. **`evaluateSkipNews`**: Generates a summary article after fast-forward/simulation
-3. **`llmNews`** (optional): Uses a web worker + local LLM to generate dynamic text (currently disabled)
 
 Both `evaluateNews` and `evaluateSkipNews` are pure functions: `(prev: GameState, next: GameState) => NewsArticle | null`.
 
@@ -77,16 +76,6 @@ Generates a recap article after fast-forward. Always returns an article (never n
 5. Trust change > 8pts → political
 6. Event count ≥ 4 → background
 7. Default: "Lagos Holds Course" → background
-
-## LLM News Generation (`src/engine/llmNews.ts`)
-
-**Currently disabled** (`LLM_ENABLED = false` in `llmNews.ts:29`).
-
-Architecture:
-- Web worker (`src/workers/llmWorker.ts`) loads at runtime
-- `buildNewsPrompt()` constructs a prompt from the NewsArticle template, week, and campaign mode flag
-- 45-second timeout
-- When enabled: potentially heavy — generates one sentence per readable article
 
 ## Publication System (`src/data/publications.ts` + `src/engine/publicationEngine.ts`)
 

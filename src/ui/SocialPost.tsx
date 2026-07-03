@@ -1,6 +1,6 @@
 import { useGameStore } from '../state/gameStore'
-import { formatGameDate } from '../utils/calendar'
 import type { NewsArticle } from '../state/types'
+import { formatGameDate } from '../utils/calendar'
 
 function formatCount(n: number): string {
   if (n >= 1000) return `${(n / 1000).toFixed(1)}K`
@@ -46,7 +46,10 @@ export function SocialPost({ article }: { article: NewsArticle }) {
   // Build tweet text: headline + hashtag
   const tweetText = `${article.headline} ${hashtag}`
 
-  const displayName = handle.replace('@', '').replace(/([A-Z])/g, ' $1').trim()
+  const displayName = handle
+    .replace('@', '')
+    .replace(/([A-Z])/g, ' $1')
+    .trim()
 
   return (
     <div
@@ -60,11 +63,24 @@ export function SocialPost({ article }: { article: NewsArticle }) {
         justifyContent: 'center',
         backdropFilter: 'blur(4px)',
       }}
-      onClick={clearNewspaperHeadline}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
+      <button
+        type="button"
+        aria-label="Close social post"
+        onClick={clearNewspaperHeadline}
         style={{
+          position: 'absolute',
+          inset: 0,
+          cursor: 'pointer',
+          border: 'none',
+          padding: 0,
+          background: 'transparent',
+        }}
+      />
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
           width: 520,
           maxWidth: 'calc(100vw - 32px)',
           borderRadius: 16,
@@ -143,7 +159,14 @@ export function SocialPost({ article }: { article: NewsArticle }) {
                 }}
               >
                 {displayName}
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#1da1f2" style={{ flexShrink: 0 }}>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="#1da1f2"
+                  style={{ flexShrink: 0 }}
+                >
+                  <title>Verified</title>
                   <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91-1.01-1-2.52-1.27-3.91-.81-.67-1.31-1.9-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.19-3.92.81-1 1.01-1.27 2.52-.8 3.91C3.38 9.33 2.5 10.57 2.5 12s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91 1.01 1 2.52 1.27 3.91.81.67 1.31 1.9 2.19 3.34 2.19s2.67-.88 3.33-2.19c1.4.46 2.91.19 3.92-.81 1-1.01 1.27-2.52.8-3.91 1.31-.67 2.19-1.9 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z" />
                 </svg>
               </div>
@@ -165,13 +188,18 @@ export function SocialPost({ article }: { article: NewsArticle }) {
               margin: '0 0 12px',
             }}
           >
-            {tweetText.split(/(#\w+)/g).map((part, i) =>
-              part.startsWith('#') ? (
-                <span key={i} style={{ color: '#1da1f2' }}>{part}</span>
-              ) : (
-                <span key={i}>{part}</span>
-              ),
-            )}
+            {tweetText
+              .split(/(#\w+)/g)
+              .map((part, index) => ({ id: `${part}-${index}`, part }))
+              .map((entry) =>
+                entry.part.startsWith('#') ? (
+                  <span key={entry.id} style={{ color: '#1da1f2' }}>
+                    {entry.part}
+                  </span>
+                ) : (
+                  <span key={entry.id}>{entry.part}</span>
+                ),
+              )}
           </p>
 
           {/* Deck / body */}
@@ -227,9 +255,7 @@ export function SocialPost({ article }: { article: NewsArticle }) {
             justifyContent: 'space-between',
           }}
         >
-          <div style={{ fontSize: 12, color: 'rgba(231,233,234,0.4)' }}>
-            {formatGameDate(week)}
-          </div>
+          <div style={{ fontSize: 12, color: 'rgba(231,233,234,0.4)' }}>{formatGameDate(week)}</div>
           <div style={{ fontSize: 12, color: 'rgba(231,233,234,0.4)' }}>
             Public Trust&nbsp;
             <span
@@ -239,13 +265,21 @@ export function SocialPost({ article }: { article: NewsArticle }) {
               }}
             >
               {trust.toFixed(0)}%{' '}
-              {trustDelta !== 0 && (trustDelta > 0 ? `+${trustDelta.toFixed(0)}` : trustDelta.toFixed(0))}
+              {trustDelta !== 0 &&
+                (trustDelta > 0 ? `+${trustDelta.toFixed(0)}` : trustDelta.toFixed(0))}
             </span>
           </div>
         </div>
 
         {/* CTA */}
-        <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+        <div
+          style={{
+            padding: '12px 16px',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            borderTop: '1px solid rgba(255,255,255,0.07)',
+          }}
+        >
           <button
             type="button"
             onClick={clearNewspaperHeadline}

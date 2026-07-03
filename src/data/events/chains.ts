@@ -27,7 +27,8 @@ export const chainEvents: EventCard[] = [
           weekOffset: 8,
           delta: { publicTrust: 5 },
           factionImpact: { civilSocietyMedia: 5 },
-          eventText: 'The labour court judge read the ruling without looking up. "No prima facie case," she said. The union\'s lawyers are already filing an appeal. But for today, the purge stands.',
+          eventText:
+            'The labour court judge read the ruling without looking up. "No prima facie case," she said. The union\'s lawyers are already filing an appeal. But for today, the purge stands.',
         },
       },
       {
@@ -57,8 +58,7 @@ export const chainEvents: EventCard[] = [
     body: `Three months into the phased ghost worker removal, civil service unions have declared a work-to-rule. No overtime, no weekend shifts. LASTMA, LAWMA and LASBCA are operating at half capacity. Infrastructure Score is eroding quietly, and the city is starting to notice.`,
     severity: 'medium',
     category: 'political',
-    triggerCondition: (s) =>
-      s.stateFlags['ghost-purge-quiet'] === true && s.week >= 20,
+    triggerCondition: (s) => s.stateFlags['ghost-purge-quiet'] === true && s.week >= 20,
     choices: [
       {
         id: 'accelerate-reform',
@@ -70,7 +70,8 @@ export const chainEvents: EventCard[] = [
         delayed: {
           weekOffset: 8,
           delta: { cashReserve: 0.64 },
-          eventText: 'Ghost worker removal is complete. Monthly savings of ₦640m are now fully realised.',
+          eventText:
+            'Ghost worker removal is complete. Monthly savings of ₦640m are now fully realised.',
         },
       },
       {
@@ -92,8 +93,7 @@ export const chainEvents: EventCard[] = [
     body: `An investigative report in The Punch has traced ₦4.2bn in overbilled road contracts directly to Fashemu Engineering Ltd. Your Commissioner for Works — Fashemu's man — signed every approval. The commissioner is your cabinet, but his loyalties were never in question.`,
     severity: 'high',
     category: 'political',
-    triggerCondition: (s) =>
-      s.stateFlags['commissioner-works-godfather'] === true && s.week >= 30,
+    triggerCondition: (s) => s.stateFlags['commissioner-works-godfather'] === true && s.week >= 30,
     choices: [
       {
         id: 'suspend-commissioner',
@@ -127,7 +127,7 @@ export const chainEvents: EventCard[] = [
 
   {
     id: 'makoko-land-grab-exposed',
-    title: 'Makoko Land: The Party\'s Stake',
+    title: "Makoko Land: The Party's Stake",
     body: `A Premium Times investigation has mapped title documents for the cleared Makoko waterfront. Multiple plots have been transferred to shell companies linked to your party's financing structure. You approved the demolition. Your fingerprints are adjacent to this.`,
     severity: 'critical',
     category: 'political',
@@ -163,7 +163,8 @@ export const chainEvents: EventCard[] = [
           weekOffset: 10,
           delta: { publicTrust: 12 },
           factionImpact: { civilSocietyMedia: 8 },
-          eventText: 'The inquiry named three party financiers as beneficiaries of the land reallocation. All three are contributors to your campaign. The report is public. The names are in print. The party chairman wants to know "what you intend to do about it."',
+          eventText:
+            'The inquiry named three party financiers as beneficiaries of the land reallocation. All three are contributors to your campaign. The report is public. The names are in print. The party chairman wants to know "what you intend to do about it."',
         },
       },
     ],

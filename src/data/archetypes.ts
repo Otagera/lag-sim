@@ -1,6 +1,6 @@
 import type { GameState } from '../state/types'
-import { generateNPCName, pickThreeNPCArchetypes } from './npcs'
 import { pickThreeDeputies } from './deputies'
+import { generateNPCName, pickThreeNPCArchetypes } from './npcs'
 import { STARTING_STATE } from './startingState'
 
 export type ArchetypeKey = 'technocrat' | 'loyalist' | 'outsider'
@@ -96,9 +96,27 @@ export function getArchetypeState(key: ArchetypeKey): GameState {
   // Randomly assign 3 NPC archetypes with names
   const [a1, a2, a3] = pickThreeNPCArchetypes()
   base.activeNPCs = {
-    npc1: { isActive: false, relationship: 0, pressure: 0, archetypeKey: a1, name: generateNPCName(a1) },
-    npc2: { isActive: false, relationship: 0, pressure: 0, archetypeKey: a2, name: generateNPCName(a2) },
-    npc3: { isActive: false, relationship: 0, pressure: 0, archetypeKey: a3, name: generateNPCName(a3) },
+    npc1: {
+      isActive: false,
+      relationship: 0,
+      pressure: 0,
+      archetypeKey: a1,
+      name: generateNPCName(a1),
+    },
+    npc2: {
+      isActive: false,
+      relationship: 0,
+      pressure: 0,
+      archetypeKey: a2,
+      name: generateNPCName(a2),
+    },
+    npc3: {
+      isActive: false,
+      relationship: 0,
+      pressure: 0,
+      archetypeKey: a3,
+      name: generateNPCName(a3),
+    },
   }
 
   // Randomly offer 3 deputy types to choose from

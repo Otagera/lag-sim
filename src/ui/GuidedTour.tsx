@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react'
 import { driver } from 'driver.js'
-import { hasSeenTour, markTourSeen } from '../state/persistence'
+import { useEffect, useRef } from 'react'
 import { ONBOARDING_TOUR_STEPS } from '../data/onboardingTour'
+import { hasSeenTour, markTourSeen } from '../state/persistence'
 
 export function GuidedTour() {
   const firedRef = useRef(false)

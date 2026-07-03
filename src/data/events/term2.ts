@@ -6,7 +6,6 @@ import type { EventCard } from '../../state/types'
 // government that knows its days are numbered.
 
 export const term2Events: EventCard[] = [
-
   // ─── Phase 1: Inheritance Crisis (weeks 210–220) ──────────────────────────
 
   {
@@ -21,7 +20,8 @@ export const term2Events: EventCard[] = [
       {
         id: 'fund-via-island-land-grab',
         label: 'Seize and Monetize Marshlands',
-        description: 'Invoke the Land Use Act to seize peripheral wetlands near Lekki, selling them to elite party financiers to raise the ₦25bn equity. Spikes cash reserves but triggers deep civil media hostility.',
+        description:
+          'Invoke the Land Use Act to seize peripheral wetlands near Lekki, selling them to elite party financiers to raise the ₦25bn equity. Spikes cash reserves but triggers deep civil media hostility.',
         immediate: { cashReserve: 25.0, publicTrust: -8, corruptionPressure: 5 },
         factionImpact: { partyGodfathers: 15, businessCommunity: 12, civilSocietyMedia: -18 },
         constituencyImpact: { ibejuLekki: -10, ikorodu: -12 },
@@ -29,26 +29,30 @@ export const term2Events: EventCard[] = [
         delayed: {
           weekOffset: 12,
           delta: { infrastructureScore: 15 },
-          eventText: 'Piling has begun on the Fourth Mainland Bridge. The infrastructure scorecard surges. Outside Alausa, the families displaced from the claimed land have set up a protest camp. Your security chief calls it \'a nuisance.\' The Channels TV reporter calls it \'a human cost.\'',
+          eventText:
+            "Piling has begun on the Fourth Mainland Bridge. The infrastructure scorecard surges. Outside Alausa, the families displaced from the claimed land have set up a protest camp. Your security chief calls it 'a nuisance.' The Channels TV reporter calls it 'a human cost.'",
         },
       },
       {
         id: 'shelve-bridge-legacy',
         label: 'Shelve the Project',
-        description: 'Formally cancel the bridge contract due to fiscal reality. Saves funds and protects informal settlements, but elite business confidence crashes.',
+        description:
+          'Formally cancel the bridge contract due to fiscal reality. Saves funds and protects informal settlements, but elite business confidence crashes.',
         immediate: { politicalCapital: 10, publicTrust: 5 },
         factionImpact: { businessCommunity: -15, civilSocietyMedia: 10, informalEconomy: 12 },
       },
       {
         id: 'bridge-sukuk-bond',
         label: 'Float an Infrastructure Sukuk Bond',
-        description: 'Issue a ₦20bn Islamic infrastructure bond targeting Gulf investors and Lagos diaspora. Slower but fiscally cleaner. DebtStock +10. Infrastructure +8 on completion in 8 weeks.',
+        description:
+          'Issue a ₦20bn Islamic infrastructure bond targeting Gulf investors and Lagos diaspora. Slower but fiscally cleaner. DebtStock +10. Infrastructure +8 on completion in 8 weeks.',
         immediate: { debtStock: 10 },
         factionImpact: { businessCommunity: 8, civilSocietyMedia: 5 },
         delayed: {
           weekOffset: 8,
           delta: { infrastructureScore: 8, cashReserve: 18.0 },
-          eventText: 'The sukuk closed at N20bn — fully subscribed within 48 hours. The Lagos financial community is calling it \'a vote of confidence.\' Your Finance Minister calls it \'expensive money.\' The ground-breaking is scheduled for next month. The real digging starts when the cameras leave.',
+          eventText:
+            "The sukuk closed at N20bn — fully subscribed within 48 hours. The Lagos financial community is calling it 'a vote of confidence.' Your Finance Minister calls it 'expensive money.' The ground-breaking is scheduled for next month. The real digging starts when the cameras leave.",
         },
       },
     ],
@@ -66,33 +70,38 @@ export const term2Events: EventCard[] = [
       {
         id: 'capitulate-to-abuja',
         label: 'Sign Federal Port Concession',
-        description: 'Surrender state revenue collecting rights along the Apapa port corridors to federal agencies to restore the FAAC flow. Restores federal relations but permanently cripples weekly state IGR.',
+        description:
+          'Surrender state revenue collecting rights along the Apapa port corridors to federal agencies to restore the FAAC flow. Restores federal relations but permanently cripples weekly state IGR.',
         immediate: { federalRelationship: 25, igr: -3.5 },
         factionImpact: { federalGovt: 15, businessCommunity: -8, informalEconomy: -5 },
       },
       {
         id: 'retaliate-locally',
         label: 'Lock Down Federal Assets',
-        description: 'Deploy the Lagos Task Force to seal federal ministry buildings across Ikoyi and Lagos Island for violating state environmental sanitation regulations. Spikes public trust but federal relations plummet.',
+        description:
+          'Deploy the Lagos Task Force to seal federal ministry buildings across Ikoyi and Lagos Island for violating state environmental sanitation regulations. Spikes public trust but federal relations plummet.',
         immediate: { federalRelationship: -20, publicTrust: 8, politicalCapital: 5 },
         factionImpact: { federalGovt: -25, civilSocietyMedia: 6 },
         constituencyImpact: { lagosIsland: 10, etiOsa: 8 },
         delayed: {
           weekOffset: 5,
           delta: { securityIndex: -10 },
-          eventText: 'Federal police units have been deployed to break the state lockdowns in Ikoyi, leading to an armed jurisdictional standoff on the streets.',
+          eventText:
+            'Federal police units have been deployed to break the state lockdowns in Ikoyi, leading to an armed jurisdictional standoff on the streets.',
         },
       },
       {
         id: 'abuja-diplomatic-back-channel',
         label: 'Engage Through Southwest Governors Forum',
-        description: 'Ask the Southwest Governors Forum to broker a settlement. Slower resolution but preserves dignity and port revenues. Federal Relationship +10. Political Capital -15.',
+        description:
+          'Ask the Southwest Governors Forum to broker a settlement. Slower resolution but preserves dignity and port revenues. Federal Relationship +10. Political Capital -15.',
         immediate: { politicalCapital: -15, federalRelationship: 10 },
         factionImpact: { federalGovt: 8, partyGodfathers: 5 },
         delayed: {
           weekOffset: 4,
           delta: { cashReserve: 8.0 },
-          eventText: 'The Southwest Governors Forum has brokered a FAAC release. Abuja quietly backs down in exchange for a joint port efficiency committee.',
+          eventText:
+            'The Southwest Governors Forum has brokered a FAAC release. Abuja quietly backs down in exchange for a joint port efficiency committee.',
         },
       },
     ],
@@ -110,20 +119,23 @@ export const term2Events: EventCard[] = [
       {
         id: 'total-military-clearance',
         label: 'Order Armed Task Force Purge',
-        description: 'Deploy armored task force units to physically dismantle the illegal toll plazas. Restores logistics flow but triggers an immediate total transit strike across the mainland.',
+        description:
+          'Deploy armored task force units to physically dismantle the illegal toll plazas. Restores logistics flow but triggers an immediate total transit strike across the mainland.',
         immediate: { securityIndex: 8, youthTension: 15, infrastructureScore: 4 },
         factionImpact: { informalEconomy: -25, businessCommunity: 10, civilSocietyMedia: 5 },
         constituencyImpact: { oshodiIsolo: -15, surulere: -10 },
         delayed: {
           weekOffset: 2,
           delta: { igr: -2.5 },
-          eventText: 'The union\'s retaliatory wildcat transport strike has completely paralyzed mainland commercial distribution networks.',
+          eventText:
+            "The union's retaliatory wildcat transport strike has completely paralyzed mainland commercial distribution networks.",
         },
       },
       {
         id: 'absorb-union-into-machinery',
         label: 'Formalize Union Toll Shares',
-        description: 'Convert the illegal toll barriers into official "State Transport Development Points", splitting cash collections with union godfathers. Massive corruption pressure surge.',
+        description:
+          'Convert the illegal toll barriers into official "State Transport Development Points", splitting cash collections with union godfathers. Massive corruption pressure surge.',
         immediate: { igr: 1.5 },
         factionImpact: { informalEconomy: 15, partyGodfathers: 12, businessCommunity: -12 },
         corruptionTrigger: true,
@@ -131,7 +143,8 @@ export const term2Events: EventCard[] = [
       {
         id: 'negotiate-union-disbandment',
         label: 'Negotiate Disbandment in Exchange for Welfare Fund',
-        description: 'Offer union leadership a structured ₦500M annual welfare fund in exchange for removing the barriers. Moderate outcome — union complies partially.',
+        description:
+          'Offer union leadership a structured ₦500M annual welfare fund in exchange for removing the barriers. Moderate outcome — union complies partially.',
         immediate: { cashReserve: -0.5, politicalCapital: -10 },
         factionImpact: { informalEconomy: 5, businessCommunity: 5, civilSocietyMedia: 3 },
         constituencyImpact: { oshodiIsolo: 5, surulere: 5 },
@@ -151,19 +164,22 @@ export const term2Events: EventCard[] = [
       {
         id: 'purge-the-cabinet',
         label: 'Sack the Commissioner',
-        description: 'Publicly dismiss the corrupt commissioner. Civil society applauds but his grassroot sponsors launch an immediate retaliatory strike inside the House of Assembly.',
+        description:
+          'Publicly dismiss the corrupt commissioner. Civil society applauds but his grassroot sponsors launch an immediate retaliatory strike inside the House of Assembly.',
         immediate: { politicalCapital: -15, publicTrust: 8, corruptionPressure: -6 },
         factionImpact: { civilSocietyMedia: 14, partyGodfathers: -15, lgChairmen: -10 },
         delayed: {
           weekOffset: 4,
           delta: { politicalCapital: -10 },
-          eventText: 'The sacked commissioner\'s loyalists inside the Assembly successfully blocked your supplementary capital expenditure bill in revenge.',
+          eventText:
+            "The sacked commissioner's loyalists inside the Assembly successfully blocked your supplementary capital expenditure bill in revenge.",
         },
       },
       {
         id: 'extract-campaign-tribute',
         label: 'Extract Party Tribute',
-        description: 'Turn a blind eye to the approvals on the condition that 30% of the campaign funds are routed back to stabilize state party operations. Triggers high systemic corruption pressure.',
+        description:
+          'Turn a blind eye to the approvals on the condition that 30% of the campaign funds are routed back to stabilize state party operations. Triggers high systemic corruption pressure.',
         immediate: { politicalCapital: 12 },
         factionImpact: { partyGodfathers: 10, civilSocietyMedia: -12 },
         corruptionTrigger: true,
@@ -171,7 +187,8 @@ export const term2Events: EventCard[] = [
       {
         id: 'reassign-commissioner-quietly',
         label: 'Quietly Reassign to a Toothless Portfolio',
-        description: 'Move him to the Ministry of Tourism with no budget. The looting stops but the message is weakness. Corruption pressure reduces slightly. Civil society unimpressed.',
+        description:
+          'Move him to the Ministry of Tourism with no budget. The looting stops but the message is weakness. Corruption pressure reduces slightly. Civil society unimpressed.',
         immediate: { corruptionPressure: -3, politicalCapital: -5 },
         factionImpact: { partyGodfathers: 5, civilSocietyMedia: -5 },
       },
@@ -191,19 +208,22 @@ export const term2Events: EventCard[] = [
       {
         id: 'enforce-alausa-haircut',
         label: 'Slash Ministry Subventions by 40%',
-        description: 'Enforce a brutal 40% funding cut across all non-essential government ministries to settle the bank interest. Stabilizes credit metrics but civil operations grind to a halt.',
+        description:
+          'Enforce a brutal 40% funding cut across all non-essential government ministries to settle the bank interest. Stabilizes credit metrics but civil operations grind to a halt.',
         immediate: { expenditure: -6.0, publicTrust: -10, infrastructureScore: -5 },
         factionImpact: { lgChairmen: -15, businessCommunity: 5, civilSocietyMedia: -8 },
         delayed: {
           weekOffset: 3,
           delta: { cashReserve: 10.0 },
-          eventText: 'The banks blinked. The accounts are unfrozen. The price: the state\'s credit rating has been downgraded by two notches. Future borrowing will cost more. But the civil servants got paid this month. You tell yourself that was the right choice.',
+          eventText:
+            "The banks blinked. The accounts are unfrozen. The price: the state's credit rating has been downgraded by two notches. Future borrowing will cost more. But the civil servants got paid this month. You tell yourself that was the right choice.",
         },
       },
       {
         id: 'monetize-sovereign-bonds',
         label: 'Issue High-Yield State Bonds at 45%',
-        description: 'Circumvent the freeze by floating predatory state bonds guaranteed by future Lagos Island and Lekki Land Use yields. Increases systemic debt stock massively.',
+        description:
+          'Circumvent the freeze by floating predatory state bonds guaranteed by future Lagos Island and Lekki Land Use yields. Increases systemic debt stock massively.',
         immediate: { cashReserve: 15.0, debtStock: 15.0 },
         factionImpact: { businessCommunity: 10, partyGodfathers: 5, civilSocietyMedia: -6 },
         corruptionTrigger: true,
@@ -211,7 +231,8 @@ export const term2Events: EventCard[] = [
       {
         id: 'igr-emergency-levy',
         label: 'Emergency Business Premises Surcharge',
-        description: 'Impose a one-time 15% surcharge on all business premises across Lagos. Business community furious but cash flows. IGR +2. Business Community -15. Trust -5.',
+        description:
+          'Impose a one-time 15% surcharge on all business premises across Lagos. Business community furious but cash flows. IGR +2. Business Community -15. Trust -5.',
         immediate: { igr: 2.0, publicTrust: -5, corruptionPressure: 3 },
         factionImpact: { businessCommunity: -15, civilSocietyMedia: -6, informalEconomy: -8 },
       },
@@ -230,19 +251,22 @@ export const term2Events: EventCard[] = [
       {
         id: 'enforce-compulsory-retirement',
         label: 'Enforce Mandatory Mass Retirement',
-        description: 'Compulsorily retire the top three tiers of striking ministry directors. Restores executive command but spikes direct pension payouts, draining cash reserves.',
+        description:
+          'Compulsorily retire the top three tiers of striking ministry directors. Restores executive command but spikes direct pension payouts, draining cash reserves.',
         immediate: { cashReserve: -5.0, politicalCapital: -10 },
         factionImpact: { lgChairmen: -8, civilSocietyMedia: 5 },
         delayed: {
           weekOffset: 6,
           delta: { capitalEfficiency: 1.5 },
-          eventText: 'The administrative blockage clears. A younger tier of bureaucrats takes command, improving capital project execution efficiency.',
+          eventText:
+            'The administrative blockage clears. A younger tier of bureaucrats takes command, improving capital project execution efficiency.',
         },
       },
       {
         id: 'bribe-bureaucracy-heads',
         label: 'Distribute Welfare Allocations',
-        description: 'Quietly disburse supplementary luxury vehicle allowances and overseas training allocations to the civil service leadership. Escalates corruption pressure.',
+        description:
+          'Quietly disburse supplementary luxury vehicle allowances and overseas training allocations to the civil service leadership. Escalates corruption pressure.',
         immediate: {},
         factionImpact: { partyGodfathers: 6, lgChairmen: 5 },
         corruptionTrigger: true,
@@ -250,7 +274,8 @@ export const term2Events: EventCard[] = [
       {
         id: 'digitise-procurement',
         label: 'Deploy Emergency Digital Procurement Portal',
-        description: 'Bypass the human bottleneck entirely with a rapid e-procurement deployment. Cash -1.5. Removes go-slow but civil service unions protest the digitisation.',
+        description:
+          'Bypass the human bottleneck entirely with a rapid e-procurement deployment. Cash -1.5. Removes go-slow but civil service unions protest the digitisation.',
         immediate: { cashReserve: -1.5, politicalCapital: -8 },
         factionImpact: { businessCommunity: 10, civilSocietyMedia: 6, lgChairmen: -10 },
       },
@@ -273,7 +298,8 @@ He controls the party secretariat and has three of your commissioners openly cam
       {
         id: 'endorse-rival-deputy',
         label: 'Endorse Him — Negotiate Terms',
-        description: 'Publicly back your deputy in exchange for a guaranteed cabinet role for your preferred finance technocrat. Partygodfathers +10. Trust -5 (looks weak).',
+        description:
+          'Publicly back your deputy in exchange for a guaranteed cabinet role for your preferred finance technocrat. Partygodfathers +10. Trust -5 (looks weak).',
         immediate: { publicTrust: -5, politicalCapital: 15 },
         factionImpact: { partyGodfathers: 10, civilSocietyMedia: -5 },
         setFlags: { 'deputy-endorsed': true },
@@ -281,7 +307,8 @@ He controls the party secretariat and has three of your commissioners openly cam
       {
         id: 'back-rival-candidate',
         label: 'Back a Different Candidate',
-        description: 'Identify a technocrat aligned with your reform agenda and throw your full weight behind them. Deputy Governor becomes hostile. Political Capital -25 but legacy protected.',
+        description:
+          'Identify a technocrat aligned with your reform agenda and throw your full weight behind them. Deputy Governor becomes hostile. Political Capital -25 but legacy protected.',
         immediate: { politicalCapital: -25 },
         factionImpact: { partyGodfathers: -15, civilSocietyMedia: 8, businessCommunity: 5 },
         setFlags: { 'deputy-hostile': true },
@@ -289,7 +316,8 @@ He controls the party secretariat and has three of your commissioners openly cam
       {
         id: 'stay-neutral-successor',
         label: 'Announce Studied Neutrality',
-        description: 'Publicly declare you will not interfere in the primary. Buys goodwill from civil society but signals weakness to all factions. Both sides stop briefing you on sensitive decisions.',
+        description:
+          'Publicly declare you will not interfere in the primary. Buys goodwill from civil society but signals weakness to all factions. Both sides stop briefing you on sensitive decisions.',
         immediate: { politicalCapital: -10, publicTrust: 6 },
         factionImpact: { civilSocietyMedia: 10, partyGodfathers: -5, lgChairmen: -5 },
       },
@@ -308,26 +336,30 @@ He controls the party secretariat and has three of your commissioners openly cam
       {
         id: 'emergency-it-rebuild',
         label: 'Emergency System Rebuild — International Vendor',
-        description: 'Contract a foreign cybersecurity firm for an emergency rebuild. Cash -4. Takes 6 weeks. Partial IGR restoration after (68% collection restored; some businesses switch to cash-avoidance habits). Business community reassured.',
+        description:
+          'Contract a foreign cybersecurity firm for an emergency rebuild. Cash -4. Takes 6 weeks. Partial IGR restoration after (68% collection restored; some businesses switch to cash-avoidance habits). Business community reassured.',
         immediate: { cashReserve: -4.0, igr: -2.0 },
         factionImpact: { businessCommunity: 5, civilSocietyMedia: 3 },
         delayed: {
           weekOffset: 6,
           delta: { igr: 2.0 },
-          eventText: 'The LIRS system is back online. The international contractor charged emergency rates. Revenue collection has returned to 87% of pre-outage levels — the remaining 13% discovered the joys of cash transactions during the blackout and are reluctant to come back.',
+          eventText:
+            'The LIRS system is back online. The international contractor charged emergency rates. Revenue collection has returned to 87% of pre-outage levels — the remaining 13% discovered the joys of cash transactions during the blackout and are reluctant to come back.',
         },
       },
       {
         id: 'return-to-manual-collection',
         label: 'Emergency Return to Manual Collection',
-        description: 'Deploy LIRS field officers across all LGAs for manual assessment and collection. Slow but immediate. Corruption pressure spikes as officers handle cash. IGR partially restored.',
+        description:
+          'Deploy LIRS field officers across all LGAs for manual assessment and collection. Slow but immediate. Corruption pressure spikes as officers handle cash. IGR partially restored.',
         immediate: { igr: -2.5, corruptionPressure: 8, publicTrust: -3 },
         factionImpact: { civilSocietyMedia: -5, informalEconomy: -8 },
       },
       {
         id: 'waive-penalty-period',
         label: 'Declare a 60-Day Tax Amnesty Period',
-        description: 'Waive penalties to maintain taxpayer goodwill during the outage. Trust +6. Business community relieved. IGR loss extended but controlled.',
+        description:
+          'Waive penalties to maintain taxpayer goodwill during the outage. Trust +6. Business community relieved. IGR loss extended but controlled.',
         immediate: { publicTrust: 6, igr: -3.0 },
         factionImpact: { businessCommunity: 12, civilSocietyMedia: 6 },
       },
@@ -348,7 +380,8 @@ He controls the party secretariat and has three of your commissioners openly cam
       {
         id: 'meet-asuu-full-demands',
         label: 'Meet All ASUU Demands in Full',
-        description: 'Pay arrears, fund research grants, and replace the VC. Cash -3.5. Strike ends in 72 hours. Youth Tension -8. Civil society applauds. Trust +6.',
+        description:
+          'Pay arrears, fund research grants, and replace the VC. Cash -3.5. Strike ends in 72 hours. Youth Tension -8. Civil society applauds. Trust +6.',
         immediate: { cashReserve: -3.5, publicTrust: 6, youthTension: -8 },
         factionImpact: { civilSocietyMedia: 10, informalEconomy: 5 },
         constituencyImpact: { alimosho: 6, ikorodu: 5 },
@@ -356,20 +389,23 @@ He controls the party secretariat and has three of your commissioners openly cam
       {
         id: 'partial-asuu-settlement',
         label: 'Settle Allowances Only — Defend the VC',
-        description: 'Pay arrears but refuse to remove the VC. Strike continues but loses momentum. Trust +2. Youth Tension -3. ASUU files suit.',
+        description:
+          'Pay arrears but refuse to remove the VC. Strike continues but loses momentum. Trust +2. Youth Tension -3. ASUU files suit.',
         immediate: { cashReserve: -1.5, publicTrust: 2, youthTension: -3 },
         factionImpact: { civilSocietyMedia: -3, partyGodfathers: 5 },
       },
       {
         id: 'blame-federal-asuu',
         label: 'Attribute Strike to National ASUU Agenda',
-        description: 'Frame the shutdown as a federal dispute being weaponized locally. Trust -5. Youth Tension +10. Buys 6 weeks before students take to the streets.',
+        description:
+          'Frame the shutdown as a federal dispute being weaponized locally. Trust -5. Youth Tension +10. Buys 6 weeks before students take to the streets.',
         immediate: { publicTrust: -5, youthTension: 10 },
         factionImpact: { civilSocietyMedia: -8, informalEconomy: -5 },
         delayed: {
           weekOffset: 6,
           delta: { youthTension: 10, securityIndex: -5 },
-          eventText: 'LASU students have marched on Alausa after six weeks of shutdown. Three vehicles were set on fire at the government house gate.',
+          eventText:
+            'LASU students have marched on Alausa after six weeks of shutdown. Three vehicles were set on fire at the government house gate.',
         },
       },
     ],
@@ -387,26 +423,30 @@ He controls the party secretariat and has three of your commissioners openly cam
       {
         id: 'move-to-remove-speaker',
         label: 'Move to Recall the Speaker',
-        description: 'Mobilise your remaining assembly loyalists to recall the Speaker. Partygodfathers -20. If successful: Civil Society +6. Risk: fails if you have fewer than 20 loyal members.',
+        description:
+          'Mobilise your remaining assembly loyalists to recall the Speaker. Partygodfathers -20. If successful: Civil Society +6. Risk: fails if you have fewer than 20 loyal members.',
         immediate: { politicalCapital: -30 },
         factionImpact: { partyGodfathers: -20, civilSocietyMedia: 6 },
         delayed: {
           weekOffset: 2,
           delta: { politicalCapital: 15 },
-          eventText: 'The recall motion succeeded by two votes. A loyalist Speaker is installed but the rift is now permanent.',
+          eventText:
+            'The recall motion succeeded by two votes. A loyalist Speaker is installed but the rift is now permanent.',
         },
       },
       {
         id: 'negotiate-with-new-speaker',
         label: 'Negotiate a Legislative Agenda Compact',
-        description: 'Accept reality and negotiate a limited compact: your seven priority bills pass in exchange for releasing three capital project contracts to his constituency. Corruption +3.',
+        description:
+          'Accept reality and negotiate a limited compact: your seven priority bills pass in exchange for releasing three capital project contracts to his constituency. Corruption +3.',
         immediate: { politicalCapital: 10, cashReserve: -2.0, corruptionPressure: 3 },
         factionImpact: { partyGodfathers: 5, civilSocietyMedia: -5 },
       },
       {
         id: 'bypass-assembly-executive-orders',
         label: 'Bypass Assembly via Executive Orders',
-        description: 'Govern by executive instrument. Civil society tolerates it; business community applauds speed; Assembly threatens contempt proceedings.',
+        description:
+          'Govern by executive instrument. Civil society tolerates it; business community applauds speed; Assembly threatens contempt proceedings.',
         immediate: { politicalCapital: -15, infrastructureScore: 3 },
         factionImpact: { businessCommunity: 8, civilSocietyMedia: 5, partyGodfathers: -8 },
       },
@@ -425,7 +465,8 @@ He controls the party secretariat and has three of your commissioners openly cam
       {
         id: 'joint-force-deployment-ikoyi',
         label: 'Deploy Joint Intelligence Task Force',
-        description: 'Full multi-agency deployment: DSS, Army Intelligence, and EFCC financial tracking. Cash -2.5. Security Index +12. Business community confidence restored.',
+        description:
+          'Full multi-agency deployment: DSS, Army Intelligence, and EFCC financial tracking. Cash -2.5. Security Index +12. Business community confidence restored.',
         immediate: { cashReserve: -2.5, securityIndex: 12 },
         factionImpact: { businessCommunity: 15, civilSocietyMedia: 6, federalGovt: 5 },
         constituencyImpact: { etiOsa: 10, ibejuLekki: 8 },
@@ -433,7 +474,8 @@ He controls the party secretariat and has three of your commissioners openly cam
       {
         id: 'private-security-mandate',
         label: 'Mandate Private Security Zones',
-        description: 'Formally allow gated community policing by licensed private firms. Fast but deepens inequality — visible enforcement only for the wealthy.',
+        description:
+          'Formally allow gated community policing by licensed private firms. Fast but deepens inequality — visible enforcement only for the wealthy.',
         immediate: { securityIndex: 5, publicTrust: -4 },
         factionImpact: { businessCommunity: 10, civilSocietyMedia: -8, informalEconomy: -5 },
         constituencyImpact: { etiOsa: 8, ibejuLekki: 6, ikorodu: -5 },
@@ -441,7 +483,8 @@ He controls the party secretariat and has three of your commissioners openly cam
       {
         id: 'community-intelligence-network',
         label: 'Fund Community Intelligence Networks',
-        description: 'Invest ₦800M in community-based early warning systems in at-risk areas. Slower but builds lasting trust. Security Index +6. Periphery communities included.',
+        description:
+          'Invest ₦800M in community-based early warning systems in at-risk areas. Slower but builds lasting trust. Security Index +6. Periphery communities included.',
         immediate: { cashReserve: -0.8, securityIndex: 6 },
         factionImpact: { informalEconomy: 8, civilSocietyMedia: 10 },
         constituencyImpact: { ikorodu: 6, alimosho: 4, lagosMainland: 5 },
@@ -461,26 +504,30 @@ He controls the party secretariat and has three of your commissioners openly cam
       {
         id: 'accelerate-infrastructure-delivery',
         label: 'Declare Emergency Infrastructure Delivery Month',
-        description: 'Release held infrastructure projects simultaneously to shift narrative. Infrastructure +8. Cash -5. Corruption +3 (rushed procurement). Civil society questions timing.',
+        description:
+          'Release held infrastructure projects simultaneously to shift narrative. Infrastructure +8. Cash -5. Corruption +3 (rushed procurement). Civil society questions timing.',
         immediate: { cashReserve: -5.0, infrastructureScore: 8, corruptionPressure: 3 },
         factionImpact: { businessCommunity: 8, civilSocietyMedia: -5, lgChairmen: 6 },
       },
       {
         id: 'expose-coalition-contradictions',
         label: 'Commission a Political Research Team to Expose Coalition Fractures',
-        description: 'Fund a rapid opposition research operation. Find and amplify ideological contradictions between the coalition partners. PC -20. Buys 8 weeks before they consolidate.',
+        description:
+          'Fund a rapid opposition research operation. Find and amplify ideological contradictions between the coalition partners. PC -20. Buys 8 weeks before they consolidate.',
         immediate: { politicalCapital: -20 },
         factionImpact: { partyGodfathers: 8, civilSocietyMedia: -10 },
         delayed: {
           weekOffset: 8,
           delta: { politicalCapital: 15 },
-          eventText: 'The Labour Party faction of the coalition has publicly accused the PDP wing of attempting to subvert their shared manifesto — your political team\'s research planted the seed.',
+          eventText:
+            "The Labour Party faction of the coalition has publicly accused the PDP wing of attempting to subvert their shared manifesto — your political team's research planted the seed.",
         },
       },
       {
         id: 'co-opt-coalition-technocrat',
-        label: 'Attempt to Co-Opt the Coalition\'s Candidate',
-        description: 'Extend a private offer of a prestigious post-tenure appointment if he withdraws. High risk, high reward. If accepted: coalition collapses. If leaked: catastrophic trust collapse.',
+        label: "Attempt to Co-Opt the Coalition's Candidate",
+        description:
+          'Extend a private offer of a prestigious post-tenure appointment if he withdraws. High risk, high reward. If accepted: coalition collapses. If leaked: catastrophic trust collapse.',
         immediate: { politicalCapital: -20, corruptionPressure: 5 },
         factionImpact: { civilSocietyMedia: -15, businessCommunity: -5 },
         corruptionTrigger: true,
@@ -500,7 +547,8 @@ He controls the party secretariat and has three of your commissioners openly cam
       {
         id: 'declare-apapa-emergency-zone',
         label: 'Declare Apapa an Emergency Rehabilitation Zone',
-        description: 'Halt all truck operations in the corridor between 6am-12pm. Relocate industrial polluters over 12 weeks. Cash -4. Infrastructure +5. Business community objects (port logistics frozen).',
+        description:
+          'Halt all truck operations in the corridor between 6am-12pm. Relocate industrial polluters over 12 weeks. Cash -4. Infrastructure +5. Business community objects (port logistics frozen).',
         immediate: { cashReserve: -4.0, infrastructureScore: 5, publicTrust: 8 },
         factionImpact: { civilSocietyMedia: 15, businessCommunity: -12, informalEconomy: -5 },
         constituencyImpact: { surulere: 8, ikorodu: 6 },
@@ -508,19 +556,22 @@ He controls the party secretariat and has three of your commissioners openly cam
       {
         id: 'install-industrial-filters',
         label: 'Mandate Industrial Emission Filters on Port Equipment',
-        description: 'Negotiate with port operators to install filters over 6 months. Slow. Moderate improvement. Business community cooperates. No immediate trust gain.',
+        description:
+          'Negotiate with port operators to install filters over 6 months. Slow. Moderate improvement. Business community cooperates. No immediate trust gain.',
         immediate: { cashReserve: -1.5 },
         factionImpact: { businessCommunity: 5, civilSocietyMedia: 5 },
         delayed: {
           weekOffset: 6,
           delta: { infrastructureScore: 3, publicTrust: 4 },
-          eventText: 'Port emission filters are operational. NCDC registers a 25% improvement in Apapa air quality index.',
+          eventText:
+            'Port emission filters are operational. NCDC registers a 25% improvement in Apapa air quality index.',
         },
       },
       {
         id: 'commission-apapa-study',
         label: 'Commission a 6-Month Environmental Impact Study',
-        description: 'Defer action behind bureaucracy. Cheap but trust collapses as community health worsens. Corruption pressure +4 (study contract corruption suspected). Trust -6.',
+        description:
+          'Defer action behind bureaucracy. Cheap but trust collapses as community health worsens. Corruption pressure +4 (study contract corruption suspected). Trust -6.',
         immediate: { cashReserve: -0.5, publicTrust: -6, corruptionPressure: 4 },
         factionImpact: { civilSocietyMedia: -12, businessCommunity: 3 },
       },
@@ -541,7 +592,8 @@ The Lagos Island commercial corridor is now directly threatened by northward spr
       {
         id: 'military-joint-operation',
         label: 'Joint Military-Police Operation: Ajegunle Pacification',
-        description: 'Full military joint task force deployment. Cash -3. Security Index +15. Youth Tension -10. High trust cost: civil society scrutinizes human rights compliance.',
+        description:
+          'Full military joint task force deployment. Cash -3. Security Index +15. Youth Tension -10. High trust cost: civil society scrutinizes human rights compliance.',
         immediate: { cashReserve: -3.0, securityIndex: 15, youthTension: -10, publicTrust: -5 },
         factionImpact: { civilSocietyMedia: -8, businessCommunity: 8, federalGovt: 5 },
         constituencyImpact: { ikorodu: -8, surulere: 5 },
@@ -549,19 +601,22 @@ The Lagos Island commercial corridor is now directly threatened by northward spr
       {
         id: 'cult-reconciliation-programme',
         label: 'Emergency Cult Reconciliation and Exit Programme',
-        description: 'Fund a 3-month de-radicalization and skills programme. Cash -1.5. Slower security gain. Youth Tension -15 long-term. Civil society endorses strongly.',
+        description:
+          'Fund a 3-month de-radicalization and skills programme. Cash -1.5. Slower security gain. Youth Tension -15 long-term. Civil society endorses strongly.',
         immediate: { cashReserve: -1.5, youthTension: -8 },
         factionImpact: { civilSocietyMedia: 14, informalEconomy: 8, businessCommunity: 3 },
         delayed: {
           weekOffset: 12,
           delta: { securityIndex: 8, youthTension: -7 },
-          eventText: 'The ceasefire held for six weeks. Two factions signed. The third — the Eko Boys — sent word that they would \'observe.\' In Ajegunle, observation is not peace. But the market reopened, and children went back to school on the street where the last shooting happened.',
+          eventText:
+            "The ceasefire held for six weeks. Two factions signed. The third — the Eko Boys — sent word that they would 'observe.' In Ajegunle, observation is not peace. But the market reopened, and children went back to school on the street where the last shooting happened.",
         },
       },
       {
         id: 'ajegunle-curfew',
         label: 'Impose an 8pm–6am Curfew on Ajegunle',
-        description: 'Fast, cheap. Visible action. Security Index +5. But market activity in the community collapses and informal economy protests the night lockdown.',
+        description:
+          'Fast, cheap. Visible action. Security Index +5. But market activity in the community collapses and informal economy protests the night lockdown.',
         immediate: { securityIndex: 5, youthTension: -5, igr: -0.5 },
         factionImpact: { informalEconomy: -12, businessCommunity: 5, civilSocietyMedia: -5 },
         constituencyImpact: { ikorodu: -10 },
@@ -581,31 +636,36 @@ The Lagos Island commercial corridor is now directly threatened by northward spr
       {
         id: 'emergency-landfill-containment',
         label: 'Emergency Multi-Agency Containment Operation',
-        description: 'NEMA, LASEMA, Fire Service, and Army Engineers deployed simultaneously. Cash -3.5. Fire contained in 4 weeks. Infrastructure +3. Trust +6.',
+        description:
+          'NEMA, LASEMA, Fire Service, and Army Engineers deployed simultaneously. Cash -3.5. Fire contained in 4 weeks. Infrastructure +3. Trust +6.',
         immediate: { cashReserve: -3.5, publicTrust: 6 },
         factionImpact: { civilSocietyMedia: 8, businessCommunity: 5, federalGovt: 5 },
         delayed: {
           weekOffset: 4,
           delta: { infrastructureScore: 3, securityIndex: 4 },
-          eventText: 'The Olusosun fire has been contained. LAWMA begins remediation. Three industrial waste firms have been sealed.',
+          eventText:
+            'The Olusosun fire has been contained. LAWMA begins remediation. Three industrial waste firms have been sealed.',
         },
       },
       {
         id: 'prosecute-waste-dumpers',
         label: 'Prosecute the Illegal Waste Companies Publicly',
-        description: 'Seal the three companies and file criminal charges. Civil society elated. Business community alarmed by precedent. Trust +10. Corruption -5. Revenue from the companies lost.',
+        description:
+          'Seal the three companies and file criminal charges. Civil society elated. Business community alarmed by precedent. Trust +10. Corruption -5. Revenue from the companies lost.',
         immediate: { publicTrust: 10, corruptionPressure: -5, igr: -1.0 },
         factionImpact: { civilSocietyMedia: 18, businessCommunity: -10 },
         delayed: {
           weekOffset: 3,
           delta: { publicTrust: 4 },
-          eventText: 'The Lagos State Environmental Tribunal has issued Nigeria\'s largest ever environmental fine — ₦2.5bn — against the three waste dumping companies.',
+          eventText:
+            "The Lagos State Environmental Tribunal has issued Nigeria's largest ever environmental fine — ₦2.5bn — against the three waste dumping companies.",
         },
       },
       {
         id: 'divert-landfill-blame',
         label: 'Blame LAWMA Management — Sack the Director',
-        description: 'Publicly sack the LAWMA director as a scapegoat. Buys immediate news narrative. Corruption pressure unchanged. Trust +3. The fire continues.',
+        description:
+          'Publicly sack the LAWMA director as a scapegoat. Buys immediate news narrative. Corruption pressure unchanged. Trust +3. The fire continues.',
         immediate: { publicTrust: 3 },
         factionImpact: { civilSocietyMedia: -5, partyGodfathers: 5 },
       },
@@ -628,7 +688,8 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
       {
         id: 'full-eko-bridge-closure',
         label: 'Full Emergency Closure — Immediate Rehabilitation',
-        description: 'Close immediately and deploy federal and state engineers. Cash -8. Infrastructure +12. Trust +8. Lagos Island commercial activity drops 30% for 10 weeks.',
+        description:
+          'Close immediately and deploy federal and state engineers. Cash -8. Infrastructure +12. Trust +8. Lagos Island commercial activity drops 30% for 10 weeks.',
         immediate: { cashReserve: -8.0, publicTrust: 8, infrastructureScore: 12 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: -15 },
         constituencyImpact: { lagosIsland: -12, etiOsa: -8 },
@@ -636,31 +697,36 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
           weekOffset: 10,
           delta: { infrastructureScore: 5 },
           factionImpact: { businessCommunity: 10 },
-          eventText: 'The Eko Bridge rehabilitation is done. The Federal Government co-funded 40% — a rare moment of cooperation that your Chief of Staff wants you to mention in every speech for the next month. Traffic flows. The engineers say the bridge is good for 25 years. You hope you are not here to test that claim.',
+          eventText:
+            'The Eko Bridge rehabilitation is done. The Federal Government co-funded 40% — a rare moment of cooperation that your Chief of Staff wants you to mention in every speech for the next month. Traffic flows. The engineers say the bridge is good for 25 years. You hope you are not here to test that claim.',
         },
       },
       {
         id: 'partial-eko-lane-restriction',
         label: 'Partial Closure — Restrict to One Lane Each Direction',
-        description: 'Keep traffic flowing but at reduced capacity while emergency works proceed. Slower rehabilitation. Infrastructure +5. Trust -3 (looks like denial).',
+        description:
+          'Keep traffic flowing but at reduced capacity while emergency works proceed. Slower rehabilitation. Infrastructure +5. Trust -3 (looks like denial).',
         immediate: { publicTrust: -3, infrastructureScore: 5 },
         factionImpact: { businessCommunity: 3, civilSocietyMedia: -6 },
         delayed: {
           weekOffset: 16,
           delta: { infrastructureScore: 3 },
-          eventText: 'Span 7 is stabilized — \'safe for now,\' the engineers say. The phrase \'for now\' appears seven times in their report. They recommend full replacement within three years. Three years is a second term away. A problem for a future governor, unless that future governor is still you.',
+          eventText:
+            "Span 7 is stabilized — 'safe for now,' the engineers say. The phrase 'for now' appears seven times in their report. They recommend full replacement within three years. Three years is a second term away. A problem for a future governor, unless that future governor is still you.",
         },
       },
       {
         id: 'eko-bridge-ignore',
         label: 'Defer to the Incoming Administration',
-        description: 'Declare the bridge "under monitoring" and pass the decision to your successor. Saves ₦8bn now. But a bridge failure during your tenure becomes the defining image of your legacy.',
+        description:
+          'Declare the bridge "under monitoring" and pass the decision to your successor. Saves ₦8bn now. But a bridge failure during your tenure becomes the defining image of your legacy.',
         immediate: { politicalCapital: 5 },
         factionImpact: { partyGodfathers: 3, civilSocietyMedia: -15 },
         delayed: {
           weekOffset: 20,
           delta: { publicTrust: -15, infrastructureScore: -10 },
-          eventText: 'A concrete panel the size of a car door fell onto a Toyota Hiace on Eko Bridge at 8:47am. No one died — a miracle the newspapers are calling \'divine intervention.\' Every front page carries the inspection report you ordered buried two years ago. The headline in Punch: \'He Knew.\'',
+          eventText:
+            "A concrete panel the size of a car door fell onto a Toyota Hiace on Eko Bridge at 8:47am. No one died — a miracle the newspapers are calling 'divine intervention.' Every front page carries the inspection report you ordered buried two years ago. The headline in Punch: 'He Knew.'",
         },
       },
     ],
@@ -678,31 +744,36 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
       {
         id: 'prosecute-jetty-contractor',
         label: 'Prosecute the Contractor and Close the Terminal',
-        description: 'Seal the terminal, arraign the contractor for criminal negligence, and launch a judicial inquiry. Trust +10. Corruption -5. The water route is gone for 6 months.',
+        description:
+          'Seal the terminal, arraign the contractor for criminal negligence, and launch a judicial inquiry. Trust +10. Corruption -5. The water route is gone for 6 months.',
         immediate: { publicTrust: 10, corruptionPressure: -5 },
         factionImpact: { civilSocietyMedia: 14, businessCommunity: -5, partyGodfathers: -8 },
         delayed: {
           weekOffset: 8,
           delta: { infrastructureScore: 4, publicTrust: 4 },
-          eventText: 'The Lagos Environmental and Infrastructure Tribunal has sentenced the jetty contractor to 5 years and imposed a ₦1.8bn reparations order.',
+          eventText:
+            'The Lagos Environmental and Infrastructure Tribunal has sentenced the jetty contractor to 5 years and imposed a ₦1.8bn reparations order.',
         },
       },
       {
         id: 'rapid-jetty-rebuild',
         label: 'Emergency Rebuild — Keep Water Route Alive',
-        description: 'Commission an emergency pontoon replacement. Cash -2.5. The route reopens in 4 weeks. Infrastructure +3. Questions remain about original contractor accountability.',
+        description:
+          'Commission an emergency pontoon replacement. Cash -2.5. The route reopens in 4 weeks. Infrastructure +3. Questions remain about original contractor accountability.',
         immediate: { cashReserve: -2.5, infrastructureScore: 3, publicTrust: 2 },
         factionImpact: { businessCommunity: 6, civilSocietyMedia: -4 },
         delayed: {
           weekOffset: 4,
           delta: { infrastructureScore: 2 },
-          eventText: 'The Badore Jetty emergency pontoon has opened. 8,000 daily commuters are back on the water route.',
+          eventText:
+            'The Badore Jetty emergency pontoon has opened. 8,000 daily commuters are back on the water route.',
         },
       },
       {
         id: 'cover-contractor-liability',
         label: 'Quietly Settle Victims and Protect the Contractor',
-        description: 'Pay ex-gratia to injured victims. Apply pressure to prevent formal investigation. Corruption +8. Civil society discovers the settlement — massive trust collapse.',
+        description:
+          'Pay ex-gratia to injured victims. Apply pressure to prevent formal investigation. Corruption +8. Civil society discovers the settlement — massive trust collapse.',
         immediate: { cashReserve: -1.0, corruptionPressure: 8, publicTrust: -8 },
         factionImpact: { civilSocietyMedia: -15, partyGodfathers: 10 },
         corruptionTrigger: true,
@@ -722,26 +793,30 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
       {
         id: 'issue-pension-bonds',
         label: 'Issue 20-Year Pension Securitization Bonds',
-        description: 'Float ₦50bn in structured pension bonds guaranteed by future state revenue. Resolves the immediate crisis. DebtStock +12. Business community approves the financial engineering.',
+        description:
+          'Float ₦50bn in structured pension bonds guaranteed by future state revenue. Resolves the immediate crisis. DebtStock +12. Business community approves the financial engineering.',
         immediate: { debtStock: 12, cashReserve: 20.0, publicTrust: 6 },
         factionImpact: { businessCommunity: 12, civilSocietyMedia: 5, informalEconomy: 5 },
         delayed: {
           weekOffset: 4,
           delta: { publicTrust: 4 },
-          eventText: 'The Lagos Pension Bond has been fully subscribed. The Pensioners Welfare Association has suspended their protest.',
+          eventText:
+            'The Lagos Pension Bond has been fully subscribed. The Pensioners Welfare Association has suspended their protest.',
         },
       },
       {
         id: 'blame-past-administrations',
         label: 'Commission Historical Accountability Inquiry',
-        description: 'Publicly blame predecessor administrations. Buys political cover but pensioners still unpaid. Trust -4 (pensioners see deflection). Partygodfathers worried about precedent.',
+        description:
+          'Publicly blame predecessor administrations. Buys political cover but pensioners still unpaid. Trust -4 (pensioners see deflection). Partygodfathers worried about precedent.',
         immediate: { publicTrust: -4, politicalCapital: 8 },
         factionImpact: { partyGodfathers: -10, civilSocietyMedia: -6 },
       },
       {
         id: 'partial-pension-clearance',
         label: 'Clear Arrears for Over-70s Immediately',
-        description: 'Prioritize the most vulnerable pensioners. Cash -5. Trust +8. Solves 15% of the problem but demonstrates intent. Pensioners association partially satisfied.',
+        description:
+          'Prioritize the most vulnerable pensioners. Cash -5. Trust +8. Solves 15% of the problem but demonstrates intent. Pensioners association partially satisfied.',
         immediate: { cashReserve: -5.0, publicTrust: 8 },
         factionImpact: { civilSocietyMedia: 8, informalEconomy: 6 },
         constituencyImpact: { surulere: 5, alimosho: 4 },
@@ -761,31 +836,36 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
       {
         id: 'emergency-fleet-procurement',
         label: 'Emergency Fleet Procurement — Articulated Buses from China',
-        description: 'Fast-track procurement of 200 new CNG articulated buses. Cash -12. 8-week delivery. Infrastructure +8. Creates a visible second-term legacy delivery.',
+        description:
+          'Fast-track procurement of 200 new CNG articulated buses. Cash -12. 8-week delivery. Infrastructure +8. Creates a visible second-term legacy delivery.',
         immediate: { cashReserve: -12.0, infrastructureScore: 3 },
         factionImpact: { businessCommunity: 8, civilSocietyMedia: 5 },
         delayed: {
           weekOffset: 8,
           delta: { infrastructureScore: 8, publicTrust: 6 },
-          eventText: '200 new articulated buses have been commissioned onto the Lagos BRT network. Morning commutes on Ikorodu Road have reduced to 90 minutes.',
+          eventText:
+            '200 new articulated buses have been commissioned onto the Lagos BRT network. Morning commutes on Ikorodu Road have reduced to 90 minutes.',
         },
       },
       {
         id: 'settle-maintenance-partner',
         label: 'Settle the Italian Maintenance Partner — Restore Existing Fleet',
-        description: 'Pay the ₦4bn maintenance arrears. Gets 120 buses back on the road in 3 weeks at lower cost. Infrastructure +4.',
+        description:
+          'Pay the ₦4bn maintenance arrears. Gets 120 buses back on the road in 3 weeks at lower cost. Infrastructure +4.',
         immediate: { cashReserve: -4.0, infrastructureScore: 4 },
         factionImpact: { businessCommunity: 6, civilSocietyMedia: 3 },
         delayed: {
           weekOffset: 3,
           delta: { infrastructureScore: 2, publicTrust: 3 },
-          eventText: 'LAMATA and the maintenance partner have resumed operations. 120 buses are back in service.',
+          eventText:
+            'LAMATA and the maintenance partner have resumed operations. 120 buses are back in service.',
         },
       },
       {
         id: 'privatise-brt-operation',
         label: 'Emergency Fleet Privatization to Danfo Cooperatives',
-        description: 'Transfer fleet management to Lagos transport cooperatives. Fast. Corruption +5. Fares become unregulated. Trust -5 as fares spike.',
+        description:
+          'Transfer fleet management to Lagos transport cooperatives. Fast. Corruption +5. Fares become unregulated. Trust -5 as fares spike.',
         immediate: { corruptionPressure: 5, publicTrust: -5, politicalCapital: 5 },
         factionImpact: { informalEconomy: 15, businessCommunity: -5, civilSocietyMedia: -8 },
       },
@@ -804,7 +884,8 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
       {
         id: 'emergency-lasuth-refund',
         label: 'Emergency ₦6bn LASUTH Restoration Package',
-        description: 'Inject full capital and operating funding. Clear salary arrears. Replace broken equipment. Cash -6. Trust +12. Infrastructure +4. Civil society praises the responsiveness.',
+        description:
+          'Inject full capital and operating funding. Clear salary arrears. Replace broken equipment. Cash -6. Trust +12. Infrastructure +4. Civil society praises the responsiveness.',
         immediate: { cashReserve: -6.0, publicTrust: 12, infrastructureScore: 4 },
         factionImpact: { civilSocietyMedia: 15, informalEconomy: 8 },
         constituencyImpact: { alimosho: 6, ikorodu: 8, surulere: 6 },
@@ -812,7 +893,8 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
       {
         id: 'lasuth-ppp-restructure',
         label: 'Convert LASUTH to a Public-Private Partnership',
-        description: 'Concession hospital management to a private healthcare group. Solves equipment crisis. Fees increase. Trust -6 among low-income users. Cash +3 from concession fee.',
+        description:
+          'Concession hospital management to a private healthcare group. Solves equipment crisis. Fees increase. Trust -6 among low-income users. Cash +3 from concession fee.',
         immediate: { cashReserve: 3.0, publicTrust: -6, infrastructureScore: 3 },
         factionImpact: { businessCommunity: 12, civilSocietyMedia: -10, informalEconomy: -12 },
         constituencyImpact: { ikorodu: -10, alimosho: -8 },
@@ -820,13 +902,15 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
       {
         id: 'dismiss-lasuth-management',
         label: 'Sack the LASUTH Chief Medical Director',
-        description: 'Publicly blame hospital management. Buys 4 weeks of narrative control. Corruption pressure unchanged. Trust +3 short-term only.',
+        description:
+          'Publicly blame hospital management. Buys 4 weeks of narrative control. Corruption pressure unchanged. Trust +3 short-term only.',
         immediate: { publicTrust: 3 },
         factionImpact: { civilSocietyMedia: -6, partyGodfathers: 3 },
         delayed: {
           weekOffset: 4,
           delta: { publicTrust: -5 },
-          eventText: 'LASUTH staff have gone on strike following the CMD dismissal, declaring "political scapegoating." The hospital is now fully shut.',
+          eventText:
+            'LASUTH staff have gone on strike following the CMD dismissal, declaring "political scapegoating." The hospital is now fully shut.',
         },
       },
     ],
@@ -844,32 +928,37 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
       {
         id: 'mid-year-budget-review-devaluation',
         label: 'Emergency Mid-Year Budget Review — Cut Capital Projects',
-        description: 'Cut 35% of capital budget to restore fiscal balance. Infrastructure -8. Trust -5. Prudent but painfully visible before end of tenure.',
+        description:
+          'Cut 35% of capital budget to restore fiscal balance. Infrastructure -8. Trust -5. Prudent but painfully visible before end of tenure.',
         immediate: { infrastructureScore: -8, publicTrust: -5, politicalCapital: -10 },
         factionImpact: { businessCommunity: 3, civilSocietyMedia: -8, lgChairmen: -10 },
       },
       {
         id: 'local-content-mandate-devaluation',
         label: 'Mandate 100% Local Materials on All State Projects',
-        description: 'Fast-track directive forcing use of locally-produced materials. Reduces devaluation exposure. Business community gains (local suppliers). Some project timelines slip.',
+        description:
+          'Fast-track directive forcing use of locally-produced materials. Reduces devaluation exposure. Business community gains (local suppliers). Some project timelines slip.',
         immediate: { infrastructureScore: -3, politicalCapital: 5 },
         factionImpact: { businessCommunity: 10, informalEconomy: 12, civilSocietyMedia: 5 },
         delayed: {
           weekOffset: 8,
           delta: { infrastructureScore: 5, igr: 1.5 },
-          eventText: 'The local content mandate is working. Project costs are stable. 12,000 new jobs in Lagos manufacturing — a number your information commissioner has already turned into a press release, a documentary, and a jingle.',
+          eventText:
+            'The local content mandate is working. Project costs are stable. 12,000 new jobs in Lagos manufacturing — a number your information commissioner has already turned into a press release, a documentary, and a jingle.',
         },
       },
       {
         id: 'demand-faac-devaluation-relief',
         label: 'Demand Federal Fiscal Stabilization Support',
-        description: 'File a formal claim with the National Economic Council for devaluation-offset FAAC adjustments. Federal Relationship -5 (Lagos seen as demanding special treatment). May yield ₦15bn top-up in 6 weeks.',
+        description:
+          'File a formal claim with the National Economic Council for devaluation-offset FAAC adjustments. Federal Relationship -5 (Lagos seen as demanding special treatment). May yield ₦15bn top-up in 6 weeks.',
         immediate: { federalRelationship: -5, politicalCapital: -15 },
         factionImpact: { federalGovt: -5, partyGodfathers: 5 },
         delayed: {
           weekOffset: 6,
           delta: { cashReserve: 15.0 },
-          eventText: 'RMAFC approved the N15bn top-up. The Southwest Governors Forum — the ones who watched you lobby alone for weeks — have all sent congratulatory messages. None of them offered to share your compensation.',
+          eventText:
+            'RMAFC approved the N15bn top-up. The Southwest Governors Forum — the ones who watched you lobby alone for weeks — have all sent congratulatory messages. None of them offered to share your compensation.',
         },
       },
     ],
@@ -887,19 +976,22 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
       {
         id: 'go-to-school-personally',
         label: 'Go to the Scene Immediately',
-        description: 'Arrive within the hour, direct rescue operations in person. Trust +8 short-term. Politically dangerous — cameras capture everything. Civil society respects the act.',
+        description:
+          'Arrive within the hour, direct rescue operations in person. Trust +8 short-term. Politically dangerous — cameras capture everything. Civil society respects the act.',
         immediate: { publicTrust: 8, politicalCapital: -5 },
         factionImpact: { civilSocietyMedia: 12, informalEconomy: 8 },
         delayed: {
           weekOffset: 1,
           delta: { publicTrust: -5, corruptionPressure: 5 },
-          eventText: 'Questions are now being asked about the ₦2.3bn school rehabilitation contract. The construction firm\'s directors are believed to be party donors.',
+          eventText:
+            "Questions are now being asked about the ₦2.3bn school rehabilitation contract. The construction firm's directors are believed to be party donors.",
         },
       },
       {
         id: 'prosecute-construction-firm',
         label: 'Prosecute the Construction Firm for Criminal Negligence',
-        description: 'Seal the company immediately, arraign the directors. Trust +12. Corruption -8. Partygodfathers angry (the firm is politically connected). Civil society erupts in approval.',
+        description:
+          'Seal the company immediately, arraign the directors. Trust +12. Corruption -8. Partygodfathers angry (the firm is politically connected). Civil society erupts in approval.',
         immediate: { publicTrust: 12, corruptionPressure: -8 },
         factionImpact: { civilSocietyMedia: 18, partyGodfathers: -20, businessCommunity: -5 },
         setFlags: { 'school-collapse-prosecuted': true },
@@ -907,7 +999,8 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
       {
         id: 'structural-audit-all-schools',
         label: 'Order Emergency Structural Audit of All 1,200 State Schools',
-        description: 'Preemptive safety audit prevents further collapses. Cash -2. Trust +5. Takes 8 weeks. Corruption pressure drops as systemic accountability is demonstrated.',
+        description:
+          'Preemptive safety audit prevents further collapses. Cash -2. Trust +5. Takes 8 weeks. Corruption pressure drops as systemic accountability is demonstrated.',
         immediate: { cashReserve: -2.0, publicTrust: 5, corruptionPressure: -4 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: 3 },
       },
@@ -930,7 +1023,8 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
       {
         id: 'accept-nec-diktat',
         label: 'Accept the Consensus Candidate',
-        description: 'Publicly endorse the NEC choice. Political Capital +30 with the party center. Your reform legacy is handed to someone who will dismantle it. Trust -10. Godfathers +15.',
+        description:
+          'Publicly endorse the NEC choice. Political Capital +30 with the party center. Your reform legacy is handed to someone who will dismantle it. Trust -10. Godfathers +15.',
         immediate: { politicalCapital: 30, publicTrust: -10 },
         factionImpact: { partyGodfathers: 15, civilSocietyMedia: -15, businessCommunity: -5 },
         setFlags: { 'endorsed-nec-candidate': true },
@@ -938,7 +1032,8 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
       {
         id: 'defy-nec-back-reformer',
         label: 'Defy Abuja — Back the Technocrat Candidate',
-        description: 'Publicly withdraw support for the NEC choice and back your preferred reformer. Partygodfathers -25. Federal Relationship -15. Civil society erupts with approval. Trust +12.',
+        description:
+          'Publicly withdraw support for the NEC choice and back your preferred reformer. Partygodfathers -25. Federal Relationship -15. Civil society erupts with approval. Trust +12.',
         immediate: { publicTrust: 12, politicalCapital: -25, federalRelationship: -15 },
         factionImpact: { partyGodfathers: -25, civilSocietyMedia: 18, businessCommunity: 8 },
         setFlags: { 'defied-nec-diktat': true },
@@ -946,7 +1041,8 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
       {
         id: 'negotiate-nec-compromise',
         label: 'Negotiate a "Zoning" Compromise with the National Chairman',
-        description: 'Propose a council of state consultation that delays the decision by 6 weeks. Buys time. Partygodfathers suspicious. Eventual outcome unchanged but you retain leverage.',
+        description:
+          'Propose a council of state consultation that delays the decision by 6 weeks. Buys time. Partygodfathers suspicious. Eventual outcome unchanged but you retain leverage.',
         immediate: { politicalCapital: -15 },
         factionImpact: { partyGodfathers: -5, federalGovt: 3 },
       },
@@ -965,7 +1061,8 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
       {
         id: 'rig-the-primary',
         label: 'Allow the Delegate Management',
-        description: 'Sanction the manipulation. Partygodfathers +20. Infrastructure projects protected. Corruption +10. Trust -12. Civil society and opposition will expose it.',
+        description:
+          'Sanction the manipulation. Partygodfathers +20. Infrastructure projects protected. Corruption +10. Trust -12. Civil society and opposition will expose it.',
         immediate: { corruptionPressure: 10, publicTrust: -12 },
         factionImpact: { partyGodfathers: 20, civilSocietyMedia: -18, businessCommunity: -5 },
         corruptionTrigger: true,
@@ -973,7 +1070,8 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
       {
         id: 'refuse-primary-rigging',
         label: 'Refuse — Insist on Free and Fair Primary',
-        description: 'Draw a line. Infrastructure project support withdrawn. Political Capital -25. Civil society applauds. Your candidate wins if trust > 55 and infrastructure > 60.',
+        description:
+          'Draw a line. Infrastructure project support withdrawn. Political Capital -25. Civil society applauds. Your candidate wins if trust > 55 and infrastructure > 60.',
         immediate: { politicalCapital: -25, infrastructureScore: -3 },
         factionImpact: { partyGodfathers: -20, civilSocietyMedia: 15 },
         setFlags: { 'primary-kept-clean': true },
@@ -981,14 +1079,16 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
       {
         id: 'leak-the-rigging-request',
         label: 'Leak the Request to the Press',
-        description: 'Anonymous leak to trusted journalists. Creates a corruption scandal that disrupts the Godfather operation. Trust +10. Partygodfathers -25. Dangerous: they will know it was you.',
+        description:
+          'Anonymous leak to trusted journalists. Creates a corruption scandal that disrupts the Godfather operation. Trust +10. Partygodfathers -25. Dangerous: they will know it was you.',
         immediate: { publicTrust: 10, politicalCapital: -20 },
         factionImpact: { partyGodfathers: -25, civilSocietyMedia: 18 },
         corruptionTrigger: false,
         delayed: {
           weekOffset: 3,
           delta: { politicalCapital: -15 },
-          eventText: 'The godfathers know. They always know. Three of your commissioners — the ones who stayed loyal — have received late-night calls. The messages are polite. The meaning is not. \'Your governor leaked our private arrangement. We will remember this.\'',
+          eventText:
+            "The godfathers know. They always know. Three of your commissioners — the ones who stayed loyal — have received late-night calls. The messages are polite. The meaning is not. 'Your governor leaked our private arrangement. We will remember this.'",
         },
       },
     ],
@@ -996,7 +1096,7 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
 
   {
     id: 'term2-external-audit-damning-report',
-    title: 'External Auditor\'s Final Verdict on Your Administration',
+    title: "External Auditor's Final Verdict on Your Administration",
     body: `PricewaterhouseCoopers has submitted its final commissioned performance audit of your eight-year administration (both terms). The summary chapter has been leaked to Sahara Reporters: "₦312bn in capital expenditure was committed across 847 projects. Only 34% achieved full commissioning. ₦48bn cannot be reconciled through available documentation." The report lands 8 months before your successor takes office.`,
     severity: 'critical',
     category: 'economy',
@@ -1006,7 +1106,8 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
       {
         id: 'publish-full-audit',
         label: 'Publish the Full Audit With a Response White Paper',
-        description: 'Accept the findings and publish alongside your rebuttal. Trust +8. Corruption -6. Civil society applauds the transparency. Business community reads the 34% delivery rate with alarm.',
+        description:
+          'Accept the findings and publish alongside your rebuttal. Trust +8. Corruption -6. Civil society applauds the transparency. Business community reads the 34% delivery rate with alarm.',
         immediate: { publicTrust: 8, corruptionPressure: -6 },
         factionImpact: { civilSocietyMedia: 15, businessCommunity: -5, partyGodfathers: -5 },
         setFlags: { 'audit-published-openly': true },
@@ -1014,14 +1115,16 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
       {
         id: 'contest-audit-findings',
         label: 'Commission a Counter-Audit and Challenge PwC',
-        description: 'Contest methodology and commission a rival audit. Buys 10 weeks. Trust -5 (looks defensive). The underlying numbers do not change.',
+        description:
+          'Contest methodology and commission a rival audit. Buys 10 weeks. Trust -5 (looks defensive). The underlying numbers do not change.',
         immediate: { cashReserve: -1.5, publicTrust: -5 },
         factionImpact: { civilSocietyMedia: -10, businessCommunity: -3, partyGodfathers: 5 },
       },
       {
         id: 'accelerate-project-commissioning',
         label: 'Emergency Project Completion Drive',
-        description: 'Release ₦8bn to fast-track 50 near-complete projects before tenure ends. Infrastructure +10. Audit narrative changed by visible delivery. Trust +5.',
+        description:
+          'Release ₦8bn to fast-track 50 near-complete projects before tenure ends. Infrastructure +10. Audit narrative changed by visible delivery. Trust +5.',
         immediate: { cashReserve: -8.0, infrastructureScore: 10, publicTrust: 5 },
         factionImpact: { civilSocietyMedia: 6, businessCommunity: 10, lgChairmen: 8 },
       },
@@ -1035,13 +1138,13 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
     severity: 'critical',
     category: 'political',
     week: 386,
-    triggerCondition: (state) =>
-      state.currentTerm === 2 && state.stats.corruptionPressure > 55,
+    triggerCondition: (state) => state.currentTerm === 2 && state.stats.corruptionPressure > 55,
     choices: [
       {
         id: 'full-transparent-efcc-cooperation',
         label: 'Cooperate Fully — Open Every Account',
-        description: 'Full document disclosure. Civil society stands behind you. Corruption -10. If books are clean: Federal Relationship improves as EFCC case collapses. Political Capital -20.',
+        description:
+          'Full document disclosure. Civil society stands behind you. Corruption -10. If books are clean: Federal Relationship improves as EFCC case collapses. Political Capital -20.',
         immediate: { corruptionPressure: -10, politicalCapital: -20 },
         factionImpact: { civilSocietyMedia: 15, federalGovt: 8, partyGodfathers: -5 },
         setFlags: { 'efcc-cooperated-term2': true },
@@ -1049,14 +1152,16 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
       {
         id: 'sue-efcc-for-malicious-prosecution',
         label: 'Sue EFCC for Malicious Prosecution',
-        description: 'File a counter-suit challenging the timing and basis of the charge. Trust +5 (Lagos rallies). Partygodfathers watch neutrally. Federal Relationship -10.',
+        description:
+          'File a counter-suit challenging the timing and basis of the charge. Trust +5 (Lagos rallies). Partygodfathers watch neutrally. Federal Relationship -10.',
         immediate: { publicTrust: 5, federalRelationship: -10, politicalCapital: -15 },
         factionImpact: { civilSocietyMedia: 8, federalGovt: -12 },
       },
       {
         id: 'political-efcc-settlement',
         label: 'Seek a Political Settlement Through Abuja Intermediaries',
-        description: 'Negotiate withdrawal of charges through political channels. Cost: ₦3bn and endorsement of the NEC candidate. Corruption +12. Charges disappear but at enormous moral cost.',
+        description:
+          'Negotiate withdrawal of charges through political channels. Cost: ₦3bn and endorsement of the NEC candidate. Corruption +12. Charges disappear but at enormous moral cost.',
         immediate: { cashReserve: -3.0, corruptionPressure: 12 },
         factionImpact: { partyGodfathers: 15, civilSocietyMedia: -18 },
         corruptionTrigger: true,
@@ -1077,7 +1182,8 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
       {
         id: 'executive-order-legislation',
         label: 'Implement Core Provisions via Executive Order',
-        description: 'Issue Executive Order No. 7 implementing the most critical provisions by decree. Legally challengeable but immediately enforceable. Civil society mixed. Partygodfathers furious.',
+        description:
+          'Issue Executive Order No. 7 implementing the most critical provisions by decree. Legally challengeable but immediately enforceable. Civil society mixed. Partygodfathers furious.',
         immediate: { politicalCapital: -20, infrastructureScore: 4 },
         factionImpact: { partyGodfathers: -15, civilSocietyMedia: 8, businessCommunity: 10 },
         setFlags: { 'legacy-bills-executive-order': true },
@@ -1085,14 +1191,16 @@ The NEC letter asks you to "facilitate" his endorsement at the state congress in
       {
         id: 'accept-bills-loss',
         label: 'Accept the Loss — Focus on Administrative Execution',
-        description: 'Shift energy from legislation to administrative delivery in final months. Infrastructure +5. Trust +3 (focus on results). Political Capital recovered for transition deals.',
+        description:
+          'Shift energy from legislation to administrative delivery in final months. Infrastructure +5. Trust +3 (focus on results). Political Capital recovered for transition deals.',
         immediate: { politicalCapital: 10, infrastructureScore: 5, publicTrust: 3 },
         factionImpact: { civilSocietyMedia: 6, businessCommunity: 8 },
       },
       {
         id: 'public-campaign-bills',
         label: 'Public Campaign — Force the Assembly with Public Pressure',
-        description: 'Mobilise civil society and business groups to pressure the Assembly publicly. Trust +8. Partygodfathers -15. May unlock 2 of 5 bills if Public Trust > 60.',
+        description:
+          'Mobilise civil society and business groups to pressure the Assembly publicly. Trust +8. Partygodfathers -15. May unlock 2 of 5 bills if Public Trust > 60.',
         immediate: { publicTrust: 8, politicalCapital: -20 },
         factionImpact: { partyGodfathers: -15, civilSocietyMedia: 15, businessCommunity: 5 },
       },
@@ -1115,14 +1223,16 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'withdraw-successor-support',
         label: 'Publicly Withdraw Your Endorsement',
-        description: 'Signal you are no longer backing him. Creates chaos in the transition. Trust -5. Partygodfathers seize the vacuum. No clear successor going in.',
+        description:
+          'Signal you are no longer backing him. Creates chaos in the transition. Trust -5. Partygodfathers seize the vacuum. No clear successor going in.',
         immediate: { politicalCapital: -20, publicTrust: -5 },
         factionImpact: { partyGodfathers: -10, civilSocietyMedia: -5 },
       },
       {
         id: 'absorb-the-betrayal',
         label: 'Absorb It — Hold the High Ground',
-        description: 'Issue no counter-statement. Civil society and diaspora read the silence as statesmanship. Trust +5. Legacy narrative reset to "the man who built Lagos and let go."',
+        description:
+          'Issue no counter-statement. Civil society and diaspora read the silence as statesmanship. Trust +5. Legacy narrative reset to "the man who built Lagos and let go."',
         immediate: { publicTrust: 5, politicalCapital: -10 },
         factionImpact: { civilSocietyMedia: 12 },
         setFlags: { 'held-high-ground-betrayal': true },
@@ -1130,7 +1240,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'respond-publicly-to-betrayal',
         label: 'Respond Publicly — Defend Your Record',
-        description: 'Issue a point-by-point rebuttal. Trust -3 (looks petty). Civil society -8 (no one wants a leaving governor fighting). Partygodfathers enjoy the spectacle.',
+        description:
+          'Issue a point-by-point rebuttal. Trust -3 (looks petty). Civil society -8 (no one wants a leaving governor fighting). Partygodfathers enjoy the spectacle.',
         immediate: { publicTrust: -3, politicalCapital: -15 },
         factionImpact: { civilSocietyMedia: -8, partyGodfathers: 5 },
       },
@@ -1139,7 +1250,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-archives-transition-crisis',
-    title: 'Transition Committee Refuses Access to Governor\'s Archive',
+    title: "Transition Committee Refuses Access to Governor's Archive",
     body: `The Incoming Administration's Transition Committee, chaired by a hostile party operative, has informed your Chief of Staff that they require "immediate access" to all contract databases, MDA files, and financial archives — including the State Finance Commissioner's encrypted cloud system — before your tenure ends. Legal counsel advises this is constitutionally premature by three months. You suspect they are looking for ammunition, not briefing material.`,
     severity: 'medium',
     category: 'political',
@@ -1149,7 +1260,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'grant-full-archive-access',
         label: 'Grant Full Access — Demonstrate Transparency',
-        description: 'Open the archives immediately. Trust +8. Partygodfathers -5 (they hate the openness). Civil society lauds the institutional behaviour. Creates a difficult precedent for hostile successor.',
+        description:
+          'Open the archives immediately. Trust +8. Partygodfathers -5 (they hate the openness). Civil society lauds the institutional behaviour. Creates a difficult precedent for hostile successor.',
         immediate: { publicTrust: 8, corruptionPressure: -4 },
         factionImpact: { civilSocietyMedia: 12, partyGodfathers: -5, businessCommunity: 5 },
         setFlags: { 'archive-opened-cleanly': true },
@@ -1157,14 +1269,16 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'constitutional-timeline-hold',
         label: 'Hold the Line — Constitutional Timeline Only',
-        description: 'Provide legal briefing notes only. Full archives at handover date. Incoming team fumes publicly. Civil society accepts the constitutional position. Partygodfathers neutral.',
+        description:
+          'Provide legal briefing notes only. Full archives at handover date. Incoming team fumes publicly. Civil society accepts the constitutional position. Partygodfathers neutral.',
         immediate: { politicalCapital: 8 },
         factionImpact: { civilSocietyMedia: 5, partyGodfathers: 3 },
       },
       {
         id: 'selective-archive-disclosure',
         label: 'Selective Disclosure — Share Wins, Protect Vulnerabilities',
-        description: 'Release infrastructure delivery data, block contract procurement files. Corruption +4 when discovered. Civil society files a Freedom of Information suit.',
+        description:
+          'Release infrastructure delivery data, block contract procurement files. Corruption +4 when discovered. Civil society files a Freedom of Information suit.',
         immediate: { corruptionPressure: 4 },
         factionImpact: { civilSocietyMedia: -10, partyGodfathers: 5 },
         corruptionTrigger: true,
@@ -1184,7 +1298,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'infrastructure-legacy-address',
         label: '"We Built" — The Infrastructure Legacy Narrative',
-        description: 'Lead with roads, bridges, hospitals, and schools. Business community energized. Trust +6 if InfrastructureScore > 65, -3 if below. Partygodfathers approve.',
+        description:
+          'Lead with roads, bridges, hospitals, and schools. Business community energized. Trust +6 if InfrastructureScore > 65, -3 if below. Partygodfathers approve.',
         immediate: { publicTrust: 4, politicalCapital: 10 },
         factionImpact: { businessCommunity: 8, partyGodfathers: 5 },
         setFlags: { 'valedictory-infrastructure': true },
@@ -1192,7 +1307,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'honest-reckoning-address',
         label: '"We Tried and We Failed Some" — The Honest Reckoning',
-        description: 'Acknowledge failures explicitly: the pension deficit, the incomplete projects, the corruption pressure. Civil society erupts in approval. Trust +12. Partygodfathers furious. A defining moment.',
+        description:
+          'Acknowledge failures explicitly: the pension deficit, the incomplete projects, the corruption pressure. Civil society erupts in approval. Trust +12. Partygodfathers furious. A defining moment.',
         immediate: { publicTrust: 12, politicalCapital: -20 },
         factionImpact: { civilSocietyMedia: 20, partyGodfathers: -15, informalEconomy: 8 },
         setFlags: { 'valedictory-honest': true },
@@ -1200,7 +1316,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'future-focused-address',
         label: '"Lagos Is Ready" — The Forward-Looking Transition Speech',
-        description: 'Speak entirely about what the next administration must do. Generosity toward the successor. Neutral trust impact. Builds post-tenure goodwill. Businesscommunity approves.',
+        description:
+          'Speak entirely about what the next administration must do. Generosity toward the successor. Neutral trust impact. Builds post-tenure goodwill. Businesscommunity approves.',
         immediate: { publicTrust: 4, politicalCapital: 5 },
         factionImpact: { businessCommunity: 10, civilSocietyMedia: 8, partyGodfathers: 3 },
         setFlags: { 'valedictory-forward': true },
@@ -1220,26 +1337,30 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'release-budget-executive-authority',
         label: 'Release Funds Under Executive Cash Management Authority',
-        description: 'Invoke the Governor\'s emergency cash management powers to release critical items without Assembly approval. Infrastructure +6. Corruption +5 — legally contested. Civil society watches nervously.',
+        description:
+          "Invoke the Governor's emergency cash management powers to release critical items without Assembly approval. Infrastructure +6. Corruption +5 — legally contested. Civil society watches nervously.",
         immediate: { infrastructureScore: 6, corruptionPressure: 5 },
         factionImpact: { businessCommunity: 8, civilSocietyMedia: -6, partyGodfathers: -5 },
       },
       {
         id: 'go-public-assembly-sabotage',
         label: 'Call a Press Conference Exposing the Sabotage',
-        description: 'Name the Assembly leadership publicly and shame them into action. Trust +8. Political Capital -20. Partygodfathers enraged. May force the reading within 10 days.',
+        description:
+          'Name the Assembly leadership publicly and shame them into action. Trust +8. Political Capital -20. Partygodfathers enraged. May force the reading within 10 days.',
         immediate: { publicTrust: 8, politicalCapital: -20 },
         factionImpact: { civilSocietyMedia: 14, partyGodfathers: -18, lgChairmen: -5 },
         delayed: {
           weekOffset: 10,
           delta: { infrastructureScore: 5, cashReserve: 10.0 },
-          eventText: 'Public pressure worked faster than any backroom deal could. The Assembly passed a reduced N14bn budget. The Speaker\'s office issued a statement praising \'the spirit of democratic collaboration.\' Your Chief of Staff has framed the quote.',
+          eventText:
+            "Public pressure worked faster than any backroom deal could. The Assembly passed a reduced N14bn budget. The Speaker's office issued a statement praising 'the spirit of democratic collaboration.' Your Chief of Staff has framed the quote.",
         },
       },
       {
         id: 'negotiate-supplementary-passage',
         label: 'Negotiate — Grant Three Constituency Projects for the Reading',
-        description: 'Buy the reading with targeted constituency spending. Corruption +4. Budget passes at ₦22bn. Infrastructure delivered. Tainted but functional.',
+        description:
+          'Buy the reading with targeted constituency spending. Corruption +4. Budget passes at ₦22bn. Infrastructure delivered. Tainted but functional.',
         immediate: { cashReserve: -2.5, corruptionPressure: 4, infrastructureScore: 5 },
         factionImpact: { partyGodfathers: 8, lgChairmen: 10, civilSocietyMedia: -5 },
         corruptionTrigger: true,
@@ -1259,7 +1380,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'publish-handover-publicly',
         label: 'Publish the Handover Note Publicly Before Handing Over',
-        description: 'Release to the press simultaneously with the official handover. Removes it as a weapon. Civil society archives it. Trust +6. Partygodfathers furious at the transparency.',
+        description:
+          'Release to the press simultaneously with the official handover. Removes it as a weapon. Civil society archives it. Trust +6. Partygodfathers furious at the transparency.',
         immediate: { publicTrust: 6, corruptionPressure: -5 },
         factionImpact: { civilSocietyMedia: 14, partyGodfathers: -10, businessCommunity: 5 },
         setFlags: { 'handover-published': true },
@@ -1267,7 +1389,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'sanitize-handover-note',
         label: 'Sanitize the Document — Remove Politically Damaging Material',
-        description: 'Strip the pension liability data and ghost worker figures. Corruption +6. If the incoming administration discovers the omission, the narrative collapses entirely.',
+        description:
+          'Strip the pension liability data and ghost worker figures. Corruption +6. If the incoming administration discovers the omission, the narrative collapses entirely.',
         immediate: { corruptionPressure: 6 },
         factionImpact: { partyGodfathers: 5, civilSocietyMedia: -8 },
         corruptionTrigger: true,
@@ -1275,7 +1398,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'full-official-handover-note',
         label: 'Full Disclosure — Official Handover Only',
-        description: 'Complete official handover to the incoming administration. Standard constitutional practice. Trust neutral. Successor cannot credibly blame you for omissions.',
+        description:
+          'Complete official handover to the incoming administration. Standard constitutional practice. Trust neutral. Successor cannot credibly blame you for omissions.',
         immediate: { politicalCapital: 5, publicTrust: 3 },
         factionImpact: { civilSocietyMedia: 6, businessCommunity: 3 },
         setFlags: { 'handover-clean': true },
@@ -1299,7 +1423,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'fund-lga-election-machinery',
         label: 'Release the ₦8bn LG Election Fund',
-        description: 'Pay the mobilisation demand in full. Cash -8. LG Chairmen +18. Corruption +6. Infrastructure delayed as the cash diverts.',
+        description:
+          'Pay the mobilisation demand in full. Cash -8. LG Chairmen +18. Corruption +6. Infrastructure delayed as the cash diverts.',
         immediate: { cashReserve: -8.0, corruptionPressure: 6 },
         factionImpact: { lgChairmen: 18, partyGodfathers: 8, civilSocietyMedia: -10 },
         corruptionTrigger: true,
@@ -1307,14 +1432,16 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'partial-lga-fund',
         label: 'Release ₦3bn — Partial Institutional Support Only',
-        description: 'Fund LASIEC operational costs only. No brown envelopes. LG Chairmen +5. Corruption +2. They are frustrated but remain in the tent.',
+        description:
+          'Fund LASIEC operational costs only. No brown envelopes. LG Chairmen +5. Corruption +2. They are frustrated but remain in the tent.',
         immediate: { cashReserve: -3.0, corruptionPressure: 2 },
         factionImpact: { lgChairmen: 5, partyGodfathers: 3, civilSocietyMedia: 3 },
       },
       {
         id: 'refuse-lga-fund',
         label: 'Refuse — Party Structure Must Self-Finance',
-        description: 'Direct the party secretariat to fund from its own account. LG Chairmen furious. Cash preserved. Civil society approves. Successor\'s ground machinery weakens.',
+        description:
+          "Direct the party secretariat to fund from its own account. LG Chairmen furious. Cash preserved. Civil society approves. Successor's ground machinery weakens.",
         immediate: { politicalCapital: -15 },
         factionImpact: { lgChairmen: -15, civilSocietyMedia: 8, partyGodfathers: -8 },
       },
@@ -1333,19 +1460,22 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'order-fresh-congress',
         label: 'Order Fresh Congresses Under Police Protection',
-        description: 'Conduct re-run congresses with heavy security presence. Cash -0.5. Takes 3 weeks. Civil society questions the validity. LG Chairmen anxious.',
+        description:
+          'Conduct re-run congresses with heavy security presence. Cash -0.5. Takes 3 weeks. Civil society questions the validity. LG Chairmen anxious.',
         immediate: { cashReserve: -0.5, politicalCapital: -10 },
         factionImpact: { lgChairmen: 5, partyGodfathers: -5, civilSocietyMedia: -5 },
         delayed: {
           weekOffset: 3,
           delta: { politicalCapital: 10 },
-          eventText: 'The re-run congresses were quiet. Armed police at every polling station buys a certain kind of peace. Alimosho, Agege, Ikorodu — the three most contested wards — have returned their delegate slates. The old slates. The same faces, validated by force.',
+          eventText:
+            'The re-run congresses were quiet. Armed police at every polling station buys a certain kind of peace. Alimosho, Agege, Ikorodu — the three most contested wards — have returned their delegate slates. The old slates. The same faces, validated by force.',
         },
       },
       {
         id: 'accept-disputed-delegates',
         label: 'Ratify Disputed Delegates Through Party NEC',
-        description: 'Push the disputed congresses through party NEC ratification — whoever controlled the venue wins. Partygodfathers +10. Civil society -10. Corruption +4.',
+        description:
+          'Push the disputed congresses through party NEC ratification — whoever controlled the venue wins. Partygodfathers +10. Civil society -10. Corruption +4.',
         immediate: { corruptionPressure: 4 },
         factionImpact: { partyGodfathers: 10, lgChairmen: 8, civilSocietyMedia: -10 },
         corruptionTrigger: true,
@@ -1353,7 +1483,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'disqualify-violence-sponsors',
         label: 'Investigate and Disqualify Violence Sponsors',
-        description: 'Commission a party disciplinary tribunal. The sponsors — likely godfather loyalists — are suspended. Trust +8. Partygodfathers -18. The 3 LGAs miss the primary.',
+        description:
+          'Commission a party disciplinary tribunal. The sponsors — likely godfather loyalists — are suspended. Trust +8. Partygodfathers -18. The 3 LGAs miss the primary.',
         immediate: { publicTrust: 8, politicalCapital: -15 },
         factionImpact: { partyGodfathers: -18, civilSocietyMedia: 12, lgChairmen: -8 },
       },
@@ -1372,14 +1503,16 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'pay-ltvs-arrears',
         label: 'Pay All Arrears and Release Equipment Fund',
-        description: 'Clear the ₦180M obligation. Broadcast resumes within 48 hours. Trust +4. Civil society notes the responsiveness. Cash -0.18.',
+        description:
+          'Clear the ₦180M obligation. Broadcast resumes within 48 hours. Trust +4. Civil society notes the responsiveness. Cash -0.18.',
         immediate: { cashReserve: -0.18, publicTrust: 4 },
         factionImpact: { civilSocietyMedia: 8, lgChairmen: 3 },
       },
       {
         id: 'pivot-to-private-media',
         label: 'Pivot Entirely to Private Media and Social Channels',
-        description: 'Redirect state communications budget to Channels, AIT, and social media. Cash -1. Civil society approves the modernization. LTVS remains dark.',
+        description:
+          'Redirect state communications budget to Channels, AIT, and social media. Cash -1. Civil society approves the modernization. LTVS remains dark.',
         immediate: { cashReserve: -1.0, publicTrust: 3 },
         factionImpact: { civilSocietyMedia: 6, businessCommunity: 3 },
         setFlags: { 'pivoted-from-state-media': true },
@@ -1387,7 +1520,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'pressure-nuj-chapter',
         label: 'Pressure NUJ Leadership to End the Order',
-        description: 'Apply political pressure through NUJ national leadership. Work order lifted for 6 weeks. Trust -4. Underlying issues remain. Civil society documents the interference.',
+        description:
+          'Apply political pressure through NUJ national leadership. Work order lifted for 6 weeks. Trust -4. Underlying issues remain. Civil society documents the interference.',
         immediate: { publicTrust: -4, politicalCapital: -10 },
         factionImpact: { civilSocietyMedia: -10, partyGodfathers: 5 },
       },
@@ -1406,22 +1540,25 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'sack-defecting-commissioners',
         label: 'Sack All Four Immediately',
-        description: 'Immediate removal. Political Capital -20 (you\'ve lost four ministries). Trust +5 (shows decisiveness). Partygodfathers -12 (they backed the defectors). Four ministries under Acting Commissioners.',
+        description:
+          "Immediate removal. Political Capital -20 (you've lost four ministries). Trust +5 (shows decisiveness). Partygodfathers -12 (they backed the defectors). Four ministries under Acting Commissioners.",
         immediate: { politicalCapital: -20, publicTrust: 5 },
         factionImpact: { partyGodfathers: -12, civilSocietyMedia: 6, lgChairmen: -5 },
         setFlags: { 'commissioners-purged': true },
       },
       {
         id: 'ignore-commissioner-defection',
-        label: 'Ignore It — Keep Them on Government\'s Bandwidth',
-        description: 'Treat it as noise. They stay. Ministry operations continue. Civil society reads it as weakness. Corruption pressure creeps up (unsupervised ministries). Trust -5.',
+        label: "Ignore It — Keep Them on Government's Bandwidth",
+        description:
+          'Treat it as noise. They stay. Ministry operations continue. Civil society reads it as weakness. Corruption pressure creeps up (unsupervised ministries). Trust -5.',
         immediate: { publicTrust: -5, corruptionPressure: 5 },
         factionImpact: { partyGodfathers: 5, civilSocietyMedia: -8 },
       },
       {
         id: 'reassign-defectors',
         label: 'Quietly Reassign to Ceremonial Portfolios',
-        description: 'Move them sideways to powerless ministries. They keep their salaries and cars but lose operational authority. Corruption -2. Trust +2. Partygodfathers satisfied they weren\'t sacked.',
+        description:
+          "Move them sideways to powerless ministries. They keep their salaries and cars but lose operational authority. Corruption -2. Trust +2. Partygodfathers satisfied they weren't sacked.",
         immediate: { publicTrust: 2, corruptionPressure: -2 },
         factionImpact: { partyGodfathers: 5, lgChairmen: 3, civilSocietyMedia: 3 },
       },
@@ -1440,26 +1577,30 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'bilateral-oyo-ogun',
         label: 'Bilateral Outreach — Oyo and Ogun Governors',
-        description: 'Bypass the Forum and build direct bilateral relationships. Political Capital -15. Federal Relationship +5. May restore Forum access in 8 weeks.',
+        description:
+          'Bypass the Forum and build direct bilateral relationships. Political Capital -15. Federal Relationship +5. May restore Forum access in 8 weeks.',
         immediate: { politicalCapital: -15, federalRelationship: 5 },
         factionImpact: { partyGodfathers: 3, federalGovt: 5 },
         delayed: {
           weekOffset: 8,
           delta: { politicalCapital: 15 },
-          eventText: 'Oyo and Ogun governors have jointly issued a statement welcoming Lagos back to Forum consultations.',
+          eventText:
+            'Oyo and Ogun governors have jointly issued a statement welcoming Lagos back to Forum consultations.',
         },
       },
       {
         id: 'public-call-forum-transparency',
         label: 'Publicly Call for Forum Transparency and Openness',
-        description: 'Issue a statement criticizing the Forum\'s backroom exclusion. Civil society applauds. Trust +5. The other governors are publicly embarrassed and consider reversing the isolation.',
+        description:
+          "Issue a statement criticizing the Forum's backroom exclusion. Civil society applauds. Trust +5. The other governors are publicly embarrassed and consider reversing the isolation.",
         immediate: { publicTrust: 5, federalRelationship: -5 },
         factionImpact: { civilSocietyMedia: 10, partyGodfathers: -8, federalGovt: -5 },
       },
       {
         id: 'create-lagos-only-compact',
         label: 'Establish a Lagos–FCT Bilateral Compact Instead',
-        description: 'Pursue a direct Lagos–Abuja intergovernmental arrangement that bypasses the Forum entirely. Unconventional but assertive. Federal Relationship +8 if > -15.',
+        description:
+          'Pursue a direct Lagos–Abuja intergovernmental arrangement that bypasses the Forum entirely. Unconventional but assertive. Federal Relationship +8 if > -15.',
         immediate: { politicalCapital: -10, federalRelationship: 8 },
         factionImpact: { businessCommunity: 5, federalGovt: 5 },
       },
@@ -1478,7 +1619,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'publish-full-financial-disclosure',
         label: 'Publish Detailed Financial Accounts — Destroy the Narrative',
-        description: 'Release eight years of state accounts publicly in 48 hours. Civil society documents the response. Corruption -6. Trust +10. Business community relieved.',
+        description:
+          'Release eight years of state accounts publicly in 48 hours. Civil society documents the response. Corruption -6. Trust +10. Business community relieved.',
         immediate: { publicTrust: 10, corruptionPressure: -6 },
         factionImpact: { civilSocietyMedia: 15, businessCommunity: 8, partyGodfathers: -5 },
         setFlags: { 'financial-disclosure-published': true },
@@ -1486,14 +1628,16 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'sue-disinformation-firm',
         label: 'File a Defamation Suit Against the Consultancy',
-        description: 'Legal action creates new news cycles that keep the story alive. Trust -3 (dunning-Krueger effect). Political Capital -10. Partygodfathers enjoy the chaos.',
+        description:
+          'Legal action creates new news cycles that keep the story alive. Trust -3 (dunning-Krueger effect). Political Capital -10. Partygodfathers enjoy the chaos.',
         immediate: { publicTrust: -3, politicalCapital: -10 },
         factionImpact: { civilSocietyMedia: -5, partyGodfathers: 5 },
       },
       {
         id: 'counter-campaign-response',
         label: 'Launch a Counter-Campaign — "What We Built"',
-        description: 'Fund a rapid-response social media counter-campaign with infrastructure delivery visuals. Cash -0.8. Neutral trust. Reaches a different audience. Buys 6 weeks of narrative space.',
+        description:
+          'Fund a rapid-response social media counter-campaign with infrastructure delivery visuals. Cash -0.8. Neutral trust. Reaches a different audience. Buys 6 weeks of narrative space.',
         immediate: { cashReserve: -0.8, publicTrust: 4 },
         factionImpact: { civilSocietyMedia: 5, businessCommunity: 5, lgChairmen: 3 },
       },
@@ -1502,7 +1646,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
 
   {
     id: 'term2-vp-mediation-offer',
-    title: 'The Vice President\'s Private Offer',
+    title: "The Vice President's Private Offer",
     body: `A courier delivers an unsigned, unheaded note to your Chief of Staff. The message is from the Vice President's office. He is willing to "facilitate a normalisation of relations" between your administration and Abuja — federal allocations restored, EFCC file shelved, and Forum access returned — in exchange for a "cooperative posture" on two items: endorsement of the NEC candidate, and withdrawal of Lagos's pending Supreme Court case on VAT revenue allocation.`,
     severity: 'critical',
     category: 'political',
@@ -1512,7 +1656,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'accept-vp-mediation',
         label: 'Accept the Terms — Normalize Relations',
-        description: 'Endorse the NEC candidate and drop the VAT case. Cash improves from restored allocations. Federal Relationship +30. Trust -12. Legacy of the VAT fight abandoned.',
+        description:
+          'Endorse the NEC candidate and drop the VAT case. Cash improves from restored allocations. Federal Relationship +30. Trust -12. Legacy of the VAT fight abandoned.',
         immediate: { publicTrust: -12, federalRelationship: 30 },
         factionImpact: { partyGodfathers: 15, federalGovt: 25, civilSocietyMedia: -18 },
         setFlags: { 'vp-deal-accepted': true, 'endorsed-nec-candidate': true },
@@ -1521,7 +1666,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'reject-vp-mediation',
         label: 'Reject the Terms — The VAT Case Stays',
-        description: 'Decline firmly and privately. The VAT case continues. Federal hostility resumes. But history records that Lagos did not blink. Trust +8. Political Capital -20.',
+        description:
+          'Decline firmly and privately. The VAT case continues. Federal hostility resumes. But history records that Lagos did not blink. Trust +8. Political Capital -20.',
         immediate: { publicTrust: 8, politicalCapital: -20, federalRelationship: -5 },
         factionImpact: { civilSocietyMedia: 12, partyGodfathers: -10, federalGovt: -10 },
         setFlags: { 'vp-deal-rejected': true },
@@ -1529,7 +1675,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'negotiate-vp-partial',
         label: 'Counter-Offer — Endorse Candidate, Keep the VAT Case',
-        description: 'Accept the candidate endorsement but refuse to drop the VAT litigation. Federal Relationship +15. Godfathers +10. The VAT case proceeds at lower political cost.',
+        description:
+          'Accept the candidate endorsement but refuse to drop the VAT litigation. Federal Relationship +15. Godfathers +10. The VAT case proceeds at lower political cost.',
         immediate: { federalRelationship: 15, politicalCapital: -10 },
         factionImpact: { partyGodfathers: 10, federalGovt: 10, civilSocietyMedia: -8 },
         setFlags: { 'endorsed-nec-candidate': true },
@@ -1550,22 +1697,25 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'emergency-recruit-new-candidate',
         label: 'Emergency Recruitment — A New Technocrat Candidate',
-        description: 'Identify and back a replacement candidate in 72 hours. Cash -2 (instant campaign seed funding). Political Capital -30. Partygodfathers will fight it. Civil society watches.',
+        description:
+          'Identify and back a replacement candidate in 72 hours. Cash -2 (instant campaign seed funding). Political Capital -30. Partygodfathers will fight it. Civil society watches.',
         immediate: { cashReserve: -2.0, politicalCapital: -30 },
         factionImpact: { partyGodfathers: -15, civilSocietyMedia: 5, businessCommunity: 5 },
       },
       {
         id: 'accept-nec-candidate-now',
         label: 'Accept the NEC Candidate — The Fight Is Over',
-        description: 'Contact the National Chairman and signal acceptance. Political Capital +20 (you\'ve joined the winning side). Trust -10. Legacy conceded. Godfathers win.',
+        description:
+          "Contact the National Chairman and signal acceptance. Political Capital +20 (you've joined the winning side). Trust -10. Legacy conceded. Godfathers win.",
         immediate: { politicalCapital: 20, publicTrust: -10 },
         factionImpact: { partyGodfathers: 20, civilSocietyMedia: -15, federalGovt: 10 },
         setFlags: { 'endorsed-nec-candidate': true },
       },
       {
         id: 'back-opposition-technocrat',
-        label: 'Secretly Back the APC Opposition\'s Technocrat',
-        description: 'Extraordinary move: provide back-channel support to a credible opposition technocrat who represents your reform agenda. Explosive if discovered. Trust +8 if kept secret. Political suicide if exposed.',
+        label: "Secretly Back the APC Opposition's Technocrat",
+        description:
+          'Extraordinary move: provide back-channel support to a credible opposition technocrat who represents your reform agenda. Explosive if discovered. Trust +8 if kept secret. Political suicide if exposed.',
         immediate: { politicalCapital: -25, corruptionPressure: 6 },
         factionImpact: { partyGodfathers: -30, civilSocietyMedia: 8 },
         setFlags: { 'backed-opposition-candidate': true },
@@ -1587,32 +1737,37 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'emergency-contractor-payment',
         label: 'Release ₦12bn Emergency Certificate Payment',
-        description: 'Partial payment of the backlog. Sites reopen in 48 hours. Cash -12. Contractor trust restored. Infrastructure delivery resumes. Backlog partially cleared.',
+        description:
+          'Partial payment of the backlog. Sites reopen in 48 hours. Cash -12. Contractor trust restored. Infrastructure delivery resumes. Backlog partially cleared.',
         immediate: { cashReserve: -12.0, infrastructureScore: 3, contractorBacklog: -8 },
         factionImpact: { businessCommunity: 12, civilSocietyMedia: 5 },
       },
       {
         id: 'securitize-contractor-debt',
         label: 'Issue State Contractor Promissory Notes (12-Month Maturity)',
-        description: 'Give contractors state-backed IOUs maturing in 12 months. Sites reopen. Debt Stock +8. Some contractors reject notes and stay off site.',
+        description:
+          'Give contractors state-backed IOUs maturing in 12 months. Sites reopen. Debt Stock +8. Some contractors reject notes and stay off site.',
         immediate: { debtStock: 8, contractorBacklog: -5 },
         factionImpact: { businessCommunity: 3, partyGodfathers: 3 },
         delayed: {
           weekOffset: 12,
           delta: { cashReserve: -8.0, infrastructureScore: 5 },
-          eventText: 'The contractor promissory notes have matured. Works completed on 22 of 34 sites. 12 sites remain partially finished.',
+          eventText:
+            'The contractor promissory notes have matured. Works completed on 22 of 34 sites. 12 sites remain partially finished.',
         },
       },
       {
         id: 'new-contractor-procurement',
         label: 'Terminate Defaulting Contracts — Re-Award to New Firms',
-        description: 'Terminate the contracts and fast-track new awards. Cash -2 (mobilisation fees). Old contractors pursue arbitration. Sites restart in 6 weeks. Civil society flags the procurement.',
+        description:
+          'Terminate the contracts and fast-track new awards. Cash -2 (mobilisation fees). Old contractors pursue arbitration. Sites restart in 6 weeks. Civil society flags the procurement.',
         immediate: { cashReserve: -2.0, corruptionPressure: 6 },
         factionImpact: { businessCommunity: -10, partyGodfathers: 5, civilSocietyMedia: -5 },
         delayed: {
           weekOffset: 6,
           delta: { infrastructureScore: 4 },
-          eventText: 'New contractors have mobilized to 28 of the 34 affected sites. The old firms have filed arbitration notices at the Lagos Court of Arbitration.',
+          eventText:
+            'New contractors have mobilized to 28 of the 34 affected sites. The old firms have filed arbitration notices at the Lagos Court of Arbitration.',
         },
       },
     ],
@@ -1630,21 +1785,24 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'windfall-to-infrastructure',
         label: 'Infrastructure Completion — Fast-Track 10 Stalled Projects',
-        description: 'Deploy the ₦22bn to complete near-finished projects. Infrastructure +12. Trust +6. Civil society approves. No corruption risk.',
+        description:
+          'Deploy the ₦22bn to complete near-finished projects. Infrastructure +12. Trust +6. Civil society approves. No corruption risk.',
         immediate: { cashReserve: 22.0, infrastructureScore: 12, publicTrust: 6 },
         factionImpact: { businessCommunity: 10, civilSocietyMedia: 8, lgChairmen: 5 },
       },
       {
         id: 'windfall-to-pension',
         label: 'Clear the Pension Backlog',
-        description: 'Use the windfall to address the pension deficit. Cash reserves improve. Trust +10. Pensioners are vocal. Long-term liability reduced. Infrastructure waits.',
+        description:
+          'Use the windfall to address the pension deficit. Cash reserves improve. Trust +10. Pensioners are vocal. Long-term liability reduced. Infrastructure waits.',
         immediate: { cashReserve: 22.0, publicTrust: 10, debtStock: -8 },
         factionImpact: { civilSocietyMedia: 12, informalEconomy: 8, lgChairmen: 5 },
       },
       {
         id: 'windfall-reserve-rainy-day',
         label: 'Hold as a Cash Buffer — Reserve for Final Year',
-        description: 'Retain the windfall as a fiscal buffer for the final year\'s commitments. Trust neutral. Business community approves the fiscal discipline. No immediate political gain.',
+        description:
+          "Retain the windfall as a fiscal buffer for the final year's commitments. Trust neutral. Business community approves the fiscal discipline. No immediate political gain.",
         immediate: { cashReserve: 22.0 },
         factionImpact: { businessCommunity: 12, civilSocietyMedia: 3 },
       },
@@ -1663,7 +1821,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'pay-full-compensation-market',
         label: 'Pay Full Compensation and Execute the Demolition',
-        description: 'Clear ₦4.5bn in outstanding compensation first, then proceed. Trust +4 (fair process). Infrastructure +8. Business community aligned. Informal economy upset but compensated.',
+        description:
+          'Clear ₦4.5bn in outstanding compensation first, then proceed. Trust +4 (fair process). Infrastructure +8. Business community aligned. Informal economy upset but compensated.',
         immediate: { cashReserve: -4.5, infrastructureScore: 8, publicTrust: 4 },
         factionImpact: { businessCommunity: 8, informalEconomy: -5, civilSocietyMedia: 5 },
         constituencyImpact: { lagosIsland: -5, oshodiIsolo: 5 },
@@ -1671,19 +1830,22 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'redesign-flyover-alignment',
         label: 'Commission Alignment Redesign to Spare the Market',
-        description: 'Reroute the flyover. Cash -1.5 (redesign). Adds 4 months to delivery. Infrastructure +5 on completion. Traders celebrate. Youth Tension -3.',
+        description:
+          'Reroute the flyover. Cash -1.5 (redesign). Adds 4 months to delivery. Infrastructure +5 on completion. Traders celebrate. Youth Tension -3.',
         immediate: { cashReserve: -1.5, youthTension: -3 },
         factionImpact: { informalEconomy: 15, civilSocietyMedia: 10, businessCommunity: -5 },
         delayed: {
           weekOffset: 16,
           delta: { infrastructureScore: 5, publicTrust: 4 },
-          eventText: 'The redesigned flyover alignment has been completed. The Balogun annexe traders celebrated the opening with a market procession.',
+          eventText:
+            'The redesigned flyover alignment has been completed. The Balogun annexe traders celebrated the opening with a market procession.',
         },
       },
       {
         id: 'proceed-without-full-payment',
         label: 'Proceed Without Full Compensation — Promise Phased Payments',
-        description: 'Issue eviction notices and proceed. Cash saved. Corruption +6. Civil society documents the eviction. Youth Tension +10. Informal economy furious.',
+        description:
+          'Issue eviction notices and proceed. Cash saved. Corruption +6. Civil society documents the eviction. Youth Tension +10. Informal economy furious.',
         immediate: { youthTension: 10, corruptionPressure: 6, infrastructureScore: 3 },
         factionImpact: { informalEconomy: -18, civilSocietyMedia: -12, businessCommunity: 3 },
         corruptionTrigger: true,
@@ -1703,34 +1865,39 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'executive-business-retention-package',
         label: 'Convene a CEO Retention Summit — Special Business Zone',
-        description: 'Host the top 20 multinationals personally. Offer a five-year business premises tax holiday for Lagos Island HQ occupants. IGR short-term -1.5. Long-term investment confidence restored.',
+        description:
+          'Host the top 20 multinationals personally. Offer a five-year business premises tax holiday for Lagos Island HQ occupants. IGR short-term -1.5. Long-term investment confidence restored.',
         immediate: { publicTrust: 5, igr: -1.5 },
         factionImpact: { businessCommunity: 18, civilSocietyMedia: 5, partyGodfathers: -3 },
         delayed: {
           weekOffset: 4,
           delta: { igr: 3.0 },
           factionImpact: { businessCommunity: 8 },
-          eventText: 'MTN has confirmed it is staying in Lagos. Six other multinationals have signed the Lagos Island Business Continuity Compact.',
+          eventText:
+            'MTN has confirmed it is staying in Lagos. Six other multinationals have signed the Lagos Island Business Continuity Compact.',
         },
       },
       {
         id: 'accelerate-vi-infrastructure',
         label: 'Emergency Infrastructure Delivery in Victoria Island',
-        description: 'Ring-fence ₦3bn for emergency road rehabilitation and power supply upgrades around Victoria Island and Lagos Island. Infrastructure +5. Direct business retention signal.',
+        description:
+          'Ring-fence ₦3bn for emergency road rehabilitation and power supply upgrades around Victoria Island and Lagos Island. Infrastructure +5. Direct business retention signal.',
         immediate: { cashReserve: -3.0, infrastructureScore: 5 },
         factionImpact: { businessCommunity: 10, civilSocietyMedia: 3 },
         constituencyImpact: { etiOsa: 10, lagosIsland: 8 },
       },
       {
         id: 'ignore-mtn-threat',
-        label: 'Call the Bluff — MTN Cannot Leave Nigeria\'s Biggest Market',
-        description: 'Issue no response. MTN\'s commercial interest in staying is stronger than their frustration. High risk. If they leave: IGR -3 permanently. If they stay: no cost incurred.',
+        label: "Call the Bluff — MTN Cannot Leave Nigeria's Biggest Market",
+        description:
+          "Issue no response. MTN's commercial interest in staying is stronger than their frustration. High risk. If they leave: IGR -3 permanently. If they stay: no cost incurred.",
         immediate: {},
         factionImpact: { businessCommunity: -5, civilSocietyMedia: -3 },
         delayed: {
           weekOffset: 8,
           delta: { igr: -3.0 },
-          eventText: 'MTN has relocated its Nigerian corporate function to Abuja. Fifteen other firms are reviewing their Lagos footprints. The business press is describing Lagos as "losing its edge."',
+          eventText:
+            'MTN has relocated its Nigerian corporate function to Abuja. Fifteen other firms are reviewing their Lagos footprints. The business press is describing Lagos as "losing its edge."',
         },
       },
     ],
@@ -1748,26 +1915,30 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'supreme-court-stamp-duty',
         label: 'File an Urgent Supreme Court Revenue Allocation Challenge',
-        description: 'Contest the reclassification in court. Political Capital -20. Federal Relationship -10. Civil society applauds. May restore ₦6.2bn quarterly if won in 12 weeks.',
+        description:
+          'Contest the reclassification in court. Political Capital -20. Federal Relationship -10. Civil society applauds. May restore ₦6.2bn quarterly if won in 12 weeks.',
         immediate: { politicalCapital: -20, federalRelationship: -10 },
         factionImpact: { civilSocietyMedia: 12, federalGovt: -12, businessCommunity: 8 },
         delayed: {
           weekOffset: 12,
           delta: { igr: 2.5, cashReserve: 6.0 },
-          eventText: 'The Supreme Court has ruled 4-3 in Lagos\'s favour. FIRS is ordered to reverse the stamp duty reclassification. ₦6.2bn per quarter restored.',
+          eventText:
+            "The Supreme Court has ruled 4-3 in Lagos's favour. FIRS is ordered to reverse the stamp duty reclassification. ₦6.2bn per quarter restored.",
         },
       },
       {
         id: 'negotiate-stamp-duty-sharing',
         label: 'Negotiate a Bilateral Revenue Sharing Formula',
-        description: 'Accept 50-50 on the contested category in exchange for restoration of other FAAC flows. Federal Relationship +10. IGR partially restored. Political Capital -10.',
+        description:
+          'Accept 50-50 on the contested category in exchange for restoration of other FAAC flows. Federal Relationship +10. IGR partially restored. Political Capital -10.',
         immediate: { politicalCapital: -10, federalRelationship: 10, igr: -1.5 },
         factionImpact: { federalGovt: 8, businessCommunity: 5 },
       },
       {
         id: 'counter-levy-stamp-duty',
         label: 'Impose a Countering State Property Transaction Levy',
-        description: 'Institute a new state-level property transaction levy to recoup lost stamp duty revenue. IGR neutral but business community furious at new fees.',
+        description:
+          'Institute a new state-level property transaction levy to recoup lost stamp duty revenue. IGR neutral but business community furious at new fees.',
         immediate: { igr: 1.5, corruptionPressure: 3 },
         factionImpact: { businessCommunity: -12, civilSocietyMedia: -5, partyGodfathers: 3 },
       },
@@ -1786,21 +1957,24 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'accept-diaspora-fund-denounce',
         label: 'Accept the Terms — Formally Denounce the Seizure',
-        description: 'Eat humble pie. Cash +15. Trust +6. Civil society applauds. Godfathers who benefited from the seizure are furious. Corruption -4.',
+        description:
+          'Eat humble pie. Cash +15. Trust +6. Civil society applauds. Godfathers who benefited from the seizure are furious. Corruption -4.',
         immediate: { cashReserve: 15.0, publicTrust: 6, corruptionPressure: -4 },
         factionImpact: { civilSocietyMedia: 14, partyGodfathers: -12, businessCommunity: 10 },
       },
       {
         id: 'reject-diaspora-conditions',
         label: 'Reject the Conditions — Do Not Revisit the Seizure',
-        description: 'Decline. The investment does not come. Godfathers satisfied. Civil society documents your refusal to acknowledge the displacement.',
+        description:
+          'Decline. The investment does not come. Godfathers satisfied. Civil society documents your refusal to acknowledge the displacement.',
         immediate: { politicalCapital: 8 },
         factionImpact: { partyGodfathers: 8, civilSocietyMedia: -10, businessCommunity: -5 },
       },
       {
         id: 'negotiate-diaspora-partial',
         label: 'Negotiate Partial Condition — Issue a "Regret" Statement',
-        description: 'Issue a carefully worded statement of "administrative regret" without formal legal acknowledgement. Investors accept half the fund. Cash +7. Trust +3.',
+        description:
+          'Issue a carefully worded statement of "administrative regret" without formal legal acknowledgement. Investors accept half the fund. Cash +7. Trust +3.',
         immediate: { cashReserve: 7.0, publicTrust: 3 },
         factionImpact: { civilSocietyMedia: 6, businessCommunity: 6, partyGodfathers: 3 },
       },
@@ -1821,7 +1995,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'emergency-coastal-defense',
         label: 'Emergency Rock Armour and Geotextile Revetment',
-        description: 'Deploy emergency coastal protection. Cash -3.5. Infrastructure +6. Slows erosion for 5 years. Victoria Island approvals restored.',
+        description:
+          'Deploy emergency coastal protection. Cash -3.5. Infrastructure +6. Slows erosion for 5 years. Victoria Island approvals restored.',
         immediate: { cashReserve: -3.5, infrastructureScore: 6 },
         factionImpact: { businessCommunity: 10, civilSocietyMedia: 6 },
         constituencyImpact: { etiOsa: 10, ibejuLekki: 5 },
@@ -1829,19 +2004,22 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'eko-atlantic-extension',
         label: 'Commission Eko Atlantic Seawall Extension',
-        description: 'Extend the existing seawall to cover the vulnerable stretch. Cash -3 state contribution (federal and developer co-fund). Slower: 14-week delivery. Infrastructure +10 long-term.',
+        description:
+          'Extend the existing seawall to cover the vulnerable stretch. Cash -3 state contribution (federal and developer co-fund). Slower: 14-week delivery. Infrastructure +10 long-term.',
         immediate: { cashReserve: -3.0 },
         factionImpact: { businessCommunity: 12, partyGodfathers: 5 },
         delayed: {
           weekOffset: 14,
           delta: { infrastructureScore: 10, publicTrust: 5 },
-          eventText: 'The Eko Atlantic seawall extension has been completed, protecting 2.3km of Victoria Island shoreline.',
+          eventText:
+            'The Eko Atlantic seawall extension has been completed, protecting 2.3km of Victoria Island shoreline.',
         },
       },
       {
         id: 'beach-rezoning-managed-retreat',
         label: 'Managed Retreat — Rezone the Affected Beachfront',
-        description: 'Declare the eroded zone a permanent coastal buffer and rezone it as a public park. Cheap. Civil society loves it. Business community loses premium real estate access.',
+        description:
+          'Declare the eroded zone a permanent coastal buffer and rezone it as a public park. Cheap. Civil society loves it. Business community loses premium real estate access.',
         immediate: { publicTrust: 6, infrastructureScore: 2 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: -8 },
         constituencyImpact: { etiOsa: 3, ibejuLekki: 3 },
@@ -1861,31 +2039,36 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'emergency-drainage-rehabilitation',
         label: 'Emergency Drainage Rehabilitation — New Contractor',
-        description: 'Terminate the original contract, recover the advance, and re-award. Cash -3. Takes 8 weeks. Infrastructure +6. Prosecute the original contractor.',
+        description:
+          'Terminate the original contract, recover the advance, and re-award. Cash -3. Takes 8 weeks. Infrastructure +6. Prosecute the original contractor.',
         immediate: { cashReserve: -3.0, publicTrust: 5 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: -3, lgChairmen: -3 },
         delayed: {
           weekOffset: 8,
           delta: { infrastructureScore: 6, publicTrust: 3 },
-          eventText: 'The Bode Thomas drainage is done. A 150-year-capacity culvert system runs beneath the road now. The market women who lost their stalls in the flood came to the commissioning — not to celebrate, but to see if the water would go somewhere else this time.',
+          eventText:
+            'The Bode Thomas drainage is done. A 150-year-capacity culvert system runs beneath the road now. The market women who lost their stalls in the flood came to the commissioning — not to celebrate, but to see if the water would go somewhere else this time.',
         },
       },
       {
         id: 'citywide-drainage-audit',
         label: 'Order Emergency Audit of All Drainage Infrastructure',
-        description: 'Commission a citywide drainage capacity audit. Takes 6 weeks. Cash -1.5. Prevents future disasters. Civil society strongly supports the systemic response.',
+        description:
+          'Commission a citywide drainage capacity audit. Takes 6 weeks. Cash -1.5. Prevents future disasters. Civil society strongly supports the systemic response.',
         immediate: { cashReserve: -1.5, corruptionPressure: -3 },
         factionImpact: { civilSocietyMedia: 12, businessCommunity: 5 },
         delayed: {
           weekOffset: 6,
           delta: { infrastructureScore: 4, publicTrust: 4 },
-          eventText: 'The audit reveals what everyone who lives in Lagos already knows: the drainage system was designed for a city half this size. 47 critical points. The top 12 are under emergency works. Points 13 through 47 will wait — like everything else in a city that grows faster than it can fix.',
+          eventText:
+            'The audit reveals what everyone who lives in Lagos already knows: the drainage system was designed for a city half this size. 47 critical points. The top 12 are under emergency works. Points 13 through 47 will wait — like everything else in a city that grows faster than it can fix.',
         },
       },
       {
         id: 'prosecute-original-contractor',
         label: 'Focus Entirely on Prosecuting the Absconding Contractor',
-        description: 'Legal action only. The flood victims hear announcements of prosecution while their homes remain submerged. Trust -6. Civil society is unimpressed. Corruption -4.',
+        description:
+          'Legal action only. The flood victims hear announcements of prosecution while their homes remain submerged. Trust -6. Civil society is unimpressed. Corruption -4.',
         immediate: { publicTrust: -6, corruptionPressure: -4 },
         factionImpact: { civilSocietyMedia: -8, businessCommunity: -3 },
       },
@@ -1904,32 +2087,37 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'close-carter-one-lane',
         label: 'Close the Failed Lane — Emergency Structural Repair',
-        description: 'Half-capacity closure. Immediate structural patching. Infrastructure +4. Terrible congestion on Third Mainland for 6 weeks. Business community alarmed.',
+        description:
+          'Half-capacity closure. Immediate structural patching. Infrastructure +4. Terrible congestion on Third Mainland for 6 weeks. Business community alarmed.',
         immediate: { infrastructureScore: 4, publicTrust: -4 },
         factionImpact: { businessCommunity: -8, civilSocietyMedia: 3 },
         constituencyImpact: { lagosIsland: -10, surulere: -8 },
         delayed: {
           weekOffset: 6,
           delta: { infrastructureScore: 3, publicTrust: 3 },
-          eventText: 'Carter Bridge structural repair is complete. The failed carriageway has reopened with a 30-tonne weight restriction.',
+          eventText:
+            'Carter Bridge structural repair is complete. The failed carriageway has reopened with a 30-tonne weight restriction.',
         },
       },
       {
         id: 'emergency-federal-request-carter',
-        label: 'Request Federal Emergency Works — It\'s a Federal Asset',
-        description: 'Carter Bridge is technically federal infrastructure. Demand immediate federal intervention. Federal Relationship -5 (Lagos is again "demanding"). Response time: 4 weeks minimum.',
+        label: "Request Federal Emergency Works — It's a Federal Asset",
+        description:
+          'Carter Bridge is technically federal infrastructure. Demand immediate federal intervention. Federal Relationship -5 (Lagos is again "demanding"). Response time: 4 weeks minimum.',
         immediate: { federalRelationship: -5, politicalCapital: -10 },
         factionImpact: { federalGovt: -5, civilSocietyMedia: 5 },
         delayed: {
           weekOffset: 6,
           delta: { infrastructureScore: 4 },
-          eventText: 'Federal Ministry of Works has finally assigned a repair team. Carter Bridge is patched. The repair is described by engineers as "temporary."',
+          eventText:
+            'Federal Ministry of Works has finally assigned a repair team. Carter Bridge is patched. The repair is described by engineers as "temporary."',
         },
       },
       {
         id: 'keep-carter-open-monitored',
         label: 'Keep Both Lanes Open — 24-Hour Monitoring Only',
-        description: 'Accept the structural risk. No disruption. Cash saved. If the crack progresses: catastrophic failure scenario. Civil society engineering associations issue public warnings.',
+        description:
+          'Accept the structural risk. No disruption. Cash saved. If the crack progresses: catastrophic failure scenario. Civil society engineering associations issue public warnings.',
         immediate: { corruptionPressure: 4 },
         factionImpact: { businessCommunity: 3, civilSocietyMedia: -12 },
       },
@@ -1948,31 +2136,36 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'pay-red-line-certificates',
         label: 'Clear the ₦9.3bn Certificate Debt — Finish the Line',
-        description: 'Pay in full. Contractor remobilizes in 2 weeks. Red Line opens to Agege in 10 weeks. Infrastructure +15. Legacy delivered. Cash -9.3.',
+        description:
+          'Pay in full. Contractor remobilizes in 2 weeks. Red Line opens to Agege in 10 weeks. Infrastructure +15. Legacy delivered. Cash -9.3.',
         immediate: { cashReserve: -9.3, infrastructureScore: 5 },
         factionImpact: { businessCommunity: 12, civilSocietyMedia: 10, lgChairmen: 8 },
         delayed: {
           weekOffset: 10,
           delta: { infrastructureScore: 15, publicTrust: 10 },
-          eventText: 'The Red Line opened on a Tuesday. Agege to Marina in 22 minutes — a trip that used to take two hours. 80,000 commuters on day one. Your administration\'s signature achievement. The ribbon-cutting photo will be in every campaign ad. The contractor\'s final payment cleared the same morning.',
+          eventText:
+            "The Red Line opened on a Tuesday. Agege to Marina in 22 minutes — a trip that used to take two hours. 80,000 commuters on day one. Your administration's signature achievement. The ribbon-cutting photo will be in every campaign ad. The contractor's final payment cleared the same morning.",
         },
       },
       {
         id: 'partial-payment-red-line',
         label: 'Pay ₦5bn Now — Negotiate the Rest Over 6 Months',
-        description: 'Partial settlement. Contractor remobilizes at reduced pace. Red Line opens to Agege in 18 weeks. Infrastructure +10 on completion.',
+        description:
+          'Partial settlement. Contractor remobilizes at reduced pace. Red Line opens to Agege in 18 weeks. Infrastructure +10 on completion.',
         immediate: { cashReserve: -5.0 },
         factionImpact: { businessCommunity: 6, civilSocietyMedia: 5 },
         delayed: {
           weekOffset: 18,
           delta: { infrastructureScore: 10, publicTrust: 6 },
-          eventText: 'The Red Line opened quietly — no ribbon, no press conference, no presidential tweet. Just the trains running. Agege to Ikeja in 11 minutes. The extension to Marina is still months away. The contractor has threatened to leave again. \'Complete a year late\' becomes your legacy.',
+          eventText:
+            "The Red Line opened quietly — no ribbon, no press conference, no presidential tweet. Just the trains running. Agege to Ikeja in 11 minutes. The extension to Marina is still months away. The contractor has threatened to leave again. 'Complete a year late' becomes your legacy.",
         },
       },
       {
         id: 'open-truncated-red-line',
         label: 'Open the Ikeja Station as the Terminus and Defer Agege',
-        description: 'Cut your losses. Open what you have. Infrastructure +5. The 4km Agege extension becomes your successor\'s problem. Business community disappointed.',
+        description:
+          "Cut your losses. Open what you have. Infrastructure +5. The 4km Agege extension becomes your successor's problem. Business community disappointed.",
         immediate: { infrastructureScore: 5, publicTrust: -3 },
         factionImpact: { businessCommunity: -8, civilSocietyMedia: -5, lgChairmen: -5 },
         constituencyImpact: { alimosho: -10, oshodiIsolo: -8 },
@@ -1992,31 +2185,36 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'sue-dof-naval-encroachment',
         label: 'File at the Federal High Court — Land Demarcation Challenge',
-        description: 'Legal challenge. Federal Relationship -8. Civil society approves. Resolution in 12 weeks if court rules fast. Political Capital -15.',
+        description:
+          'Legal challenge. Federal Relationship -8. Civil society approves. Resolution in 12 weeks if court rules fast. Political Capital -15.',
         immediate: { politicalCapital: -15, federalRelationship: -8 },
         factionImpact: { civilSocietyMedia: 10, federalGovt: -10, businessCommunity: 5 },
         delayed: {
           weekOffset: 12,
           delta: { infrastructureScore: 3, federalRelationship: 5 },
-          eventText: 'The Federal High Court has ruled that the new perimeter fence violates the 1960 land survey boundary. The Navy must relocate the fence within 30 days.',
+          eventText:
+            'The Federal High Court has ruled that the new perimeter fence violates the 1960 land survey boundary. The Navy must relocate the fence within 30 days.',
         },
       },
       {
         id: 'negotiate-with-military',
         label: 'Negotiate a Joint Boundary Commission',
-        description: 'Propose a formal joint survey and boundary re-demarcation. Federal Relationship -3. Slower resolution but avoids legal escalation.',
+        description:
+          'Propose a formal joint survey and boundary re-demarcation. Federal Relationship -3. Slower resolution but avoids legal escalation.',
         immediate: { politicalCapital: -10, federalRelationship: -3 },
         factionImpact: { federalGovt: 3, businessCommunity: 3 },
         delayed: {
           weekOffset: 16,
           delta: { infrastructureScore: 2 },
-          eventText: 'The joint boundary commission has agreed on a demarcation that restores 12 of the 18 encroached metres to state road use.',
+          eventText:
+            'The joint boundary commission has agreed on a demarcation that restores 12 of the 18 encroached metres to state road use.',
         },
       },
       {
         id: 'concede-naval-boundary',
         label: 'Accept the New Boundary — Reroute the Traffic',
-        description: 'Build a bypass road around the Navy\'s new fence. Cash -1.5. Infrastructure score neutral. Federal Relationship +5 (you didn\'t fight them). Trust -4.',
+        description:
+          "Build a bypass road around the Navy's new fence. Cash -1.5. Infrastructure score neutral. Federal Relationship +5 (you didn't fight them). Trust -4.",
         immediate: { cashReserve: -1.5, publicTrust: -4, federalRelationship: 5 },
         factionImpact: { federalGovt: 8, civilSocietyMedia: -6 },
       },
@@ -2035,20 +2233,23 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'complete-ikeja-flyover',
         label: 'Complete the Flyover — ₦4bn Final Phase',
-        description: 'Release the final payment and recommission the contractor. Cash -4. Infrastructure +10. The project becomes a second-term legacy delivery.',
+        description:
+          'Release the final payment and recommission the contractor. Cash -4. Infrastructure +10. The project becomes a second-term legacy delivery.',
         immediate: { cashReserve: -4.0, infrastructureScore: 5 },
         factionImpact: { businessCommunity: 8, lgChairmen: 6 },
         constituencyImpact: { alimosho: 8, oshodiIsolo: 5 },
         delayed: {
           weekOffset: 12,
           delta: { infrastructureScore: 10, publicTrust: 6 },
-          eventText: 'The Ikeja Along flyover has been completed. Traffic on the Airport Road axis has improved measurably for the first time in six years.',
+          eventText:
+            'The Ikeja Along flyover has been completed. Traffic on the Airport Road axis has improved measurably for the first time in six years.',
         },
       },
       {
         id: 'demolish-dangerous-piers',
         label: 'Demolish the Dangerous Structure — Cut the Loss',
-        description: 'Acknowledge the failure and demolish the abandoned piers. Cash -1 (demolition). Trust -5 (visible failure). No further safety risk. Civil society documents the wastage.',
+        description:
+          'Acknowledge the failure and demolish the abandoned piers. Cash -1 (demolition). Trust -5 (visible failure). No further safety risk. Civil society documents the wastage.',
         immediate: { cashReserve: -1.0, publicTrust: -5 },
         factionImpact: { civilSocietyMedia: -8, businessCommunity: -5 },
         constituencyImpact: { alimosho: -8 },
@@ -2056,7 +2257,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'transfer-flyover-to-federal',
         label: 'Transfer the Project to Federal Highway Authority',
-        description: 'Formally hand the project over to FERMA as a federal road project. Federal Relationship -3. Cash preserved. Slow delivery under federal pace. Not your legacy anymore.',
+        description:
+          'Formally hand the project over to FERMA as a federal road project. Federal Relationship -3. Cash preserved. Slow delivery under federal pace. Not your legacy anymore.',
         immediate: { politicalCapital: -10, federalRelationship: -3 },
         factionImpact: { federalGovt: -3, civilSocietyMedia: -4 },
       },
@@ -2077,7 +2279,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'hold-firm-on-ban',
         label: 'Hold Firm — Enforce the Ban With Additional Task Force',
-        description: 'Double down on enforcement. Youth Tension +15. Trust -8 in periphery. Long-term infrastructure +4 as alternative transport fills the gap.',
+        description:
+          'Double down on enforcement. Youth Tension +15. Trust -8 in periphery. Long-term infrastructure +4 as alternative transport fills the gap.',
         immediate: { youthTension: 15, publicTrust: -8, cashReserve: -1.5 },
         factionImpact: { informalEconomy: -20, businessCommunity: 5, civilSocietyMedia: -5 },
         constituencyImpact: { ikorodu: -15, alimosho: -10, lagosMainland: -12 },
@@ -2085,7 +2288,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'suspend-ban-peripheral',
         label: 'Suspend Ban on Peripheral Routes — Keep Island Ban',
-        description: 'Allow okadas on peripheral community routes, maintain ban on major highways. Informal economy recovers partially. Trust +5 in periphery. Business community neutral.',
+        description:
+          'Allow okadas on peripheral community routes, maintain ban on major highways. Informal economy recovers partially. Trust +5 in periphery. Business community neutral.',
         immediate: { publicTrust: 5, youthTension: -8 },
         factionImpact: { informalEconomy: 12, businessCommunity: 3, civilSocietyMedia: 5 },
         constituencyImpact: { ikorodu: 10, alimosho: 6, lagosMainland: 8 },
@@ -2093,13 +2297,15 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'okada-electric-conversion',
         label: 'Launch Electric Okada Conversion Programme',
-        description: 'Offer subsidized electric motorcycle conversions to registered riders. Cash -3. Takes 8 weeks. Long-term solution. Civil society and business community both approve.',
+        description:
+          'Offer subsidized electric motorcycle conversions to registered riders. Cash -3. Takes 8 weeks. Long-term solution. Civil society and business community both approve.',
         immediate: { cashReserve: -3.0, youthTension: -5 },
         factionImpact: { informalEconomy: 8, civilSocietyMedia: 10, businessCommunity: 5 },
         delayed: {
           weekOffset: 8,
           delta: { publicTrust: 6, infrastructureScore: 3 },
-          eventText: '4,200 okada operators have converted to electric motorcycles under the state programme. Youth tension in peripheral communities has eased significantly.',
+          eventText:
+            '4,200 okada operators have converted to electric motorcycles under the state programme. Youth tension in peripheral communities has eased significantly.',
         },
       },
     ],
@@ -2117,7 +2323,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'immediate-sars-unit-arrest',
         label: 'Order Immediate Arrest of All Twelve Officers',
-        description: 'Coordinate with the IGP for immediate arrest and prosecution. Trust +12. Youth Tension -10. Federal Relationship -3 (police are federal, you\'re overstepping). Civil society erupts in support.',
+        description:
+          "Coordinate with the IGP for immediate arrest and prosecution. Trust +12. Youth Tension -10. Federal Relationship -3 (police are federal, you're overstepping). Civil society erupts in support.",
         immediate: { publicTrust: 12, youthTension: -10, federalRelationship: -3 },
         factionImpact: { civilSocietyMedia: 18, informalEconomy: 10, federalGovt: -5 },
         constituencyImpact: { ikorodu: 8, alimosho: 6 },
@@ -2125,20 +2332,23 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'internal-police-discipline',
         label: 'Refer to Police Service Commission for Internal Discipline',
-        description: 'Use existing channels. Slower. Trust +4. Youth Tension -3. Civil society frustrated by bureaucratic process. Officers remain on duty pending "investigation."',
+        description:
+          'Use existing channels. Slower. Trust +4. Youth Tension -3. Civil society frustrated by bureaucratic process. Officers remain on duty pending "investigation."',
         immediate: { publicTrust: 4, youthTension: -3 },
         factionImpact: { civilSocietyMedia: -6, partyGodfathers: 3 },
       },
       {
         id: 'emergency-youth-commission',
         label: 'Convene an Emergency State Youth-Police Dialogue Commission',
-        description: 'Host a summit. Trust +6. Youth Tension -6. Takes 3 weeks. Officers remain deployed. Civil society demands action not dialogue. But the conversation builds long-term trust.',
+        description:
+          'Host a summit. Trust +6. Youth Tension -6. Takes 3 weeks. Officers remain deployed. Civil society demands action not dialogue. But the conversation builds long-term trust.',
         immediate: { publicTrust: 6, youthTension: -6 },
         factionImpact: { civilSocietyMedia: 5, informalEconomy: 5 },
         delayed: {
           weekOffset: 3,
           delta: { securityIndex: 3 },
-          eventText: 'The Youth-Police Dialogue Commission has submitted recommendations. The twelve officers have been quietly transferred to command stations in Badagry.',
+          eventText:
+            'The Youth-Police Dialogue Commission has submitted recommendations. The twelve officers have been quietly transferred to command stations in Badagry.',
         },
       },
     ],
@@ -2156,7 +2366,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'pay-chew-allowances',
         label: 'Clear All Allowances and Emergency Vaccine Deployment',
-        description: 'Pay the ₦1.1bn immediately and deploy vaccines via LASG logistics. Strike ends in 48 hours. Cash -1.1. Trust +10. Civil society applauds.',
+        description:
+          'Pay the ₦1.1bn immediately and deploy vaccines via LASG logistics. Strike ends in 48 hours. Cash -1.1. Trust +10. Civil society applauds.',
         immediate: { cashReserve: -1.1, publicTrust: 10, youthTension: -5 },
         factionImpact: { civilSocietyMedia: 12, informalEconomy: 8 },
         constituencyImpact: { ikorodu: 8, alimosho: 6, lagosMainland: 8 },
@@ -2164,19 +2375,22 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'phc-emergency-committee',
         label: 'Emergency Health Committee — Triage and Phased Response',
-        description: 'Establish a committee that pays critical frontline workers first (40%). Strike partially suspended. Takes 6 weeks. Polio risk managed but not eliminated.',
+        description:
+          'Establish a committee that pays critical frontline workers first (40%). Strike partially suspended. Takes 6 weeks. Polio risk managed but not eliminated.',
         immediate: { cashReserve: -0.4, publicTrust: 4 },
         factionImpact: { civilSocietyMedia: 3, partyGodfathers: 3 },
         delayed: {
           weekOffset: 6,
           delta: { publicTrust: 4, youthTension: -3 },
-          eventText: 'Full PHC allowances cleared. Vaccination rates recovering. No polio cases confirmed.',
+          eventText:
+            'Full PHC allowances cleared. Vaccination rates recovering. No polio cases confirmed.',
         },
       },
       {
         id: 'blame-federal-bhcpf',
         label: 'Blame Federal BHCPF Disbursement Delays',
-        description: 'Attribute the backlog to federal fund transfers. Trust -6. Youth Tension +8. Federal Relationship -5. PHC workers do not care who they blame — they want their money.',
+        description:
+          'Attribute the backlog to federal fund transfers. Trust -6. Youth Tension +8. Federal Relationship -5. PHC workers do not care who they blame — they want their money.',
         immediate: { publicTrust: -6, youthTension: 8, federalRelationship: -5 },
         factionImpact: { civilSocietyMedia: -10, federalGovt: -5 },
       },
@@ -2195,14 +2409,16 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'halt-all-vi-constructions',
         label: 'Emergency Halt on All High-Rise Construction — Citywide Structural Audit',
-        description: 'Stop all active high-rise construction in VI and Ikoyi pending emergency review. Trust +8. Business community furious (₦40bn in developments halted). Corruption -5.',
+        description:
+          'Stop all active high-rise construction in VI and Ikoyi pending emergency review. Trust +8. Business community furious (₦40bn in developments halted). Corruption -5.',
         immediate: { publicTrust: 8, corruptionPressure: -5 },
         factionImpact: { civilSocietyMedia: 14, businessCommunity: -15, partyGodfathers: -5 },
       },
       {
         id: 'prosecute-developer-lasbca',
         label: 'Prosecute Developer and Sack LASBCA Director',
-        description: 'Immediate criminal charges for developer, dismissal of LASBCA Director who signed off without review. Trust +10. Partygodfathers -15 (developer is a donor). Corruption -8.',
+        description:
+          'Immediate criminal charges for developer, dismissal of LASBCA Director who signed off without review. Trust +10. Partygodfathers -15 (developer is a donor). Corruption -8.',
         immediate: { publicTrust: 10, corruptionPressure: -8 },
         factionImpact: { civilSocietyMedia: 16, partyGodfathers: -15, businessCommunity: -5 },
         setFlags: { 'vi-collapse-prosecuted': true },
@@ -2210,13 +2426,15 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'rescue-first-investigate-later',
         label: 'Focus Entirely on Rescue — Delay Investigation',
-        description: 'Direct all energy to the rescue operation first. Trust +5 short-term. Corruption unchanged. Developer continues operating. Civil society will demand accountability in 72 hours.',
+        description:
+          'Direct all energy to the rescue operation first. Trust +5 short-term. Corruption unchanged. Developer continues operating. Civil society will demand accountability in 72 hours.',
         immediate: { publicTrust: 5 },
         factionImpact: { civilSocietyMedia: 3, partyGodfathers: 5 },
         delayed: {
           weekOffset: 3,
           delta: { publicTrust: -6, corruptionPressure: 4 },
-          eventText: 'Civil society has published a 40-page report naming the developer, the LASBCA official who signed the permit, and the ministerial aide who facilitated the fast-track. Your name appears in footnote 14.',
+          eventText:
+            'Civil society has published a 40-page report naming the developer, the LASBCA official who signed the permit, and the ministerial aide who facilitated the fast-track. Your name appears in footnote 14.',
         },
       },
     ],
@@ -2234,7 +2452,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'state-food-intervention-stockpile',
         label: 'Deploy State Food Intervention — Strategic Reserve Release',
-        description: 'Release strategic grain and tomato reserves through LASAA distribution points. Cash -3. Trust +8 in affected areas. Youth Tension -5. Informal economy stabilizes.',
+        description:
+          'Release strategic grain and tomato reserves through LASAA distribution points. Cash -3. Trust +8 in affected areas. Youth Tension -5. Informal economy stabilizes.',
         immediate: { cashReserve: -3.0, publicTrust: 8, youthTension: -5 },
         factionImpact: { informalEconomy: 12, civilSocietyMedia: 8, lgChairmen: 8 },
         constituencyImpact: { surulere: 6, oshodiIsolo: 6, alimosho: 5 },
@@ -2242,20 +2461,23 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'haulage-levy-suspension',
         label: 'Suspend State Haulage Levies for 60 Days',
-        description: 'Remove state levies on goods vehicles entering Lagos for 60 days. Cash -1 (lost levy revenue). Prices ease in 10 days. Business community approves.',
+        description:
+          'Remove state levies on goods vehicles entering Lagos for 60 days. Cash -1 (lost levy revenue). Prices ease in 10 days. Business community approves.',
         immediate: { igr: -1.0, publicTrust: 5, youthTension: -3 },
         factionImpact: { businessCommunity: 10, informalEconomy: 8, lgChairmen: -3 },
       },
       {
         id: 'oyingbo-cold-store-rebuild',
         label: 'Emergency Rebuild of Oyingbo Cold Storage Facility',
-        description: 'Invest ₦1.5bn in rebuilding the cold storage. Infrastructure +3. Long-term solution. Trust +4. Takes 10 weeks — prices remain high in the interim.',
+        description:
+          'Invest ₦1.5bn in rebuilding the cold storage. Infrastructure +3. Long-term solution. Trust +4. Takes 10 weeks — prices remain high in the interim.',
         immediate: { cashReserve: -1.5, publicTrust: 4 },
         factionImpact: { businessCommunity: 5, informalEconomy: 6, civilSocietyMedia: 5 },
         delayed: {
           weekOffset: 10,
           delta: { infrastructureScore: 3, igr: 1.0 },
-          eventText: 'The Oyingbo cold storage facility has reopened with 4x the original capacity. Tomato prices have returned to normal seasonal ranges.',
+          eventText:
+            'The Oyingbo cold storage facility has reopened with 4x the original capacity. Tomato prices have returned to normal seasonal ranges.',
         },
       },
     ],
@@ -2273,14 +2495,16 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'immediate-officer-arrest',
         label: 'Immediate Arrest, Public Apology, Full Family Compensation',
-        description: 'Arrest the officer within 24 hours. Personal public apology. ₦50M family compensation. Trust +10. Youth Tension -8. Civil society applauds the speed of accountability.',
+        description:
+          'Arrest the officer within 24 hours. Personal public apology. ₦50M family compensation. Trust +10. Youth Tension -8. Civil society applauds the speed of accountability.',
         immediate: { cashReserve: -0.05, publicTrust: 10, youthTension: -8 },
         factionImpact: { civilSocietyMedia: 18, informalEconomy: 8, lgChairmen: -5 },
       },
       {
         id: 'reform-sanitation-enforcement',
         label: 'Announce End of Physical Enforcement — Community-Led Sanitation',
-        description: 'Abolish physical enforcement by officers entirely. Trust +8. Youth Tension -10. Long-term sanitation compliance may drop. Civil society strongly approves.',
+        description:
+          'Abolish physical enforcement by officers entirely. Trust +8. Youth Tension -10. Long-term sanitation compliance may drop. Civil society strongly approves.',
         immediate: { publicTrust: 8, youthTension: -10 },
         factionImpact: { civilSocietyMedia: 15, informalEconomy: 10, lgChairmen: -8 },
         setFlags: { 'sanitation-enforcement-reformed': true },
@@ -2288,7 +2512,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'defend-sanitation-law',
         label: 'Defend the Law — "The Officer Acted Within Statutory Authority"',
-        description: 'Issue a legal defence. Trust -15. Youth Tension +20. This response will define your legacy. Civil society calls for protest. The video continues to trend.',
+        description:
+          'Issue a legal defence. Trust -15. Youth Tension +20. This response will define your legacy. Civil society calls for protest. The video continues to trend.',
         immediate: { publicTrust: -15, youthTension: 20 },
         factionImpact: { civilSocietyMedia: -20, informalEconomy: -15, partyGodfathers: 5 },
       },
@@ -2307,7 +2532,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'state-welfare-integration',
         label: 'Emergency State Welfare Integration Programme',
-        description: 'Open 14 state-run reception and skills centres. Cash -4. Youth Tension -10. Civil society praises. Federal government notes the action (positive). Long-term integration pathway.',
+        description:
+          'Open 14 state-run reception and skills centres. Cash -4. Youth Tension -10. Civil society praises. Federal government notes the action (positive). Long-term integration pathway.',
         immediate: { cashReserve: -4.0, youthTension: -10, publicTrust: 6 },
         factionImpact: { civilSocietyMedia: 12, federalGovt: 5, informalEconomy: 5 },
         constituencyImpact: { oshodiIsolo: 5, alimosho: 5, ikorodu: 6 },
@@ -2315,14 +2541,16 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'return-almajiri-northern',
         label: 'Coordinate Return Transportation to States of Origin',
-        description: 'Work with northern state governments to arrange return transportation. Cash -0.5. Federal Relationship +5. Trust -4 (optics of "sending children away"). Youth Tension -6.',
+        description:
+          'Work with northern state governments to arrange return transportation. Cash -0.5. Federal Relationship +5. Trust -4 (optics of "sending children away"). Youth Tension -6.',
         immediate: { cashReserve: -0.5, youthTension: -6, federalRelationship: 5, publicTrust: -4 },
         factionImpact: { federalGovt: 8, civilSocietyMedia: -6 },
       },
       {
         id: 'street-children-roundup',
         label: 'Enforce Street Child Removal — Welfare Custody',
-        description: 'Mass welfare custody operation. Youth Tension -5 short-term. Civil society furious at the optics. Corruption pressure up (who\'s running the custody centres?).',
+        description:
+          "Mass welfare custody operation. Youth Tension -5 short-term. Civil society furious at the optics. Corruption pressure up (who's running the custody centres?).",
         immediate: { youthTension: -5, corruptionPressure: 6, publicTrust: -6 },
         factionImpact: { civilSocietyMedia: -14, partyGodfathers: 5, informalEconomy: -8 },
         corruptionTrigger: true,
@@ -2342,7 +2570,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'issue-formal-acknowledgment',
         label: 'Issue a Formal State Acknowledgment and Survivor Fund',
-        description: 'Official acknowledgment of state responsibility. ₦500M survivor and memorial fund. Trust +15. Youth Tension -15. Civil society breakthrough moment. Godfathers deeply uncomfortable.',
+        description:
+          'Official acknowledgment of state responsibility. ₦500M survivor and memorial fund. Trust +15. Youth Tension -15. Civil society breakthrough moment. Godfathers deeply uncomfortable.',
         immediate: { cashReserve: -0.5, publicTrust: 15, youthTension: -15 },
         factionImpact: { civilSocietyMedia: 20, informalEconomy: 12, partyGodfathers: -12 },
         setFlags: { 'lekki-acknowledged': true },
@@ -2350,14 +2579,16 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'meet-protest-leaders',
         label: 'Meet Protest Leaders Personally — Negotiate a Statement',
-        description: 'Engage in dialogue. Issue a nuanced statement that acknowledges "events" without full legal admission. Protesters partially satisfied. Youth Tension -8. Trust +6.',
+        description:
+          'Engage in dialogue. Issue a nuanced statement that acknowledges "events" without full legal admission. Protesters partially satisfied. Youth Tension -8. Trust +6.',
         immediate: { publicTrust: 6, youthTension: -8 },
         factionImpact: { civilSocietyMedia: 8, informalEconomy: 6 },
       },
       {
         id: 'disperse-lekki-protest',
         label: 'Disperse With Police — Restore Traffic Flow',
-        description: 'Send police to clear the plaza. Trust -18. Youth Tension +25. Becomes the image of your second term. The video of police at the Lekki anniversary is worse than the original.',
+        description:
+          'Send police to clear the plaza. Trust -18. Youth Tension +25. Becomes the image of your second term. The video of police at the Lekki anniversary is worse than the original.',
         immediate: { publicTrust: -18, youthTension: 25, securityIndex: -5 },
         factionImpact: { civilSocietyMedia: -20, informalEconomy: -15, federalGovt: 5 },
       },
@@ -2376,37 +2607,43 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'emergency-airport-road-rehab',
         label: 'Emergency Airport Road Rehabilitation — 90-Day Delivery',
-        description: 'Ring-fence ₦2bn for an emergency road rehabilitation. Infrastructure +6. Trust +5. Business community and diaspora applaud the visible action. Restores international reputation.',
+        description:
+          'Ring-fence ₦2bn for an emergency road rehabilitation. Infrastructure +6. Trust +5. Business community and diaspora applaud the visible action. Restores international reputation.',
         immediate: { cashReserve: -2.0, infrastructureScore: 6, publicTrust: 5 },
         factionImpact: { businessCommunity: 12, civilSocietyMedia: 6 },
         delayed: {
           weekOffset: 12,
           delta: { infrastructureScore: 3, publicTrust: 3 },
-          eventText: 'The Airport Road rehabilitation has been completed. The CNN correspondent who covered Lagos\'s business recovery has opened his segment with drone footage of the completed road.',
+          eventText:
+            "The Airport Road rehabilitation has been completed. The CNN correspondent who covered Lagos's business recovery has opened his segment with drone footage of the completed road.",
         },
       },
       {
         id: 'faan-federal-request',
-        label: 'Demand Federal Action — FAAN\'s Responsibility',
-        description: 'The airport is federal. Issue a formal demand to FAAN and the Ministry of Aviation. Federal Relationship -5. Slow response. The road remains bad for 6 more months.',
+        label: "Demand Federal Action — FAAN's Responsibility",
+        description:
+          'The airport is federal. Issue a formal demand to FAAN and the Ministry of Aviation. Federal Relationship -5. Slow response. The road remains bad for 6 more months.',
         immediate: { federalRelationship: -5, publicTrust: -3 },
         factionImpact: { federalGovt: -8, businessCommunity: -3 },
         delayed: {
           weekOffset: 24,
           delta: { infrastructureScore: 3 },
-          eventText: 'After months of pressure, FAAN has allocated ₦800M for airport road rehabilitation. Works begin.',
+          eventText:
+            'After months of pressure, FAAN has allocated ₦800M for airport road rehabilitation. Works begin.',
         },
       },
       {
         id: 'joint-state-federal-airport-road',
         label: 'Co-Fund a Joint State-Federal Emergency Package',
-        description: 'Offer a 50-50 split with the federal government. State pays ₦1bn, federal matches. Trust +4. Federal Relationship +3. Done in 10 weeks.',
+        description:
+          'Offer a 50-50 split with the federal government. State pays ₦1bn, federal matches. Trust +4. Federal Relationship +3. Done in 10 weeks.',
         immediate: { cashReserve: -1.0, federalRelationship: 3, publicTrust: 4 },
         factionImpact: { federalGovt: 5, businessCommunity: 8 },
         delayed: {
           weekOffset: 10,
           delta: { infrastructureScore: 5 },
-          eventText: 'Joint state-federal Airport Road project completed on schedule. A joint press conference with the Minister of Aviation was held at the terminal.',
+          eventText:
+            'Joint state-federal Airport Road project completed on schedule. A joint press conference with the Minister of Aviation was held at the terminal.',
         },
       },
     ],
@@ -2424,7 +2661,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'emergency-displacement-response',
         label: 'Emergency Shelter and Compensation — Immediate Displaced Response',
-        description: 'Open three state emergency shelter centres. Cash -2. Trust +8. Youth Tension -5. Civil society coordinates through your emergency office.',
+        description:
+          'Open three state emergency shelter centres. Cash -2. Trust +8. Youth Tension -5. Civil society coordinates through your emergency office.',
         immediate: { cashReserve: -2.0, publicTrust: 8, youthTension: -5 },
         factionImpact: { civilSocietyMedia: 10, informalEconomy: 6 },
         constituencyImpact: { lagosIsland: 8, lagosMainland: 4 },
@@ -2432,7 +2670,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'fire-safety-enforcement-surge',
         label: 'Declare a 90-Day Fire Safety Enforcement Surge Across Lagos Island',
-        description: 'Immediate inspections of all residential buildings. Close non-compliant structures. Trust +6. Business community alarmed at enforcement risk. Corruption -4.',
+        description:
+          'Immediate inspections of all residential buildings. Close non-compliant structures. Trust +6. Business community alarmed at enforcement risk. Corruption -4.',
         immediate: { publicTrust: 6, corruptionPressure: -4 },
         factionImpact: { civilSocietyMedia: 12, businessCommunity: -8, partyGodfathers: -5 },
         setFlags: { 'fire-safety-surge': true },
@@ -2440,7 +2679,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'prosecute-negligent-inspectors',
         label: 'Prosecute the Fire Safety Inspectors Who Signed False Certificates',
-        description: 'The 2022 inspectors who flagged but did not enforce are now accountable. Corruption -6. Trust +8. Partygodfathers -8 (some inspectors are their people).',
+        description:
+          'The 2022 inspectors who flagged but did not enforce are now accountable. Corruption -6. Trust +8. Partygodfathers -8 (some inspectors are their people).',
         immediate: { publicTrust: 8, corruptionPressure: -6 },
         factionImpact: { civilSocietyMedia: 14, partyGodfathers: -8, lgChairmen: -5 },
       },
@@ -2459,26 +2699,30 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'grant-phc-designation-upgrade',
         label: 'Grant Full Professional Designation Upgrade',
-        description: 'Accept the reclassification. Base overheads +2 (permanent salary increase). Trust +10. Youth Tension -6. Civil society and WHO both applaud. Sets national precedent.',
+        description:
+          'Accept the reclassification. Base overheads +2 (permanent salary increase). Trust +10. Youth Tension -6. Civil society and WHO both applaud. Sets national precedent.',
         immediate: { baseOverheads: 2, publicTrust: 10, youthTension: -6 },
         factionImpact: { civilSocietyMedia: 14, informalEconomy: 8 },
       },
       {
         id: 'phased-designation-upgrade',
         label: 'Accept in Principle — Phase Over 3 Years',
-        description: 'Commit to the upgrade but phase costs. Base overheads +0.5 now. Strike ends. Civil society monitors implementation. Affordable but slow.',
+        description:
+          'Commit to the upgrade but phase costs. Base overheads +0.5 now. Strike ends. Civil society monitors implementation. Affordable but slow.',
         immediate: { baseOverheads: 0.5, publicTrust: 5 },
         factionImpact: { civilSocietyMedia: 6, informalEconomy: 5 },
         delayed: {
           weekOffset: 12,
           delta: { publicTrust: 3 },
-          eventText: 'Year one of the phased designation upgrade complete. 8,000 PHC workers have received new professional certificates. Strike stays off.',
+          eventText:
+            'Year one of the phased designation upgrade complete. 8,000 PHC workers have received new professional certificates. Strike stays off.',
         },
       },
       {
         id: 'reject-designation-push-salary',
         label: 'Reject Designation Upgrade — Offer 20% Salary Adjustment',
-        description: 'Counter-offer: 20% salary increase without reclassification. Some PHC workers accept. Strike partially lifted. Hardline faction continues. Base overheads +0.8.',
+        description:
+          'Counter-offer: 20% salary increase without reclassification. Some PHC workers accept. Strike partially lifted. Hardline faction continues. Base overheads +0.8.',
         immediate: { baseOverheads: 0.8, publicTrust: 3 },
         factionImpact: { civilSocietyMedia: -3, informalEconomy: 3 },
       },
@@ -2497,7 +2741,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'hold-firm-molue-phaseout',
         label: 'Hold the Line — Enforce the Retirement Deadline',
-        description: 'Enforce the deadline regardless of disruption. Youth Tension +12. Informal Economy -18. Long-term: 28,000 unsafe vehicles off the road. Infrastructure +4.',
+        description:
+          'Enforce the deadline regardless of disruption. Youth Tension +12. Informal Economy -18. Long-term: 28,000 unsafe vehicles off the road. Infrastructure +4.',
         immediate: { youthTension: 12, infrastructureScore: 4 },
         factionImpact: { informalEconomy: -18, businessCommunity: 5, civilSocietyMedia: 3 },
         constituencyImpact: { alimosho: -10, oshodiIsolo: -8, ikorodu: -8 },
@@ -2505,19 +2750,22 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'subsidised-molue-replacement',
         label: 'Subsidised Replacement Scheme — Trade-In for New Buses',
-        description: 'Fund a trade-in scheme: operators surrender old buses for a subsidised new vehicle at 30% of cost. Cash -8. Informal Economy +10. Phaseout achieved over 18 months. Civil society supports.',
+        description:
+          'Fund a trade-in scheme: operators surrender old buses for a subsidised new vehicle at 30% of cost. Cash -8. Informal Economy +10. Phaseout achieved over 18 months. Civil society supports.',
         immediate: { cashReserve: -8.0, youthTension: -5 },
         factionImpact: { informalEconomy: 10, civilSocietyMedia: 8, businessCommunity: 5 },
         delayed: {
           weekOffset: 18,
           delta: { infrastructureScore: 6, publicTrust: 5 },
-          eventText: 'The subsidised bus trade-in scheme has retired 18,000 old molues. Lagos roads are measurably safer. The scheme is being studied by Kano and Abuja.',
+          eventText:
+            'The subsidised bus trade-in scheme has retired 18,000 old molues. Lagos roads are measurably safer. The scheme is being studied by Kano and Abuja.',
         },
       },
       {
         id: 'extend-phaseout-deadline',
         label: 'Extend the Deadline 18 Months — Pass to Successor',
-        description: 'Grant an extension. Disruption ends. Trust -5 (you blinked). The molue problem becomes your successor\'s. Informal economy relieved.',
+        description:
+          "Grant an extension. Disruption ends. Trust -5 (you blinked). The molue problem becomes your successor's. Informal economy relieved.",
         immediate: { publicTrust: -5, youthTension: -8 },
         factionImpact: { informalEconomy: 12, partyGodfathers: 5, civilSocietyMedia: -8 },
       },
@@ -2536,7 +2784,8 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'fund-blue-line-completion',
         label: 'Fund the ₦15bn — Open the Blue Line Before You Leave',
-        description: 'Draw from cash reserves or issue a short-term bond. Infrastructure +20. Trust +12. This is your defining legacy achievement. Cash -15 or Debt +6.',
+        description:
+          'Draw from cash reserves or issue a short-term bond. Infrastructure +20. Trust +12. This is your defining legacy achievement. Cash -15 or Debt +6.',
         immediate: { cashReserve: -15.0, infrastructureScore: 20, publicTrust: 12 },
         factionImpact: { businessCommunity: 15, civilSocietyMedia: 15, lgChairmen: 8 },
         setFlags: { 'blue-line-opened': true },
@@ -2544,25 +2793,27 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       {
         id: 'blue-line-ppp-close',
         label: 'Concession the Final Phase to a Private Rail Operator',
-        description: 'Award a 25-year concession to a private operator who funds the ₦15bn completion. No cash cost to state. Cash -0 but IGR from concession fee +1. Delivery in 12 weeks.',
+        description:
+          'Award a 25-year concession to a private operator who funds the ₦15bn completion. No cash cost to state. Cash -0 but IGR from concession fee +1. Delivery in 12 weeks.',
         immediate: { igr: 1.0 },
         factionImpact: { businessCommunity: 12, civilSocietyMedia: 5 },
         delayed: {
           weekOffset: 12,
           delta: { infrastructureScore: 18, publicTrust: 10 },
-          eventText: 'The Lagos Metro Blue Line has opened under a private concession. 120,000 commuters on opening day. The concession model is described as a "new template for African urban infrastructure."',
+          eventText:
+            'The Lagos Metro Blue Line has opened under a private concession. 120,000 commuters on opening day. The concession model is described as a "new template for African urban infrastructure."',
         },
         setFlags: { 'blue-line-opened': true },
       },
       {
         id: 'hand-blue-line-to-successor',
         label: 'Leave the ₦15bn for the Incoming Administration',
-        description: 'Preserve cash. The Blue Line opens under your successor. Your legacy: you built it. Their legacy: they opened it. Trust -8 in the final months.',
+        description:
+          'Preserve cash. The Blue Line opens under your successor. Your legacy: you built it. Their legacy: they opened it. Trust -8 in the final months.',
         immediate: { publicTrust: -8 },
         factionImpact: { civilSocietyMedia: -10, businessCommunity: -8, lgChairmen: -5 },
         setFlags: { 'blue-line-incomplete': true },
       },
     ],
   },
-
 ]

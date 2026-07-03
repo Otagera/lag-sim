@@ -10,11 +10,38 @@ export default defineConfig({
   define: {
     'import.meta.env.PACKAGE_VERSION': JSON.stringify(pkg.version),
   },
-  optimizeDeps: {
-    exclude: ['@huggingface/transformers'],
-  },
   worker: {
     format: 'es',
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) {
+            return 'vendor-react'
+          }
+          if (id.includes('node_modules/@tanstack')) {
+            return 'vendor-router'
+          }
+          if (id.includes('node_modules/lucide-react')) {
+            return 'vendor-icons'
+          }
+          if (id.includes('node_modules/zustand')) {
+            return 'vendor-state'
+          }
+          if (id.includes('node_modules/driver.js')) {
+            return 'vendor-onboarding'
+          }
+          if (id.includes('src/ui/skyline/')) {
+            return 'skyline'
+          }
+          if (id.includes('src/data/events/')) {
+            return 'events-data'
+          }
+          return undefined
+        },
+      },
+    },
   },
   test: {
     environment: 'jsdom',

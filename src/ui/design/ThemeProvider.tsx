@@ -15,31 +15,40 @@ export const useSituation = () => useContext(SituationCtx)
 // ─── Rain drops (generated once) ─────────────────────────────────────────────
 const DROPS = Array.from({ length: 60 }, (_, i) => ({
   id: i,
-  left:    Math.random() * 115 - 7,
-  height:  13 + Math.random() * 24,
-  dur:     0.50 + Math.random() * 0.55,
-  delay:   -(Math.random() * 2.8),
+  left: Math.random() * 115 - 7,
+  height: 13 + Math.random() * 24,
+  dur: 0.5 + Math.random() * 0.55,
+  delay: -(Math.random() * 2.8),
   opacity: 0.15 + Math.random() * 0.18,
-  width:   Math.random() < 0.2 ? 1.5 : 1,
+  width: Math.random() < 0.2 ? 1.5 : 1,
 }))
 
 function RainLayer() {
   return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 15,
-      pointerEvents: 'none', overflow: 'hidden',
-    }}>
-      {DROPS.map(d => (
-        <div key={d.id} style={{
-          position: 'absolute', top: 0,
-          left: `${d.left}%`,
-          width: `${d.width}px`,
-          height: `${d.height}px`,
-          background: 'linear-gradient(to bottom, transparent, rgba(110,165,230,.55))',
-          borderRadius: '1px',
-          opacity: d.opacity,
-          animation: `sl-rainfall ${d.dur}s ${d.delay}s linear infinite`,
-        }}/>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 15,
+        pointerEvents: 'none',
+        overflow: 'hidden',
+      }}
+    >
+      {DROPS.map((d) => (
+        <div
+          key={d.id}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: `${d.left}%`,
+            width: `${d.width}px`,
+            height: `${d.height}px`,
+            background: 'linear-gradient(to bottom, transparent, rgba(110,165,230,.55))',
+            borderRadius: '1px',
+            opacity: d.opacity,
+            animation: `sl-rainfall ${d.dur}s ${d.delay}s linear infinite`,
+          }}
+        />
       ))}
     </div>
   )
@@ -47,7 +56,7 @@ function RainLayer() {
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const gameState   = useGameStore((s) => s)
+  const gameState = useGameStore((s) => s)
   const [situation, setSituation] = useState<Situation>('calm')
   const [showFlash, setShowFlash] = useState(false)
   const prevSituation = useRef<Situation>('calm')
@@ -75,6 +84,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     gameState.stats.publicTrust,
     gameState.stats.politicalCapital,
     gameState.factions,
+    gameState,
   ])
 
   // Sync on mount
@@ -83,18 +93,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.dataset.situation = s
     setSituation(s)
     prevSituation.current = s
-    return () => { delete document.documentElement.dataset.situation }
-  }, [])
+    return () => {
+      delete document.documentElement.dataset.situation
+    }
+  }, [gameState])
 
   return (
     <SituationCtx.Provider value={situation}>
       {/* Blackout flash */}
       {showFlash && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 60,
-          background: '#05090F', pointerEvents: 'none',
-          animation: 'tp-blackout .22s ease forwards',
-        }}/>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 60,
+            background: '#05090F',
+            pointerEvents: 'none',
+            animation: 'tp-blackout .22s ease forwards',
+          }}
+        />
       )}
 
       {/* Storm rain */}
@@ -102,11 +119,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
       {/* Calm ambient shimmer (very faint radial) */}
       {situation === 'calm' && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-          background: 'radial-gradient(ellipse at 65% 20%, rgba(26,155,142,.04) 0%, transparent 55%)',
-          animation: 'tp-shimmer 7s ease-in-out infinite',
-        }}/>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: 'none',
+            background:
+              'radial-gradient(ellipse at 65% 20%, rgba(26,155,142,.04) 0%, transparent 55%)',
+            animation: 'tp-shimmer 7s ease-in-out infinite',
+          }}
+        />
       )}
 
       {children}

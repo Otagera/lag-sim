@@ -1,4 +1,5 @@
 #!/usr/bin/env npx tsx
+
 /**
  * Winning strategy benchmark — full two-term run.
  *
@@ -11,8 +12,8 @@
  * Exits with code 0 if full-term win rate ≥ 60%, otherwise code 1.
  */
 
-import { simulateWeeks } from '../src/engine/simulateEngine'
 import { getArchetypeState } from '../src/data/archetypes'
+import { simulateWeeks } from '../src/engine/simulateEngine'
 import type { GameState } from '../src/state/types'
 
 function mulberry32(seed: number): () => number {
@@ -25,7 +26,10 @@ function mulberry32(seed: number): () => number {
   }
 }
 
-function makeSeededArchetypeState(arch: 'technocrat' | 'loyalist' | 'outsider', stateSeed: number): GameState {
+function makeSeededArchetypeState(
+  arch: 'technocrat' | 'loyalist' | 'outsider',
+  stateSeed: number,
+): GameState {
   const orig = Math.random
   Math.random = mulberry32(stateSeed)
   const base = getArchetypeState(arch)
@@ -42,7 +46,7 @@ interface BenchmarkResult {
   archetype: string
   seed: number
   finalWeek: number
-  cashT1: number | null   // cash at week 209 transition (if re-elected)
+  cashT1: number | null // cash at week 209 transition (if re-elected)
   cashFinal: number
   reElected: boolean
   term2Won: boolean
@@ -85,15 +89,17 @@ function runBenchmark(): BenchmarkResult[] {
       const term2Won =
         reElected &&
         s.isGameOver &&
-        !!(s.gameOverReason?.includes('second term has ended') || s.gameOverReason?.includes('term has ended'))
+        !!(
+          s.gameOverReason?.includes('second term has ended') ||
+          s.gameOverReason?.includes('term has ended')
+        )
 
       // Approximate cash at term1 end: only meaningful if they made it to term2
       const cashT1 = reElected
-        ? s.timeline
+        ? (s.timeline
             .slice()
             .reverse()
-            .find((e) => e.week <= 209)
-            ?.statDelta?.cashReserve ?? null
+            .find((e) => e.week <= 209)?.statDelta?.cashReserve ?? null)
         : null
 
       results.push({
@@ -123,7 +129,7 @@ function printResults(results: BenchmarkResult[]): void {
     const detail = r.reElected ? `→ term2` : r.outcome.slice(0, 50)
     console.log(
       `${r.archetype.padEnd(12)}seed=${String(r.seed).padEnd(6)}wk=${String(r.finalWeek).padEnd(4)}` +
-      `${cashStr} ${detail}${mark}`,
+        `${cashStr} ${detail}${mark}`,
     )
   }
 
@@ -133,7 +139,7 @@ function printResults(results: BenchmarkResult[]): void {
     const cashStr = `cash=${r.cashFinal.toFixed(1).padStart(7)}`
     console.log(
       `${r.archetype.padEnd(12)}seed=${String(r.seed).padEnd(6)}wk=${String(r.finalWeek).padEnd(4)}` +
-      `${cashStr} ${r.outcome.slice(0, 55)}${mark}`,
+        `${cashStr} ${r.outcome.slice(0, 55)}${mark}`,
     )
   }
 

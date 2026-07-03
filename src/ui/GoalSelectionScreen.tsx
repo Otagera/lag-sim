@@ -1,8 +1,8 @@
+import type { Goal } from '../data/goals'
+import { ALL_GOALS, getGoalProgress } from '../data/goals'
 import { useGameStore } from '../state/gameStore'
 import { saveGame } from '../state/persistence'
-import { ALL_GOALS, getGoalProgress } from '../data/goals'
-import { Button, Surface, Heading } from './components'
-import type { Goal } from '../data/goals'
+import { Button, Heading, Surface } from './components'
 
 type Props = {
   onSelect: () => void
@@ -25,18 +25,22 @@ export function GoalSelectionScreen({ onSelect, context }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center py-8 px-4" style={{ backgroundColor: 'var(--background)' }}>
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center py-8 px-4"
+      style={{ backgroundColor: 'var(--background)' }}
+    >
       <div className="w-full max-w-3xl">
         <div className="text-center mb-8">
           <p className="label-caps" style={{ color: 'var(--accent-text)' }}>
             {context === 'migration' ? 'Your legacy' : 'Your mandate'}
           </p>
           <Heading level={1} display>
-            {context === 'migration'
-              ? 'It Is Not Too Late'
-              : 'What Will You Fight For?'}
+            {context === 'migration' ? 'It Is Not Too Late' : 'What Will You Fight For?'}
           </Heading>
-          <p className="mt-2 max-w-xl mx-auto" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+          <p
+            className="mt-2 max-w-xl mx-auto"
+            style={{ fontSize: '13px', color: 'var(--text-secondary)' }}
+          >
             {context === 'migration'
               ? 'Your administration is already in motion. Choose what you want it to be remembered for — the targets adapt to where you stand today.'
               : 'Your inheritance is clear. The handover has shown you what you are walking into. Now decide what this administration will be remembered for.'}
@@ -89,13 +93,23 @@ function GoalCard({
     <Surface
       elevation="raised"
       padding="16px"
-      style={{ borderTop: '2px solid var(--accent-solid)', display: 'flex', flexDirection: 'column', gap: '12px' }}
+      style={{
+        borderTop: '2px solid var(--accent-solid)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+      }}
     >
       <div>
-        <h2 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)' }}>
-          {goal.title}
-        </h2>
-        <p style={{ fontSize: '11px', marginTop: '2px', fontStyle: 'italic', color: 'var(--text-secondary)' }}>
+        <h2 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)' }}>{goal.title}</h2>
+        <p
+          style={{
+            fontSize: '11px',
+            marginTop: '2px',
+            fontStyle: 'italic',
+            color: 'var(--text-secondary)',
+          }}
+        >
           {goal.pitch}
         </p>
       </div>
@@ -107,8 +121,17 @@ function GoalCard({
       <div>
         <p className="label-caps mb-1">Targets</p>
         <ul className="space-y-1">
-          {goal.targets.map((t, i) => (
-            <li key={i} style={{ fontSize: '10px', display: 'flex', alignItems: 'flex-start', gap: '6px', color: 'var(--text-secondary)' }}>
+          {goal.targets.map((t) => (
+            <li
+              key={`${goal.id}-${t.label}`}
+              style={{
+                fontSize: '10px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '6px',
+                color: 'var(--text-secondary)',
+              }}
+            >
               <span style={{ color: 'var(--accent-solid)' }}>•</span>
               <span>{t.label}</span>
             </li>
@@ -120,7 +143,9 @@ function GoalCard({
         <div>
           <div className="flex justify-between mb-0.5" style={{ fontSize: '10px' }}>
             <span style={{ color: 'var(--text-secondary)' }}>Current progress</span>
-            <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>{progress.toFixed(0)}%</span>
+            <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
+              {progress.toFixed(0)}%
+            </span>
           </div>
           <div className="w-full h-1" style={{ backgroundColor: 'var(--neutral-4)' }}>
             <div

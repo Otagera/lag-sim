@@ -1,5 +1,5 @@
-import { useGameStore } from '../state/gameStore'
 import { NPC_ARCHETYPES } from '../data/npcs'
+import { useGameStore } from '../state/gameStore'
 import type { NPCKey, NPCState } from '../state/types'
 
 const NPC_SLOTS: NPCKey[] = ['npc1', 'npc2', 'npc3']
@@ -13,7 +13,13 @@ function relationshipTier(rel: number): { label: string; color: string } {
 function RelationshipBar({ value }: { value: number }) {
   const pct = Math.round(((value + 100) / 200) * 100)
   const color =
-    value >= 65 ? 'var(--success-9)' : value >= 30 ? 'var(--warning-9)' : value >= 0 ? 'var(--warning-11)' : 'var(--error-9)'
+    value >= 65
+      ? 'var(--success-9)'
+      : value >= 30
+        ? 'var(--warning-9)'
+        : value >= 0
+          ? 'var(--warning-11)'
+          : 'var(--error-9)'
   return (
     <div className="h-1.5 w-full overflow-hidden" style={{ backgroundColor: 'var(--neutral-4)' }}>
       <div className="h-full transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
@@ -45,8 +51,12 @@ function NPCCard({ npc }: { npc: NPCState }) {
     >
       <div className="flex items-start justify-between gap-2 mb-1.5">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold truncate" style={{ color: 'var(--text)' }}>{npc.name || '—'}</p>
-          <p className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>{def?.shortRole ?? npc.archetypeKey}</p>
+          <p className="text-[11px] font-semibold truncate" style={{ color: 'var(--text)' }}>
+            {npc.name || '—'}
+          </p>
+          <p className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
+            {def?.shortRole ?? npc.archetypeKey}
+          </p>
         </div>
         <span
           className="shrink-0 text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5"
@@ -67,14 +77,23 @@ function NPCCard({ npc }: { npc: NPCState }) {
             </p>
           )}
           <div>
-            <div className="flex justify-between text-[9px] mb-0.5" style={{ color: 'var(--text-secondary)' }}>
+            <div
+              className="flex justify-between text-[9px] mb-0.5"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               <span>Relationship</span>
-              <span>{npc.relationship > 0 ? '+' : ''}{npc.relationship.toFixed(0)}</span>
+              <span>
+                {npc.relationship > 0 ? '+' : ''}
+                {npc.relationship.toFixed(0)}
+              </span>
             </div>
             <RelationshipBar value={npc.relationship} />
           </div>
           <div>
-            <div className="flex justify-between text-[9px] mb-0.5" style={{ color: 'var(--text-secondary)' }}>
+            <div
+              className="flex justify-between text-[9px] mb-0.5"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               <span>Pressure</span>
               <span>{npc.pressure.toFixed(0)}</span>
             </div>
@@ -82,7 +101,9 @@ function NPCCard({ npc }: { npc: NPCState }) {
           </div>
         </div>
       ) : (
-        <p className="text-[9px]" style={{ color: 'var(--border-strong)' }}>Watching. Not yet active.</p>
+        <p className="text-[9px]" style={{ color: 'var(--border-strong)' }}>
+          Watching. Not yet active.
+        </p>
       )}
     </div>
   )
@@ -92,7 +113,10 @@ export function NPCPanel() {
   const activeNPCs = useGameStore((s) => s.activeNPCs)
 
   return (
-    <div className="p-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+    <div
+      className="p-2 border"
+      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+    >
       <h3 className="label-caps mb-2">Political Actors</h3>
       <div className="space-y-2">
         {NPC_SLOTS.map((slot) => (

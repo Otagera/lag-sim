@@ -1,4 +1,7 @@
-export const INITIATIVE_DEFS: Record<string, { name: string; description: string; totalWeeks: number }> = {
+export const INITIATIVE_DEFS: Record<
+  string,
+  { name: string; description: string; totalWeeks: number }
+> = {
   'paye-enforcement': {
     name: 'PAYE Enforcement Drive',
     description: 'Systematic crackdown on PAYE evasion in the gig and informal economy.',
@@ -26,12 +29,14 @@ export const INITIATIVE_DEFS: Record<string, { name: string; description: string
   },
   'ghost-worker-biometric': {
     name: 'Ghost Worker Biometric Audit',
-    description: 'Emergency biometric deployment across all MDAs to purge unverified payroll entries.',
+    description:
+      'Emergency biometric deployment across all MDAs to purge unverified payroll entries.',
     totalWeeks: 12,
   },
   'ghost-worker-committee': {
     name: 'Ghost Worker Committee Audit',
-    description: 'Legislative committee-led payroll investigation — subject to political constraints.',
+    description:
+      'Legislative committee-led payroll investigation — subject to political constraints.',
     totalWeeks: 8,
   },
 }

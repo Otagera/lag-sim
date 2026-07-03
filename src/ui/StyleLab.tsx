@@ -41,11 +41,11 @@ import { LagosHerald } from './LagosHerald'
 import { LagosSkyline } from './LagosSkyline'
 import { PodcastCard } from './PodcastCard'
 import { ProjectsPanel } from './ProjectsPanel'
+import { CastGallery } from './portraits/CastGallery'
 import { ResearchTree } from './ResearchTree'
 import { ResearchTab } from './research/ResearchTab'
 import { SocialPost } from './SocialPost'
 import { SealsTab } from './seals/SealsTab'
-import { CastGallery } from './portraits/CastGallery'
 import { ShareLabPanel } from './share/ShareLabPanel'
 // ─── Tab sections ───────────────────────────────────────────────────────────
 import { FIXTURE_ARTICLES, FIXTURE_INBOX } from './styleLab/fixtures'
@@ -534,7 +534,7 @@ function DiagnosisBanner({ theme, variant }: { theme: Theme; variant: Variant })
       className={`sl-banner-enter ${gr(variant)}`}
       style={{
         background: variant === 'bold' ? theme.dangerMuted : `${theme.dangerMuted}`,
-        borderLeft: `${parseInt(theme.bw) > 1 ? '4px' : '3px'} solid ${theme.danger}`,
+        borderLeft: `${parseInt(theme.bw, 10) > 1 ? '4px' : '3px'} solid ${theme.danger}`,
         borderBottom: `${theme.bw} solid rgba(${theme.isDark ? '224,96,80' : '215,50,42'},.18)`,
         padding: `12px ${theme.pad}`,
         display: 'flex',
@@ -574,6 +574,7 @@ function DiagnosisBanner({ theme, variant }: { theme: Theme; variant: Variant })
         </p>
       </div>
       <button
+        type="button"
         style={{
           fontFamily: theme.fontUI,
           fontSize: '10px',
@@ -599,9 +600,19 @@ function DiagnosisBanner({ theme, variant }: { theme: Theme; variant: Variant })
 
 // ─── 3. EVENT CARD ───────────────────────────────────────────────────────────
 const CHOICES = [
-  { label: 'Address the protesters in person', fx: '+Trust +15 · −PC 5', fxC: 'success' },
-  { label: 'Delegate response to Deputy Governor', fx: '+Trust 3 · −PC 2', fxC: 'neutral' },
-  { label: 'Order security dispersal', fx: '−Trust 20 · ⚠ unrest', fxC: 'danger' },
+  {
+    id: 'address',
+    label: 'Address the protesters in person',
+    fx: '+Trust +15 · −PC 5',
+    fxC: 'success',
+  },
+  {
+    id: 'delegate',
+    label: 'Delegate response to Deputy Governor',
+    fx: '+Trust 3 · −PC 2',
+    fxC: 'neutral',
+  },
+  { id: 'disperse', label: 'Order security dispersal', fx: '−Trust 20 · ⚠ unrest', fxC: 'danger' },
 ]
 
 function EventCard({
@@ -790,8 +801,9 @@ function EventCard({
           const fxColor =
             c.fxC === 'success' ? theme.success : c.fxC === 'danger' ? theme.danger : theme.text2
           return (
-            <div
-              key={i}
+            <button
+              type="button"
+              key={c.id}
               className={`sl-choice ${isChosen ? 'sl-commit' : ''}`}
               onClick={() => handleChoice(i)}
               style={{
@@ -838,7 +850,7 @@ function EventCard({
               >
                 {c.fx}
               </span>
-            </div>
+            </button>
           )
         })}
       </div>
@@ -877,6 +889,7 @@ function NavDock({ theme, variant, state }: { theme: Theme; variant: Variant; st
         const isActive = active === tab.id
         return (
           <button
+            type="button"
             key={tab.id}
             onClick={() => setActive(tab.id)}
             style={{
@@ -946,7 +959,7 @@ function StateSeal({ theme, variant }: { theme: Theme; variant: Variant }) {
           width: `${size}px`,
           height: `${size}px`,
           borderRadius: '50%',
-          border: `${parseInt(theme.bw) > 1 ? '3px' : '2px'} solid ${theme.borderStrong}`,
+          border: `${parseInt(theme.bw, 10) > 1 ? '3px' : '2px'} solid ${theme.borderStrong}`,
           boxShadow: glow,
           background:
             variant === 'atmospheric'
@@ -1160,6 +1173,7 @@ function LabChrome({
           const isActive = gameState === s
           return (
             <button
+              type="button"
               key={s}
               onClick={() => onState(s)}
               style={{
@@ -1204,6 +1218,7 @@ function LabChrome({
           const isActive = variant === v
           return (
             <button
+              type="button"
               key={v}
               onClick={() => onVariant(v)}
               style={{
@@ -1235,6 +1250,7 @@ function LabChrome({
 
       {/* Sound toggle */}
       <button
+        type="button"
         onClick={() => onSound(!soundOn)}
         style={{
           padding: '5px 10px',
@@ -1308,6 +1324,7 @@ function TabBar({ activeTab, onChange }: { activeTab: TabId; onChange: (id: TabI
         const isActive = activeTab === tab.id
         return (
           <button
+            type="button"
             key={tab.id}
             onClick={() => onChange(tab.id)}
             style={{
@@ -1358,7 +1375,7 @@ function MediaTab({ theme }: { theme: Theme }) {
       newspaperHeadline: article,
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category])
+  }, [article])
 
   useEffect(() => {
     if (!headline && article) {
@@ -1385,6 +1402,7 @@ function MediaTab({ theme }: { theme: Theme }) {
           const m = CATEGORY_META[cat]
           return (
             <button
+              type="button"
               key={cat}
               onClick={() => setCategory(cat)}
               style={{
@@ -1519,6 +1537,7 @@ function OnboardingTab() {
           const isActive = archetype === a
           return (
             <button
+              type="button"
               key={a}
               onClick={() => setArchetype(a)}
               style={{
@@ -2120,6 +2139,7 @@ function DeskTab({
           </span>
           {(['modern', 'traditional', 'simple'] as const).map((s) => (
             <button
+              type="button"
               key={s}
               onClick={() => setDeskStyle(s)}
               style={{

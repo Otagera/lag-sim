@@ -165,7 +165,7 @@ From `economy.ts:63 — agbero-ultimatum`:
 }
 ```
 
-**Delayed consequences fire correctly.** `firePendingDelayed()` runs every tick (gameLoop.ts:207) and applies the delta, faction impact, constituent impact, and follow-up event enqueuing. Confirmed by 499 passing tests including `delayeds`.
+**Delayed consequences fire correctly.** `firePendingDelayed()` runs every tick (gameLoop.ts:207) and applies the delta, faction impact, constituent impact, and follow-up event enqueuing. Confirmed by 601 passing tests including `delayeds`.
 
 ### 2.3 Godfather mechanic
 

@@ -202,7 +202,8 @@ export const infrastructureEvents: EventCard[] = [
       {
         id: 'launch-alimosho-roads',
         label: 'Alimosho Road Dualisation',
-        description: 'Dual the Idimu–Ejigbo expressway. Infrastructure +3, Alimosho trust +8. ₦14bn, 22 weeks.',
+        description:
+          'Dual the Idimu–Ejigbo expressway. Infrastructure +3, Alimosho trust +8. ₦14bn, 22 weeks.',
         immediate: { infrastructureScore: 3 },
         factionImpact: { informalEconomy: 5, businessCommunity: 3 },
         constituencyImpact: { alimosho: 8 },
@@ -218,7 +219,8 @@ export const infrastructureEvents: EventCard[] = [
       {
         id: 'launch-ajegunle-waterfront',
         label: 'Ajegunle Waterfront Regeneration',
-        description: 'Seawall, drainage, and market canopy. Ajeromi/Ifelodun trust +12, Youth Tension -5. ₦9bn, 16 weeks.',
+        description:
+          'Seawall, drainage, and market canopy. Ajeromi/Ifelodun trust +12, Youth Tension -5. ₦9bn, 16 weeks.',
         immediate: { youthTension: -3 },
         factionImpact: { informalEconomy: 8, civilSocietyMedia: 6 },
         constituencyImpact: { ajeromiIfelodun: 12 },
@@ -234,7 +236,8 @@ export const infrastructureEvents: EventCard[] = [
       {
         id: 'launch-ikorodu-market',
         label: 'Ikorodu Market Infrastructure',
-        description: 'Covered market stalls, cold storage, access roads. IGR +0.4bn/wk on completion. ₦6bn, 12 weeks.',
+        description:
+          'Covered market stalls, cold storage, access roads. IGR +0.4bn/wk on completion. ₦6bn, 12 weeks.',
         immediate: { infrastructureScore: 2 },
         factionImpact: { businessCommunity: 6, informalEconomy: 4 },
         constituencyImpact: { ikorodu: 10 },
@@ -261,7 +264,8 @@ export const infrastructureEvents: EventCard[] = [
       {
         id: 'emergency-repair-contract',
         label: 'Emergency Contract — Keep Bridge Open',
-        description: 'Fast-track repairs under live traffic. ₦12bn, 20 weeks, premium contractor rates. Keeps bridge open.',
+        description:
+          'Fast-track repairs under live traffic. ₦12bn, 20 weeks, premium contractor rates. Keeps bridge open.',
         immediate: { infrastructureScore: 5, publicTrust: 4 },
         factionImpact: { businessCommunity: 8, lgChairmen: 4 },
         politicalCapitalCost: 15,
@@ -277,19 +281,22 @@ export const infrastructureEvents: EventCard[] = [
       {
         id: 'planned-closure',
         label: 'Planned 30-Day Closure',
-        description: 'Close the bridge, do it right, reopen in 30 days. Trust -6 during closure, Infrastructure +10 on completion. Cheaper.',
+        description:
+          'Close the bridge, do it right, reopen in 30 days. Trust -6 during closure, Infrastructure +10 on completion. Cheaper.',
         immediate: { publicTrust: -6, igr: -1.2 },
         factionImpact: { businessCommunity: -5 },
         delayed: {
           weekOffset: 8,
           delta: { infrastructureScore: 10, publicTrust: 5, igr: 1.2 },
-          eventText: 'The Third Mainland Bridge has reopened after the planned closure. Structural engineers have certified it for another 20 years.',
+          eventText:
+            'The Third Mainland Bridge has reopened after the planned closure. Structural engineers have certified it for another 20 years.',
         },
       },
       {
         id: 'federal-transfer',
         label: 'Transfer to FERMA',
-        description: 'Escalate to Federal Roads Maintenance Agency. Political Capital +10, Federal Relationship +5. But nothing happens for 6 months.',
+        description:
+          'Escalate to Federal Roads Maintenance Agency. Political Capital +10, Federal Relationship +5. But nothing happens for 6 months.',
         immediate: { politicalCapital: 10 },
         factionImpact: { federalGovt: 5, civilSocietyMedia: -8 },
       },
@@ -306,7 +313,8 @@ export const infrastructureEvents: EventCard[] = [
       {
         id: 'launch-brt-phase2',
         label: 'Launch Phase 2 Now',
-        description: 'Break ground before rainy season, unlock World Bank co-financing. ₦18bn total, ₦9bn state contribution. 26 weeks.',
+        description:
+          'Break ground before rainy season, unlock World Bank co-financing. ₦18bn total, ₦9bn state contribution. 26 weeks.',
         immediate: { infrastructureScore: 3 },
         factionImpact: { businessCommunity: 6, civilSocietyMedia: 8, federalGovt: 4 },
         constituencyImpact: { ibejuLekki: 10, etiOsa: 6 },
@@ -322,7 +330,8 @@ export const infrastructureEvents: EventCard[] = [
       {
         id: 'delay-procurement',
         label: 'Wait for Full Procurement Process',
-        description: 'Due diligence first. Delays by 12 weeks, risks World Bank window. PoliticalCapital +8.',
+        description:
+          'Due diligence first. Delays by 12 weeks, risks World Bank window. PoliticalCapital +8.',
         immediate: { politicalCapital: 8 },
         factionImpact: { civilSocietyMedia: -4 },
         constituencyImpact: { ibejuLekki: -4 },
@@ -378,7 +387,8 @@ export const infrastructureEvents: EventCard[] = [
       {
         id: 'terminate-refer-icpc',
         label: 'Terminate Contract, Refer Advance to ICPC',
-        description: 'Terminate the contractor, re-award through open tender. Corruption Pressure -4, delayed 16 weeks. Cash -0.3.',
+        description:
+          'Terminate the contractor, re-award through open tender. Corruption Pressure -4, delayed 16 weeks. Cash -0.3.',
         immediate: { cashReserve: -0.3, corruptionPressure: -4 },
         factionImpact: { civilSocietyMedia: 8, businessCommunity: -4 },
         delayed: {
@@ -390,7 +400,8 @@ export const infrastructureEvents: EventCard[] = [
       {
         id: 'pay-contractor-remobilise',
         label: 'Pay Contractor to Remobilise',
-        description: 'Settle the dispute, pay additional ₦180m, get them back on site. Cash -0.8, Corruption Pressure +5. Faster.',
+        description:
+          'Settle the dispute, pay additional ₦180m, get them back on site. Cash -0.8, Corruption Pressure +5. Faster.',
         immediate: { cashReserve: -0.8, corruptionPressure: 5 },
         factionImpact: { businessCommunity: 4 },
         delayed: {
@@ -402,7 +413,8 @@ export const infrastructureEvents: EventCard[] = [
       {
         id: 'emergency-patch-lasema',
         label: 'Emergency Patch from LASEMA Budget',
-        description: 'Temporary patch, redirect LASEMA emergency allocation. Infrastructure +3, Cash -0.2, Trust +3.',
+        description:
+          'Temporary patch, redirect LASEMA emergency allocation. Infrastructure +3, Cash -0.2, Trust +3.',
         immediate: { infrastructureScore: 3, publicTrust: 3, cashReserve: -0.2 },
         factionImpact: { civilSocietyMedia: 3 },
       },
@@ -419,7 +431,8 @@ export const infrastructureEvents: EventCard[] = [
       {
         id: 'full-enforcement-all-14',
         label: 'Stop-Work and Evacuation Orders on All 14',
-        description: 'Enforce across all flagged buildings. Infrastructure +10, Trust +8, Civil Society +12, Business -10, Godfathers -8.',
+        description:
+          'Enforce across all flagged buildings. Infrastructure +10, Trust +8, Civil Society +12, Business -10, Godfathers -8.',
         immediate: { infrastructureScore: 10, publicTrust: 8 },
         factionImpact: { civilSocietyMedia: 12, businessCommunity: -10, partyGodfathers: -8 },
         constituencyImpact: { ibejuLekki: 8, etiOsa: 5 },
@@ -427,14 +440,16 @@ export const infrastructureEvents: EventCard[] = [
       {
         id: 'selective-under-construction',
         label: 'Enforce Only the 5 Under Construction',
-        description: 'Occupied buildings stay open. Infrastructure +5, Trust +3. Corruption Pressure +4 when selective enforcement leaks.',
+        description:
+          'Occupied buildings stay open. Infrastructure +5, Trust +3. Corruption Pressure +4 when selective enforcement leaks.',
         immediate: { infrastructureScore: 5, publicTrust: 3, corruptionPressure: 4 },
         factionImpact: { civilSocietyMedia: 3, businessCommunity: -4 },
       },
       {
         id: 'independent-review-first',
         label: 'Commission Independent Structural Review',
-        description: 'External engineers assess all 14. Buys 8 weeks, Political Capital -10. Trust +2.',
+        description:
+          'External engineers assess all 14. Buys 8 weeks, Political Capital -10. Trust +2.',
         immediate: { publicTrust: 2 },
         factionImpact: { civilSocietyMedia: 4 },
         politicalCapitalCost: 10,
@@ -490,8 +505,7 @@ export const infrastructureEvents: EventCard[] = [
       {
         id: 'skip-desilting',
         label: 'Hope for a Mild Season',
-        description:
-          'No mobilisation. Flood Resilience -4 when the first floods hit.',
+        description: 'No mobilisation. Flood Resilience -4 when the first floods hit.',
         immediate: { floodResilienceScore: -4 },
         factionImpact: { civilSocietyMedia: -3 },
       },
@@ -519,8 +533,7 @@ export const infrastructureEvents: EventCard[] = [
       {
         id: 'pilot-telemetry',
         label: 'Run a Small Lekki Pilot First',
-        description:
-          'Prove it on one axis before scaling. Flood Resilience +3. Tech sector +2.',
+        description: 'Prove it on one axis before scaling. Flood Resilience +3. Tech sector +2.',
         immediate: { floodResilienceScore: 3 },
         factionImpact: {},
         secondaryFactionImpact: { techSector: 2 },

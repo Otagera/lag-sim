@@ -214,7 +214,8 @@ export const crisisEvents: EventCard[] = [
       {
         id: 'emergency-pumping-station-overhaul',
         label: 'Emergency Overhaul of Ijora Pumping Station',
-        description: 'Dispatch LSWC engineers for immediate water source remediation. Trust +8. Fixed in 2 weeks.',
+        description:
+          'Dispatch LSWC engineers for immediate water source remediation. Trust +8. Fixed in 2 weeks.',
         immediate: { publicTrust: 8 },
         factionImpact: { civilSocietyMedia: 10, informalEconomy: 5 },
         constituencyImpact: { ajeromiIfelodun: 15 },
@@ -227,7 +228,8 @@ export const crisisEvents: EventCard[] = [
       {
         id: 'joint-nema-federal',
         label: 'Accept NEMA / Federal Joint Response',
-        description: 'Federal Relationship +8, Trust +4, Corruption Pressure -3. Response coordinated. Delayed.',
+        description:
+          'Federal Relationship +8, Trust +4, Corruption Pressure -3. Response coordinated. Delayed.',
         immediate: { publicTrust: 4 },
         factionImpact: { federalGovt: 8, civilSocietyMedia: 6 },
         delayed: {
@@ -239,7 +241,8 @@ export const crisisEvents: EventCard[] = [
       {
         id: 'lasg-containment-no-fed',
         label: 'LASG Containment — No Federal Involvement',
-        description: 'Handle within state resources. Trust -5, Cash -1.5. Slower, no political debt to Abuja.',
+        description:
+          'Handle within state resources. Trust -5, Cash -1.5. Slower, no political debt to Abuja.',
         immediate: { cashReserve: -1.5, publicTrust: -5 },
         factionImpact: { civilSocietyMedia: -4 },
         delayed: {
@@ -261,7 +264,8 @@ export const crisisEvents: EventCard[] = [
       {
         id: 'press-conference-demand-compensation',
         label: 'Hold Press Conference — Demand Federal Compensation',
-        description: 'Publicly demand ₦5m per family and pipeline safety audit. Trust +10, Civil Society +12, Federal Relationship -8.',
+        description:
+          'Publicly demand ₦5m per family and pipeline safety audit. Trust +10, Civil Society +12, Federal Relationship -8.',
         immediate: { publicTrust: 10 },
         factionImpact: { civilSocietyMedia: 12, federalGovt: -8, informalEconomy: 5 },
         constituencyImpact: { lagosIsland: 8, apapa: 5 },
@@ -269,7 +273,8 @@ export const crisisEvents: EventCard[] = [
       {
         id: 'quiet-nnpc-coordination',
         label: 'Quietly Coordinate With NNPC — No Confrontation',
-        description: 'Back-channel resolution. Federal Relationship +5, Trust -6, Civil Society -8.',
+        description:
+          'Back-channel resolution. Federal Relationship +5, Trust -6, Civil Society -8.',
         immediate: { publicTrust: -6 },
         factionImpact: { federalGovt: 5, civilSocietyMedia: -8 },
       },
@@ -300,7 +305,8 @@ export const crisisEvents: EventCard[] = [
       {
         id: 'enforce-market-access-roads',
         label: 'Commission LASBCA Market Access Road Enforcement',
-        description: 'Clear all unauthorised structures from market access routes city-wide. Delayed, Infrastructure +5, Informal Economy -6.',
+        description:
+          'Clear all unauthorised structures from market access routes city-wide. Delayed, Infrastructure +5, Informal Economy -6.',
         immediate: {},
         factionImpact: { civilSocietyMedia: 6 },
         delayed: {
@@ -330,7 +336,8 @@ export const crisisEvents: EventCard[] = [
       {
         id: 'mandatory-pre60-audit',
         label: 'Mandatory Audit and Evacuation of All Pre-1960 Buildings',
-        description: 'City-wide structural intervention. Trust +8, Infra +3, Civil Society +12, Business -6.',
+        description:
+          'City-wide structural intervention. Trust +8, Infra +3, Civil Society +12, Business -6.',
         immediate: { publicTrust: 8, infrastructureScore: 3 },
         factionImpact: { civilSocietyMedia: 12, businessCommunity: -6 },
         politicalCapitalCost: 10,
@@ -350,7 +357,8 @@ export const crisisEvents: EventCard[] = [
       {
         id: 'defer-to-lasbca-process',
         label: 'Defer to Existing LASBCA Process',
-        description: 'Bureaucratic deflection. Trust -8, Civil Society -14, LG Chairmen -5. Constituency: Lagos Mainland -12.',
+        description:
+          'Bureaucratic deflection. Trust -8, Civil Society -14, LG Chairmen -5. Constituency: Lagos Mainland -12.',
         immediate: { publicTrust: -8, corruptionPressure: 6 },
         factionImpact: { civilSocietyMedia: -14, lgChairmen: -5 },
         constituencyImpact: { lagosMainland: -12 },
@@ -368,7 +376,8 @@ export const crisisEvents: EventCard[] = [
       {
         id: 'joint-security-operation',
         label: 'Joint State–Federal Security Operation',
-        description: 'Coordinate RRS, Police, and DSS strike on Ikorodu network. Federal Relationship +8, Security +10, Trust +6.',
+        description:
+          'Coordinate RRS, Police, and DSS strike on Ikorodu network. Federal Relationship +8, Security +10, Trust +6.',
         immediate: { securityIndex: 10, publicTrust: 6 },
         factionImpact: { federalGovt: 8, businessCommunity: 8 },
       },
@@ -387,7 +396,8 @@ export const crisisEvents: EventCard[] = [
       {
         id: 'public-appeal-reward',
         label: 'Public Appeal and ₦5m Reward',
-        description: 'Community-led approach. Trust +4, Security +3, Civil Society +5, Business +6.',
+        description:
+          'Community-led approach. Trust +4, Security +3, Civil Society +5, Business +6.',
         immediate: { publicTrust: 4, securityIndex: 3, cashReserve: -0.005 },
         factionImpact: { civilSocietyMedia: 5, businessCommunity: 6 },
       },
@@ -404,7 +414,8 @@ export const crisisEvents: EventCard[] = [
       {
         id: 'compulsory-inspection-all-pre90',
         label: 'Compulsory Inspection of All Pre-1990 Multi-Family Buildings',
-        description: 'City-wide programme. Infrastructure +8, Trust +7, Civil Society +10. 12-week rollout.',
+        description:
+          'City-wide programme. Infrastructure +8, Trust +7, Civil Society +10. 12-week rollout.',
         immediate: { publicTrust: 7 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: -3 },
         delayed: {
@@ -416,7 +427,8 @@ export const crisisEvents: EventCard[] = [
       {
         id: 'targeted-idumota-inspection',
         label: 'Targeted Inspection of Idumota LGA',
-        description: 'Narrower scope. Infrastructure +4, Trust +4, Cash -0.3. Other LGAs uninspected.',
+        description:
+          'Narrower scope. Infrastructure +4, Trust +4, Cash -0.3. Other LGAs uninspected.',
         immediate: { publicTrust: 4, cashReserve: -0.3, infrastructureScore: 4 },
         factionImpact: { civilSocietyMedia: 5 },
         constituencyImpact: { lagosIsland: 8 },
@@ -424,7 +436,8 @@ export const crisisEvents: EventCard[] = [
       {
         id: 'statement-leave-to-lasbca',
         label: 'Statement of Condolence Only',
-        description: "Leave enforcement to LASBCA's existing schedule. Trust -8, Civil Society -10.",
+        description:
+          "Leave enforcement to LASBCA's existing schedule. Trust -8, Civil Society -10.",
         immediate: { publicTrust: -8 },
         factionImpact: { civilSocietyMedia: -10 },
       },

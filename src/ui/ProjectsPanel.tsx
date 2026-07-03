@@ -1,21 +1,30 @@
-import { useState, useMemo } from 'react'
-import { X, Wrench, Lock, Clock, CheckCircle, CircleDollarSign } from 'lucide-react'
-import { useGameStore } from '../state/gameStore'
+import { CheckCircle, CircleDollarSign, Clock, Lock, Wrench, X } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { PROJECTS } from '../data/projects'
 import { getProjectDef, getProjectStatus } from '../engine/projectsEngine'
+import { useGameStore } from '../state/gameStore'
 import type { GameState } from '../state/types'
 
-const CATEGORY_ORDER = ['transport', 'power', 'water', 'health', 'education', 'security', 'housing', 'environment'] as const
+const CATEGORY_ORDER = [
+  'transport',
+  'power',
+  'water',
+  'health',
+  'education',
+  'security',
+  'housing',
+  'environment',
+] as const
 
 const CATEGORY_COLORS: Record<string, { solid: string; bg: string; text: string }> = {
-  transport:    { solid: '#5899D2', bg: '#1a2a3a', text: '#a0c4e8' },
-  power:        { solid: '#D4A820', bg: '#2a2410', text: '#e8d488' },
-  water:        { solid: '#3DA8C0', bg: '#0a2a30', text: '#88d0e0' },
-  health:       { solid: '#3Aa85A', bg: '#0a2a18', text: '#80d8a0' },
-  education:    { solid: '#8A6AE8', bg: '#1a1040', text: '#c0a8f0' },
-  security:     { solid: '#D85040', bg: '#2a1010', text: '#e8a098' },
-  housing:      { solid: '#D08030', bg: '#2a1a08', text: '#e8c088' },
-  environment:  { solid: '#40A880', bg: '#082818', text: '#88d8b8' },
+  transport: { solid: '#5899D2', bg: '#1a2a3a', text: '#a0c4e8' },
+  power: { solid: '#D4A820', bg: '#2a2410', text: '#e8d488' },
+  water: { solid: '#3DA8C0', bg: '#0a2a30', text: '#88d0e0' },
+  health: { solid: '#3Aa85A', bg: '#0a2a18', text: '#80d8a0' },
+  education: { solid: '#8A6AE8', bg: '#1a1040', text: '#c0a8f0' },
+  security: { solid: '#D85040', bg: '#2a1010', text: '#e8a098' },
+  housing: { solid: '#D08030', bg: '#2a1a08', text: '#e8c088' },
+  environment: { solid: '#40A880', bg: '#082818', text: '#88d8b8' },
 }
 
 type CardState = 'available' | 'unaffordable' | 'locked' | 'commissioned' | 'completed'
@@ -39,7 +48,8 @@ function computeCardState(projectId: string, state: GameState): CardState {
     }
   }
 
-  if (state.stats.cashReserve < def.cost || state.stats.politicalCapital < def.pcCost) return 'unaffordable'
+  if (state.stats.cashReserve < def.cost || state.stats.politicalCapital < def.pcCost)
+    return 'unaffordable'
 
   return 'available'
 }
@@ -47,24 +57,36 @@ function computeCardState(projectId: string, state: GameState): CardState {
 function cardBorderColor(state: CardState, category: string): string {
   const c = CATEGORY_COLORS[category]
   switch (state) {
-    case 'available':    return c?.solid ?? '#666'
-    case 'unaffordable': return c?.solid ?? '#555'
-    case 'commissioned': return '#a855f7'
-    case 'completed':    return '#16a34a'
-    case 'locked':       return '#444'
-    default:             return '#444'
+    case 'available':
+      return c?.solid ?? '#666'
+    case 'unaffordable':
+      return c?.solid ?? '#555'
+    case 'commissioned':
+      return '#a855f7'
+    case 'completed':
+      return '#16a34a'
+    case 'locked':
+      return '#444'
+    default:
+      return '#444'
   }
 }
 
 function cardBackground(state: CardState, category: string): string {
   const c = CATEGORY_COLORS[category]
   switch (state) {
-    case 'available':    return c?.bg ?? '#1a1a2a'
-    case 'unaffordable': return '#181818'
-    case 'commissioned': return '#1a0a30'
-    case 'completed':    return '#0a2010'
-    case 'locked':       return '#111'
-    default:             return '#111'
+    case 'available':
+      return c?.bg ?? '#1a1a2a'
+    case 'unaffordable':
+      return '#181818'
+    case 'commissioned':
+      return '#1a0a30'
+    case 'completed':
+      return '#0a2010'
+    case 'locked':
+      return '#111'
+    default:
+      return '#111'
   }
 }
 
@@ -119,7 +141,8 @@ export function ProjectsPanel({ onClose }: { onClose: () => void }) {
   }
 
   const netFlow = stats.igr - stats.expenditure
-  const weeksOfCash = netFlow >= 0 ? Infinity : Math.abs(cashReserve / Math.max(0.1, Math.abs(netFlow)))
+  const weeksOfCash =
+    netFlow >= 0 ? Infinity : Math.abs(cashReserve / Math.max(0.1, Math.abs(netFlow)))
 
   const grouped = useMemo(() => {
     const groups: { category: string; projects: typeof PROJECTS }[] = []
@@ -144,10 +167,15 @@ export function ProjectsPanel({ onClose }: { onClose: () => void }) {
       >
         <div className="flex items-center gap-2">
           <Wrench className="w-4 h-4" style={{ color: 'var(--text)' }} />
-          <h2 className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Build / Govern</h2>
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
+            Build / Govern
+          </h2>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[10px] font-medium" style={{ color: cashReserve < 0 ? 'var(--error-11)' : 'var(--text-secondary)' }}>
+          <span
+            className="text-[10px] font-medium"
+            style={{ color: cashReserve < 0 ? 'var(--error-11)' : 'var(--text-secondary)' }}
+          >
             Cash: {naira(cashReserve)}
           </span>
           <span className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
@@ -187,7 +215,8 @@ export function ProjectsPanel({ onClose }: { onClose: () => void }) {
                     const bg = cardBackground(cs, category)
                     const clickable = cs === 'available' || cs === 'unaffordable' || cs === 'locked'
                     const iconColor = cs === 'locked' ? '#555' : '#888'
-                    const titleColor = cs === 'available' ? '#f0f0f0' : cs === 'unaffordable' ? '#ccc' : '#999'
+                    const titleColor =
+                      cs === 'available' ? '#f0f0f0' : cs === 'unaffordable' ? '#ccc' : '#999'
                     const descColor = cs === 'available' ? '#ccc' : '#999'
                     const metaColor = cs === 'available' ? (dc?.text ?? '#aaa') : '#888'
 
@@ -208,43 +237,71 @@ export function ProjectsPanel({ onClose }: { onClose: () => void }) {
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 mb-0.5">
-                              {cs === 'locked' && <Lock width={10} height={10} stroke={iconColor} />}
-                              {cs === 'unaffordable' && <CircleDollarSign width={10} height={10} stroke="#d97706" />}
-                              {cs === 'commissioned' && <Clock width={10} height={10} stroke="#a855f7" />}
-                              {cs === 'completed' && <CheckCircle width={10} height={10} stroke="#16a34a" />}
+                              {cs === 'locked' && (
+                                <Lock width={10} height={10} stroke={iconColor} />
+                              )}
+                              {cs === 'unaffordable' && (
+                                <CircleDollarSign width={10} height={10} stroke="#d97706" />
+                              )}
+                              {cs === 'commissioned' && (
+                                <Clock width={10} height={10} stroke="#a855f7" />
+                              )}
+                              {cs === 'completed' && (
+                                <CheckCircle width={10} height={10} stroke="#16a34a" />
+                              )}
                               <span className="font-semibold" style={{ color: titleColor }}>
                                 {project.title}
                               </span>
                             </div>
-                            <p className="text-[10px] mt-0.5 leading-relaxed" style={{ color: descColor }}>
+                            <p
+                              className="text-[10px] mt-0.5 leading-relaxed"
+                              style={{ color: descColor }}
+                            >
                               {project.pitch}
                             </p>
                             {(cs === 'available' || cs === 'unaffordable') && (
                               <p className="text-[9px] mt-1" style={{ color: metaColor }}>
-                                ₦{project.cost.toFixed(1)}bn · PC:{project.pcCost} · {project.weeksToComplete}w
+                                ₦{project.cost.toFixed(1)}bn · PC:{project.pcCost} ·{' '}
+                                {project.weeksToComplete}w
                                 {project.goalRelevance && project.goalRelevance.length > 0 && (
-                                  <span className="ml-2 opacity-70">· advances {project.goalRelevance.join(', ')}</span>
+                                  <span className="ml-2 opacity-70">
+                                    · advances {project.goalRelevance.join(', ')}
+                                  </span>
                                 )}
                               </p>
                             )}
                             {cs === 'locked' && (
                               <p className="text-[9px] mt-1" style={{ color: '#888' }}>
-                                Needs: {project.prerequisites && project.prerequisites.length > 0
+                                Needs:{' '}
+                                {project.prerequisites && project.prerequisites.length > 0
                                   ? project.prerequisites.map((p) => p.label).join(', ')
                                   : 'Research or project dependency'}
                               </p>
                             )}
                             {cs === 'commissioned' && (
-                              <span className="text-[9px]" style={{ color: '#a855f7' }}>In progress...</span>
+                              <span className="text-[9px]" style={{ color: '#a855f7' }}>
+                                In progress...
+                              </span>
                             )}
                             {cs === 'completed' && (
-                              <span className="text-[9px]" style={{ color: '#16a34a' }}>Completed</span>
+                              <span className="text-[9px]" style={{ color: '#16a34a' }}>
+                                Completed
+                              </span>
                             )}
                           </div>
                           <span
                             className="text-[8px] font-semibold uppercase shrink-0 px-1.5 py-0.5"
                             style={{
-                              color: cs === 'available' ? bc : cs === 'unaffordable' ? '#d97706' : cs === 'commissioned' ? '#a855f7' : cs === 'completed' ? '#16a34a' : '#555',
+                              color:
+                                cs === 'available'
+                                  ? bc
+                                  : cs === 'unaffordable'
+                                    ? '#d97706'
+                                    : cs === 'commissioned'
+                                      ? '#a855f7'
+                                      : cs === 'completed'
+                                        ? '#16a34a'
+                                        : '#555',
                               border: `1px solid ${cs === 'available' ? bc : cs === 'unaffordable' ? '#d97706' : cs === 'commissioned' ? '#a855f7' : cs === 'completed' ? '#16a34a' : '#444'}`,
                               borderRadius: '2px',
                             }}
@@ -263,143 +320,194 @@ export function ProjectsPanel({ onClose }: { onClose: () => void }) {
       </div>
 
       {/* Commission panel (overlay within the overlay) */}
-      {selectedProject && (selectedState === 'available' || selectedState === 'unaffordable' || selectedState === 'locked') && (
-        <div
-          className="absolute inset-0 flex items-center justify-center z-10 p-4"
-          style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
-          onClick={() => { setSelectedProjectId(null); setConfirming(false) }}
-        >
+      {selectedProject &&
+        (selectedState === 'available' ||
+          selectedState === 'unaffordable' ||
+          selectedState === 'locked') && (
           <div
-            className="w-full max-w-md border rounded-lg p-4 space-y-3"
-            style={{
-              backgroundColor: 'var(--surface)',
-              borderColor: selectedState === 'available' ? 'var(--accent-solid)' : 'var(--border)',
-            }}
-            onClick={(e) => e.stopPropagation()}
+            className="absolute inset-0 flex items-center justify-center z-10 p-4"
+            style={{ backgroundColor: 'transparent' }}
           >
-            <CategoryBadge category={selectedProject.category} />
-            <h3 className="text-base font-bold" style={{ color: 'var(--text)' }}>{selectedProject.title}</h3>
-            <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              {selectedProject.pitch}
-            </p>
+            <button
+              type="button"
+              aria-label="Close project details"
+              className="absolute inset-0"
+              style={{
+                backgroundColor: 'rgba(0,0,0,0.4)',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+              }}
+              onClick={() => {
+                setSelectedProjectId(null)
+                setConfirming(false)
+              }}
+            />
+            <div
+              className="relative z-10 w-full max-w-md border rounded-lg p-4 space-y-3"
+              style={{
+                backgroundColor: 'var(--surface)',
+                borderColor:
+                  selectedState === 'available' ? 'var(--accent-solid)' : 'var(--border)',
+              }}
+            >
+              <CategoryBadge category={selectedProject.category} />
+              <h3 className="text-base font-bold" style={{ color: 'var(--text)' }}>
+                {selectedProject.title}
+              </h3>
+              <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                {selectedProject.pitch}
+              </p>
 
-            <div className="flex gap-3 text-[10px]">
-              <span style={{ color: 'var(--text)' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Cost:</span> {naira(selectedProject.cost)}
-              </span>
-              <span style={{ color: 'var(--text)' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>PC:</span> {selectedProject.pcCost}
-              </span>
-              <span style={{ color: 'var(--text)' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Duration:</span> {selectedProject.weeksToComplete} weeks
-              </span>
-            </div>
-
-            {selectedProject.effect && Object.keys(selectedProject.effect).length > 0 && (
-              <div className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
-                <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>Effect: </span>
-                {Object.entries(selectedProject.effect)
-                  .map(([k, v]) => `${k} ${v > 0 ? '+' : ''}${v}`)
-                  .join(', ')}
-              </div>
-            )}
-
-            {selectedProject.goalRelevance && selectedProject.goalRelevance.length > 0 && (
-              <div className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
-                <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>Advances: </span>
-                {selectedProject.goalRelevance.join(', ')}
-              </div>
-            )}
-
-            {selectedProject.prerequisites && selectedProject.prerequisites.length > 0 && (
-              <div className="space-y-0.5">
-                <span className="text-[9px] font-semibold uppercase" style={{ color: 'var(--text-secondary)' }}>
-                  Requirements
+              <div className="flex gap-3 text-[10px]">
+                <span style={{ color: 'var(--text)' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>Cost:</span>{' '}
+                  {naira(selectedProject.cost)}
                 </span>
-                {selectedProject.prerequisites.map((prereq, i) => {
-                  const met = prereq.type === 'node'
-                    ? state.researchNodeStatuses[prereq.nodeId ?? ''] === 'completed' ||
-                      state.projectStatuses[prereq.nodeId ?? ''] === 'completed'
-                    : prereq.predicate?.(state) ?? false
-                  return (
-                    <div key={i} className="flex items-center gap-1.5 text-[10px]">
-                      <span style={{ color: met ? '#16a34a' : 'var(--error-9)' }}>
-                        {met ? '✓' : '✗'}
-                      </span>
-                      <span style={{ color: met ? '#16a34a' : 'var(--text-secondary)' }}>
-                        {prereq.label}
-                      </span>
-                    </div>
-                  )
-                })}
+                <span style={{ color: 'var(--text)' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>PC:</span>{' '}
+                  {selectedProject.pcCost}
+                </span>
+                <span style={{ color: 'var(--text)' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>Duration:</span>{' '}
+                  {selectedProject.weeksToComplete} weeks
+                </span>
               </div>
-            )}
 
-            <div className="flex gap-2 pt-1">
-              {selectedState === 'available' && !confirming && (
-                <button
-                  type="button"
-                  onClick={() => setConfirming(true)}
-                  className="flex-1 py-2 text-[11px] font-semibold transition-colors"
-                  style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
-                >
-                  Launch — {naira(selectedProject.cost)} · PC:{selectedProject.pcCost}
-                </button>
+              {selectedProject.effect && Object.keys(selectedProject.effect).length > 0 && (
+                <div className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
+                  <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
+                    Effect:{' '}
+                  </span>
+                  {Object.entries(selectedProject.effect)
+                    .map(([k, v]) => `${k} ${v > 0 ? '+' : ''}${v}`)
+                    .join(', ')}
+                </div>
               )}
-              {confirming && (
-                <>
+
+              {selectedProject.goalRelevance && selectedProject.goalRelevance.length > 0 && (
+                <div className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
+                  <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
+                    Advances:{' '}
+                  </span>
+                  {selectedProject.goalRelevance.join(', ')}
+                </div>
+              )}
+
+              {selectedProject.prerequisites && selectedProject.prerequisites.length > 0 && (
+                <div className="space-y-0.5">
+                  <span
+                    className="text-[9px] font-semibold uppercase"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    Requirements
+                  </span>
+                  {selectedProject.prerequisites.map((prereq) => {
+                    const met =
+                      prereq.type === 'node'
+                        ? state.researchNodeStatuses[prereq.nodeId ?? ''] === 'completed' ||
+                          state.projectStatuses[prereq.nodeId ?? ''] === 'completed'
+                        : (prereq.predicate?.(state) ?? false)
+                    return (
+                      <div
+                        key={`${prereq.type}-${prereq.nodeId ?? prereq.predicate?.name ?? prereq.label}`}
+                        className="flex items-center gap-1.5 text-[10px]"
+                      >
+                        <span style={{ color: met ? '#16a34a' : 'var(--error-9)' }}>
+                          {met ? '✓' : '✗'}
+                        </span>
+                        <span style={{ color: met ? '#16a34a' : 'var(--text-secondary)' }}>
+                          {prereq.label}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-1">
+                {selectedState === 'available' && !confirming && (
                   <button
                     type="button"
-                    onClick={handleCommission}
+                    onClick={() => setConfirming(true)}
+                    className="flex-1 py-2 text-[11px] font-semibold transition-colors"
+                    style={{
+                      backgroundColor: 'var(--accent-solid)',
+                      color: 'var(--accent-on-solid)',
+                    }}
+                  >
+                    Launch — {naira(selectedProject.cost)} · PC:{selectedProject.pcCost}
+                  </button>
+                )}
+                {confirming && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleCommission}
+                      className="flex-1 py-2 text-[11px] font-semibold"
+                      style={{ backgroundColor: '#16a34a', color: 'white' }}
+                    >
+                      Confirm — {naira(selectedProject.cost)} · PC:{selectedProject.pcCost}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirming(false)}
+                      className="flex-1 py-2 text-[11px] font-semibold border"
+                      style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                )}
+                {selectedState === 'unaffordable' && (
+                  <button
+                    type="button"
+                    disabled
                     className="flex-1 py-2 text-[11px] font-semibold"
-                    style={{ backgroundColor: '#16a34a', color: 'white' }}
+                    style={{
+                      backgroundColor: '#222',
+                      color: '#d97706',
+                      cursor: 'not-allowed',
+                      border: '1px solid #d97706',
+                    }}
                   >
-                    Confirm — {naira(selectedProject.cost)} · PC:{selectedProject.pcCost}
+                    {stats.cashReserve < selectedProject.cost
+                      ? `Need ₦${(selectedProject.cost - stats.cashReserve).toFixed(1)}bn more cash`
+                      : `Need ${selectedProject.pcCost - stats.politicalCapital} more PC`}
                   </button>
+                )}
+                {selectedState === 'locked' && (
                   <button
                     type="button"
-                    onClick={() => setConfirming(false)}
-                    className="flex-1 py-2 text-[11px] font-semibold border"
-                    style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
+                    disabled
+                    className="flex-1 py-2 text-[11px] font-semibold"
+                    style={{
+                      backgroundColor: '#222',
+                      color: '#888',
+                      cursor: 'not-allowed',
+                      border: '1px solid #555',
+                    }}
                   >
-                    Cancel
+                    Requires:{' '}
+                    {selectedProject.prerequisites?.map((p) => p.label).join(', ') ??
+                      'prerequisites'}
                   </button>
-                </>
-              )}
-              {selectedState === 'unaffordable' && (
+                )}
                 <button
                   type="button"
-                  disabled
-                  className="flex-1 py-2 text-[11px] font-semibold"
-                  style={{ backgroundColor: '#222', color: '#d97706', cursor: 'not-allowed', border: '1px solid #d97706' }}
+                  onClick={() => {
+                    setSelectedProjectId(null)
+                    setConfirming(false)
+                  }}
+                  className="px-3 py-2 text-[11px] border"
+                  style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
                 >
-                  {stats.cashReserve < selectedProject.cost
-                    ? `Need ₦${(selectedProject.cost - stats.cashReserve).toFixed(1)}bn more cash`
-                    : `Need ${selectedProject.pcCost - stats.politicalCapital} more PC`}
+                  Back
                 </button>
-              )}
-              {selectedState === 'locked' && (
-                <button
-                  type="button"
-                  disabled
-                  className="flex-1 py-2 text-[11px] font-semibold"
-                  style={{ backgroundColor: '#222', color: '#888', cursor: 'not-allowed', border: '1px solid #555' }}
-                >
-                  Requires: {selectedProject.prerequisites?.map((p) => p.label).join(', ') ?? 'prerequisites'}
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => { setSelectedProjectId(null); setConfirming(false) }}
-                className="px-3 py-2 text-[11px] border"
-                style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
-              >
-                Back
-              </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   )
 }

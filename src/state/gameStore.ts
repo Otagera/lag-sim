@@ -1,21 +1,29 @@
 import { create } from 'zustand'
-import { STARTING_STATE } from '../data/startingState'
 import { DEPUTY_PROFILES } from '../data/deputies'
+import { STARTING_STATE } from '../data/startingState'
 import { takeLoan as takeLoanAction } from '../engine/debtEngine'
-import { resolveEvent as resolveEventAction } from '../engine/eventEngine'
-import { tick as gameLoopTick } from '../engine/gameLoop'
-import { calculateWeeklyRevenue } from '../engine/revenueEngine'
-import { calculateWeeklyExpenditure } from '../engine/expenditureEngine'
-import { resolveGodfather } from '../engine/godfatherEngine'
-import { simulateWeeks, type SimulateOptions, type SimulateResult } from '../engine/simulateEngine'
 import { evaluateSkipNews } from '../engine/evaluateNews'
-import { applyDelta } from '../engine/statEngine'
+import { resolveEvent as resolveEventAction } from '../engine/eventEngine'
+import { calculateWeeklyExpenditure } from '../engine/expenditureEngine'
 import { applyFactionDelta } from '../engine/factionEngine'
+import { tick as gameLoopTick } from '../engine/gameLoop'
+import { resolveGodfather } from '../engine/godfatherEngine'
 import { generateCommissionerMessage } from '../engine/inboxEngine'
-import { commissionNode } from '../engine/researchEngine'
 import { commissionProject as commissionProjectAction } from '../engine/projectsEngine'
+import { commissionNode } from '../engine/researchEngine'
+import { calculateWeeklyRevenue } from '../engine/revenueEngine'
+import { type SimulateOptions, type SimulateResult, simulateWeeks } from '../engine/simulateEngine'
+import { applyDelta } from '../engine/statEngine'
 import { loadSeenHints, saveGame, saveSeenHints } from './persistence'
-import type { CommissionerRole, CommissionerState, DeputyKey, GameState, LoanSource } from './types'
+import type {
+  CommissionerRole,
+  CommissionerState,
+  DeputyKey,
+  FactionDelta,
+  GameState,
+  LoanSource,
+  StatDelta,
+} from './types'
 
 export interface GameStore extends GameState {
   tick: () => void
@@ -28,11 +36,18 @@ export interface GameStore extends GameState {
   appointCommissioner: (role: CommissionerRole, candidate: CommissionerState) => void
   dismissConsequenceBeat: () => void
   clearNewspaperHeadline: () => void
-  enrichNewspaperHeadline: (headline: string, deck: string) => void
   economyCutSubventions: () => void
   economyReduceOverheads: () => void
   economyRaiseLuc: () => void
-  economyLaunchInitiative: (id: string, name: string, totalWeeks: number, completionEventId: string, pcCost: number, factionImpact: Record<string, number>, statDelta: Record<string, number>) => void
+  economyLaunchInitiative: (
+    id: string,
+    name: string,
+    totalWeeks: number,
+    completionEventId: string,
+    pcCost: number,
+    factionImpact: FactionDelta,
+    statDelta: StatDelta,
+  ) => void
   economyTakeLoan: (amount: number, source: LoanSource) => void
   courtGodfathers: () => void
   // Phase D — inbox
@@ -142,7 +157,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       { ...s, economyCooldowns: { ...s.economyCooldowns, [cooldownKey]: s.week + 8 } },
       { baseOverheads: -3, politicalCapital: -15 },
     )
-    set({ ...afterStat, factions: applyFactionDelta(afterStat.factions, { partyGodfathers: -6, lgChairmen: -5 }) })
+    set({
+      ...afterStat,
+      factions: applyFactionDelta(afterStat.factions, { partyGodfathers: -6, lgChairmen: -5 }),
+    })
   },
   economyRaiseLuc: () => {
     const s = get()
@@ -155,16 +173,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
       { ...s, economyCooldowns: { ...s.economyCooldowns, [cooldownKey]: s.week + 12 } },
       { landUseChargeEnforcement: newLuc, politicalCapital: -10 },
     )
-    set({ ...afterStat, factions: applyFactionDelta(afterStat.factions, { businessCommunity: -6 }) })
+    set({
+      ...afterStat,
+      factions: applyFactionDelta(afterStat.factions, { businessCommunity: -6 }),
+    })
   },
-  economyLaunchInitiative: (id, name, totalWeeks, completionEventId, pcCost, factionImpact, statDelta) => {
+  economyLaunchInitiative: (
+    id,
+    name,
+    totalWeeks,
+    completionEventId,
+    pcCost,
+    factionImpact,
+    statDelta,
+  ) => {
     const s = get()
     if (s.activeInitiative) return
     if (s.stats.politicalCapital < pcCost) return
-    const delta = { ...statDelta, politicalCapital: -pcCost } as Record<string, number>
+    const delta: StatDelta = { ...statDelta, politicalCapital: -pcCost }
     let next = applyDelta(s, delta)
     if (Object.keys(factionImpact).length > 0) {
-      next = { ...next, factions: applyFactionDelta(next.factions, factionImpact as any) }
+      next = { ...next, factions: applyFactionDelta(next.factions, factionImpact) }
     }
     if (id === 'grants-mobilisation') {
       next = { ...next, stateFlags: { ...next.stateFlags, 'world-bank-grant-submitted': true } }
@@ -207,13 +236,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
   clearNewspaperHeadline: () => {
     set({ newspaperHeadline: undefined })
-  },
-  enrichNewspaperHeadline: (headline: string, deck: string) => {
-    set((s) => ({
-      newspaperHeadline: s.newspaperHeadline
-        ? { ...s.newspaperHeadline, headline, deck, llmGenerated: true, llmPending: false }
-        : undefined,
-    }))
   },
   inboxMarkRead: (id: string) => {
     set((s) => ({

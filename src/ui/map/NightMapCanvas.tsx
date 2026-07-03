@@ -1,20 +1,22 @@
-import { useEffect, useRef } from 'react'
 import { Application } from 'pixi.js'
+import { useEffect, useRef } from 'react'
 import { useGameStore } from '../../state/gameStore'
-import { selectMapState, type MapLens } from '../../state/mapSelectors'
-import type { MapLayer } from './types'
+import { type MapLens, selectMapState } from '../../state/mapSelectors'
 import { loadLGAGeometry } from './geoProjection'
-import { createGroundLayer }     from './layers/groundLayer'
-import { createRoadsLayer }      from './layers/roadsLayer'
-import { createBuildingsLayer }  from './layers/buildingsLayer'
+import { createBoatsLayer } from './layers/boatsLayer'
+import { createBuildingsLayer } from './layers/buildingsLayer'
 import { createGeneratorsLayer } from './layers/generatorsLayer'
-import { createTrafficLayer }    from './layers/trafficLayer'
-import { createBoatsLayer }      from './layers/boatsLayer'
-import { createLabelsLayer }     from './layers/labelsLayer'
-import { createLandmarksLayer }  from './layers/landmarksLayer'
-import { createLightsLayer }     from './layers/lightsLayer'
+import { createGroundLayer } from './layers/groundLayer'
+import { createLabelsLayer } from './layers/labelsLayer'
+import { createLandmarksLayer } from './layers/landmarksLayer'
+import { createLightsLayer } from './layers/lightsLayer'
+import { createRoadsLayer } from './layers/roadsLayer'
+import { createTrafficLayer } from './layers/trafficLayer'
+import type { MapLayer } from './types'
 
-interface Props { lens: MapLens }
+interface Props {
+  lens: MapLens
+}
 
 export function NightMapCanvas({ lens }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -30,11 +32,15 @@ export function NightMapCanvas({ lens }: Props) {
     let appInstance: Application | null = null
 
     const run = async () => {
-      const w = el.clientWidth  || 800
+      const w = el.clientWidth || 800
       const h = el.clientHeight || 380
 
       // Load GeoJSON and project to iso space before any layer inits
-      try { await loadLGAGeometry() } catch { /* fallback — layers use zone rects */ }
+      try {
+        await loadLGAGeometry()
+      } catch {
+        /* fallback — layers use zone rects */
+      }
 
       const app = new Application()
       try {
@@ -49,7 +55,10 @@ export function NightMapCanvas({ lens }: Props) {
         return
       }
 
-      if (aborted) { app.destroy(); return }
+      if (aborted) {
+        app.destroy()
+        return
+      }
 
       appInstance = app
       el.appendChild(app.canvas as HTMLCanvasElement)
@@ -59,12 +68,12 @@ export function NightMapCanvas({ lens }: Props) {
         createGroundLayer(),
         createRoadsLayer(),
         createBuildingsLayer(),
-        createGeneratorsLayer(),  // D1: street-level generator glows
-        createTrafficLayer(),     // D2: danfo / BRT / headlight streams
-        createBoatsLayer(),       // D3: ferries, canoes, cargo
-        createLandmarksLayer(),   // Iconic Lagos structures + bridge lights
-        createLabelsLayer(),      // LGA name labels on hover
-        createLightsLayer(),      // B + D4: windows, glow, reflection
+        createGeneratorsLayer(), // D1: street-level generator glows
+        createTrafficLayer(), // D2: danfo / BRT / headlight streams
+        createBoatsLayer(), // D3: ferries, canoes, cargo
+        createLandmarksLayer(), // Iconic Lagos structures + bridge lights
+        createLabelsLayer(), // LGA name labels on hover
+        createLightsLayer(), // B + D4: windows, glow, reflection
       ]
 
       for (const layer of layers) {

@@ -1,5 +1,5 @@
-import { mulberry32 } from '../utils/prng'
 import type { EventCard, GameState } from '../state/types'
+import { mulberry32 } from '../utils/prng'
 import { drawNextEvent, resolveEvent } from './eventEngine'
 import { tick } from './gameLoop'
 
@@ -30,7 +30,7 @@ export const WINNING_STRATEGY = {
 
   continuous: {
     cashReserve: 1,
-    igr: 2,              // IGR compounds; term2-only igrLoss guard handles permanent losses
+    igr: 2, // IGR compounds; term2-only igrLoss guard handles permanent losses
     corruptionPressure: -1,
     politicalCapital: 0.3,
     infrastructureScore: 0.5,
@@ -43,21 +43,21 @@ export const WINNING_STRATEGY = {
   factionFloors: {
     civilSocietyMedia: { threshold: 45, weight: 4 },
     businessCommunity: { threshold: 45, weight: 3 },
-    lgChairmen:        { threshold: 45, weight: 3 },
-    informalEconomy:   { threshold: 40, weight: 3 },
+    lgChairmen: { threshold: 45, weight: 3 },
+    informalEconomy: { threshold: 40, weight: 3 },
   },
 
   emergency: {
-    fedRel:           { threshold: -10, statWeight: 20, factionWeight: 10 },
-    cashReserve:      { threshold: 60, weight: 40 },
-    cashCritical:     { threshold: 25, weight: 80 },
-    corruption:       { threshold: 50, weight: 18 },
-    godfathers:       { threshold: 15, weekGate: 40, weight: 12 },
-    youthTension:     { threshold: 55, weight: 15 },
-    publicTrust:      { threshold: 35, weight: 12 },
-    expenditure:      { cashThreshold: 50, normalWeight: 2, crisisWeight: 8 },
+    fedRel: { threshold: -10, statWeight: 20, factionWeight: 10 },
+    cashReserve: { threshold: 60, weight: 40 },
+    cashCritical: { threshold: 25, weight: 80 },
+    corruption: { threshold: 50, weight: 18 },
+    godfathers: { threshold: 15, weekGate: 40, weight: 12 },
+    youthTension: { threshold: 55, weight: 15 },
+    publicTrust: { threshold: 35, weight: 12 },
+    expenditure: { cashThreshold: 50, normalWeight: 2, crisisWeight: 8 },
     politicalCapital: { threshold: 25, weekGate: 209, weight: 15 },
-    igrLoss:          { weekGate: 209, weight: 8 },
+    igrLoss: { weekGate: 209, weight: 8 },
   },
 
   godfather: {
@@ -69,7 +69,6 @@ export const WINNING_STRATEGY = {
     middleRefusalCount: 3,
   },
 }
-
 
 // Scores a choice higher if it keeps the governor alive (cash, trust, low corruption)
 function scoreChoice(choice: EventCard['choices'][number]): number {
@@ -127,7 +126,10 @@ function scoreWinningChoice(
     score -= (d.corruptionPressure ?? 0) * cfg.corruption.weight
   }
 
-  if (state.factions.partyGodfathers < cfg.godfathers.threshold && state.week > cfg.godfathers.weekGate) {
+  if (
+    state.factions.partyGodfathers < cfg.godfathers.threshold &&
+    state.week > cfg.godfathers.weekGate
+  ) {
     score += (f.partyGodfathers ?? 0) * cfg.godfathers.weight
   }
 
@@ -140,18 +142,22 @@ function scoreWinningChoice(
   }
 
   if (d.expenditure && d.expenditure > 0) {
-    const weight = state.stats.cashReserve < cfg.expenditure.cashThreshold
-      ? cfg.expenditure.crisisWeight
-      : cfg.expenditure.normalWeight
+    const weight =
+      state.stats.cashReserve < cfg.expenditure.cashThreshold
+        ? cfg.expenditure.crisisWeight
+        : cfg.expenditure.normalWeight
     score -= d.expenditure * weight
   }
 
-  if (state.stats.politicalCapital < cfg.politicalCapital.threshold && state.week > cfg.politicalCapital.weekGate) {
+  if (
+    state.stats.politicalCapital < cfg.politicalCapital.threshold &&
+    state.week > cfg.politicalCapital.weekGate
+  ) {
     score += (d.politicalCapital ?? 0) * cfg.politicalCapital.weight
   }
 
   if ((d.igr ?? 0) < 0 && state.week > cfg.igrLoss.weekGate) {
-    score += d.igr! * cfg.igrLoss.weight
+    score += (d.igr ?? 0) * cfg.igrLoss.weight
   }
 
   const ff = WINNING_STRATEGY.factionFloors
@@ -167,7 +173,12 @@ function scoreWinningChoice(
   return score
 }
 
-function pickChoiceId(event: EventCard, strategy: SimulateStrategy, rng: () => number, state?: GameState): string {
+function pickChoiceId(
+  event: EventCard,
+  strategy: SimulateStrategy,
+  rng: () => number,
+  state?: GameState,
+): string {
   const { choices } = event
   if (!choices.length) return ''
   if (strategy === 'first') return choices[0].id
@@ -198,14 +209,22 @@ function pickChoiceId(event: EventCard, strategy: SimulateStrategy, rng: () => n
 function shouldAcceptGodfather(state: GameState): boolean {
   const cfg = WINNING_STRATEGY.godfather
   if (state.stats.corruptionPressure > cfg.corruptionRefuseThreshold) return false
-  if (state.factions.partyGodfathers < cfg.emergencyGodfathers && state.week > cfg.emergencyWeekGate) return true
+  if (
+    state.factions.partyGodfathers < cfg.emergencyGodfathers &&
+    state.week > cfg.emergencyWeekGate
+  )
+    return true
   if (state.factions.partyGodfathers < cfg.safetyGodfathers) return true
   if (state.factions.partyGodfathers > cfg.comfortableGodfathers) return false
   if (state.godfatherRefusalCount >= cfg.middleRefusalCount) return true
   return false
 }
 
-function autoResolveWeek(state: GameState, strategy: SimulateStrategy, rng: () => number): GameState {
+function autoResolveWeek(
+  state: GameState,
+  strategy: SimulateStrategy,
+  rng: () => number,
+): GameState {
   let s = state
 
   // Resolve up to 2 events per week
@@ -233,7 +252,11 @@ function autoResolveWeek(state: GameState, strategy: SimulateStrategy, rng: () =
   return { ...s, activeEvent: null }
 }
 
-export function simulateWeeks(state: GameState, n: number, options: SimulateOptions = {}): SimulateResult {
+export function simulateWeeks(
+  state: GameState,
+  n: number,
+  options: SimulateOptions = {},
+): SimulateResult {
   const strategy = options.strategy ?? 'first'
   // Capture seed before replacing Math.random so the default case uses the real RNG
   const seed = options.seed ?? Math.floor(Math.random() * 2 ** 32)

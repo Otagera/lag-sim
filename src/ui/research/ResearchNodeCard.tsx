@@ -1,5 +1,5 @@
 import { CheckCircle, Clock, Lock } from 'lucide-react'
-import { useEffect } from 'react'
+import { type KeyboardEvent, useEffect } from 'react'
 import type { ResearchNode, ResearchNodeStatus } from '../../state/types'
 
 interface DomainColor {
@@ -94,10 +94,22 @@ export function ResearchNodeCard({
         }
       : undefined
 
+  function handleKeyDown(event: KeyboardEvent<SVGGElement>) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onClick()
+    }
+  }
+
   return (
+    // biome-ignore lint/a11y/useSemanticElements: SVG <g> cannot be replaced by <button>
     <g
+      aria-label={node.title}
       onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role="button"
       style={{ cursor: isClickable ? 'pointer' : 'default' }}
+      tabIndex={0}
       onAnimationEnd={flash && !reduced ? onFlashDone : undefined}
     >
       <g style={flashStyle}>

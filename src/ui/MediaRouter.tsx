@@ -1,8 +1,8 @@
 import { useGameStore } from '../state/gameStore'
 import { LagosHerald } from './LagosHerald'
-import { ViralClip } from './ViralClip'
-import { SocialPost } from './SocialPost'
 import { PodcastCard } from './PodcastCard'
+import { SocialPost } from './SocialPost'
+import { ViralClip } from './ViralClip'
 import { WhatsAppChain } from './WhatsAppChain'
 
 export function MediaRouter() {
@@ -21,7 +21,6 @@ export function MediaRouter() {
       return <PodcastCard article={article} />
     case 'whatsapp':
       return <WhatsAppChain article={article} />
-    case 'newspaper':
     default:
       return <LagosHerald />
   }

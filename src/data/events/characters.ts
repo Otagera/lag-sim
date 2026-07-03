@@ -24,7 +24,8 @@ export const removalResolutionEvent: EventCard = {
     {
       id: 'fight',
       label: 'Fight It',
-      description: 'Challenge the resolution head-on. Sends the matter to a House committee. Costly but survivable.',
+      description:
+        'Challenge the resolution head-on. Sends the matter to a House committee. Costly but survivable.',
       immediate: { politicalCapital: -20 },
       factionImpact: { partyGodfathers: 3, civilSocietyMedia: 5 },
       followUpEventId: 'removal-resolution-committee',
@@ -32,20 +33,23 @@ export const removalResolutionEvent: EventCard = {
     {
       id: 'negotiate',
       label: 'Negotiate',
-      description: 'Promise concessions to enough members to kill it before committee. Political capital and cash — but no further escalation this arc.',
+      description:
+        'Promise concessions to enough members to kill it before committee. Political capital and cash — but no further escalation this arc.',
       immediate: { politicalCapital: -10, cashReserve: -5 },
       factionImpact: { partyGodfathers: 10, lgChairmen: -5 },
       delayed: {
         weekOffset: 4,
         delta: { politicalCapital: -10 },
         factionImpact: { civilSocietyMedia: -8 },
-        eventText: 'The promises you made to survive the removal vote are now coming due. A commissioner slot in the next cabinet, accelerated contracts for three assembly members\' cousins, waivers on two land use charges. The price of staying in office is payable in instalments.',
+        eventText:
+          "The promises you made to survive the removal vote are now coming due. A commissioner slot in the next cabinet, accelerated contracts for three assembly members' cousins, waivers on two land use charges. The price of staying in office is payable in instalments.",
       },
     },
     {
       id: 'defy',
       label: 'Defy the Assembly',
-      description: 'Refuse to engage. The Assembly proceeds directly to a full floor vote. This path ends your administration.',
+      description:
+        'Refuse to engage. The Assembly proceeds directly to a full floor vote. This path ends your administration.',
       immediate: {},
       factionImpact: { partyGodfathers: -15, civilSocietyMedia: -10 },
     },
@@ -64,14 +68,16 @@ export const removalResolutionCommitteeEvent: EventCard = {
     {
       id: 'full-disclosure',
       label: 'Full Disclosure',
-      description: 'Release all requested records publicly. Civil Society rallies to your defence. Corruption pressure falls. The committee motion dies in committee.',
+      description:
+        'Release all requested records publicly. Civil Society rallies to your defence. Corruption pressure falls. The committee motion dies in committee.',
       immediate: { corruptionPressure: -5, politicalCapital: -15 },
       factionImpact: { civilSocietyMedia: 10, partyGodfathers: -5 },
     },
     {
       id: 'stonewall',
       label: 'Stonewall',
-      description: 'Delay, obfuscate, and drag it out. Buys time but sends the matter to the floor.',
+      description:
+        'Delay, obfuscate, and drag it out. Buys time but sends the matter to the floor.',
       immediate: { politicalCapital: -5 },
       factionImpact: { civilSocietyMedia: -12 },
       followUpEventId: 'removal-resolution-floor-vote',
@@ -79,7 +85,8 @@ export const removalResolutionCommitteeEvent: EventCard = {
     {
       id: 'bribe-chair',
       label: 'Neutralise the Committee Chair',
-      description: 'A private arrangement. Expensive and dirty. The motion dies without ever reaching the floor.',
+      description:
+        'A private arrangement. Expensive and dirty. The motion dies without ever reaching the floor.',
       immediate: { cashReserve: -8, corruptionPressure: 5 },
       factionImpact: { partyGodfathers: 5, civilSocietyMedia: -5 },
     },
@@ -98,7 +105,8 @@ export const removalResolutionFloorVoteEvent: EventCard = {
     {
       id: 'mobilise-allies',
       label: 'Mobilise Every Ally',
-      description: 'Spend everything — political capital, cash, favours. If your faction scores are strong enough, you survive.',
+      description:
+        'Spend everything — political capital, cash, favours. If your faction scores are strong enough, you survive.',
       immediate: { politicalCapital: -30 },
       factionImpact: { lgChairmen: 5, partyGodfathers: 5 },
     },
@@ -127,7 +135,8 @@ Your first term ends here. There will be no second.`,
     {
       id: 'accept-primary-defeat',
       label: 'Accept the Result',
-      description: 'Concede the primary with dignity. Your tenure ends at week 208 without a re-election contest.',
+      description:
+        'Concede the primary with dignity. Your tenure ends at week 208 without a re-election contest.',
       immediate: {},
       factionImpact: {},
       setFlags: { 'primary-lost': true },
@@ -196,7 +205,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'full-disclosure',
         label: 'Full Disclosure',
-        description: 'Acknowledge the irregular award, announce procurement reform. Trust +6, PC -20.',
+        description:
+          'Acknowledge the irregular award, announce procurement reform. Trust +6, PC -20.',
         immediate: { publicTrust: 6, politicalCapital: -20, corruptionPressure: -3 },
         factionImpact: { civilSocietyMedia: 12, partyGodfathers: -6 },
         npcImpact: { journalist: 12 },
@@ -204,7 +214,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'manage-narrative',
         label: 'Manage the Narrative',
-        description: 'Claim administrative error, commission internal review. Buys 4 weeks. Corruption +5.',
+        description:
+          'Claim administrative error, commission internal review. Buys 4 weeks. Corruption +5.',
         immediate: { corruptionPressure: 5 },
         factionImpact: { civilSocietyMedia: -6 },
         npcImpact: { journalist: -8 },
@@ -217,7 +228,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'counter-neo-record',
         label: 'Expose Their Record',
-        description: 'Release documents on their own past irregularities. Stops the immediate story. Risky escalation.',
+        description:
+          'Release documents on their own past irregularities. Stops the immediate story. Risky escalation.',
         immediate: { politicalCapital: 5, corruptionPressure: 2 },
         factionImpact: { civilSocietyMedia: -10, businessCommunity: 3 },
         npcImpact: { journalist: -25 },
@@ -236,13 +248,13 @@ export const characterEvents: EventCard[] = [
     body: `Your investigative journalist opponent sends a private message through an intermediary. They are willing to go quiet on the procurement investigations if you agree not to contest the federal senatorial seat they are eyeing for 2031. A tacit political truce.`,
     severity: 'low',
     category: 'political',
-    triggerCondition: (state) =>
-      (journalistSlot(state)?.isActive ?? false) && state.week >= 60,
+    triggerCondition: (state) => (journalistSlot(state)?.isActive ?? false) && state.week >= 60,
     choices: [
       {
         id: 'accept-truce',
         label: 'Accept the Truce',
-        description: 'They go quiet for the rest of your term. Civil Society -4. Political Capital +10.',
+        description:
+          'They go quiet for the rest of your term. Civil Society -4. Political Capital +10.',
         immediate: { politicalCapital: 10 },
         factionImpact: { civilSocietyMedia: -4 },
         npcImpact: { journalist: 20 },
@@ -250,7 +262,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'decline-truce',
         label: 'Decline',
-        description: 'Stay the course. Civil Society +6 (they respect the refusal). The fight continues.',
+        description:
+          'Stay the course. Civil Society +6 (they respect the refusal). The fight continues.',
         immediate: {},
         factionImpact: { civilSocietyMedia: 6, partyGodfathers: 3 },
         npcImpact: { journalist: -5 },
@@ -277,7 +290,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'engage-both',
         label: 'Engage Both Separately',
-        description: 'Spend Political Capital to open back-channel talks with each. -30 PC, splits the coalition.',
+        description:
+          'Spend Political Capital to open back-channel talks with each. -30 PC, splits the coalition.',
         immediate: { politicalCapital: -30 },
         factionImpact: { civilSocietyMedia: 5 },
         npcImpact: { journalist: 10, 'youth-organiser': 10 },
@@ -285,7 +299,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'discredit-coalition',
         label: 'Expose the Contradictions',
-        description: 'Legal-establishment vs street. Publicly highlight their differences. Trust -5, breaks coalition in 6 weeks.',
+        description:
+          'Legal-establishment vs street. Publicly highlight their differences. Trust -5, breaks coalition in 6 weeks.',
         immediate: { publicTrust: -5 },
         factionImpact: { civilSocietyMedia: -8 },
         delayed: {
@@ -298,7 +313,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'address-underlying',
         label: 'Address the Underlying Issues',
-        description: 'Hold a major anti-corruption press conference. Trust +10, Political Capital -25.',
+        description:
+          'Hold a major anti-corruption press conference. Trust +10, Political Capital -25.',
         immediate: { publicTrust: 10, politicalCapital: -25, corruptionPressure: -5 },
         factionImpact: { civilSocietyMedia: 15, partyGodfathers: -8 },
         npcImpact: { journalist: 15, 'youth-organiser': 15 },
@@ -326,7 +342,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'engage-dayo',
         label: 'Send Liaison to Meet Them',
-        description: 'Offer a technical briefing on youth employment numbers. Youth Tension -3. Relationship +15.',
+        description:
+          'Offer a technical briefing on youth employment numbers. Youth Tension -3. Relationship +15.',
         immediate: { youthTension: -3 },
         factionImpact: { civilSocietyMedia: 4, informalEconomy: 3 },
         npcImpact: { 'youth-organiser': 15 },
@@ -334,7 +351,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'heavy-police',
         label: 'Request Heavy Police Presence',
-        description: 'Deter the rally. Trust -8. Youth Tension +10. Civil Society will film everything.',
+        description:
+          'Deter the rally. Trust -8. Youth Tension +10. Civil Society will film everything.',
         immediate: { securityIndex: 2, publicTrust: -8, youthTension: 10 },
         factionImpact: { civilSocietyMedia: -15, informalEconomy: -5 },
         npcImpact: { 'youth-organiser': -18 },
@@ -353,7 +371,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'invite-dayo',
         label: 'Extend the Invitation',
-        description: 'They come. See the numbers. Go quiet for 3 weeks. Then return angrier — at the system, not just you.',
+        description:
+          'They come. See the numbers. Go quiet for 3 weeks. Then return angrier — at the system, not just you.',
         immediate: {},
         factionImpact: { civilSocietyMedia: 3 },
         npcImpact: { 'youth-organiser': 10 },
@@ -378,7 +397,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'acknowledge-system',
         label: 'Publicly Acknowledge Structural Problems',
-        description: 'Bold move. Trust +8, Political Capital -15, Civil Society +12. Godfathers will see this as a declaration of war.',
+        description:
+          'Bold move. Trust +8, Political Capital -15, Civil Society +12. Godfathers will see this as a declaration of war.',
         immediate: { publicTrust: 8, politicalCapital: -15 },
         factionImpact: { civilSocietyMedia: 12, partyGodfathers: -10, informalEconomy: 5 },
         npcImpact: { 'youth-organiser': 12 },
@@ -412,7 +432,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'address-youth-economy',
         label: 'Launch Youth Employment Initiative',
-        description: 'Announce a ₦10bn youth employment fund. Trust +6, Youth Tension -10, Cash -10.',
+        description:
+          'Announce a ₦10bn youth employment fund. Trust +6, Youth Tension -10, Cash -10.',
         immediate: { publicTrust: 6, youthTension: -10, cashReserve: -10 },
         factionImpact: { informalEconomy: 8, civilSocietyMedia: 6 },
         npcImpact: { 'youth-organiser': 15 },
@@ -451,7 +472,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'investigate-smj',
         label: 'Open a Formal Investigation',
-        description: 'You will find it leads back to them. Political Capital -10. Insider becomes open opposition.',
+        description:
+          'You will find it leads back to them. Political Capital -10. Insider becomes open opposition.',
         immediate: { politicalCapital: -10 },
         factionImpact: { partyGodfathers: -5, businessCommunity: 3 },
         npcImpact: { insider: -15 },
@@ -465,7 +487,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'absorb-delay',
         label: 'Absorb the Delay, Say Nothing',
-        description: "Get the form re-issued. Move on. Insider remains in the shadows. Infrastructure -2.",
+        description:
+          'Get the form re-issued. Move on. Insider remains in the shadows. Infrastructure -2.',
         immediate: { infrastructureScore: -2 },
         factionImpact: {},
         npcImpact: { insider: 5 },
@@ -478,13 +501,13 @@ export const characterEvents: EventCard[] = [
     body: `A memo from your Chief of Staff — describing a political strategy to marginalise the Godfathers' allies — has appeared on three opposition blogs simultaneously. The signature coordination points to the party insider. Their mole is inside Government House.`,
     severity: 'high',
     category: 'political',
-    triggerCondition: (state) =>
-      (insiderSlot(state)?.isActive ?? false) && state.week >= 50,
+    triggerCondition: (state) => (insiderSlot(state)?.isActive ?? false) && state.week >= 50,
     choices: [
       {
         id: 'deny-memo',
         label: 'Deny Authenticity',
-        description: "Call it fabricated. Trust -6. If it's verified, Trust -18 and Political Capital -20.",
+        description:
+          "Call it fabricated. Trust -6. If it's verified, Trust -18 and Political Capital -20.",
         immediate: { publicTrust: -6 },
         factionImpact: { civilSocietyMedia: -8 },
         npcImpact: { insider: -5 },
@@ -492,7 +515,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'dismiss-aide',
         label: 'Dismiss the Suspected Aide',
-        description: 'Swift action. Leak stops. Trust +2. Insider claims you fired an innocent person.',
+        description:
+          'Swift action. Leak stops. Trust +2. Insider claims you fired an innocent person.',
         immediate: { publicTrust: 2, securityIndex: 3 },
         factionImpact: { partyGodfathers: 3 },
         npcImpact: { insider: -8 },
@@ -521,7 +545,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'grassroots-mobilisation',
         label: 'Mobilise Party Grassroots',
-        description: 'Spend Political Capital to activate ward delegates. -35 PC. Your base votes you through.',
+        description:
+          'Spend Political Capital to activate ward delegates. -35 PC. Your base votes you through.',
         immediate: { politicalCapital: -35 },
         factionImpact: { informalEconomy: 5, lgChairmen: 8, partyGodfathers: 5 },
         npcImpact: { insider: -10 },
@@ -529,7 +554,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'federal-ally-intervention',
         label: 'Call in Federal Allies',
-        description: 'Ask Abuja to signal support. Federal Relationship -5. Insider is squeezed out.',
+        description:
+          'Ask Abuja to signal support. Federal Relationship -5. Insider is squeezed out.',
         immediate: {},
         factionImpact: { federalGovt: -5, partyGodfathers: 10 },
         npcImpact: { insider: -5 },
@@ -537,7 +563,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'smj-negotiation',
         label: 'Negotiate with the Insider',
-        description: 'Offer them a cabinet role to stand down. Political Capital +5, but they become an internal liability.',
+        description:
+          'Offer them a cabinet role to stand down. Political Capital +5, but they become an internal liability.',
         immediate: { politicalCapital: 5, corruptionPressure: 3 },
         factionImpact: { partyGodfathers: 6 },
         npcImpact: { insider: 20 },
@@ -555,12 +582,13 @@ export const characterEvents: EventCard[] = [
     severity: 'high',
     category: 'political',
     triggerCondition: (state) =>
-      state.deputy?.key === 'politician' && (state.deputy.resentment >= 60),
+      state.deputy?.key === 'politician' && state.deputy.resentment >= 60,
     choices: [
       {
         id: 'neutralise-obiora',
         label: 'Bring Her Back Inside',
-        description: 'Give her a meaningful assignment and political concessions. Political Capital -25. She de-escalates.',
+        description:
+          'Give her a meaningful assignment and political concessions. Political Capital -25. She de-escalates.',
         immediate: { politicalCapital: -25 },
         factionImpact: { partyGodfathers: -5 },
         resentmentDelta: -40,
@@ -595,7 +623,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'cover-adeyemi-shaw',
         label: 'Cover For Him',
-        description: 'Use your office to quietly bury the inquiry. Corruption +12, Trust -8. He owes you everything.',
+        description:
+          'Use your office to quietly bury the inquiry. Corruption +12, Trust -8. He owes you everything.',
         immediate: { corruptionPressure: 12, publicTrust: -8 },
         factionImpact: { civilSocietyMedia: -10 },
         corruptionTrigger: true,
@@ -603,7 +632,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'sacrifice-adeyemi-shaw',
         label: 'Cut Him Loose',
-        description: "Distance yourself publicly. Trust -15, Political Capital -20. You'll govern alone.",
+        description:
+          "Distance yourself publicly. Trust -15, Political Capital -20. You'll govern alone.",
         immediate: { publicTrust: -15, politicalCapital: -20 },
         factionImpact: { civilSocietyMedia: 5 },
         clearDeputy: true,
@@ -612,14 +642,16 @@ export const characterEvents: EventCard[] = [
       {
         id: 'investigate-adeyemi-shaw',
         label: 'Order a Full Inquiry',
-        description: 'Face it head-on. Corruption -5, Trust +5 — but it will dominate the news for 8 weeks.',
+        description:
+          'Face it head-on. Corruption -5, Trust +5 — but it will dominate the news for 8 weeks.',
         immediate: { corruptionPressure: -5, publicTrust: 5, politicalCapital: -25 },
         factionImpact: { civilSocietyMedia: 12, partyGodfathers: -8 },
         delayed: {
           weekOffset: 8,
           delta: { publicTrust: 4 },
           factionImpact: { civilSocietyMedia: 5 },
-          eventText: 'The inquiry cleared your deputy — technically. The report used phrases like \'no direct evidence\' and \'insufficient to establish wrongdoing.\' The cloud lifted, but for two months, every policy announcement was met with the same question: \'Is this the one your deputy took a cut from?\'',
+          eventText:
+            "The inquiry cleared your deputy — technically. The report used phrases like 'no direct evidence' and 'insufficient to establish wrongdoing.' The cloud lifted, but for two months, every policy announcement was met with the same question: 'Is this the one your deputy took a cut from?'",
         },
       },
     ],
@@ -638,7 +670,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'accept-reformer-resignation',
         label: 'Accept Her Resignation',
-        description: 'Civil Society -20, Trust -12. She leaves with her integrity — and her scrutiny — intact.',
+        description:
+          'Civil Society -20, Trust -12. She leaves with her integrity — and her scrutiny — intact.',
         immediate: { publicTrust: -12, corruptionPressure: -5 },
         factionImpact: { civilSocietyMedia: -20, businessCommunity: 5, partyGodfathers: 8 },
         clearDeputy: true,
@@ -647,7 +680,8 @@ export const characterEvents: EventCard[] = [
       {
         id: 'beg-reformer-to-stay',
         label: 'Beg Her to Stay',
-        description: 'Political Capital -30. She stays — but only if you make a public anti-corruption commitment.',
+        description:
+          'Political Capital -30. She stays — but only if you make a public anti-corruption commitment.',
         immediate: { politicalCapital: -30, corruptionPressure: -8 },
         factionImpact: { civilSocietyMedia: 10, partyGodfathers: -5 },
         resentmentDelta: -50,

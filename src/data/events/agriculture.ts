@@ -48,8 +48,7 @@ export const agricultureEvents: EventCard[] = [
       {
         id: 'defer-cold-chain',
         label: 'Defer — the Markets Have Always Coped',
-        description:
-          'No spend now. Food Security -3 as losses mount. Informal economy -3.',
+        description: 'No spend now. Food Security -3 as losses mount. Informal economy -3.',
         immediate: { foodSecurityIndex: -3 },
         factionImpact: { informalEconomy: -3 },
       },
@@ -64,7 +63,8 @@ export const agricultureEvents: EventCard[] = [
     category: 'economy',
     isRecurring: true,
     cooldownWeeks: 30,
-    triggerCondition: (state) => isHarmattan(state.week) && (state.stats.foodSecurityIndex ?? 40) < 70,
+    triggerCondition: (state) =>
+      isHarmattan(state.week) && (state.stats.foodSecurityIndex ?? 40) < 70,
     choices: [
       {
         id: 'release-buffer-stocks',

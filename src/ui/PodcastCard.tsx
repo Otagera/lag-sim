@@ -1,13 +1,21 @@
 import { useGameStore } from '../state/gameStore'
-import { formatGameDate } from '../utils/calendar'
 import type { NewsArticle } from '../state/types'
+import { formatGameDate } from '../utils/calendar'
 
 function avatarInitial(name: string): string {
-  return name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
+  return name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
 }
 
 function Waveform() {
-  const heights = [4, 12, 8, 20, 14, 28, 18, 32, 22, 16, 30, 24, 36, 20, 28, 14, 22, 32, 18, 12, 26, 20, 16, 8, 14]
+  const heights = [
+    4, 12, 8, 20, 14, 28, 18, 32, 22, 16, 30, 24, 36, 20, 28, 14, 22, 32, 18, 12, 26, 20, 16, 8, 14,
+  ]
+  const bars = heights.map((h, i) => ({ h, x: i * 8 + 2, accent: i < 10 }))
   return (
     <svg
       width="100%"
@@ -15,15 +23,16 @@ function Waveform() {
       viewBox={`0 0 ${heights.length * 8} 48`}
       preserveAspectRatio="none"
     >
-      {heights.map((h, i) => (
+      <title>Audio waveform</title>
+      {bars.map((bar) => (
         <rect
-          key={i}
-          x={i * 8 + 2}
-          y={(48 - h) / 2}
+          key={`bar-${bar.x}-${bar.h}`}
+          x={bar.x}
+          y={(48 - bar.h) / 2}
           width={4}
-          height={h}
+          height={bar.h}
           rx={2}
-          fill={i < 10 ? 'var(--accent-solid)' : 'rgba(255,255,255,0.15)'}
+          fill={bar.accent ? 'var(--accent-solid)' : 'rgba(255,255,255,0.15)'}
         />
       ))}
     </svg>
@@ -38,7 +47,7 @@ export function PodcastCard({ article }: { article: NewsArticle }) {
   const showName = meta?.showName ?? 'State of Play'
   const hostName = meta?.hostName ?? 'Tokunbo Adeyemi'
   const duration = meta?.duration ?? '34:12'
-  const keyQuote = meta?.keyQuote ?? article.deck.slice(0, 90) + '…'
+  const keyQuote = meta?.keyQuote ?? `${article.deck.slice(0, 90)}…`
 
   const episodeNum = Math.max(1, Math.round(week / 6))
 
@@ -54,11 +63,24 @@ export function PodcastCard({ article }: { article: NewsArticle }) {
         justifyContent: 'center',
         backdropFilter: 'blur(6px)',
       }}
-      onClick={clearNewspaperHeadline}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
+      <button
+        type="button"
+        aria-label="Close podcast"
+        onClick={clearNewspaperHeadline}
         style={{
+          position: 'absolute',
+          inset: 0,
+          cursor: 'pointer',
+          border: 'none',
+          padding: 0,
+          background: 'transparent',
+        }}
+      />
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
           width: 440,
           maxWidth: 'calc(100vw - 32px)',
           borderRadius: 16,
@@ -92,14 +114,30 @@ export function PodcastCard({ article }: { article: NewsArticle }) {
             }}
           >
             <svg width="28" height="28" viewBox="0 0 24 24" fill="rgba(255,240,180,0.9)">
+              <title>Podcast</title>
               <path d="M12 1a9 9 0 0 1 9 9c0 4.17-2.84 7.67-6.71 8.67L14 20h-4l.71-1.33C6.84 17.67 4 14.17 4 10A9 9 0 0 1 12 1zm0 2a7 7 0 0 0-7 7c0 3.09 1.99 5.75 4.84 6.73L10.5 18h3l.66-1.27C17.01 15.75 19 13.09 19 10a7 7 0 0 0-7-7zm0 2a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
             </svg>
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: '#c8a84b', fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', marginBottom: 2 }}>
+            <div
+              style={{
+                color: '#c8a84b',
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: '0.06em',
+                marginBottom: 2,
+              }}
+            >
               {showName.toUpperCase()} · EP.{episodeNum}
             </div>
-            <div style={{ color: 'rgba(255,240,180,0.9)', fontSize: 14, fontWeight: 600, lineHeight: 1.3 }}>
+            <div
+              style={{
+                color: 'rgba(255,240,180,0.9)',
+                fontSize: 14,
+                fontWeight: 600,
+                lineHeight: 1.3,
+              }}
+            >
               {article.headline}
             </div>
           </div>
@@ -111,7 +149,14 @@ export function PodcastCard({ article }: { article: NewsArticle }) {
         {/* Waveform + controls */}
         <div style={{ padding: '16px 20px 12px' }}>
           <Waveform />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginTop: 10,
+            }}
+          >
             {/* Play button */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <button
@@ -130,6 +175,7 @@ export function PodcastCard({ article }: { article: NewsArticle }) {
                 }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="#0d0c0a">
+                  <title>Play podcast</title>
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </button>
@@ -183,7 +229,15 @@ export function PodcastCard({ article }: { article: NewsArticle }) {
             borderLeft: '3px solid rgba(200,168,75,0.4)',
           }}
         >
-          <div style={{ color: 'rgba(200,168,75,0.55)', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', marginBottom: 6 }}>
+          <div
+            style={{
+              color: 'rgba(200,168,75,0.55)',
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              marginBottom: 6,
+            }}
+          >
             HOST'S TAKE
           </div>
           <p
@@ -228,13 +282,18 @@ export function PodcastCard({ article }: { article: NewsArticle }) {
               {avatarInitial(hostName)}
             </div>
             <div>
-              <div style={{ color: 'rgba(255,240,180,0.7)', fontSize: 12, fontWeight: 600 }}>{hostName}</div>
-              <div style={{ color: 'rgba(200,168,75,0.4)', fontSize: 10 }}>{formatGameDate(week)}</div>
+              <div style={{ color: 'rgba(255,240,180,0.7)', fontSize: 12, fontWeight: 600 }}>
+                {hostName}
+              </div>
+              <div style={{ color: 'rgba(200,168,75,0.4)', fontSize: 10 }}>
+                {formatGameDate(week)}
+              </div>
             </div>
           </div>
           {article.dataPoints.length > 0 && (
             <div style={{ fontSize: 11, color: 'rgba(200,168,75,0.5)' }}>
-              {article.dataPoints[0].label}: <strong style={{ color: '#c8a84b' }}>{article.dataPoints[0].value}</strong>
+              {article.dataPoints[0].label}:{' '}
+              <strong style={{ color: '#c8a84b' }}>{article.dataPoints[0].value}</strong>
             </div>
           )}
         </div>

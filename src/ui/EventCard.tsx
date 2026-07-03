@@ -1,14 +1,21 @@
-import { useEffect, useState } from 'react'
-import { useGameStore } from '../state/gameStore'
-import { Pill } from './components'
-import { STAT_ICONS, FACTION_ICONS, SEVERITY_GLYPH } from '../data/icons'
-import { electionYear } from '../utils/calendar'
 import type { LucideIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { FACTION_ICONS, SEVERITY_GLYPH, STAT_ICONS } from '../data/icons'
+import { useGameStore } from '../state/gameStore'
 import type { Choice, ConsequenceBeat } from '../state/types'
+import { electionYear } from '../utils/calendar'
+import { Pill } from './components'
 
 const STAT_WHITELIST = new Set<string>([
-  'cashReserve', 'publicTrust', 'politicalCapital', 'corruptionPressure',
-  'youthTension', 'infrastructureScore', 'securityIndex', 'federalRelationship', 'igr',
+  'cashReserve',
+  'publicTrust',
+  'politicalCapital',
+  'corruptionPressure',
+  'youthTension',
+  'infrastructureScore',
+  'securityIndex',
+  'federalRelationship',
+  'igr',
 ])
 
 const INVERT_STATS = new Set<string>(['corruptionPressure', 'youthTension'])
@@ -44,7 +51,11 @@ function buildImpactPills(choice: Choice): ImpactPill[] {
   const pills: ImpactPill[] = []
 
   if (choice.politicalCapitalCost && choice.politicalCapitalCost > 0) {
-    pills.push({ text: `${dirArrow(false)} -${choice.politicalCapitalCost} Pol. Cap`, isGood: false, icon: STAT_ICONS.politicalCapital?.icon })
+    pills.push({
+      text: `${dirArrow(false)} -${choice.politicalCapitalCost} Pol. Cap`,
+      isGood: false,
+      icon: STAT_ICONS.politicalCapital?.icon,
+    })
   }
 
   for (const [key, value] of Object.entries(choice.immediate)) {
@@ -53,9 +64,10 @@ function buildImpactPills(choice: Choice): ImpactPill[] {
     const absVal = Math.abs(value)
     const sign = value > 0 ? '+' : '-'
     const label = STAT_LABELS[key] ?? key
-    const formatted = (key === 'cashReserve' || key === 'igr')
-      ? `${dirArrow(isGood)} ${sign}₦${absVal.toFixed(1)}bn ${label}`
-      : `${dirArrow(isGood)} ${sign}${absVal < 1 ? absVal.toFixed(1) : absVal.toFixed(0)} ${label}`
+    const formatted =
+      key === 'cashReserve' || key === 'igr'
+        ? `${dirArrow(isGood)} ${sign}₦${absVal.toFixed(1)}bn ${label}`
+        : `${dirArrow(isGood)} ${sign}${absVal < 1 ? absVal.toFixed(1) : absVal.toFixed(0)} ${label}`
     pills.push({ text: formatted, isGood, icon: STAT_ICONS[key]?.icon })
   }
 
@@ -65,7 +77,11 @@ function buildImpactPills(choice: Choice): ImpactPill[] {
     const sign = value > 0 ? '+' : ''
     const label = FACTION_LABELS[key] ?? key
     const ficon = FACTION_ICONS[key as keyof typeof FACTION_ICONS]
-    pills.push({ text: `${dirArrow(isGood)} ${sign}${(value as number).toFixed(0)} ${label}`, isGood, icon: ficon?.icon })
+    pills.push({
+      text: `${dirArrow(isGood)} ${sign}${(value as number).toFixed(0)} ${label}`,
+      isGood,
+      icon: ficon?.icon,
+    })
   }
 
   return pills
@@ -75,7 +91,11 @@ function buildPillsFromBeat(beat: ConsequenceBeat): ImpactPill[] {
   const pills: ImpactPill[] = []
 
   if (beat.politicalCapitalCost && beat.politicalCapitalCost > 0) {
-    pills.push({ text: `${dirArrow(false)} -${beat.politicalCapitalCost} Pol. Cap`, isGood: false, icon: STAT_ICONS.politicalCapital?.icon })
+    pills.push({
+      text: `${dirArrow(false)} -${beat.politicalCapitalCost} Pol. Cap`,
+      isGood: false,
+      icon: STAT_ICONS.politicalCapital?.icon,
+    })
   }
 
   for (const [key, value] of Object.entries(beat.immediate)) {
@@ -84,9 +104,10 @@ function buildPillsFromBeat(beat: ConsequenceBeat): ImpactPill[] {
     const absVal = Math.abs(value)
     const sign = value > 0 ? '+' : '-'
     const label = STAT_LABELS[key] ?? key
-    const formatted = (key === 'cashReserve' || key === 'igr')
-      ? `${dirArrow(isGood)} ${sign}₦${absVal.toFixed(1)}bn ${label}`
-      : `${dirArrow(isGood)} ${sign}${absVal < 1 ? absVal.toFixed(1) : absVal.toFixed(0)} ${label}`
+    const formatted =
+      key === 'cashReserve' || key === 'igr'
+        ? `${dirArrow(isGood)} ${sign}₦${absVal.toFixed(1)}bn ${label}`
+        : `${dirArrow(isGood)} ${sign}${absVal < 1 ? absVal.toFixed(1) : absVal.toFixed(0)} ${label}`
     pills.push({ text: formatted, isGood, icon: STAT_ICONS[key]?.icon })
   }
 
@@ -96,7 +117,11 @@ function buildPillsFromBeat(beat: ConsequenceBeat): ImpactPill[] {
     const sign = value > 0 ? '+' : ''
     const label = FACTION_LABELS[key] ?? key
     const ficon = FACTION_ICONS[key as keyof typeof FACTION_ICONS]
-    pills.push({ text: `${dirArrow(isGood)} ${sign}${(value as number).toFixed(0)} ${label}`, isGood, icon: ficon?.icon })
+    pills.push({
+      text: `${dirArrow(isGood)} ${sign}${(value as number).toFixed(0)} ${label}`,
+      isGood,
+      icon: ficon?.icon,
+    })
   }
 
   return pills
@@ -126,7 +151,8 @@ function AftermathPanel({ beat, onDismiss }: { beat: ConsequenceBeat; onDismiss:
   const pills = buildPillsFromBeat(beat)
 
   return (
-    <div
+    <button
+      type="button"
       className="border p-4"
       onClick={onDismiss}
       style={{
@@ -137,6 +163,9 @@ function AftermathPanel({ beat, onDismiss }: { beat: ConsequenceBeat; onDismiss:
         opacity: visible ? 1 : 0,
         transition: 'opacity 0.4s ease',
         cursor: 'pointer',
+        appearance: 'none',
+        width: '100%',
+        textAlign: 'left',
       }}
     >
       <div className="mb-1">
@@ -164,9 +193,12 @@ function AftermathPanel({ beat, onDismiss }: { beat: ConsequenceBeat; onDismiss:
       </div>
 
       {pills.length > 0 && (
-        <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-3 pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-          {pills.map((p, i) => (
-            <Pill key={i} text={p.text} isGood={p.isGood} icon={p.icon} />
+        <div
+          className="flex flex-wrap gap-x-2 gap-y-0.5 mt-3 pt-3"
+          style={{ borderTop: '1px solid var(--border-subtle)' }}
+        >
+          {pills.map((p) => (
+            <Pill key={p.text} text={p.text} isGood={p.isGood} icon={p.icon} />
           ))}
         </div>
       )}
@@ -174,7 +206,7 @@ function AftermathPanel({ beat, onDismiss }: { beat: ConsequenceBeat; onDismiss:
       <div className="mt-3 text-[9px] text-center" style={{ color: 'var(--text-secondary)' }}>
         Click anywhere or wait to dismiss
       </div>
-    </div>
+    </button>
   )
 }
 
@@ -189,12 +221,7 @@ export function EventCard() {
   // Aftermath view — show first beat in queue
   if (!activeEvent && consequenceBeats.length > 0) {
     const beat = consequenceBeats[0]
-    return (
-      <AftermathPanel
-        beat={beat}
-        onDismiss={dismissConsequenceBeat}
-      />
-    )
+    return <AftermathPanel beat={beat} onDismiss={dismissConsequenceBeat} />
   }
 
   // Empty state
@@ -202,7 +229,11 @@ export function EventCard() {
     return (
       <div
         className="p-4 text-center border"
-        style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)', color: 'var(--text-secondary)' }}
+        style={{
+          borderColor: 'var(--border)',
+          backgroundColor: 'var(--surface)',
+          color: 'var(--text-secondary)',
+        }}
       >
         No active event. Click "Next Week" to advance.
       </div>
@@ -235,56 +266,77 @@ export function EventCard() {
     >
       <div style={{ padding: '20px 24px' }}>
         {isFinale && (
-          <div style={{
-            textAlign: 'center',
-            padding: '5px 8px',
-            marginBottom: '12px',
-            fontSize: '10px',
-            fontFamily: "'Archivo Narrow', sans-serif",
-            fontWeight: 700,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            background: 'var(--accent-solid)',
-            color: 'var(--accent-on-solid)',
-            borderRadius: '2px',
-            animation: 'pulse-glow 1.5s ease-in-out infinite alternate',
-          }}>
-            {isElectionDay ? 'LIVE ELECTION COVERAGE' : `ELECTION ${isElectionDay ? 'DAY' : 'SEASON'} ${eYear}`}
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '5px 8px',
+              marginBottom: '12px',
+              fontSize: '10px',
+              fontFamily: "'Archivo Narrow', sans-serif",
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              background: 'var(--accent-solid)',
+              color: 'var(--accent-on-solid)',
+              borderRadius: '2px',
+              animation: 'pulse-glow 1.5s ease-in-out infinite alternate',
+            }}
+          >
+            {isElectionDay
+              ? 'LIVE ELECTION COVERAGE'
+              : `ELECTION ${isElectionDay ? 'DAY' : 'SEASON'} ${eYear}`}
           </div>
         )}
         <div className="flex items-center gap-2 mb-2">
           {isGodfather ? (
-            <span className="label-caps" style={{ color: godfatherColor }}>Chief Fashemu</span>
+            <span className="label-caps" style={{ color: godfatherColor }}>
+              Chief Fashemu
+            </span>
           ) : (
             <span className="label-caps" style={{ color: sevColor }}>
               {sevLabel.glyph} {sevLabel.label}
             </span>
           )}
-          <span className="label-caps" style={{ color: 'var(--text-secondary)' }}>{activeEvent.category}</span>
+          <span className="label-caps" style={{ color: 'var(--text-secondary)' }}>
+            {activeEvent.category}
+          </span>
           {inCampaignMode && (
-            <span style={{
-              fontSize: '9px',
-              fontWeight: 700,
-              fontFamily: "'Archivo Narrow', sans-serif",
-              letterSpacing: '0.06em',
-              padding: '1px 5px',
-              borderRadius: '2px',
-              background: 'var(--accent-solid)',
-              color: 'var(--accent-on-solid)',
-              textTransform: 'uppercase',
-            }}>
+            <span
+              style={{
+                fontSize: '9px',
+                fontWeight: 700,
+                fontFamily: "'Archivo Narrow', sans-serif",
+                letterSpacing: '0.06em',
+                padding: '1px 5px',
+                borderRadius: '2px',
+                background: 'var(--accent-solid)',
+                color: 'var(--accent-on-solid)',
+                textTransform: 'uppercase',
+              }}
+            >
               ELECTION '{String(eYear).slice(2)}
             </span>
           )}
         </div>
 
-        <div style={{ height: '1px', background: `linear-gradient(to right, transparent, ${accentColor}, transparent)`, margin: '6px 0 10px' }} />
+        <div
+          style={{
+            height: '1px',
+            background: `linear-gradient(to right, transparent, ${accentColor}, transparent)`,
+            margin: '6px 0 10px',
+          }}
+        />
 
-        <h2 className="font-display font-semibold" style={{ fontSize: '26px', color: 'var(--text)', lineHeight: 1.25 }}>
+        <h2
+          className="font-display font-semibold"
+          style={{ fontSize: '26px', color: 'var(--text)', lineHeight: 1.25 }}
+        >
           {activeEvent.title}
         </h2>
 
-        <p style={{ fontSize: '13px', lineHeight: 1.75, color: 'var(--text)', marginBottom: '16px' }}>
+        <p
+          style={{ fontSize: '13px', lineHeight: 1.75, color: 'var(--text)', marginBottom: '16px' }}
+        >
           {activeEvent.body}
         </p>
 
@@ -297,13 +349,28 @@ export function EventCard() {
                 key={choice.id}
                 onClick={() => resolveEvent(choice.id)}
                 className="w-full text-left p-3 border transition-colors"
-                style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)', color: 'var(--text)' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--surface-hover)')}
+                style={{
+                  borderColor: 'var(--border)',
+                  backgroundColor: 'var(--background)',
+                  color: 'var(--text)',
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = 'var(--surface-hover)')
+                }
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--background)')}
               >
-                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)' }}>{choice.label}</span>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)' }}>
+                  {choice.label}
+                </span>
                 {choice.description && (
-                  <p style={{ fontSize: '11px', marginTop: '4px', lineHeight: 1.3, color: 'var(--text-secondary)' }}>
+                  <p
+                    style={{
+                      fontSize: '11px',
+                      marginTop: '4px',
+                      lineHeight: 1.3,
+                      color: 'var(--text-secondary)',
+                    }}
+                  >
                     {choice.description}
                   </p>
                 )}
@@ -312,8 +379,8 @@ export function EventCard() {
                     className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1.5 pt-1.5"
                     style={{ borderTop: '1px solid var(--border-subtle)' }}
                   >
-                    {pills.map((p, i) => (
-                      <Pill key={i} text={p.text} isGood={p.isGood} icon={p.icon} />
+                    {pills.map((p) => (
+                      <Pill key={p.text} text={p.text} isGood={p.isGood} icon={p.icon} />
                     ))}
                   </div>
                 )}

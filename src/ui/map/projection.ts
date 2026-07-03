@@ -1,6 +1,6 @@
-export const TILE_W = 8    // iso tile width in px
-export const TILE_H = 4    // always TILE_W / 2 for 2:1 iso
-export const FLOOR_H = 5   // px per building floor — 5 gives towers more vertical drama
+export const TILE_W = 8 // iso tile width in px
+export const TILE_H = 4 // always TILE_W / 2 for 2:1 iso
+export const FLOOR_H = 5 // px per building floor — 5 gives towers more vertical drama
 
 export function isoToScreen(
   a: number,
@@ -21,15 +21,10 @@ export function sortByDepth<T extends { a: number; b: number }>(items: T[]): T[]
 }
 
 // Returns the screen bounding box of the full iso grid.
-export function gridBounds(
-  aMax: number,
-  bMax: number,
-  originX: number,
-  originY: number,
-) {
-  const topLeft     = isoToScreen(0,    0,    originX, originY)
-  const topRight    = isoToScreen(0,    bMax, originX, originY)
-  const bottomLeft  = isoToScreen(aMax, 0,    originX, originY)
+export function gridBounds(aMax: number, bMax: number, originX: number, originY: number) {
+  const topLeft = isoToScreen(0, 0, originX, originY)
+  const topRight = isoToScreen(0, bMax, originX, originY)
+  const bottomLeft = isoToScreen(aMax, 0, originX, originY)
   const bottomRight = isoToScreen(aMax, bMax, originX, originY)
 
   return {

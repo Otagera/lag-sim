@@ -2,7 +2,7 @@
 
 ## Overview
 
-The legacy system ranks the player's top 10 most consequential decisions and builds an LLM prompt to generate a valedictory address. It's used on the LegacyScreen after game over or term end.
+The legacy system ranks the player's top 10 most consequential decisions and assembles a state-derived valedictory address from ranked key moments. It's used on the LegacyScreen after game over or term end.
 
 **As of the ending redesign, all game-over states (not just term-end) show a state-derived narrative ending.** See `src/engine/endingNarrator.ts` and `docs/game-over.md#ending-narrator`.
 
@@ -23,9 +23,9 @@ A choice with `{ publicTrust: 10, cashReserve: -5 }` and `{ civilSocietyMedia: 8
 - factionScore = |8| = 8 → 8 × 0.5 = 4
 - magnitude = 19
 
-## Valedictory Prompt (`buildLegacyPrompt`)
+## Valedictory Address (`buildLegacy`)
 
-Constructs an LLM prompt from player data:
+Assembles a state-derived address from player data:
 
 1. **Administration header**: terms served, election outcome, final trust, infra score, cash position
 2. **Godfather summary**: compliance rate (e.g., "3/7 godfather asks accepted")

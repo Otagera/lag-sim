@@ -1,18 +1,23 @@
-import { mulberry32, hashSeed } from '../utils/prng'
+import { RESEARCH_TREE } from '../data/researchTree'
 import type {
   GameState,
+  InboxMessage,
+  PathOutcome,
   ResearchNode,
   ResearchNodeStatus,
-  PathOutcome,
-  InboxMessage,
 } from '../state/types'
-import { RESEARCH_TREE } from '../data/researchTree'
-import { applyDelta } from './statEngine'
+import { hashSeed, mulberry32 } from '../utils/prng'
 import { applyFactionDeltaState } from './factionEngine'
+import { applyDelta } from './statEngine'
 
 let _msgSeq = 0
 
-function researchInboxMessage(state: GameState, node: ResearchNode, text: string, isPayoff: boolean): InboxMessage {
+function researchInboxMessage(
+  state: GameState,
+  node: ResearchNode,
+  text: string,
+  isPayoff: boolean,
+): InboxMessage {
   _msgSeq++
   return {
     id: `research-${node.id}-${state.week}-${_msgSeq}`,
@@ -26,13 +31,20 @@ function researchInboxMessage(state: GameState, node: ResearchNode, text: string
   }
 }
 
-function toneForKind(kind: PathOutcome['kind']): 'grim' | 'tense' | 'hopeful' | 'hollow' | 'neutral' {
+function toneForKind(
+  kind: PathOutcome['kind'],
+): 'grim' | 'tense' | 'hopeful' | 'hollow' | 'neutral' {
   switch (kind) {
-    case 'success':    return 'hopeful'
-    case 'partial':    return 'neutral'
-    case 'stalled':    return 'hollow'
-    case 'captured':   return 'grim'
-    case 'complication': return 'tense'
+    case 'success':
+      return 'hopeful'
+    case 'partial':
+      return 'neutral'
+    case 'stalled':
+      return 'hollow'
+    case 'captured':
+      return 'grim'
+    case 'complication':
+      return 'tense'
   }
 }
 
@@ -87,10 +99,7 @@ export function commissionNode(nodeId: string, state: GameState): GameState {
       ...state.researchNodeStatuses,
       [node.id]: 'commissioned',
     },
-    commissionedResearchNodes: [
-      ...state.commissionedResearchNodes,
-      { nodeId, completionWeek },
-    ],
+    commissionedResearchNodes: [...state.commissionedResearchNodes, { nodeId, completionWeek }],
     timeline: [
       ...state.timeline,
       {
@@ -135,9 +144,7 @@ export function pickOutcome(node: ResearchNode, state: GameState, seed: number):
 }
 
 export function tickResearchNodes(state: GameState): GameState {
-  const due = state.commissionedResearchNodes.filter(
-    (crn) => state.week >= crn.completionWeek,
-  )
+  const due = state.commissionedResearchNodes.filter((crn) => state.week >= crn.completionWeek)
   if (due.length === 0) return state
 
   const remaining = state.commissionedResearchNodes.filter(
@@ -146,7 +153,7 @@ export function tickResearchNodes(state: GameState): GameState {
 
   let next = { ...state, commissionedResearchNodes: remaining }
   const statuses = { ...next.researchNodeStatuses }
-  let inbox = [...next.inbox]
+  const inbox = [...next.inbox]
   const timeline = [...next.timeline]
 
   for (const crn of due) {
@@ -163,7 +170,14 @@ export function tickResearchNodes(state: GameState): GameState {
         title: `Completed: ${node.title}`,
         description: `${node.domain} research step delivered.`,
       })
-      inbox.push(researchInboxMessage(next, node, `${node.title} is operational. The investment is delivering as planned.`, false))
+      inbox.push(
+        researchInboxMessage(
+          next,
+          node,
+          `${node.title} is operational. The investment is delivering as planned.`,
+          false,
+        ),
+      )
     }
 
     if (node.outcomes) {
@@ -252,10 +266,11 @@ export function computeNodeLayout(): NodeLayout[] {
 
     const sameDomainPrereqIds = node.prerequisites
       .filter((p) => p.type === 'node' && p.nodeId)
-      .map((p) => p.nodeId!)
-      .filter((id) => {
+      .map((p) => p.nodeId)
+      .filter((id): id is string => {
+        if (id === undefined) return false
         const prereqNode = getNodeDef(id)
-        return prereqNode && prereqNode.domain === node.domain
+        return prereqNode?.domain === node.domain
       })
 
     if (sameDomainPrereqIds.length === 0) {
@@ -274,10 +289,11 @@ export function computeNodeLayout(): NodeLayout[] {
   for (const node of nodes) {
     const d = node.domain
     if (!domainNodes.has(d)) domainNodes.set(d, [])
-    domainNodes.get(d)!.push({ node, depth: depths.get(node.id) ?? 0 })
+    domainNodes.get(d)?.push({ node, depth: depths.get(node.id) ?? 0 })
   }
 
-  for (const [, group] of domainNodes) group.sort((a, b) => a.depth - b.depth || a.node.id.localeCompare(b.node.id))
+  for (const [, group] of domainNodes)
+    group.sort((a, b) => a.depth - b.depth || a.node.id.localeCompare(b.node.id))
 
   const COLUMN_WIDTH = 240
   const COLUMN_GAP = 50

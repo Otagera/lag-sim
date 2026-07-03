@@ -103,9 +103,6 @@ Cat 1: Election petition / litigation arc
 ### Term 2 (file: `term2.ts`, ~18 cards)
 Weeks 210–260+: Fourth Mainland Bridge, Abuja withholding, transport union cartel, cabinet looting, debt default, civil service sabotage, deputy succession, LIRS platform collapse, LASU shutdown, speaker pivot, kidnapping ring, opposition coalition, Apapa pollution, Ajegunle gang war, Olusosun landfill fire, Eko Bridge crisis, Badore jetty collapse, pension deficit, BRT fleet collapse, LASUTH crisis, naira devaluation.
 
-### Roll Your Own (LLM, file: `llm_generated.ts`)
-26 template card definitions (no bodies, LLM-generated). Disabled by default.
-
 ### NPC Decks (file: `npcDecks.ts`, ~16 cards)
 8 archetypes × 2 events each (hostile escalation + neutral opportunity). `{NPC}` placeholder replaced at draw time. See `docs/npc-system.md`.
 

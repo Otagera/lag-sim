@@ -2,26 +2,26 @@ import type { GameState } from '../state/types'
 
 // Population-proportional weights across 20 LGAs; must sum to 100.
 const CONSTITUENCY_WEIGHTS: Partial<Record<string, number>> = {
-  alimosho:        13,
-  oshodiIsolo:      6,
-  mushin:           5,
-  kosofe:           6,
-  surulere:         5,
-  amuwoOdofin:      4,
-  apapa:            3,
-  lagosMainland:    5,
-  ikeja:            5,
-  agege:            5,
-  ifakoIjaye:       4,
-  ikorodu:          7,
-  badagry:          5,
-  ojo:              5,
-  epe:              3,
-  ajeromiIfelodun:  4,
-  shomolu:          4,
-  lagosIsland:      4,
-  etiOsa:           4,
-  ibejuLekki:       3,
+  alimosho: 13,
+  oshodiIsolo: 6,
+  mushin: 5,
+  kosofe: 6,
+  surulere: 5,
+  amuwoOdofin: 4,
+  apapa: 3,
+  lagosMainland: 5,
+  ikeja: 5,
+  agege: 5,
+  ifakoIjaye: 4,
+  ikorodu: 7,
+  badagry: 5,
+  ojo: 5,
+  epe: 3,
+  ajeromiIfelodun: 4,
+  shomolu: 4,
+  lagosIsland: 4,
+  etiOsa: 4,
+  ibejuLekki: 3,
 }
 
 function weightedConstituencyApproval(state: GameState): number {
@@ -35,9 +35,9 @@ function weightedConstituencyApproval(state: GameState): number {
 
 function primaryBonus(state: GameState): number {
   const { primaryScenario } = state
-  if (primaryScenario === 'A') return 10   // godfather-backed: smooth coronation
-  if (primaryScenario === 'B') return -8   // contested: party machinery against you
-  if (primaryScenario === 'C') return 2    // open: freedom without infrastructure
+  if (primaryScenario === 'A') return 10 // godfather-backed: smooth coronation
+  if (primaryScenario === 'B') return -8 // contested: party machinery against you
+  if (primaryScenario === 'C') return 2 // open: freedom without infrastructure
   return 0
 }
 

@@ -17,21 +17,24 @@ This is a precision hit timed to dominate the news cycle for 72 hours.`,
       {
         id: 'legal-injunction',
         label: 'File Emergency Defamation Injunction',
-        description: 'Force platforms to take down the content. Civil Society +6 (they respect the transparency impulse), Trust +4. Political Capital -15. Slow — 72 hours minimum. The story runs in the gap.',
+        description:
+          'Force platforms to take down the content. Civil Society +6 (they respect the transparency impulse), Trust +4. Political Capital -15. Slow — 72 hours minimum. The story runs in the gap.',
         immediate: { publicTrust: 4, politicalCapital: -15 },
         factionImpact: { civilSocietyMedia: 6, businessCommunity: 3 },
       },
       {
         id: 'counter-narrative',
         label: 'Flood the Zone — Release Verified Records',
-        description: 'Publish a full accounting within 6 hours. Audited contracts, bank records, commissioner sign-offs. Corruption Pressure -6. Civil Society +10. Trust +6 from people who read the documents. Cash -₦0.5bn (communications spend).',
+        description:
+          'Publish a full accounting within 6 hours. Audited contracts, bank records, commissioner sign-offs. Corruption Pressure -6. Civil Society +10. Trust +6 from people who read the documents. Cash -₦0.5bn (communications spend).',
         immediate: { publicTrust: 6, cashReserve: -0.5, corruptionPressure: -6 },
         factionImpact: { civilSocietyMedia: 10, partyGodfathers: -3 },
       },
       {
         id: 'attack-the-source',
         label: 'Name the PR Firm — Go on Offence',
-        description: 'Call a press conference naming the Ikeja firm and its known opposition ties. Political Capital +10. Trust -5 (seen as deflection). Godfathers enjoy the aggression. Civil Society -8.',
+        description:
+          'Call a press conference naming the Ikeja firm and its known opposition ties. Political Capital +10. Trust -5 (seen as deflection). Godfathers enjoy the aggression. Civil Society -8.',
         immediate: { publicTrust: -5, politicalCapital: 10 },
         factionImpact: { partyGodfathers: 8, civilSocietyMedia: -8, federalGovt: -3 },
       },
@@ -51,7 +54,8 @@ This is unprecedented. The last governor who went to elections without a unified
       {
         id: 'private-audience',
         label: 'Request Immediate Private Audience',
-        description: 'Fly to each palace this week. Political Capital -20. If your Corruption Pressure is below 60%, you walk out with three of four endorsements. lgChairmen +10, Constituency +5 (mainland).',
+        description:
+          'Fly to each palace this week. Political Capital -20. If your Corruption Pressure is below 60%, you walk out with three of four endorsements. lgChairmen +10, Constituency +5 (mainland).',
         immediate: { politicalCapital: -20 },
         factionImpact: { lgChairmen: 10, partyGodfathers: 5 },
         constituencyImpact: { alimosho: 5, oshodiIsolo: 5, ikorodu: 4, surulere: 3 },
@@ -59,14 +63,16 @@ This is unprecedented. The last governor who went to elections without a unified
       {
         id: 'public-statement',
         label: 'Issue a Public Governance Commitments Letter',
-        description: 'Respond via press with a signed letter of commitments on specific Oba concerns (land use, community fund audit). Civil Society +8. Partial — two Obas issue tepid endorsements. Trust +3.',
+        description:
+          'Respond via press with a signed letter of commitments on specific Oba concerns (land use, community fund audit). Civil Society +8. Partial — two Obas issue tepid endorsements. Trust +3.',
         immediate: { publicTrust: 3, corruptionPressure: -3 },
         factionImpact: { civilSocietyMedia: 8, lgChairmen: 4 },
       },
       {
         id: 'party-machine-override',
         label: 'Route Around Them — Double Down on Party Machine',
-        description: 'Your LGA chairmen control more logistics than any Oba. lgChairmen +8. Informal Economy +5. But disrespecting the traditional institution costs you: periphery constituencies -8. Civil Society -10.',
+        description:
+          'Your LGA chairmen control more logistics than any Oba. lgChairmen +8. Informal Economy +5. But disrespecting the traditional institution costs you: periphery constituencies -8. Civil Society -10.',
         immediate: { politicalCapital: 8 },
         factionImpact: { lgChairmen: 8, informalEconomy: 5, civilSocietyMedia: -10 },
         constituencyImpact: { ikorodu: -8, alimosho: -5, lagosMainland: -6 },
@@ -87,7 +93,8 @@ At current trajectory, you win Lagos Island but lose the mainland. That math doe
       {
         id: 'emergency-constituency-blitz',
         label: 'Personal Constituency Blitz — 72-Hour Offensive',
-        description: 'Cancel everything. Five constituencies in three days: town halls, market visits, community pledges. Political Capital -25. Trust +8 (authenticity premium). Alimosho +10, Periphery +8.',
+        description:
+          'Cancel everything. Five constituencies in three days: town halls, market visits, community pledges. Political Capital -25. Trust +8 (authenticity premium). Alimosho +10, Periphery +8.',
         immediate: { publicTrust: 8, politicalCapital: -25 },
         factionImpact: { lgChairmen: 6, informalEconomy: 5 },
         constituencyImpact: { alimosho: 10, ikorodu: 8, oshodiIsolo: 5 },
@@ -95,7 +102,8 @@ At current trajectory, you win Lagos Island but lose the mainland. That math doe
       {
         id: 'emergency-cash-deployment',
         label: 'Match Their Money — Authorise Ward-Level Disbursements',
-        description: 'Deploy ₦4bn through LGA chairmen to swing wards. Alimosho +12, Periphery +10. Cash -4. Corruption +8. This is stomach infrastructure at scale — Civil Society sees it.',
+        description:
+          'Deploy ₦4bn through LGA chairmen to swing wards. Alimosho +12, Periphery +10. Cash -4. Corruption +8. This is stomach infrastructure at scale — Civil Society sees it.',
         immediate: { cashReserve: -4, corruptionPressure: 8 },
         factionImpact: { lgChairmen: 10, informalEconomy: 10, civilSocietyMedia: -12 },
         constituencyImpact: { alimosho: 12, ikorodu: 10, oshodiIsolo: 6 },
@@ -103,7 +111,8 @@ At current trajectory, you win Lagos Island but lose the mainland. That math doe
       {
         id: 'trust-the-record',
         label: 'Hold Position — Run on Four Years of Governance',
-        description: 'Your infrastructure numbers are real. Don\'t play their game. Civil Society +8. Political Capital -5. No short-term constituency gain. This is a bet that quality turnout wins over bought votes.',
+        description:
+          "Your infrastructure numbers are real. Don't play their game. Civil Society +8. Political Capital -5. No short-term constituency gain. This is a bet that quality turnout wins over bought votes.",
         immediate: { politicalCapital: -5 },
         factionImpact: { civilSocietyMedia: 8, businessCommunity: 5 },
       },
@@ -123,7 +132,8 @@ Without the NURTW fleet, mainland turnout — your base — drops an estimated 2
       {
         id: 'pay-full-subvention',
         label: 'Pay the ₦3.8bn — Secure the Fleet',
-        description: 'Clear the backlog in full. Cash -3.8. Informal Economy +10. lgChairmen +6. Transport infrastructure is guaranteed for Election Day. Adesanya owes you now.',
+        description:
+          'Clear the backlog in full. Cash -3.8. Informal Economy +10. lgChairmen +6. Transport infrastructure is guaranteed for Election Day. Adesanya owes you now.',
         immediate: { cashReserve: -3.8 },
         factionImpact: { informalEconomy: 10, lgChairmen: 6 },
         constituencyImpact: { alimosho: 4, oshodiIsolo: 4, ikorodu: 4, surulere: 3 },
@@ -131,7 +141,8 @@ Without the NURTW fleet, mainland turnout — your base — drops an estimated 2
       {
         id: 'negotiate-partial',
         label: 'Negotiate — Pay ₦2bn, Promise the Rest Post-Election',
-        description: 'Pay half now, structured remainder after results. Cash -2. Informal Economy +5. Adesanya accepts reluctantly. 60% of the fleet guaranteed. Periphery and deep Alimosho may see gaps.',
+        description:
+          'Pay half now, structured remainder after results. Cash -2. Informal Economy +5. Adesanya accepts reluctantly. 60% of the fleet guaranteed. Periphery and deep Alimosho may see gaps.',
         immediate: { cashReserve: -2, politicalCapital: -10 },
         factionImpact: { informalEconomy: 5, lgChairmen: 3 },
         constituencyImpact: { alimosho: 2, oshodiIsolo: 2 },
@@ -139,7 +150,8 @@ Without the NURTW fleet, mainland turnout — your base — drops an estimated 2
       {
         id: 'alternative-transport',
         label: 'Activate Alternative Transport Network — Bypass the Union',
-        description: 'Contract private companies and okada networks. Cash -1.5. Political Capital -15. Adesanya is furious — Informal Economy -15. But the transport is secured. Civil Society praises the anti-monopoly move.',
+        description:
+          'Contract private companies and okada networks. Cash -1.5. Political Capital -15. Adesanya is furious — Informal Economy -15. But the transport is secured. Civil Society praises the anti-monopoly move.',
         immediate: { cashReserve: -1.5, politicalCapital: -15 },
         factionImpact: { informalEconomy: -15, civilSocietyMedia: 8, lgChairmen: -5 },
         constituencyImpact: { alimosho: 3, ikorodu: 5, oshodiIsolo: 3 },
@@ -163,21 +175,24 @@ Your communications team has 24 hours before the narrative sets.`,
       {
         id: 'release-full-audit',
         label: 'Release Independent Audit — Preempt the Narrative',
-        description: 'Commission a 72-hour audit and publish everything. Corruption Pressure -8. Civil Society +10. Trust +5. Cash -₦0.5bn. Adebayo loses the line of attack.',
+        description:
+          'Commission a 72-hour audit and publish everything. Corruption Pressure -8. Civil Society +10. Trust +5. Cash -₦0.5bn. Adebayo loses the line of attack.',
         immediate: { corruptionPressure: -8, publicTrust: 5, cashReserve: -0.5 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: 4 },
       },
       {
         id: 'attack-adebayo-record',
         label: 'Counter: Expose His Senate Record',
-        description: 'Name three Adebayo senate failures. Trust -3 (negative campaign), Political Capital +10. Adebayo pivots. Civil Society -6.',
+        description:
+          'Name three Adebayo senate failures. Trust -3 (negative campaign), Political Capital +10. Adebayo pivots. Civil Society -6.',
         immediate: { publicTrust: -3, politicalCapital: 10 },
         factionImpact: { partyGodfathers: 5, civilSocietyMedia: -6 },
       },
       {
         id: 'stay-silent-corruption',
         label: 'No Comment — "Governance Speaks for Itself"',
-        description: 'Silence reads as guilt. Corruption Pressure +3. Trust -5. Alimosho -4 (they believed the dossier).',
+        description:
+          'Silence reads as guilt. Corruption Pressure +3. Trust -5. Alimosho -4 (they believed the dossier).',
         immediate: { corruptionPressure: 3, publicTrust: -5 },
         factionImpact: { civilSocietyMedia: -8 },
         constituencyImpact: { alimosho: -4, ikorodu: -3 },
@@ -198,23 +213,32 @@ Alimosho is the mainland's largest voting bloc. If it moves 8 points, the math c
       {
         id: 'counter-rally-mainland',
         label: 'Launch Counter-Rally — Three Days in Alimosho',
-        description: 'Personal presence. Cancel Lagos Island events. Alimosho +10. Trust +4. Political Capital -20. Lekki and VI read it as panic — constituency -3 each.',
+        description:
+          'Personal presence. Cancel Lagos Island events. Alimosho +10. Trust +4. Political Capital -20. Lekki and VI read it as panic — constituency -3 each.',
         immediate: { publicTrust: 4, politicalCapital: -20 },
         factionImpact: { lgChairmen: 6, informalEconomy: 5 },
-        constituencyImpact: { alimosho: 10, ikorodu: 6, oshodiIsolo: 5, ibejuLekki: -3, etiOsa: -3 },
+        constituencyImpact: {
+          alimosho: 10,
+          ikorodu: 6,
+          oshodiIsolo: 5,
+          ibejuLekki: -3,
+          etiOsa: -3,
+        },
       },
       {
         id: 'release-alimosho-spending-data',
         label: 'Publish Alimosho Infrastructure Spend: 4-Year Record',
-        description: 'Release itemised capital spend in Alimosho by ward. Civil Society +6. Alimosho +6. Trust +3. Slower — takes 4 days to penetrate social media.',
+        description:
+          'Release itemised capital spend in Alimosho by ward. Civil Society +6. Alimosho +6. Trust +3. Slower — takes 4 days to penetrate social media.',
         immediate: { publicTrust: 3 },
         factionImpact: { civilSocietyMedia: 6 },
         constituencyImpact: { alimosho: 6, ikorodu: 4 },
       },
       {
         id: 'ignore-mainland-rallies',
-        label: 'Hold Course — Don\'t Dignify It With a Response',
-        description: 'Silence cedes the mainland narrative. Alimosho -5. No upside. A bet that your base turns out anyway.',
+        label: "Hold Course — Don't Dignify It With a Response",
+        description:
+          'Silence cedes the mainland narrative. Alimosho -5. No upside. A bet that your base turns out anyway.',
         immediate: {},
         factionImpact: {},
         constituencyImpact: { alimosho: -5, ikorodu: -4 },
@@ -235,7 +259,8 @@ The promise is economically impossible. It is also working.`,
       {
         id: 'match-youth-promise',
         label: 'Match It — Announce a Competing Youth Dividend',
-        description: '₦50,000 skills grant + placement programme. Cash -₦2bn. Youth Tension -10. Civil Society -4 (they call it populism). Trust +5.',
+        description:
+          '₦50,000 skills grant + placement programme. Cash -₦2bn. Youth Tension -10. Civil Society -4 (they call it populism). Trust +5.',
         immediate: { cashReserve: -2, publicTrust: 5, youthTension: -10 },
         factionImpact: { informalEconomy: 8, civilSocietyMedia: -4 },
         constituencyImpact: { alimosho: 6, oshodiIsolo: 5, lagosMainland: 5, ikorodu: 5 },
@@ -243,14 +268,16 @@ The promise is economically impossible. It is also working.`,
       {
         id: 'pivot-to-employment-record',
         label: 'Pivot — Lead With Your Actual Youth Employment Numbers',
-        description: 'Release verified data: jobs created, vocational centres opened, okada licensing reform impact. Youth Tension -5. Civil Society +8. Trust +3. Slower effect but credible.',
+        description:
+          'Release verified data: jobs created, vocational centres opened, okada licensing reform impact. Youth Tension -5. Civil Society +8. Trust +3. Slower effect but credible.',
         immediate: { publicTrust: 3, youthTension: -5 },
         factionImpact: { civilSocietyMedia: 8, businessCommunity: 4 },
       },
       {
         id: 'ignore-youth-pledge',
-        label: 'Ignore It — The Numbers Don\'t Add Up',
-        description: 'Publicly dismiss the pledge as fantasy economics. Political Capital +5. Youth Tension +8 (they don\'t care about the maths). Loses the youth vote in swing wards.',
+        label: "Ignore It — The Numbers Don't Add Up",
+        description:
+          "Publicly dismiss the pledge as fantasy economics. Political Capital +5. Youth Tension +8 (they don't care about the maths). Loses the youth vote in swing wards.",
         immediate: { politicalCapital: 5, youthTension: 8 },
         factionImpact: { civilSocietyMedia: 3, informalEconomy: -5 },
         constituencyImpact: { alimosho: -4, lagosMainland: -4, oshodiIsolo: -3 },
@@ -274,7 +301,8 @@ Your advance team can only prepare one fully. The other two get the standard scr
       {
         id: 'townhall-alimosho',
         label: 'Invest in Alimosho — Full Production',
-        description: 'Dedicated set, live translation, market outreach. Trust +5, PC -15. Alimosho +6, Oshodi +4. Business reads it as mainland focus.',
+        description:
+          'Dedicated set, live translation, market outreach. Trust +5, PC -15. Alimosho +6, Oshodi +4. Business reads it as mainland focus.',
         immediate: { publicTrust: 5, politicalCapital: -15 },
         factionImpact: { lgChairmen: 6, informalEconomy: 5 },
         constituencyImpact: { alimosho: 6, oshodiIsolo: 4 },
@@ -282,7 +310,8 @@ Your advance team can only prepare one fully. The other two get the standard scr
       {
         id: 'townhall-island',
         label: 'Go Heavy on Lagos Island — Energise the Base',
-        description: 'Premium venue, business leaders front row. Business +8, PC -10. Trust +3. Eti Osa +6, Lagos Island +5. Mainland reads it as abandonment.',
+        description:
+          'Premium venue, business leaders front row. Business +8, PC -10. Trust +3. Eti Osa +6, Lagos Island +5. Mainland reads it as abandonment.',
         immediate: { publicTrust: 3, politicalCapital: -10 },
         factionImpact: { businessCommunity: 8, civilSocietyMedia: 3 },
         constituencyImpact: { etiOsa: 6, lagosIsland: 5, alimosho: -3, lagosMainland: -3 },
@@ -290,7 +319,8 @@ Your advance team can only prepare one fully. The other two get the standard scr
       {
         id: 'townhall-surulere',
         label: 'Meet the Chairmen Halfway — Surulere Compromise',
-        description: 'Split the difference. Three LGA chairmen co-host. Trust +4, PC -8. Surulere +5, Oshodi +5, Agege +4. No strong signal to anyone, no one abandoned.',
+        description:
+          'Split the difference. Three LGA chairmen co-host. Trust +4, PC -8. Surulere +5, Oshodi +5, Agege +4. No strong signal to anyone, no one abandoned.',
         immediate: { publicTrust: 4, politicalCapital: -8 },
         factionImpact: { lgChairmen: 4, civilSocietyMedia: 2 },
         constituencyImpact: { surulere: 5, oshodiIsolo: 5, agege: 4 },
@@ -314,20 +344,23 @@ Each reaches a different Lagos. You have time for two of the three. The platform
       {
         id: 'media-radio-podcast',
         label: 'Radio + Podcast — Broadest Reach',
-        description: 'Demographic span: 18 to 60+. Trust +5. Youth Tension -4. Informal Economy +6. The skipped TikTok demo runs critical commentary next week.',
+        description:
+          'Demographic span: 18 to 60+. Trust +5. Youth Tension -4. Informal Economy +6. The skipped TikTok demo runs critical commentary next week.',
         immediate: { publicTrust: 5, youthTension: -4 },
         factionImpact: { informalEconomy: 6, civilSocietyMedia: 4 },
         delayed: {
           weekOffset: 1,
           delta: { youthTension: 3 },
           factionImpact: { civilSocietyMedia: -2 },
-          eventText: 'TikTok influencers ran a "Where Is the Governor?" segment that trended for 48 hours. Youth engagement softened among 16–24 voters.',
+          eventText:
+            'TikTok influencers ran a "Where Is the Governor?" segment that trended for 48 hours. Youth engagement softened among 16–24 voters.',
         },
       },
       {
         id: 'media-podcast-tiktok',
         label: 'Podcast + TikTok — Youth Max',
-        description: 'Youth Tension -8. Alimosho +6, Oshodi +5. Civil Society -4 (seen as unserious). The skipped radio audience is your 50+ base.',
+        description:
+          'Youth Tension -8. Alimosho +6, Oshodi +5. Civil Society -4 (seen as unserious). The skipped radio audience is your 50+ base.',
         immediate: { youthTension: -8, publicTrust: -2 },
         factionImpact: { informalEconomy: 5, civilSocietyMedia: -4 },
         constituencyImpact: { alimosho: 6, oshodiIsolo: 5, lagosMainland: 4 },
@@ -335,13 +368,15 @@ Each reaches a different Lagos. You have time for two of the three. The platform
           weekOffset: 1,
           delta: { publicTrust: -4 },
           factionImpact: { businessCommunity: -3 },
-          eventText: 'The Morning Agenda ran a critical segment: "The Governor Skips Traditional Media — What Is He Hiding?" Older demo approval dipped.',
+          eventText:
+            'The Morning Agenda ran a critical segment: "The Governor Skips Traditional Media — What Is He Hiding?" Older demo approval dipped.',
         },
       },
       {
         id: 'media-radio-tiktok',
         label: 'Radio + TikTok — Safe Mix',
-        description: 'Trust +4. Business +4. Lekki/VI +4. Misses the podcast demo entirely — 25–35 educated voters in Surulere and Mainland feel ignored.',
+        description:
+          'Trust +4. Business +4. Lekki/VI +4. Misses the podcast demo entirely — 25–35 educated voters in Surulere and Mainland feel ignored.',
         immediate: { publicTrust: 4 },
         factionImpact: { businessCommunity: 4, civilSocietyMedia: 2 },
         constituencyImpact: { etiOsa: 4, lagosIsland: 4, ibejuLekki: 3 },
@@ -349,7 +384,8 @@ Each reaches a different Lagos. You have time for two of the three. The platform
           weekOffset: 1,
           delta: {},
           constituencyImpact: { surulere: -3, lagosMainland: -3 },
-          eventText: 'Area Father Podcast host dedicated a segment to "Candidates Who Won\'t Sit Down With Us." Surulere and mainland educated voters noticed.',
+          eventText:
+            'Area Father Podcast host dedicated a segment to "Candidates Who Won\'t Sit Down With Us." Surulere and mainland educated voters noticed.',
         },
       },
     ],
@@ -367,7 +403,8 @@ Your campaign manager says this is a 40,000-vote swing if secured. Your ethics a
       {
         id: 'attend-personally',
         label: 'Attend in Person — Address the Assembly',
-        description: 'PC -20. Cash -2 (market fund commitment). Alimosho +8, Mushin +7, Oshodi +6, Surulere +5. Informal Economy +12. Civil Society -6 (fee optics). Trust +4.',
+        description:
+          'PC -20. Cash -2 (market fund commitment). Alimosho +8, Mushin +7, Oshodi +6, Surulere +5. Informal Economy +12. Civil Society -6 (fee optics). Trust +4.',
         immediate: { politicalCapital: -20, cashReserve: -2, publicTrust: 4 },
         factionImpact: { informalEconomy: 12, civilSocietyMedia: -6, lgChairmen: 5 },
         constituencyImpact: { alimosho: 8, mushin: 7, oshodiIsolo: 6, surulere: 5 },
@@ -375,7 +412,8 @@ Your campaign manager says this is a 40,000-vote swing if secured. Your ethics a
       {
         id: 'send-deputy-market',
         label: 'Send Your Deputy With Signed Commitments',
-        description: 'PC -10. Cash -1. Alimosho +5, Mushin +4. Informal Economy +6. Deputy resentment +5 (she misses her own campaign events). Trust +2.',
+        description:
+          'PC -10. Cash -1. Alimosho +5, Mushin +4. Informal Economy +6. Deputy resentment +5 (she misses her own campaign events). Trust +2.',
         immediate: { politicalCapital: -10, cashReserve: -1, publicTrust: 2 },
         factionImpact: { informalEconomy: 6, lgChairmen: 3 },
         constituencyImpact: { alimosho: 5, mushin: 4 },
@@ -384,7 +422,8 @@ Your campaign manager says this is a 40,000-vote swing if secured. Your ethics a
       {
         id: 'decline-market-endorsement',
         label: 'Decline the Transaction — Run on Record',
-        description: 'No cash cost. Civil Society +6. Business +4. Informal Economy -8 (felt as disrespect). The market vote stays home. Alimosho -4, Mushin -4.',
+        description:
+          'No cash cost. Civil Society +6. Business +4. Informal Economy -8 (felt as disrespect). The market vote stays home. Alimosho -4, Mushin -4.',
         immediate: {},
         factionImpact: { civilSocietyMedia: 6, businessCommunity: 4, informalEconomy: -8 },
         constituencyImpact: { alimosho: -4, mushin: -4, surulere: -3 },
@@ -404,23 +443,39 @@ Both are endorsement feelers. Both expect a visible response. Accepting one with
       {
         id: 'balanced-interfaith',
         label: 'Joint Interfaith Event — Balance Both',
-        description: 'Trust +6. Civil Society +8. PC -20. All LGAs show modest gains (+2–3). Highest cost, safest return. Everyone sees you as the unity candidate.',
+        description:
+          'Trust +6. Civil Society +8. PC -20. All LGAs show modest gains (+2–3). Highest cost, safest return. Everyone sees you as the unity candidate.',
         immediate: { publicTrust: 6, politicalCapital: -20 },
         factionImpact: { civilSocietyMedia: 8, businessCommunity: 4 },
-        constituencyImpact: { alimosho: 3, surulere: 3, lagosIsland: 3, etiOsa: 2, lagosMainland: 2 },
+        constituencyImpact: {
+          alimosho: 3,
+          surulere: 3,
+          lagosIsland: 3,
+          etiOsa: 2,
+          lagosMainland: 2,
+        },
       },
       {
         id: 'lean-muslim-council',
         label: 'Lean Muslim — Mainland and Periphery Focus',
-        description: 'Alimosho +6, Epe +5, Badagry +4, Ikorodu +4. Informal Economy +8. CAN reads it as a slight — Christian-majority LGAs -4. Trust -3.',
+        description:
+          'Alimosho +6, Epe +5, Badagry +4, Ikorodu +4. Informal Economy +8. CAN reads it as a slight — Christian-majority LGAs -4. Trust -3.',
         immediate: { publicTrust: -3 },
         factionImpact: { informalEconomy: 8, civilSocietyMedia: -5, lgChairmen: 4 },
-        constituencyImpact: { alimosho: 6, epe: 5, badagry: 4, ikorodu: 4, lagosIsland: -4, etiOsa: -3 },
+        constituencyImpact: {
+          alimosho: 6,
+          epe: 5,
+          badagry: 4,
+          ikorodu: 4,
+          lagosIsland: -4,
+          etiOsa: -3,
+        },
       },
       {
         id: 'decline-faith-endorsements',
         label: 'Decline Both — Politics Is Not Pulpit',
-        description: 'Civil Society +5 (secular stance). Business +3. Trust +2. PC +5. Faith communities cold but not hostile. No constituency gain, no faith-based backlash.',
+        description:
+          'Civil Society +5 (secular stance). Business +3. Trust +2. PC +5. Faith communities cold but not hostile. No constituency gain, no faith-based backlash.',
         immediate: { publicTrust: 2, politicalCapital: 5 },
         factionImpact: { civilSocietyMedia: 5, businessCommunity: 3 },
       },
@@ -440,27 +495,31 @@ Signing it is a powerful signal. It also locks you in. Your godfathers are watch
       {
         id: 'sign-full-pact',
         label: 'Sign in Full — Full Transparency Pledge',
-        description: 'Corruption Pressure -10. Civil Society +14. Business +6. Trust +8. PC -15. Godfathers -8 (they see it as tying your hands). The cleanest signal you can send.',
+        description:
+          'Corruption Pressure -10. Civil Society +14. Business +6. Trust +8. PC -15. Godfathers -8 (they see it as tying your hands). The cleanest signal you can send.',
         immediate: { corruptionPressure: -10, publicTrust: 8, politicalCapital: -15 },
         factionImpact: { civilSocietyMedia: 14, businessCommunity: 6, partyGodfathers: -8 },
       },
       {
         id: 'sign-modified-pact',
         label: 'Sign Modified — Asset Declarations Only',
-        description: 'Corruption Pressure -4. Civil Society +6. Trust +4. PC -5. Godfathers -3. A partial pledge — BudgIT calls it "better than nothing" but notes the gaps.',
+        description:
+          'Corruption Pressure -4. Civil Society +6. Trust +4. PC -5. Godfathers -3. A partial pledge — BudgIT calls it "better than nothing" but notes the gaps.',
         immediate: { corruptionPressure: -4, publicTrust: 4, politicalCapital: -5 },
         factionImpact: { civilSocietyMedia: 6, businessCommunity: 3, partyGodfathers: -3 },
         delayed: {
           weekOffset: 3,
           delta: { publicTrust: -2 },
           factionImpact: { civilSocietyMedia: -4 },
-          eventText: 'BudgIT released a statement noting the administration signed only partial transparency commitments. The omission of procurement data was highlighted. Trust softened among informed voters.',
+          eventText:
+            'BudgIT released a statement noting the administration signed only partial transparency commitments. The omission of procurement data was highlighted. Trust softened among informed voters.',
         },
       },
       {
         id: 'decline-pact',
         label: 'Decline — "Our Record Speaks"',
-        description: 'PC +8. Godfathers +6. Civil Society -10. Business -3. Trust -3. Framed as resistance to accountability. The opposition runs ads with your refusal quote.',
+        description:
+          'PC +8. Godfathers +6. Civil Society -10. Business -3. Trust -3. Framed as resistance to accountability. The opposition runs ads with your refusal quote.',
         immediate: { politicalCapital: 8, publicTrust: -3 },
         factionImpact: { partyGodfathers: 6, civilSocietyMedia: -10, businessCommunity: -3 },
         constituencyImpact: { lagosIsland: -3, etiOsa: -2 },
@@ -480,7 +539,8 @@ Your campaign lawyer reviews the dossier and gives you three options. Each carri
       {
         id: 'leak-strategically',
         label: 'Leak Selected Documents to the Press',
-        description: 'PC +12. Godfathers +8. Trust -5 (dirty politics optics). Civil Society -8. Adebayo is forced to spend 48 hours defending. The loan story dominates the news cycle.',
+        description:
+          'PC +12. Godfathers +8. Trust -5 (dirty politics optics). Civil Society -8. Adebayo is forced to spend 48 hours defending. The loan story dominates the news cycle.',
         immediate: { politicalCapital: 12, publicTrust: -5 },
         factionImpact: { partyGodfathers: 8, civilSocietyMedia: -8, businessCommunity: -3 },
         diminishingReturns: true,
@@ -488,20 +548,23 @@ Your campaign lawyer reviews the dossier and gives you three options. Each carri
           weekOffset: 2,
           delta: { publicTrust: -3 },
           factionImpact: { civilSocietyMedia: -4 },
-          eventText: 'The leak has been traced to a freelance journalist in your orbit. Adebayo\'s legal team has petitioned the court for a gag order. Ethics questions linger.',
+          eventText:
+            "The leak has been traced to a freelance journalist in your orbit. Adebayo's legal team has petitioned the court for a gag order. Ethics questions linger.",
         },
       },
       {
         id: 'hold-dossier',
         label: 'Hold It — Keep the Clean Campaign',
-        description: 'Trust +5. Civil Society +10. Business +4. Adebayo never knows you have it. The insurance stays in your pocket. PC -5 (missed tactical opportunity).',
+        description:
+          'Trust +5. Civil Society +10. Business +4. Adebayo never knows you have it. The insurance stays in your pocket. PC -5 (missed tactical opportunity).',
         immediate: { publicTrust: 5, politicalCapital: -5 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: 4, partyGodfathers: -5 },
       },
       {
         id: 'brief-journalists',
         label: 'Brief Select Journalists Off the Record',
-        description: 'PC +8. Trust -3. Civil Society -5. Godfathers +5. The stories appear but can\'t be traced directly to you. Slower burn. Delayed backlash if traced.',
+        description:
+          "PC +8. Trust -3. Civil Society -5. Godfathers +5. The stories appear but can't be traced directly to you. Slower burn. Delayed backlash if traced.",
         immediate: { politicalCapital: 8, publicTrust: -3 },
         factionImpact: { partyGodfathers: 5, civilSocietyMedia: -5 },
         diminishingReturns: true,
@@ -509,7 +572,8 @@ Your campaign lawyer reviews the dossier and gives you three options. Each carri
           weekOffset: 3,
           delta: { corruptionPressure: 3, publicTrust: -2 },
           factionImpact: { civilSocietyMedia: -3 },
-          eventText: 'A journalist close to your campaign was placed under surveillance by the police. Your involvement has not been confirmed, but the security agencies are asking questions.',
+          eventText:
+            'A journalist close to your campaign was placed under surveillance by the police. Your involvement has not been confirmed, but the security agencies are asking questions.',
         },
       },
     ],
@@ -529,7 +593,8 @@ You have three ways to deploy resources. Each sends a different signal to the pa
       {
         id: 'ground-cash-heavy',
         label: 'Cash-Heavy — Deploy to Swing Wards Directly',
-        description: 'Cash -3. Alimosho +8, Ikorodu +7. Corruption +4. Informal Economy +8. The old way — effective and dirty. Civil Society sees the money moving.',
+        description:
+          'Cash -3. Alimosho +8, Ikorodu +7. Corruption +4. Informal Economy +8. The old way — effective and dirty. Civil Society sees the money moving.',
         immediate: { cashReserve: -3, corruptionPressure: 4 },
         factionImpact: { informalEconomy: 8, lgChairmen: 6, civilSocietyMedia: -5 },
         constituencyImpact: { alimosho: 8, ikorodu: 7, oshodiIsolo: 4 },
@@ -537,7 +602,8 @@ You have three ways to deploy resources. Each sends a different signal to the pa
       {
         id: 'ground-pc-heavy',
         label: 'Party Machinery — Organise Through LGA Chairmen',
-        description: 'PC -25. Alimosho +5, Oshodi +5, Agege +4. Godfathers +6. Clean books, party loyalty. Slower — the chairmen take their cut of time before movement happens.',
+        description:
+          'PC -25. Alimosho +5, Oshodi +5, Agege +4. Godfathers +6. Clean books, party loyalty. Slower — the chairmen take their cut of time before movement happens.',
         immediate: { politicalCapital: -25 },
         factionImpact: { partyGodfathers: 6, lgChairmen: 6, informalEconomy: 4 },
         constituencyImpact: { alimosho: 5, oshodiIsolo: 5, agege: 4 },
@@ -545,7 +611,8 @@ You have three ways to deploy resources. Each sends a different signal to the pa
       {
         id: 'ground-commissioners',
         label: 'Deploy Commissioners — Stump for You',
-        description: 'PC -10. Trust +3. Selective gains — Works commissioner in Alimosho +4, Transport in Oshodi +4. Lower ceiling but shows governance depth. Deputy resentment +3 (bypassed).',
+        description:
+          'PC -10. Trust +3. Selective gains — Works commissioner in Alimosho +4, Transport in Oshodi +4. Lower ceiling but shows governance depth. Deputy resentment +3 (bypassed).',
         immediate: { politicalCapital: -10, publicTrust: 3 },
         factionImpact: { civilSocietyMedia: 4, businessCommunity: 3 },
         constituencyImpact: { alimosho: 4, oshodiIsolo: 4, surulere: 3 },
@@ -567,7 +634,8 @@ Adebayo has already launched a digital registration drive targeting younger earl
       {
         id: 'early-diaspora-fund',
         label: 'Fund Diaspora Voter Registration',
-        description: 'Cash -1.5. Lagos Island +6, Eti Osa +5, Ibeju Lekki +4. Trust +4 from expatriate families. Informal Economy -3 (diaspora outreach bypasses local networks).',
+        description:
+          'Cash -1.5. Lagos Island +6, Eti Osa +5, Ibeju Lekki +4. Trust +4 from expatriate families. Informal Economy -3 (diaspora outreach bypasses local networks).',
         immediate: { cashReserve: -1.5, publicTrust: 4 },
         factionImpact: { businessCommunity: 5, informalEconomy: -3 },
         constituencyImpact: { lagosIsland: 6, etiOsa: 5, ibejuLekki: 4 },
@@ -575,7 +643,8 @@ Adebayo has already launched a digital registration drive targeting younger earl
       {
         id: 'early-digital-campaign',
         label: 'Digital GOTV — Text and Social Media Blitz',
-        description: 'Cash -0.8. Youth Tension -4. Alimosho +4, Surulere +5. Civil Society +3 (innovative outreach). Lower cost, narrower reach. Older voters miss the message.',
+        description:
+          'Cash -0.8. Youth Tension -4. Alimosho +4, Surulere +5. Civil Society +3 (innovative outreach). Lower cost, narrower reach. Older voters miss the message.',
         immediate: { cashReserve: -0.8, youthTension: -4 },
         factionImpact: { civilSocietyMedia: 3, informalEconomy: 4 },
         constituencyImpact: { alimosho: 4, surulere: 5, lagosMainland: 3 },
@@ -583,14 +652,16 @@ Adebayo has already launched a digital registration drive targeting younger earl
       {
         id: 'early-ignore',
         label: 'Skip Early Vote — Focus All Resources on Election Day',
-        description: 'PC +5. Cash saved. No early constituency gain. A bet that your Election Day machine outperforms any early-vote deficit. High risk in close islands and diaspora-heavy wards.',
+        description:
+          'PC +5. Cash saved. No early constituency gain. A bet that your Election Day machine outperforms any early-vote deficit. High risk in close islands and diaspora-heavy wards.',
         immediate: { politicalCapital: 5 },
         factionImpact: { lgChairmen: 4, partyGodfathers: 3, civilSocietyMedia: -3 },
         delayed: {
           weekOffset: 1,
           delta: { publicTrust: -2 },
           constituencyImpact: { lagosIsland: -4, etiOsa: -3 },
-          eventText: 'Diaspora voter turnout reports show early-vote numbers below the winning threshold in Lagos Island and Eti Osa. Your absence in the early-vote push is being felt.',
+          eventText:
+            'Diaspora voter turnout reports show early-vote numbers below the winning threshold in Lagos Island and Eti Osa. Your absence in the early-vote push is being felt.',
         },
       },
     ],

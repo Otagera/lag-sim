@@ -1,34 +1,41 @@
-import { mulberry32, hashSeed } from '../utils/prng'
 import { agricultureEvents } from '../data/events/agriculture'
+import { campaignEraEvents } from '../data/events/campaign'
 import { chainEvents } from '../data/events/chains'
 import { characterEvents } from '../data/events/characters'
-import { NPC_DECK_EVENTS } from '../data/events/npcDecks'
-import { campaignEraEvents } from '../data/events/campaign'
 import { crisisEvents } from '../data/events/crisis'
 import { economyEvents } from '../data/events/economy'
 import { electionEvents } from '../data/events/election'
 import { finaleEvents } from '../data/events/finale'
 import { infrastructureEvents } from '../data/events/infrastructure'
 import { midgameEvents } from '../data/events/midgame'
+import { NPC_DECK_EVENTS } from '../data/events/npcDecks'
 import { phase4Events } from '../data/events/phase4'
-import { term2Events } from '../data/events/term2'
-import { transitionEvents } from '../data/events/transition'
 import { politicalEvents } from '../data/events/political'
 import { riotEvents } from '../data/events/riot'
 import { routineEvents } from '../data/events/routine'
-import { socialEvents } from '../data/events/social'
 import { seasonalEvents } from '../data/events/seasonal'
+import { socialEvents } from '../data/events/social'
+import { term2Events } from '../data/events/term2'
+import { transitionEvents } from '../data/events/transition'
 import { transportEvents } from '../data/events/transport'
-import { narrateConsequence } from './consequenceNarrator'
 import { fashemuAsks } from '../data/godfatherAsks'
-import { applyEscalation as applyGodfatherEscalation } from './godfatherEngine'
-import type { EventCard, GameState, PendingEvent, SecondaryFactionKey, StatKey, TimelineEntry } from '../state/types'
+import type {
+  EventCard,
+  GameState,
+  PendingEvent,
+  SecondaryFactionKey,
+  StatKey,
+  TimelineEntry,
+} from '../state/types'
+import { hashSeed, mulberry32 } from '../utils/prng'
+import { narrateConsequence } from './consequenceNarrator'
 import { applyConstituencyImpact } from './constituencyEngine'
 import { applyFactionDelta } from './factionEngine'
+import { applyEscalation as applyGodfatherEscalation } from './godfatherEngine'
 import { createProject } from './projectEngine'
 import { getSeasonModifier } from './seasonEngine'
-import { applyDelta } from './statEngine'
 import { getSecondaryFactionImpact } from './secondaryFactionHooks'
+import { applyDelta } from './statEngine'
 
 export const ALL_EVENTS: EventCard[] = [
   // phase4Events first: gives their trigger-condition outcomes (e.g. populist shield)
@@ -88,7 +95,12 @@ function getEventWeight(event: EventCard, floodMultiplier = 1, mediaDampening = 
   return weight
 }
 
-function weightedSelect(pool: EventCard[], seed: number, floodMultiplier = 1, mediaDampening = 0): EventCard | null {
+function weightedSelect(
+  pool: EventCard[],
+  seed: number,
+  floodMultiplier = 1,
+  mediaDampening = 0,
+): EventCard | null {
   const weights = pool.map((e) => getEventWeight(e, floodMultiplier, mediaDampening))
   const total = weights.reduce((sum, w) => sum + w, 0)
   if (total <= 0) return null
@@ -136,16 +148,17 @@ export function drawNextEvent(state: GameState): EventCard | null {
   }
 
   const pool = available.filter(
-    (e) => !e.triggerCondition
-      && e.category !== 'riot'
-      && !e.npcArchetype
-      && !(e.requiresInitiativeSlot && state.activeInitiative)
-      && (e.category !== 'election' || state.inCampaignMode),
+    (e) =>
+      !e.triggerCondition &&
+      e.category !== 'riot' &&
+      !e.npcArchetype &&
+      !(e.requiresInitiativeSlot && state.activeInitiative) &&
+      (e.category !== 'election' || state.inCampaignMode),
   )
   if (pool.length === 0) return null
 
   const { floodEventWeightMultiplier } = getSeasonModifier(state.week)
-  const infoComm = state.commissioners?.['information']
+  const infoComm = state.commissioners?.information
   const mediaDampening = infoComm ? (infoComm.loyalty / 100) * 0.25 : 0
   return weightedSelect(pool, drawSeed, floodEventWeightMultiplier, mediaDampening)
 }
@@ -221,7 +234,14 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
 
   if (choice.launchProject) {
     const p = choice.launchProject
-    const project = createProject(p.name, p.location, p.totalCost, p.weeklyDraw, p.weeksRemaining, p.contractorId)
+    const project = createProject(
+      p.name,
+      p.location,
+      p.totalCost,
+      p.weeklyDraw,
+      p.weeksRemaining,
+      p.contractorId,
+    )
     next = { ...next, capitalProjects: [...next.capitalProjects, project] }
   }
 
@@ -257,7 +277,10 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     const updated = { ...next.secondaryFactions }
     for (const [key, delta] of Object.entries(choice.secondaryFactionImpact)) {
       if (typeof delta === 'number') {
-        updated[key as SecondaryFactionKey] = Math.max(0, Math.min(100, updated[key as SecondaryFactionKey] + delta))
+        updated[key as SecondaryFactionKey] = Math.max(
+          0,
+          Math.min(100, updated[key as SecondaryFactionKey] + delta),
+        )
       }
     }
     next = { ...next, secondaryFactions: updated }
@@ -269,7 +292,10 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
     const updated = { ...next.secondaryFactions }
     for (const [key, delta] of Object.entries(autoHook)) {
       if (typeof delta === 'number') {
-        updated[key as SecondaryFactionKey] = Math.max(0, Math.min(100, updated[key as SecondaryFactionKey] + delta))
+        updated[key as SecondaryFactionKey] = Math.max(
+          0,
+          Math.min(100, updated[key as SecondaryFactionKey] + delta),
+        )
       }
     }
     next = { ...next, secondaryFactions: updated }
@@ -320,21 +346,28 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
 
   // Track campaign decisions for vote share calculation
   const campaignDecisions =
-    event.category === 'election'
-      ? [...next.campaignDecisions, choice.id]
-      : next.campaignDecisions
+    event.category === 'election' ? [...next.campaignDecisions, choice.id] : next.campaignDecisions
 
   // Diminishing returns: escalating penalties and counter increment
   let choiceUseCounts = next.choiceUseCounts ?? {}
   if (choice.diminishingReturns) {
     if (drUses >= 2) next = applyDelta(next, { corruptionPressure: drUses * 2 })
     if (drUses >= 3) {
-      next = { ...next, factions: applyFactionDelta(next.factions, { civilSocietyMedia: -(drUses * 3) }) }
+      next = {
+        ...next,
+        factions: applyFactionDelta(next.factions, { civilSocietyMedia: -(drUses * 3) }),
+      }
     }
     choiceUseCounts = { ...choiceUseCounts, [drKey]: drUses + 1 }
   }
 
-  const consequenceBeat = narrateConsequence(choice, event, state, next, `${event.id}:${choice.id}:${state.week}`)
+  const consequenceBeat = narrateConsequence(
+    choice,
+    event,
+    state,
+    next,
+    `${event.id}:${choice.id}:${state.week}`,
+  )
   const updatedBeats = consequenceBeat
     ? [...state.consequenceBeats, consequenceBeat]
     : state.consequenceBeats

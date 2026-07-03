@@ -84,21 +84,24 @@ export const socialEvents: EventCard[] = [
       {
         id: 'suspend-enforcement-dialogue',
         label: 'Suspend Enforcement, Open Dialogue',
-        description: 'Release the van, call the associations in. Trust +5, Informal Economy +8. Some LUC arrears remain uncollected.',
+        description:
+          'Release the van, call the associations in. Trust +5, Informal Economy +8. Some LUC arrears remain uncollected.',
         immediate: { publicTrust: 5 },
         factionImpact: { informalEconomy: 8, civilSocietyMedia: 5 },
       },
       {
         id: 'maintain-enforcement-rrs',
         label: 'Maintain Enforcement, Deploy RRS',
-        description: 'Free the van by force. Arrears collected. Trust -8, Youth Tension +10, Informal Economy -12.',
+        description:
+          'Free the van by force. Arrears collected. Trust -8, Youth Tension +10, Informal Economy -12.',
         immediate: { publicTrust: -8, youthTension: 10, igr: 0.3 },
         factionImpact: { informalEconomy: -12, civilSocietyMedia: -8 },
       },
       {
         id: 'market-leaders-summit',
         label: 'Invite Market Leaders to Alausa',
-        description: 'Pay the officers a goodwill gesture, negotiate a phased LUC payment scheme. Trust +6, Informal Economy +5. Costs Political Capital.',
+        description:
+          'Pay the officers a goodwill gesture, negotiate a phased LUC payment scheme. Trust +6, Informal Economy +5. Costs Political Capital.',
         immediate: { publicTrust: 6 },
         factionImpact: { informalEconomy: 5 },
         politicalCapitalCost: 15,
@@ -116,7 +119,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'emergency-housing-fund',
         label: 'Emergency Housing Allocation',
-        description: 'Activate the contingency housing fund. Temporary shelter within 48 hours. Trust +8, Infrastructure +3.',
+        description:
+          'Activate the contingency housing fund. Temporary shelter within 48 hours. Trust +8, Infrastructure +3.',
         immediate: { publicTrust: 8, infrastructureScore: 3 },
         factionImpact: { civilSocietyMedia: 10, informalEconomy: 5 },
         constituencyImpact: { lagosIsland: 10 },
@@ -124,14 +128,16 @@ export const socialEvents: EventCard[] = [
       {
         id: 'lasema-tents-only',
         label: 'LASEMA Tents, No Extra Spend',
-        description: 'LASEMA can handle it. Trust -5, Youth Tension +6. Families in tents for 8 weeks.',
+        description:
+          'LASEMA can handle it. Trust -5, Youth Tension +6. Families in tents for 8 weeks.',
         immediate: { publicTrust: -5, youthTension: 6 },
         factionImpact: { civilSocietyMedia: -8, informalEconomy: -5 },
       },
       {
         id: 'commission-drain-fix',
         label: 'Commission Emergency Drainage Upgrade',
-        description: 'Fix the structural cause. Infrastructure +6 delayed, Cash -0.8. Tents in the meantime.',
+        description:
+          'Fix the structural cause. Infrastructure +6 delayed, Cash -0.8. Tents in the meantime.',
         immediate: { cashReserve: -0.8 },
         factionImpact: { civilSocietyMedia: 5 },
         delayed: {
@@ -154,7 +160,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'lasema-tents-relief-only',
         label: 'LASEMA Tents + Red Cross Relief — Drainage in Next Budget',
-        description: 'Emergency shelter only. Cash -0.3, Trust +2. Drainage deferred — Youth Tension rises as families wait in tents.',
+        description:
+          'Emergency shelter only. Cash -0.3, Trust +2. Drainage deferred — Youth Tension rises as families wait in tents.',
         immediate: { cashReserve: -0.3, publicTrust: 2 },
         factionImpact: { civilSocietyMedia: 3 },
         delayed: {
@@ -166,7 +173,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'emergency-drainage-desilt',
         label: 'Emergency Drainage Desilt — Immediate Contract',
-        description: 'Fast-track a desilt contract for the Idi-Oro channel. Cash -1.0, Trust +6, Civil Society +8. Delayed infrastructure and trust gains.',
+        description:
+          'Fast-track a desilt contract for the Idi-Oro channel. Cash -1.0, Trust +6, Civil Society +8. Delayed infrastructure and trust gains.',
         immediate: { cashReserve: -1.0, publicTrust: 6 },
         factionImpact: { civilSocietyMedia: 8, informalEconomy: 5 },
         delayed: {
@@ -178,7 +186,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'blame-climate-federal-drainage',
         label: 'Attribute to Climate — Request Federal Drainage Grant',
-        description: 'Issue climate statement, write to FME for a drainage grant. Trust -6. Modest delayed cash gain if grant comes through.',
+        description:
+          'Issue climate statement, write to FME for a drainage grant. Trust -6. Modest delayed cash gain if grant comes through.',
         immediate: { publicTrust: -6 },
         factionImpact: { civilSocietyMedia: -8, federalGovt: 3 },
         delayed: {
@@ -200,7 +209,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'emergency-procurement',
         label: 'Emergency Drug Procurement',
-        description: 'Fund immediate open-market procurement for LASUTH. Trust +6. Permanent fix comes later.',
+        description:
+          'Fund immediate open-market procurement for LASUTH. Trust +6. Permanent fix comes later.',
         immediate: { publicTrust: 6 },
         factionImpact: { civilSocietyMedia: 10 },
         delayed: {
@@ -212,7 +222,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'commission-health-inquiry',
         label: 'Commission Health Commissioner Inquiry',
-        description: 'Investigate the procurement chain publicly. Trust +3, Civil Society +8. Delayed resolution.',
+        description:
+          'Investigate the procurement chain publicly. Trust +3, Civil Society +8. Delayed resolution.',
         immediate: { publicTrust: 3 },
         factionImpact: { civilSocietyMedia: 8 },
         politicalCapitalCost: 10,
@@ -220,7 +231,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'blame-nafdac-feds',
         label: 'Blame Federal Supply Chain',
-        description: 'Public statement blaming NAFDAC and NNPC fuel for cold-chain failure. Trust -8, Civil Society -10. The pharmacist is on television.',
+        description:
+          'Public statement blaming NAFDAC and NNPC fuel for cold-chain failure. Trust -8, Civil Society -10. The pharmacist is on television.',
         immediate: { publicTrust: -8 },
         factionImpact: { civilSocietyMedia: -10, federalGovt: -5 },
       },
@@ -237,7 +249,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'partial-payment-negotiate',
         label: 'Partial Payment — Negotiate Remainder',
-        description: 'Pay six months now, commit to a schedule for the balance. Cash -0.6, Trust +2. Delayed cash drain and trust recovery.',
+        description:
+          'Pay six months now, commit to a schedule for the balance. Cash -0.6, Trust +2. Delayed cash drain and trust recovery.',
         immediate: { cashReserve: -0.6, publicTrust: 2 },
         factionImpact: { civilSocietyMedia: 3 },
         delayed: {
@@ -249,7 +262,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'pay-arrears-immediately',
         label: 'Pay Full Arrears — End Strike',
-        description: 'Clear all 14 months of professional allowances immediately. Cash -1.5, Trust +8, Civil Society +10. Strike ends within 48 hours.',
+        description:
+          'Clear all 14 months of professional allowances immediately. Cash -1.5, Trust +8, Civil Society +10. Strike ends within 48 hours.',
         immediate: { cashReserve: -1.5, publicTrust: 8 },
         factionImpact: { civilSocietyMedia: 10 },
         delayed: {
@@ -261,7 +275,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'invoke-essential-services',
         label: 'Invoke Essential Services Act — Order Return to Work',
-        description: 'Legal order to end the strike. Trust -8, Civil Society -12, Corruption Pressure +4. Doctors comply but go-slow begins.',
+        description:
+          'Legal order to end the strike. Trust -8, Civil Society -12, Corruption Pressure +4. Doctors comply but go-slow begins.',
         immediate: { publicTrust: -8, corruptionPressure: 4 },
         factionImpact: { civilSocietyMedia: -12, informalEconomy: -5 },
         delayed: {
@@ -283,7 +298,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'negotiate-phased-payment',
         label: 'Negotiate Phased Payment Over 8 Months',
-        description: 'ASUU agrees to suspend action pending the schedule. Cash -0.4 now, -1.8 delayed. Trust +2.',
+        description:
+          'ASUU agrees to suspend action pending the schedule. Cash -0.4 now, -1.8 delayed. Trust +2.',
         immediate: { cashReserve: -0.4, publicTrust: 2 },
         factionImpact: { civilSocietyMedia: 4 },
         politicalCapitalCost: 10,
@@ -296,7 +312,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'settle-full-lasu-arrears',
         label: 'Settle Full ₦2.4bn — End Shutdown Immediately',
-        description: 'Full payment, strike ends within days. Cash -1.5, Trust +8, Civil Society +10. Youth Tension eases.',
+        description:
+          'Full payment, strike ends within days. Cash -1.5, Trust +8, Civil Society +10. Youth Tension eases.',
         immediate: { cashReserve: -1.5, publicTrust: 8 },
         factionImpact: { civilSocietyMedia: 10 },
         delayed: {
@@ -308,7 +325,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'blame-federal-underfunding',
         label: 'Blame Federal University Funding Model',
-        description: 'Public statement attributing crisis to federal allocation failures. Trust -5, Civil Society -8. Youth Tension rises sharply.',
+        description:
+          'Public statement attributing crisis to federal allocation failures. Trust -5, Civil Society -8. Youth Tension rises sharply.',
         immediate: { publicTrust: -5 },
         factionImpact: { civilSocietyMedia: -8, federalGovt: -3 },
         delayed: {
@@ -330,7 +348,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'emergency-school-audit',
         label: 'Shut Flagged Schools, Audit All Public Buildings',
-        description: 'Suspend use of 200+ flagged public school buildings. Inspect all within 8 weeks. Trust +8, major disruption.',
+        description:
+          'Suspend use of 200+ flagged public school buildings. Inspect all within 8 weeks. Trust +8, major disruption.',
         immediate: { publicTrust: 8 },
         factionImpact: { civilSocietyMedia: 12 },
         delayed: {
@@ -342,7 +361,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'targeted-lasbca-review',
         label: 'Targeted LASBCA Review of Agege LGA',
-        description: 'Commission a review of Agege and adjacent LGAs only. Trust +3. Narrower scope, faster. Other compromised buildings remain uninspected.',
+        description:
+          'Commission a review of Agege and adjacent LGAs only. Trust +3. Narrower scope, faster. Other compromised buildings remain uninspected.',
         immediate: { publicTrust: 3 },
         factionImpact: { civilSocietyMedia: 4 },
         politicalCapitalCost: 8,
@@ -350,7 +370,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'patch-keep-open',
         label: 'Quick Structural Patch, Keep Schools Open',
-        description: 'Emergency patching, minimise disruption. Corruption Pressure +6 when the contractor\'s sign-off resurfaces. Trust -10.',
+        description:
+          "Emergency patching, minimise disruption. Corruption Pressure +6 when the contractor's sign-off resurfaces. Trust -10.",
         immediate: { corruptionPressure: 6, publicTrust: -10 },
         factionImpact: { civilSocietyMedia: -10 },
       },
@@ -367,7 +388,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'back-developer',
         label: 'Back the Development',
-        description: 'Support the investor, direct residents to state resettlement housing. Business +10, Civil Society -15, Informal Economy -8, Trust -6.',
+        description:
+          'Support the investor, direct residents to state resettlement housing. Business +10, Civil Society -15, Informal Economy -8, Trust -6.',
         immediate: { publicTrust: -6 },
         factionImpact: { businessCommunity: 10, civilSocietyMedia: -15, informalEconomy: -8 },
         constituencyImpact: { shomolu: -8, lagosMainland: -5 },
@@ -375,7 +397,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'negotiate-resettlement',
         label: 'Negotiate In-Situ Resettlement',
-        description: 'Block eviction until developer provides improved compensation (₦5m min). Civil Society +8, Business -5. Delayed. Cash -0.5.',
+        description:
+          'Block eviction until developer provides improved compensation (₦5m min). Civil Society +8, Business -5. Delayed. Cash -0.5.',
         immediate: { cashReserve: -0.5 },
         factionImpact: { civilSocietyMedia: 8, businessCommunity: -5 },
         delayed: {
@@ -387,7 +410,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'block-eviction',
         label: 'Block the Eviction Order',
-        description: 'Direct LASBCA to suspend developer access. Civil Society +12, Business -10, Trust +5. Court challenge incoming.',
+        description:
+          'Direct LASBCA to suspend developer access. Civil Society +12, Business -10, Trust +5. Court challenge incoming.',
         immediate: { publicTrust: 5 },
         factionImpact: { civilSocietyMedia: 12, businessCommunity: -10 },
       },
@@ -404,14 +428,16 @@ export const socialEvents: EventCard[] = [
       {
         id: 'joint-enforcement-operation',
         label: 'Joint LNSC/LASG Enforcement Operation',
-        description: 'Remove children, refer to state child welfare services. Civil Society +10, Trust +6, Informal Economy -8.',
+        description:
+          'Remove children, refer to state child welfare services. Civil Society +10, Trust +6, Informal Economy -8.',
         immediate: { publicTrust: 6 },
         factionImpact: { civilSocietyMedia: 10, informalEconomy: -8 },
       },
       {
         id: 'refer-unicef-feds',
         label: 'Ask UNICEF and Federal Agencies to Lead',
-        description: 'Formally write to NHRC, NAPTIP, and UNICEF accepting their coordination. Trust +2. Slower resolution.',
+        description:
+          'Formally write to NHRC, NAPTIP, and UNICEF accepting their coordination. Trust +2. Slower resolution.',
         immediate: { publicTrust: 2 },
         factionImpact: { civilSocietyMedia: 4, federalGovt: 3 },
         delayed: {
@@ -423,7 +449,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'dispute-report',
         label: 'Dispute the Report Publicly',
-        description: 'Back NURTW, challenge the methodology. Civil Society -12, Trust -8, Corruption Pressure +5.',
+        description:
+          'Back NURTW, challenge the methodology. Civil Society -12, Trust -8, Corruption Pressure +5.',
         immediate: { publicTrust: -8, corruptionPressure: 5 },
         factionImpact: { civilSocietyMedia: -12 },
       },
@@ -448,7 +475,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'send-mediators',
         label: 'Send State Mediation Team',
-        description: 'Dispatch the Ministry of Chieftaincy Affairs mediation unit. Political Capital -10. Slower resolution, less confrontational.',
+        description:
+          'Dispatch the Ministry of Chieftaincy Affairs mediation unit. Political Capital -10. Slower resolution, less confrontational.',
         immediate: {},
         factionImpact: { informalEconomy: 3 },
         politicalCapitalCost: 10,
@@ -479,7 +507,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'pause-niwa-federal-dialogue',
         label: 'Pause — Open Dialogue With NIWA on Federal Jurisdiction',
-        description: 'Suspend demolition, engage NIWA formally over foreshore ownership. Trust +3, Federal Govt +4. Delayed trust gain.',
+        description:
+          'Suspend demolition, engage NIWA formally over foreshore ownership. Trust +3, Federal Govt +4. Delayed trust gain.',
         immediate: { publicTrust: 3 },
         factionImpact: { civilSocietyMedia: 6, federalGovt: 4 },
         politicalCapitalCost: 10,
@@ -492,7 +521,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'renegotiate-mixed-use-marina',
         label: 'Renegotiate: Mixed-Use — Marina + Fisherfolk Cooperative Zone',
-        description: 'Require the developer to integrate a licensed cooperative fishing pier into the project. Slower, more expensive. Civil Society +8, Informal Economy +5. Delayed IGR gain.',
+        description:
+          'Require the developer to integrate a licensed cooperative fishing pier into the project. Slower, more expensive. Civil Society +8, Informal Economy +5. Delayed IGR gain.',
         immediate: {},
         factionImpact: { businessCommunity: -4, civilSocietyMedia: 8, informalEconomy: 5 },
         politicalCapitalCost: 15,
@@ -505,7 +535,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'proceed-demolition-raise-offer',
         label: 'Proceed — Raise Resettlement Offer to ₦800,000',
-        description: 'Higher offer, same outcome. Business +8, Civil Society -12, Informal Economy -10, Cash -0.8.',
+        description:
+          'Higher offer, same outcome. Business +8, Civil Society -12, Informal Economy -10, Cash -0.8.',
         immediate: { cashReserve: -0.8 },
         factionImpact: { businessCommunity: 8, civilSocietyMedia: -12, informalEconomy: -10 },
         constituencyImpact: { kosofe: -10, shomolu: -6 },
@@ -523,7 +554,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'emergency-cold-chain-investment',
         label: 'Emergency Cold-Chain Infrastructure',
-        description: 'Direct LASG resources to PHC cold-room restoration. Civil Society +8, Trust +5. Immunisation recovers in 6 weeks.',
+        description:
+          'Direct LASG resources to PHC cold-room restoration. Civil Society +8, Trust +5. Immunisation recovers in 6 weeks.',
         immediate: { publicTrust: 5 },
         factionImpact: { civilSocietyMedia: 8 },
         delayed: {
@@ -535,7 +567,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'appeal-for-donor-support',
         label: 'Appeal to USAID / WHO for Support',
-        description: 'Request international technical assistance. No immediate cost. Takes 10 weeks. Federal Relationship +3.',
+        description:
+          'Request international technical assistance. No immediate cost. Takes 10 weeks. Federal Relationship +3.',
         immediate: {},
         factionImpact: { civilSocietyMedia: 4, federalGovt: 3 },
         delayed: {
@@ -547,7 +580,8 @@ export const socialEvents: EventCard[] = [
       {
         id: 'blame-federal-nphcda',
         label: 'Publicly Blame NPHCDA',
-        description: 'Redirect blame to federal body. Civil Society -5, Trust -4, Federal Relationship -6.',
+        description:
+          'Redirect blame to federal body. Civil Society -5, Trust -4, Federal Relationship -6.',
         immediate: { publicTrust: -4 },
         factionImpact: { civilSocietyMedia: -5, federalGovt: -6 },
       },

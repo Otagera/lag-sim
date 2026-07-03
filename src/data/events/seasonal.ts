@@ -1,5 +1,5 @@
 import type { EventCard } from '../../state/types'
-import { isSallahPeriod, isDettyDecember, isEyoFestival, isHarmattan } from '../../utils/calendar'
+import { isDettyDecember, isEyoFestival, isHarmattan, isSallahPeriod } from '../../utils/calendar'
 
 export const seasonalEvents: EventCard[] = [
   // ── Sallah (Eid-el-Kabir) — Kara Ram Market ─────────────────────────────────
@@ -17,7 +17,8 @@ export const seasonalEvents: EventCard[] = [
       {
         id: 'deploy-lastma-border',
         label: 'Deploy LASTMA to the Border — Coordinate with Ogun',
-        description: 'Send LASTMA and RRS to clear the Berger corridor. Coordinate with Ogun TRACE. Cash cost, trust gain. LG Chairmen +3 (proxy for Ogun State relationship).',
+        description:
+          'Send LASTMA and RRS to clear the Berger corridor. Coordinate with Ogun TRACE. Cash cost, trust gain. LG Chairmen +3 (proxy for Ogun State relationship).',
         immediate: { publicTrust: 3, cashReserve: -0.5 },
         factionImpact: { lgChairmen: 3, civilSocietyMedia: 5 },
         delayed: {
@@ -29,7 +30,8 @@ export const seasonalEvents: EventCard[] = [
       {
         id: 'blockade-livestock-trucks',
         label: 'Blockade Livestock Trucks at Berger',
-        description: 'Stop incoming livestock trucks at the Lagos border. Trust +2 from commuters. Informal Economy -8, Ogun/LG Chairmen -5.',
+        description:
+          'Stop incoming livestock trucks at the Lagos border. Trust +2 from commuters. Informal Economy -8, Ogun/LG Chairmen -5.',
         immediate: { publicTrust: 2, cashReserve: -0.3 },
         factionImpact: { informalEconomy: -8, lgChairmen: -5 },
         // Ogun State proxy via lgChairmen — in a fuller simulation this would be a separate faction
@@ -64,7 +66,8 @@ export const seasonalEvents: EventCard[] = [
       {
         id: 'night-gang-shift-drones',
         label: 'Deploy Night Gang Shift + Surveillance Drones',
-        description: 'LASTMA Night Gang Shift works late hours. Drones monitor black spots. Trust +4, IGR +0.5, Business +6.',
+        description:
+          'LASTMA Night Gang Shift works late hours. Drones monitor black spots. Trust +4, IGR +0.5, Business +6.',
         immediate: { publicTrust: 4, igr: 0.5, cashReserve: -0.5 },
         factionImpact: { businessCommunity: 6, informalEconomy: 5, civilSocietyMedia: 4 },
         setFlags: { dettyDecemberSurge: true },
@@ -77,14 +80,16 @@ export const seasonalEvents: EventCard[] = [
       {
         id: 'strict-event-center-fines',
         label: 'Strict Ban on Roadside Parking — Fine Event Centres',
-        description: 'Heavy fines for event centres that cause vehicle spillover. Trust -3, Business -5, IGR +0.3 from fines.',
+        description:
+          'Heavy fines for event centres that cause vehicle spillover. Trust -3, Business -5, IGR +0.3 from fines.',
         immediate: { publicTrust: -3, igr: 0.3 },
         factionImpact: { businessCommunity: -5, informalEconomy: -3, lgChairmen: 4 },
       },
       {
         id: 'tolerate-chaos-max-tourism',
         label: 'Tolerate the Chaos — Maximise Tourism Revenue',
-        description: 'Let the economy run. Trust -6 from local commuters, IGR +0.8, Informal Economy +6.',
+        description:
+          'Let the economy run. Trust -6 from local commuters, IGR +0.8, Informal Economy +6.',
         immediate: { publicTrust: -6, igr: 0.8 },
         factionImpact: { informalEconomy: 6, businessCommunity: 8, civilSocietyMedia: -5 },
       },
@@ -106,7 +111,8 @@ export const seasonalEvents: EventCard[] = [
       {
         id: 'sponsor-festival-tourism',
         label: 'Co-Opt as State Tourism Asset — Fund the Festival',
-        description: 'State sponsorship and funding. Trust +3, Civil Society +6, IGR +0.2 from tourism. Suspended sanitation restrictions on Eyo day.',
+        description:
+          'State sponsorship and funding. Trust +3, Civil Society +6, IGR +0.2 from tourism. Suspended sanitation restrictions on Eyo day.',
         immediate: { publicTrust: 3, igr: 0.2, cashReserve: -0.3 },
         factionImpact: { civilSocietyMedia: 6, informalEconomy: 4, partyGodfathers: 3 },
         delayed: {
@@ -118,7 +124,8 @@ export const seasonalEvents: EventCard[] = [
       {
         id: 'restrict-closed-arena',
         label: 'Restrict Festival to Closed Cultural Arenas',
-        description: 'Limit disruption. Trust -5, Civil Society -10. Delayed protest from traditional council.',
+        description:
+          'Limit disruption. Trust -5, Civil Society -10. Delayed protest from traditional council.',
         immediate: { publicTrust: -5 },
         factionImpact: { civilSocietyMedia: -10, lgChairmen: -3 },
         delayed: {
@@ -152,7 +159,8 @@ export const seasonalEvents: EventCard[] = [
       {
         id: 'fire-hydrants-clearances',
         label: 'Install Hydrants + Enforce Fire Lane Clearances',
-        description: 'Deploy municipal hydrants, clear unauthorised kiosks from fire lanes. Cash -1.0, Trust +4, Infrastructure +3. Market unions resist.',
+        description:
+          'Deploy municipal hydrants, clear unauthorised kiosks from fire lanes. Cash -1.0, Trust +4, Infrastructure +3. Market unions resist.',
         immediate: { cashReserve: -1.0, publicTrust: 4, infrastructureScore: 3 },
         factionImpact: { informalEconomy: -6, civilSocietyMedia: 4 },
         delayed: {
@@ -164,7 +172,8 @@ export const seasonalEvents: EventCard[] = [
       {
         id: 'fire-safety-campaign',
         label: 'Launch Fire Safety Sensitisation Campaign',
-        description: 'Posters, radio jingles, market visits by LSFRS. Cash -0.3, Trust +2. Lower effectiveness — fire may still occur.',
+        description:
+          'Posters, radio jingles, market visits by LSFRS. Cash -0.3, Trust +2. Lower effectiveness — fire may still occur.',
         immediate: { cashReserve: -0.3, publicTrust: 2 },
         factionImpact: { civilSocietyMedia: 3 },
       },
@@ -198,7 +207,8 @@ export const seasonalEvents: EventCard[] = [
       {
         id: 'demolish-illegal-floodplain',
         label: 'Demolish Illegal Structures on Floodplains',
-        description: 'Aggressive demolition of luxury properties blocking drainage channels. Trust +6, Infra +4, Business -8, PC cost 15. Delayed infra and cash gains.',
+        description:
+          'Aggressive demolition of luxury properties blocking drainage channels. Trust +6, Infra +4, Business -8, PC cost 15. Delayed infra and cash gains.',
         immediate: { publicTrust: 6, infrastructureScore: 4 },
         factionImpact: { businessCommunity: -8, civilSocietyMedia: 10, informalEconomy: -4 },
         politicalCapitalCost: 15,
@@ -211,7 +221,8 @@ export const seasonalEvents: EventCard[] = [
       {
         id: 'drainage-desilt-emergency',
         label: 'Emergency Drainage Desilt + Municipal Upgrades',
-        description: 'Fast-track desilting contracts across flood-prone areas. Cash -1, Trust +2, Infra +3.',
+        description:
+          'Fast-track desilting contracts across flood-prone areas. Cash -1, Trust +2, Infra +3.',
         immediate: { cashReserve: -1, publicTrust: 2, infrastructureScore: 3 },
         factionImpact: { civilSocietyMedia: 5, informalEconomy: 3 },
         delayed: {
@@ -223,7 +234,8 @@ export const seasonalEvents: EventCard[] = [
       {
         id: 'flooding-blame-federal',
         label: 'Issue Statement — Blame Federal Climate Inaction',
-        description: 'Attribute to climate change, request federal drainage grant. Trust -4, FedRel +3. Delayed federal response.',
+        description:
+          'Attribute to climate change, request federal drainage grant. Trust -4, FedRel +3. Delayed federal response.',
         immediate: { publicTrust: -4 },
         factionImpact: { federalGovt: 3, civilSocietyMedia: -6 },
         delayed: {

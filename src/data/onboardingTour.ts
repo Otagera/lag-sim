@@ -66,7 +66,7 @@ export const ONBOARDING_TOUR_STEPS: DriveStep[] = [
     popover: {
       title: 'Inbox',
       description:
-        'Your Chief of Staff, commissioners, and the party send messages here. Some are briefing memos; others contain actionable decisions. Don\'t let them pile up.',
+        "Your Chief of Staff, commissioners, and the party send messages here. Some are briefing memos; others contain actionable decisions. Don't let them pile up.",
       side: 'top',
       align: 'center',
     },

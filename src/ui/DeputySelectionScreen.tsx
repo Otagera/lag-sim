@@ -1,8 +1,8 @@
+import type { ArchetypeKey } from '../data/archetypes'
 import { DEPUTY_PROFILES } from '../data/deputies'
 import { useGameStore } from '../state/gameStore'
-import { Button, Surface } from './components'
-import type { ArchetypeKey } from '../data/archetypes'
 import type { DeputyKey } from '../state/types'
+import { Button, Surface } from './components'
 
 const FALLBACK_KEYS: DeputyKey[] = ['technocrat', 'politician', 'loyalist']
 
@@ -48,7 +48,10 @@ function isGoodEffect(key: string, value: number): boolean {
   return INVERT_STATS.has(key) ? value < 0 : value > 0
 }
 
-function buildVisitLine(statDelta?: Record<string, number>, factionDelta?: Record<string, number>): string {
+function buildVisitLine(
+  statDelta?: Record<string, number>,
+  factionDelta?: Record<string, number>,
+): string {
   const parts: string[] = []
   if (statDelta) {
     for (const [k, v] of Object.entries(statDelta)) {
@@ -79,14 +82,27 @@ export function DeputySelectionScreen({ onSelect, archetypeKey }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center py-8 px-4" style={{ backgroundColor: 'var(--background)' }}>
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center py-8 px-4"
+      style={{ backgroundColor: 'var(--background)' }}
+    >
       <div className="w-full max-w-3xl">
         <div className="text-center mb-8">
-          <p className="label-caps" style={{ color: 'var(--accent-text)' }}>Your running mate</p>
-          <h1 className="font-display font-semibold mt-1" style={{ fontSize: '30px', color: 'var(--text)' }}>Choose Your Deputy Governor</h1>
-          <p className="mt-2 max-w-xl mx-auto" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-            Your Deputy shapes how the administration governs and who you can appoint to the cabinet.
-            This decision cannot be undone.
+          <p className="label-caps" style={{ color: 'var(--accent-text)' }}>
+            Your running mate
+          </p>
+          <h1
+            className="font-display font-semibold mt-1"
+            style={{ fontSize: '30px', color: 'var(--text)' }}
+          >
+            Choose Your Deputy Governor
+          </h1>
+          <p
+            className="mt-2 max-w-xl mx-auto"
+            style={{ fontSize: '13px', color: 'var(--text-secondary)' }}
+          >
+            Your Deputy shapes how the administration governs and who you can appoint to the
+            cabinet. This decision cannot be undone.
           </p>
         </div>
 
@@ -101,7 +117,10 @@ export function DeputySelectionScreen({ onSelect, archetypeKey }: Props) {
 
             const allBonuses: { k: string; v: number }[] = [
               ...Object.entries(profile.statBonuses ?? {}).map(([k, v]) => ({ k, v: v as number })),
-              ...Object.entries(profile.factionBonuses ?? {}).map(([k, v]) => ({ k, v: v as number })),
+              ...Object.entries(profile.factionBonuses ?? {}).map(([k, v]) => ({
+                k,
+                v: v as number,
+              })),
             ].filter(({ v }) => v !== 0 && v !== undefined)
 
             return (
@@ -109,11 +128,18 @@ export function DeputySelectionScreen({ onSelect, archetypeKey }: Props) {
                 key={key}
                 elevation="raised"
                 padding="16px"
-                style={{ borderTop: '2px solid var(--accent-solid)', display: 'flex', flexDirection: 'column', gap: '12px' }}
+                style={{
+                  borderTop: '2px solid var(--accent-solid)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="label-caps" style={{ color: 'var(--accent-text)' }}>{profile.shortName}</div>
+                    <div className="label-caps" style={{ color: 'var(--accent-text)' }}>
+                      {profile.shortName}
+                    </div>
                     {recommended && (
                       <span
                         style={{
@@ -130,8 +156,19 @@ export function DeputySelectionScreen({ onSelect, archetypeKey }: Props) {
                       </span>
                     )}
                   </div>
-                  <h2 style={{ fontSize: '13px', fontWeight: 600, marginTop: '2px', color: 'var(--text)' }}>{profile.name}</h2>
-                  <p style={{ fontSize: '11px', marginTop: '2px', color: 'var(--text-secondary)' }}>{profile.title}</p>
+                  <h2
+                    style={{
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      marginTop: '2px',
+                      color: 'var(--text)',
+                    }}
+                  >
+                    {profile.name}
+                  </h2>
+                  <p style={{ fontSize: '11px', marginTop: '2px', color: 'var(--text-secondary)' }}>
+                    {profile.title}
+                  </p>
                 </div>
 
                 <p style={{ fontSize: '11px', lineHeight: 1.7, color: 'var(--text)', flex: 1 }}>
@@ -148,7 +185,9 @@ export function DeputySelectionScreen({ onSelect, archetypeKey }: Props) {
                           style={{
                             fontSize: '10px',
                             padding: '2px 6px',
-                            backgroundColor: isGoodEffect(k, v) ? 'var(--success-3)' : 'var(--error-3)',
+                            backgroundColor: isGoodEffect(k, v)
+                              ? 'var(--success-3)'
+                              : 'var(--error-3)',
                             color: isGoodEffect(k, v) ? 'var(--success-11)' : 'var(--error-11)',
                           }}
                         >
@@ -161,18 +200,30 @@ export function DeputySelectionScreen({ onSelect, archetypeKey }: Props) {
 
                 {visitLine && (
                   <p style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                    <span className="label-caps" style={{ display: 'inline', marginRight: '4px' }}>Per visit:</span>
+                    <span className="label-caps" style={{ display: 'inline', marginRight: '4px' }}>
+                      Per visit:
+                    </span>
                     {visitLine}
                   </p>
                 )}
 
-                <div style={{ fontSize: '11px', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
+                <div
+                  style={{
+                    fontSize: '11px',
+                    borderTop: '1px solid var(--border)',
+                    paddingTop: '8px',
+                  }}
+                >
                   <div>
-                    <span className="font-semibold" style={{ color: 'var(--success-11)' }}>Strength: </span>
+                    <span className="font-semibold" style={{ color: 'var(--success-11)' }}>
+                      Strength:{' '}
+                    </span>
                     <span style={{ color: 'var(--text)' }}>{profile.strength}</span>
                   </div>
                   <div>
-                    <span className="font-semibold" style={{ color: 'var(--error-11)' }}>Risk: </span>
+                    <span className="font-semibold" style={{ color: 'var(--error-11)' }}>
+                      Risk:{' '}
+                    </span>
                     <span style={{ color: 'var(--text)' }}>{profile.risk}</span>
                   </div>
                 </div>

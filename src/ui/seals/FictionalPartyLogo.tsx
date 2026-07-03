@@ -23,7 +23,7 @@ function PartySymbolGlyph({ symbol, color }: { symbol: PartySymbol; color: strin
             const y1 = 60 + Math.sin(angle) * 24
             const x2 = 50 + Math.cos(angle) * 32
             const y2 = 60 + Math.sin(angle) * 32
-            return <line key={`sunray-${i}`} x1={x1} y1={y1} x2={x2} y2={y2} />
+            return <line key={`sunray-${angle.toFixed(4)}`} x1={x1} y1={y1} x2={x2} y2={y2} />
           })}
         </g>
       )

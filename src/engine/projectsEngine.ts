@@ -1,8 +1,8 @@
-import type { GameState, InboxMessage, ProjectDef, ResearchNodeStatus } from '../state/types'
-import { PROJECTS } from '../data/projects'
 import { getGoal, getGoalProgress } from '../data/goals'
-import { applyDelta } from './statEngine'
+import { PROJECTS } from '../data/projects'
+import type { GameState, InboxMessage, ProjectDef, ResearchNodeStatus } from '../state/types'
 import { applyFactionDeltaState } from './factionEngine'
+import { applyDelta } from './statEngine'
 
 let _msgSeq = 0
 
@@ -68,10 +68,7 @@ export function commissionProject(projectId: string, state: GameState): GameStat
       ...state.projectStatuses,
       [def.id]: 'commissioned',
     },
-    commissionedProjects: [
-      ...state.commissionedProjects,
-      { id: projectId, completionWeek },
-    ],
+    commissionedProjects: [...state.commissionedProjects, { id: projectId, completionWeek }],
     timeline: [
       ...state.timeline,
       {
@@ -85,20 +82,16 @@ export function commissionProject(projectId: string, state: GameState): GameStat
 }
 
 export function tickProjects(state: GameState): GameState {
-  const due = state.commissionedProjects.filter(
-    (cp) => state.week >= cp.completionWeek,
-  )
+  const due = state.commissionedProjects.filter((cp) => state.week >= cp.completionWeek)
   if (due.length === 0) return state
 
-  const remaining = state.commissionedProjects.filter(
-    (cp) => !due.some((d) => d.id === cp.id),
-  )
+  const remaining = state.commissionedProjects.filter((cp) => !due.some((d) => d.id === cp.id))
 
   let next = { ...state, commissionedProjects: remaining }
   const statuses = { ...next.projectStatuses }
-  let inbox = [...next.inbox]
+  const inbox = [...next.inbox]
   const timeline = [...next.timeline]
-  let consequenceBeats = [...next.consequenceBeats]
+  const consequenceBeats = [...next.consequenceBeats]
 
   for (const cp of due) {
     const def = getProjectDef(cp.id)
@@ -118,7 +111,13 @@ export function tickProjects(state: GameState): GameState {
       description: `${def.category} project delivered.`,
     })
 
-    inbox.push(projectInboxMessage(next, def, `${def.title} is complete. The investment is delivering as planned.`))
+    inbox.push(
+      projectInboxMessage(
+        next,
+        def,
+        `${def.title} is complete. The investment is delivering as planned.`,
+      ),
+    )
 
     if (def.goalRelevance && def.goalRelevance.length > 0 && next.selectedGoalId) {
       const goalId = next.selectedGoalId

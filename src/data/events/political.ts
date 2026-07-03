@@ -116,9 +116,7 @@ export const politicalEvents: EventCard[] = [
     severity: 'critical',
     category: 'political',
     triggerCondition: (state) =>
-      state.week >= 130 &&
-      state.fashemuPhase !== 'dead' &&
-      Math.random() < 0.015,
+      state.week >= 130 && state.fashemuPhase !== 'dead' && Math.random() < 0.015,
     weight: 1,
     choices: [
       {
@@ -162,14 +160,13 @@ export const politicalEvents: EventCard[] = [
       {
         id: 'follow-deputy',
         label: "Follow Deputy's Recommendation",
-        description:
-          'Trust the process. Political Capital +3. Deputy resentment stays low.',
+        description: 'Trust the process. Political Capital +3. Deputy resentment stays low.',
         immediate: { politicalCapital: 3 },
         factionImpact: {},
       },
       {
         id: 'override-deputy',
-        label: "Override — Go Your Own Way",
+        label: 'Override — Go Your Own Way',
         description:
           'Your call. Trust +2. Deputy resentment +10. Repeated overrides will trigger a crisis.',
         immediate: { publicTrust: 2 },
@@ -263,7 +260,7 @@ export const politicalEvents: EventCard[] = [
     choices: [
       {
         id: 'appoint-adesoji',
-        label: 'Appoint Adesoji (Fashemu\'s Pick)',
+        label: "Appoint Adesoji (Fashemu's Pick)",
         description:
           'Godfather satisfied early. Corruption Pressure +5. Procurement leakage increases. You start the term in his debt.',
         immediate: { corruptionPressure: 5 },
@@ -377,14 +374,21 @@ export const politicalEvents: EventCard[] = [
       {
         id: 'defend-lasiec-results',
         label: 'Defend LASIEC — Elections Were Legitimate',
-        description: 'Back the results. Godfathers +10, LG Chairmen +8, Civil Society -12, Federal Relationship -5. Trust -5.',
+        description:
+          'Back the results. Godfathers +10, LG Chairmen +8, Civil Society -12, Federal Relationship -5. Trust -5.',
         immediate: { publicTrust: -5 },
-        factionImpact: { partyGodfathers: 10, lgChairmen: 8, civilSocietyMedia: -12, federalGovt: -5 },
+        factionImpact: {
+          partyGodfathers: 10,
+          lgChairmen: 8,
+          civilSocietyMedia: -12,
+          federalGovt: -5,
+        },
       },
       {
         id: 'support-independent-review',
         label: 'Support Independent Review of Three Disputed LGAs',
-        description: 'Back an INEC review. Trust +6, Civil Society +10. Godfathers -8, LG Chairmen -10. Political Capital -15.',
+        description:
+          'Back an INEC review. Trust +6, Civil Society +10. Godfathers -8, LG Chairmen -10. Political Capital -15.',
         immediate: { publicTrust: 6 },
         factionImpact: { civilSocietyMedia: 10, partyGodfathers: -8, lgChairmen: -10 },
         politicalCapitalCost: 15,
@@ -392,7 +396,8 @@ export const politicalEvents: EventCard[] = [
       {
         id: 'quiet-negotiation-inec',
         label: 'Quiet Back-Channel With INEC — Agree to Minor Corrective Measures',
-        description: 'Limit the fallout privately. Federal Relationship +6, Godfathers +3. Corruption +3. Political Capital -20.',
+        description:
+          'Limit the fallout privately. Federal Relationship +6, Godfathers +3. Corruption +3. Political Capital -20.',
         immediate: { corruptionPressure: 3 },
         factionImpact: { federalGovt: 6, partyGodfathers: 3 },
         politicalCapitalCost: 20,
@@ -418,7 +423,9 @@ export const politicalEvents: EventCard[] = [
       !state.primaryScenario &&
       state.week >= 170 &&
       state.godfatherComplianceCount >= 2 &&
-      (state.fashemuPhase === 'active' || state.fashemuPhase === 'reconciled' || state.fashemuPhase === 'dormant'),
+      (state.fashemuPhase === 'active' ||
+        state.fashemuPhase === 'reconciled' ||
+        state.fashemuPhase === 'dormant'),
     choices: [
       {
         id: 'accept-backing',
@@ -821,7 +828,8 @@ This office recommends a frank expenditure review before Year 2 commitments are 
       {
         id: 'commission-fiscal-review',
         label: 'Commission Internal Fiscal Review',
-        description: 'Signal discipline. Political Capital -8. Identify savings or expose problems. Cash Reserve +2.',
+        description:
+          'Signal discipline. Political Capital -8. Identify savings or expose problems. Cash Reserve +2.',
         immediate: { cashReserve: 2, politicalCapital: -8 },
         factionImpact: { civilSocietyMedia: 4, partyGodfathers: -3 },
       },
@@ -835,7 +843,8 @@ This office recommends a frank expenditure review before Year 2 commitments are 
       {
         id: 'publish-year-one-scorecard',
         label: 'Publish the Findings Publicly',
-        description: 'Radical transparency. Civil Society +10, Godfathers -6. You will be held to what you admit.',
+        description:
+          'Radical transparency. Civil Society +10, Godfathers -6. You will be held to what you admit.',
         immediate: { publicTrust: 5, politicalCapital: -5 },
         factionImpact: { civilSocietyMedia: 10, partyGodfathers: -6 },
       },
@@ -872,14 +881,16 @@ This office recommends protecting structural gains and being selective about new
       {
         id: 'double-down-direction',
         label: 'Stay the Course',
-        description: 'Political Capital +5. Stability signals confidence. Markets and civil servants respond to consistency.',
+        description:
+          'Political Capital +5. Stability signals confidence. Markets and civil servants respond to consistency.',
         immediate: { politicalCapital: 5, publicTrust: 3 },
         factionImpact: { businessCommunity: 5 },
       },
       {
         id: 'declare-midterm-reform',
         label: 'Declare a Mid-Term Reform Agenda',
-        description: 'Trust +5, Civil Society +6, Political Capital -8. The party will want to know what changed.',
+        description:
+          'Trust +5, Civil Society +6, Political Capital -8. The party will want to know what changed.',
         immediate: { publicTrust: 5, politicalCapital: -8 },
         factionImpact: { civilSocietyMedia: 6, partyGodfathers: -4 },
       },
@@ -909,7 +920,8 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
       {
         id: 'pivot-quick-wins',
         label: 'Pivot to Visible Quick Wins',
-        description: 'Trust +6, Political Capital -5, Infrastructure -2. Election-year instinct: visible impact over structural gain.',
+        description:
+          'Trust +6, Political Capital -5, Infrastructure -2. Election-year instinct: visible impact over structural gain.',
         immediate: { publicTrust: 6, politicalCapital: -5, infrastructureScore: -2 },
         factionImpact: { lgChairmen: 5, businessCommunity: -3 },
       },
@@ -923,7 +935,8 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
       {
         id: 'early-campaign-positioning',
         label: 'Begin Early Campaign Positioning',
-        description: 'Trust +3, Godfathers +5, Civil Society -4. Start warming up the party machine now.',
+        description:
+          'Trust +3, Godfathers +5, Civil Society -4. Start warming up the party machine now.',
         immediate: { publicTrust: 3, politicalCapital: -3 },
         factionImpact: { partyGodfathers: 5, civilSocietyMedia: -4 },
       },
@@ -940,7 +953,8 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
       {
         id: 'support-public-hearing',
         label: 'Support the Public Hearing, Send Full Records',
-        description: 'Commissioners attend with unredacted documentation. Trust +8, Civil Society +10, Business +3. Political Capital -10.',
+        description:
+          'Commissioners attend with unredacted documentation. Trust +8, Civil Society +10, Business +3. Political Capital -10.',
         immediate: { publicTrust: 8 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: 3 },
         politicalCapitalCost: 10,
@@ -948,14 +962,16 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
       {
         id: 'attend-redacted-records',
         label: 'Attend With Redacted Records',
-        description: 'Claim executive confidentiality on some documents. Trust -4, Civil Society -8, Corruption Pressure +5.',
+        description:
+          'Claim executive confidentiality on some documents. Trust -4, Civil Society -8, Corruption Pressure +5.',
         immediate: { publicTrust: -4, corruptionPressure: 5 },
         factionImpact: { civilSocietyMedia: -8 },
       },
       {
         id: 'challenge-summons-court',
         label: 'Challenge Summons in Court',
-        description: 'File for judicial review of the PAC summons. Trust -8, Civil Society -12, Corruption Pressure +8. Political Capital -20.',
+        description:
+          'File for judicial review of the PAC summons. Trust -8, Civil Society -12, Corruption Pressure +8. Political Capital -20.',
         immediate: { publicTrust: -8, corruptionPressure: 8 },
         factionImpact: { civilSocietyMedia: -12 },
         politicalCapitalCost: 20,
@@ -973,7 +989,8 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
       {
         id: 'engage-direct-accelerate-projects',
         label: 'Engage Directly — Accelerate Alimosho Capital Projects',
-        description: 'Direct ₦1bn capital project spend to Alimosho within 30 days. Cash -1, Trust +4, Alimosho +10. Godfathers nervous.',
+        description:
+          'Direct ₦1bn capital project spend to Alimosho within 30 days. Cash -1, Trust +4, Alimosho +10. Godfathers nervous.',
         immediate: { cashReserve: -1, publicTrust: 4 },
         factionImpact: { partyGodfathers: -5 },
         constituencyImpact: { alimosho: 10 },
@@ -981,7 +998,8 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
       {
         id: 'support-nec-suspension',
         label: 'Support NEC Suspension Proceedings',
-        description: 'Back the party machinery. Godfathers +8, Trust -6, Alimosho -12, Civil Society -5.',
+        description:
+          'Back the party machinery. Godfathers +8, Trust -6, Alimosho -12, Civil Society -5.',
         immediate: { publicTrust: -6 },
         factionImpact: { partyGodfathers: 8, civilSocietyMedia: -5 },
         constituencyImpact: { alimosho: -12 },
@@ -1014,7 +1032,8 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
       {
         id: 'politely-decline-extension',
         label: 'Politely Decline — Request 6-Week Extension',
-        description: 'Ask the Presidency to wait until the road is done. Federal Relationship -5, Trust +6. Political Capital -10.',
+        description:
+          'Ask the Presidency to wait until the road is done. Federal Relationship -5, Trust +6. Political Capital -10.',
         immediate: { publicTrust: 6 },
         factionImpact: { federalGovt: -5, civilSocietyMedia: 4 },
         politicalCapitalCost: 10,
@@ -1022,7 +1041,8 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
       {
         id: 'accelerate-complete-first',
         label: 'Accelerate Works — Complete Before Visit',
-        description: 'Emergency contractor schedule, complete in 5 weeks. Cash -1.5, Infrastructure +6, Trust +5, Federal Relationship +8.',
+        description:
+          'Emergency contractor schedule, complete in 5 weeks. Cash -1.5, Infrastructure +6, Trust +5, Federal Relationship +8.',
         immediate: { cashReserve: -1.5, infrastructureScore: 6, publicTrust: 5 },
         factionImpact: { federalGovt: 8, businessCommunity: 4 },
       },
@@ -1039,7 +1059,8 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
       {
         id: 'release-supplementary-records',
         label: 'Release Full Supplementary Spending Records',
-        description: 'Full transparency. Trust +6, Civil Society +12, Godfathers -6. Corruption -5. Political Capital -10.',
+        description:
+          'Full transparency. Trust +6, Civil Society +12, Godfathers -6. Corruption -5. Political Capital -10.',
         immediate: { publicTrust: 6, corruptionPressure: -5 },
         factionImpact: { civilSocietyMedia: 12, partyGodfathers: -6 },
         politicalCapitalCost: 10,
@@ -1065,7 +1086,8 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
       {
         id: 'rollover-budget-hold',
         label: 'Deploy 2024 Rollover — Call Their Bluff',
-        description: 'Bypass the Assembly on rollover authority. Trust -5, Civil Society -8, Godfathers -8, LG Chairmen -6.',
+        description:
+          'Bypass the Assembly on rollover authority. Trust -5, Civil Society -8, Godfathers -8, LG Chairmen -6.',
         immediate: { publicTrust: -5 },
         factionImpact: { civilSocietyMedia: -8, partyGodfathers: -8, lgChairmen: -6 },
       },

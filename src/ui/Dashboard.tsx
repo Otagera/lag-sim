@@ -1,6 +1,6 @@
+import { calculateVoteShare } from '../engine/electionEngine'
 import { useGameStore } from '../state/gameStore'
 import { formatGameDate } from '../utils/calendar'
-import { calculateVoteShare } from '../engine/electionEngine'
 
 function StatCard({
   label,
@@ -15,16 +15,22 @@ function StatCard({
 }) {
   const fmt = format ?? ((v) => v.toFixed(1))
   return (
-    <div className="p-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+    <div
+      className="p-2 border"
+      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+    >
       <p className="label-caps">{label}</p>
       <div className="flex items-baseline gap-1.5 mt-0.5">
-        <p className="text-[15px] font-semibold" style={{ color: 'var(--text)' }}>{fmt(value)}</p>
+        <p className="text-[15px] font-semibold" style={{ color: 'var(--text)' }}>
+          {fmt(value)}
+        </p>
         {delta !== undefined && Math.abs(delta) >= 0.1 && (
           <span
             className="text-[9px] font-semibold"
             style={{ color: delta > 0 ? 'var(--success-11)' : 'var(--error-11)' }}
           >
-            {delta > 0 ? '↑' : '↓'}{Math.abs(delta) < 1 ? Math.abs(delta).toFixed(1) : Math.abs(delta).toFixed(0)}
+            {delta > 0 ? '↑' : '↓'}
+            {Math.abs(delta) < 1 ? Math.abs(delta).toFixed(1) : Math.abs(delta).toFixed(0)}
           </span>
         )}
       </div>
@@ -54,10 +60,24 @@ export function Dashboard() {
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
       <StatCard label="Date" value={week} format={(_v) => formatGameDate(week)} />
       <StatCard label="Cash" value={cashReserve} format={naira} delta={cashDelta} />
-      <StatCard label="Trust" value={publicTrust} format={(v) => `${v.toFixed(0)}%`} delta={trustDelta} />
-      <StatCard label="Pol. Cap" value={politicalCapital} format={(v) => `${v}/200`} delta={polCapDelta} />
+      <StatCard
+        label="Trust"
+        value={publicTrust}
+        format={(v) => `${v.toFixed(0)}%`}
+        delta={trustDelta}
+      />
+      <StatCard
+        label="Pol. Cap"
+        value={politicalCapital}
+        format={(v) => `${v}/200`}
+        delta={polCapDelta}
+      />
       {inCampaignMode && (
-        <StatCard label="Vote Share" value={calculateVoteShare(useGameStore.getState())} format={(v) => `${v.toFixed(0)}%`} />
+        <StatCard
+          label="Vote Share"
+          value={calculateVoteShare(useGameStore.getState())}
+          format={(v) => `${v.toFixed(0)}%`}
+        />
       )}
       {mode === 'detailed' && (
         <>

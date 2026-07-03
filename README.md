@@ -15,7 +15,7 @@ A browser-based governance simulation set in Lagos, Nigeria. You are Governor fo
 npm install
 npm run dev          # dev server at localhost:5173
 npm run build        # production build
-npx vitest run       # full test suite (475 tests)
+npx vitest run       # full test suite (601 tests)
 ```
 
 **Node requirement:** ≥ 22.12.0. The project uses Vite 6 (not 8) due to Node compatibility constraints on Coolify's nixpacks (see build notes in AGENTS.md).

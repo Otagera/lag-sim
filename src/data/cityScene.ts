@@ -2,8 +2,9 @@ import * as PALETTE from './cityPalette'
 
 // ---- Seeded PRNG ----
 export function mulberry32(seed: number): () => number {
-  return function () {
-    seed |= 0; seed = (seed + 0x6d2b79f5) | 0
+  return () => {
+    seed |= 0
+    seed = (seed + 0x6d2b79f5) | 0
     let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296
@@ -12,9 +13,14 @@ export function mulberry32(seed: number): () => number {
 
 // ---- Resolved types ----
 export interface ResolvedBuilding {
-  cx: number; cy: number
-  w: number; d: number; h: number
-  roofColor: string; wallColor: string; shadowColor: string
+  cx: number
+  cy: number
+  w: number
+  d: number
+  h: number
+  roofColor: string
+  wallColor: string
+  shadowColor: string
   accentColor?: string
   type: 'residential' | 'mixedUse' | 'glassTower' | 'stilt'
   depthLayer: number
@@ -22,26 +28,35 @@ export interface ResolvedBuilding {
 }
 
 export interface ResolvedTree {
-  cx: number; cy: number
-  canopyR: number; canopyColor: string; trunkColor: string
+  cx: number
+  cy: number
+  canopyR: number
+  canopyColor: string
+  trunkColor: string
   isPalm: boolean
   isMangrove?: boolean
   sortY: number
 }
 
 export interface ResolvedVehicle {
-  cx: number; cy: number
-  color: string; accentColor: string
-  w: number; h: number
+  cx: number
+  cy: number
+  color: string
+  accentColor: string
+  w: number
+  h: number
   isBRT: boolean
   rot: number
   sortY: number
 }
 
 export interface ResolvedBoat {
-  cx: number; cy: number
-  w: number; h: number
-  hullColor: string; accentColor: string
+  cx: number
+  cy: number
+  w: number
+  h: number
+  hullColor: string
+  accentColor: string
   type: 'ferry' | 'canoe' | 'cargo' | 'speedboat'
   rot: number
   sortY: number
@@ -62,32 +77,49 @@ export interface ResolvedRoad {
 }
 
 export interface ResolvedBridge {
-  x1: number; y1: number; x2: number; y2: number
-  w: number; type: 'cable' | 'suspension' | 'simple'
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+  w: number
+  type: 'cable' | 'suspension' | 'simple'
   sortY: number
 }
 
 export interface ResolvedPin {
-  cx: number; cy: number; color: string
+  cx: number
+  cy: number
+  color: string
   sortY: number
 }
 
 export interface ResolvedMarketStall {
-  cx: number; cy: number; canopyColor: string
-  w: number; h: number
+  cx: number
+  cy: number
+  canopyColor: string
+  w: number
+  h: number
   sortY: number
 }
 
 export interface ResolvedStreetlight {
-  cx: number; cy: number; sortY: number
+  cx: number
+  cy: number
+  sortY: number
 }
 
 export interface ResolvedBillboard {
-  cx: number; cy: number; color: string; sortY: number
+  cx: number
+  cy: number
+  color: string
+  sortY: number
 }
 
 export interface ResolvedMarketZone {
-  cx: number; cy: number; rx: number; ry: number
+  cx: number
+  cy: number
+  rx: number
+  ry: number
 }
 
 export interface ResolvedWalkway {
@@ -129,13 +161,25 @@ function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t
 }
 
-function pointInEllipse(px: number, py: number, cx: number, cy: number, rx: number, ry: number): boolean {
+function pointInEllipse(
+  px: number,
+  py: number,
+  cx: number,
+  cy: number,
+  rx: number,
+  ry: number,
+): boolean {
   return ((px - cx) / rx) ** 2 + ((py - cy) / ry) ** 2 <= 1
 }
 
 // ---- Organic landmass generation ----
-function perturbPolygon(pts: [number, number][], amp: number, subdivisions: number, rng: () => number): [number, number][] {
-  let result: [number, number][] = pts.map(p => [p[0], p[1]])
+function perturbPolygon(
+  pts: [number, number][],
+  amp: number,
+  subdivisions: number,
+  rng: () => number,
+): [number, number][] {
+  let result: [number, number][] = pts.map((p) => [p[0], p[1]])
   for (let s = 0; s < subdivisions; s++) {
     const next: [number, number][] = []
     for (let i = 0; i < result.length; i++) {
@@ -154,16 +198,31 @@ function perturbPolygon(pts: [number, number][], amp: number, subdivisions: numb
 // ---- Build zone ----
 interface BuildZone {
   districtKey: string
-  cx: number; cy: number; rx: number; ry: number
+  cx: number
+  cy: number
+  rx: number
+  ry: number
   type: ResolvedBuilding['type']
-  density: number; gridW: number; gridH: number
-  minW: number; maxW: number
-  minD: number; maxD: number
-  minH: number; maxH: number
+  density: number
+  gridW: number
+  gridH: number
+  minW: number
+  maxW: number
+  minD: number
+  maxD: number
+  minH: number
+  maxH: number
   depthLayer: number
 }
 
-function generateInZone(rng: () => number, z: BuildZone, roofs: string[], walls: string[], shadows: string[], accent: string | undefined): ResolvedBuilding[] {
+function generateInZone(
+  rng: () => number,
+  z: BuildZone,
+  roofs: string[],
+  walls: string[],
+  shadows: string[],
+  accent: string | undefined,
+): ResolvedBuilding[] {
   const buildings: ResolvedBuilding[] = []
   for (let x = z.cx - z.rx; x < z.cx + z.rx; x += z.gridW) {
     for (let y = z.cy - z.ry; y < z.cy + z.ry; y += z.gridH) {
@@ -176,10 +235,16 @@ function generateInZone(rng: () => number, z: BuildZone, roofs: string[], walls:
       let h = rngRange(rng, z.minH, z.maxH)
       // 8% become chunky hero buildings — breaks up procedural monotony
       if (z.type !== 'glassTower' && rng() < 0.08) {
-        w *= 1.6; d *= 1.4; h *= 1.2
+        w *= 1.6
+        d *= 1.4
+        h *= 1.2
       }
       buildings.push({
-        cx: px, cy: py, w, d, h,
+        cx: px,
+        cy: py,
+        w,
+        d,
+        h,
         roofColor: pick(rng, roofs),
         wallColor: pick(rng, walls),
         shadowColor: pick(rng, shadows),
@@ -194,10 +259,15 @@ function generateInZone(rng: () => number, z: BuildZone, roofs: string[], walls:
 }
 
 // ---- Vegetation generator ----
-function generateTrees(rng: () => number, allBuildings: ResolvedBuilding[], zones: BuildZone[], extraCount: number): ResolvedTree[] {
+function generateTrees(
+  rng: () => number,
+  allBuildings: ResolvedBuilding[],
+  zones: BuildZone[],
+  extraCount: number,
+): ResolvedTree[] {
   const trees: ResolvedTree[] = []
-  const avoid = allBuildings.map(b => ({ x: b.cx, y: b.cy, r: Math.max(b.w, b.d) * 0.5 + 5 }))
-  const avoidTree = (x: number, y: number) => avoid.some(a => Math.hypot(x - a.x, y - a.y) < a.r)
+  const avoid = allBuildings.map((b) => ({ x: b.cx, y: b.cy, r: Math.max(b.w, b.d) * 0.5 + 5 }))
+  const avoidTree = (x: number, y: number) => avoid.some((a) => Math.hypot(x - a.x, y - a.y) < a.r)
 
   for (const z of zones) {
     const count = Math.round((z.rx * z.ry) / 180)
@@ -210,7 +280,8 @@ function generateTrees(rng: () => number, allBuildings: ResolvedBuilding[], zone
         if (avoidTree(px, py)) continue
         const isPalm = rng() > 0.5
         trees.push({
-          cx: px, cy: py,
+          cx: px,
+          cy: py,
           canopyR: rngRange(rng, isPalm ? 4 : 5, isPalm ? 7 : 11),
           canopyColor: pick(rng, isPalm ? PALETTE.VEGETATION.palmCanopy : PALETTE.VEGETATION.shrub),
           trunkColor: isPalm ? PALETTE.VEGETATION.palmTrunk : '#7A6A4A',
@@ -229,7 +300,8 @@ function generateTrees(rng: () => number, allBuildings: ResolvedBuilding[], zone
       const py = rngRange(rng, 10, 350)
       if (avoidTree(px, py)) continue
       trees.push({
-        cx: px, cy: py,
+        cx: px,
+        cy: py,
         canopyR: rngRange(rng, 4, 10),
         canopyColor: pick(rng, PALETTE.VEGETATION.shrub),
         trunkColor: '#7A6A4A',
@@ -247,17 +319,37 @@ function generateMangroves(rng: () => number): ResolvedTree[] {
   const mangroves: ResolvedTree[] = []
   const clusterCenters: [number, number, number][] = [
     // Mainland south coast — clusters with gaps between
-    [50, 150, 5], [78, 153, 4], [110, 156, 5], [140, 160, 3],
-    [175, 162, 5], [210, 165, 4], [250, 164, 5], [290, 161, 3],
-    [330, 157, 5], [365, 153, 4], [400, 150, 4], [435, 148, 3],
+    [50, 150, 5],
+    [78, 153, 4],
+    [110, 156, 5],
+    [140, 160, 3],
+    [175, 162, 5],
+    [210, 165, 4],
+    [250, 164, 5],
+    [290, 161, 3],
+    [330, 157, 5],
+    [365, 153, 4],
+    [400, 150, 4],
+    [435, 148, 3],
     // Lagos Island north edge
-    [85, 197, 3], [105, 194, 4], [130, 195, 3], [155, 193, 4],
+    [85, 197, 3],
+    [105, 194, 4],
+    [130, 195, 3],
+    [155, 193, 4],
     // Victoria Island north edge
-    [245, 190, 4], [280, 188, 3], [320, 186, 4], [355, 184, 3],
+    [245, 190, 4],
+    [280, 188, 3],
+    [320, 186, 4],
+    [355, 184, 3],
     // Makoko edges
-    [192, 212, 3], [238, 214, 3],
+    [192, 212, 3],
+    [238, 214, 3],
     // Lekki north shore
-    [130, 263, 4], [165, 261, 3], [200, 260, 4], [240, 261, 3], [280, 263, 3],
+    [130, 263, 4],
+    [165, 261, 3],
+    [200, 260, 4],
+    [240, 261, 3],
+    [280, 263, 3],
   ]
   for (const [cx, cy, radius] of clusterCenters) {
     const count = rngInt(rng, 3, 2 * Math.round(radius))
@@ -267,7 +359,8 @@ function generateMangroves(rng: () => number): ResolvedTree[] {
       const px = cx + Math.cos(angle) * r * 1.5 + rngRange(rng, -1, 1)
       const py = cy + Math.sin(angle) * r + rngRange(rng, -1, 1)
       mangroves.push({
-        cx: px, cy: py,
+        cx: px,
+        cy: py,
         canopyR: rngRange(rng, 2, 4.5),
         canopyColor: pick(rng, ['#2D5A27', '#1E3A1A', '#3A6A30']),
         trunkColor: '#5A4030',
@@ -283,15 +376,16 @@ function generateMangroves(rng: () => number): ResolvedTree[] {
 // ---- Roadside tree rows ----
 function generateRoadsideTrees(rng: () => number, roads: ResolvedRoad[]): ResolvedTree[] {
   const trees: ResolvedTree[] = []
-  for (const r of roads.filter(rr => rr.level === 'primary')) {
+  for (const r of roads.filter((rr) => rr.level === 'primary')) {
     for (let i = 0; i < r.points.length; i += 2) {
       const [x, y] = r.points[i]
-      const side = (i % 4 < 2) ? -1 : 1
+      const side = i % 4 < 2 ? -1 : 1
       const px = x + side * (r.w + rngRange(rng, 3, 6))
       const py = y + rngRange(rng, -1, 1)
       if (rng() > 0.6) continue
       trees.push({
-        cx: px, cy: py,
+        cx: px,
+        cy: py,
         canopyR: rngRange(rng, 3, 6),
         canopyColor: pick(rng, ['#6B8E5A', '#5E7D4A', '#7AA06A']),
         trunkColor: '#7A6A4A',
@@ -305,7 +399,15 @@ function generateRoadsideTrees(rng: () => number, roads: ResolvedRoad[]): Resolv
 }
 
 // ---- Roads ----
-function bezierPoints(x1: number, y1: number, cx: number, cy: number, x2: number, y2: number, steps: number): [number, number][] {
+function bezierPoints(
+  x1: number,
+  y1: number,
+  cx: number,
+  cy: number,
+  x2: number,
+  y2: number,
+  steps: number,
+): [number, number][] {
   const pts: [number, number][] = []
   for (let i = 0; i <= steps; i++) {
     const t = i / steps
@@ -318,7 +420,7 @@ function bezierPoints(x1: number, y1: number, cx: number, cy: number, x2: number
 
 function generateRoadHierarchy(rng: () => number, zones: BuildZone[]): ResolvedRoad[] {
   const roads: ResolvedRoad[] = []
-  const zoneMap = new Map(zones.map(z => [z.districtKey, z]))
+  const zoneMap = new Map(zones.map((z) => [z.districtKey, z]))
 
   // Arterial road: Lagos-Badagry Expressway (east-west across mainland)
   const arterialPts: [number, number][] = []
@@ -332,10 +434,27 @@ function generateRoadHierarchy(rng: () => number, zones: BuildZone[]): ResolvedR
 
   // Ring road (roughly follows mainland shoreline)
   const ringPoints: [number, number][] = [
-    [20, 48], [60, 20], [140, 15], [240, 18], [340, 15], [440, 22],
-    [470, 40], [460, 70], [470, 100], [445, 130], [420, 145],
-    [370, 150], [320, 158], [270, 162], [220, 160], [170, 156],
-    [120, 150], [70, 148], [35, 140], [20, 115], [22, 80],
+    [20, 48],
+    [60, 20],
+    [140, 15],
+    [240, 18],
+    [340, 15],
+    [440, 22],
+    [470, 40],
+    [460, 70],
+    [470, 100],
+    [445, 130],
+    [420, 145],
+    [370, 150],
+    [320, 158],
+    [270, 162],
+    [220, 160],
+    [170, 156],
+    [120, 150],
+    [70, 148],
+    [35, 140],
+    [20, 115],
+    [22, 80],
     [18, 60],
   ]
   roads.push({ points: ringPoints, w: 14, level: 'primary', sortY: 95 })
@@ -371,10 +490,13 @@ function generateRoadHierarchy(rng: () => number, zones: BuildZone[]): ResolvedR
     if (!z1) continue
     let mcx: number, mcy: number
     if (k2 === 'ringway') {
-      const nearest = ringPoints.reduce((best, pt) => {
-        const dist = Math.hypot(pt[0] - z1.cx, pt[1] - z1.cy)
-        return dist < best.dist ? { pt, dist } : best
-      }, { pt: ringPoints[0], dist: Infinity })
+      const nearest = ringPoints.reduce(
+        (best, pt) => {
+          const dist = Math.hypot(pt[0] - z1.cx, pt[1] - z1.cy)
+          return dist < best.dist ? { pt, dist } : best
+        },
+        { pt: ringPoints[0], dist: Infinity },
+      )
       mcx = (z1.cx + nearest.pt[0]) / 2 + rngRange(rng, -10, 10)
       mcy = (z1.cy + nearest.pt[1]) / 2 + rngRange(rng, -8, 8)
       const pts = bezierPoints(z1.cx, z1.cy, mcx, mcy, nearest.pt[0], nearest.pt[1], 10)
@@ -398,7 +520,10 @@ function generateRoadHierarchy(rng: () => number, zones: BuildZone[]): ResolvedR
     [305, 65, 305, 145],
   ]
   for (const [x, y1, , y2] of crossStreets) {
-    const pts: [number, number][] = [[x, y1], [x, y2]]
+    const pts: [number, number][] = [
+      [x, y1],
+      [x, y2],
+    ]
     roads.push({ points: pts, w: 5, level: 'secondary', sortY: (y1 + y2) / 2 })
   }
 
@@ -407,7 +532,7 @@ function generateRoadHierarchy(rng: () => number, zones: BuildZone[]): ResolvedR
     const countH = Math.round(z.rx / 20)
     const countV = Math.round(z.ry / 16)
     for (let i = 1; i < countH; i++) {
-      const x = z.cx - z.rx + i * (2 * z.rx / countH)
+      const x = z.cx - z.rx + i * ((2 * z.rx) / countH)
       const pts: [number, number][] = [
         [x, z.cy - z.ry * 0.85],
         [x, z.cy + z.ry * 0.85],
@@ -415,7 +540,7 @@ function generateRoadHierarchy(rng: () => number, zones: BuildZone[]): ResolvedR
       roads.push({ points: pts, w: 2, level: 'local', sortY: z.cy })
     }
     for (let i = 1; i < countV; i++) {
-      const y = z.cy - z.ry + i * (2 * z.ry / countV)
+      const y = z.cy - z.ry + i * ((2 * z.ry) / countV)
       const pts: [number, number][] = [
         [z.cx - z.rx * 0.85, y],
         [z.cx + z.rx * 0.85, y],
@@ -430,8 +555,8 @@ function generateRoadHierarchy(rng: () => number, zones: BuildZone[]): ResolvedR
 // ---- Vehicles ----
 function generateVehicles(rng: () => number, roads: ResolvedRoad[]): ResolvedVehicle[] {
   const vehicles: ResolvedVehicle[] = []
-  const dense = roads.filter(r => r.level === 'primary')
-  const medium = roads.filter(r => r.level === 'secondary')
+  const dense = roads.filter((r) => r.level === 'primary')
+  const medium = roads.filter((r) => r.level === 'secondary')
 
   for (const r of dense) {
     const count = rngInt(rng, 4, 8)
@@ -439,20 +564,62 @@ function generateVehicles(rng: () => number, roads: ResolvedRoad[]): ResolvedVeh
       const t = rng()
       const idx = Math.floor(t * (r.points.length - 1))
       const f = t * (r.points.length - 1) - idx
-      const p1 = r.points[idx], p2 = r.points[Math.min(idx + 1, r.points.length - 1)]
+      const p1 = r.points[idx],
+        p2 = r.points[Math.min(idx + 1, r.points.length - 1)]
       const cx = lerp(p1[0], p2[0], f)
       const cy = lerp(p1[1], p2[1], f)
-      const dx = p2[0] - p1[0], dy = p2[1] - p1[1]
+      const dx = p2[0] - p1[0],
+        dy = p2[1] - p1[1]
       const rot = Math.atan2(dy, dx)
       const rv = rng()
       if (rv < 0.35) {
-        vehicles.push({ cx, cy, color: PALETTE.VEHICLES.danfo, accentColor: PALETTE.VEHICLES.danfoAccent, w: 5.5, h: 3, isBRT: false, rot, sortY: cy })
+        vehicles.push({
+          cx,
+          cy,
+          color: PALETTE.VEHICLES.danfo,
+          accentColor: PALETTE.VEHICLES.danfoAccent,
+          w: 5.5,
+          h: 3,
+          isBRT: false,
+          rot,
+          sortY: cy,
+        })
       } else if (rv < 0.55) {
-        vehicles.push({ cx, cy, color: PALETTE.VEHICLES.brt, accentColor: PALETTE.VEHICLES.brtAccent, w: 7, h: 3.5, isBRT: true, rot, sortY: cy })
+        vehicles.push({
+          cx,
+          cy,
+          color: PALETTE.VEHICLES.brt,
+          accentColor: PALETTE.VEHICLES.brtAccent,
+          w: 7,
+          h: 3.5,
+          isBRT: true,
+          rot,
+          sortY: cy,
+        })
       } else if (rv < 0.7) {
-        vehicles.push({ cx, cy, color: PALETTE.VEHICLES.taxi, accentColor: PALETTE.VEHICLES.taxi, w: 4.5, h: 2.5, isBRT: false, rot, sortY: cy })
+        vehicles.push({
+          cx,
+          cy,
+          color: PALETTE.VEHICLES.taxi,
+          accentColor: PALETTE.VEHICLES.taxi,
+          w: 4.5,
+          h: 2.5,
+          isBRT: false,
+          rot,
+          sortY: cy,
+        })
       } else {
-        vehicles.push({ cx, cy, color: pick(rng, PALETTE.VEHICLES.car), accentColor: pick(rng, PALETTE.VEHICLES.car), w: 4, h: 2.2, isBRT: false, rot, sortY: cy })
+        vehicles.push({
+          cx,
+          cy,
+          color: pick(rng, PALETTE.VEHICLES.car),
+          accentColor: pick(rng, PALETTE.VEHICLES.car),
+          w: 4,
+          h: 2.2,
+          isBRT: false,
+          rot,
+          sortY: cy,
+        })
       }
     }
   }
@@ -463,14 +630,35 @@ function generateVehicles(rng: () => number, roads: ResolvedRoad[]): ResolvedVeh
       const t = rng()
       const idx = Math.floor(t * (r.points.length - 1))
       const f = t * (r.points.length - 1) - idx
-      const p1 = r.points[idx], p2 = r.points[Math.min(idx + 1, r.points.length - 1)]
+      const p1 = r.points[idx],
+        p2 = r.points[Math.min(idx + 1, r.points.length - 1)]
       const cx = lerp(p1[0], p2[0], f)
       const cy = lerp(p1[1], p2[1], f)
       const rot = Math.atan2(p2[1] - p1[1], p2[0] - p1[0])
       if (rng() > 0.4) {
-        vehicles.push({ cx, cy, color: pick(rng, PALETTE.VEHICLES.car), accentColor: pick(rng, PALETTE.VEHICLES.car), w: 3, h: 1.8, isBRT: false, rot, sortY: cy })
+        vehicles.push({
+          cx,
+          cy,
+          color: pick(rng, PALETTE.VEHICLES.car),
+          accentColor: pick(rng, PALETTE.VEHICLES.car),
+          w: 3,
+          h: 1.8,
+          isBRT: false,
+          rot,
+          sortY: cy,
+        })
       } else {
-        vehicles.push({ cx, cy, color: pick(rng, PALETTE.VEHICLES.motorcycle), accentColor: pick(rng, PALETTE.VEHICLES.motorcycle), w: 2, h: 1.2, isBRT: false, rot, sortY: cy })
+        vehicles.push({
+          cx,
+          cy,
+          color: pick(rng, PALETTE.VEHICLES.motorcycle),
+          accentColor: pick(rng, PALETTE.VEHICLES.motorcycle),
+          w: 2,
+          h: 1.2,
+          isBRT: false,
+          rot,
+          sortY: cy,
+        })
       }
     }
   }
@@ -481,51 +669,114 @@ function generateVehicles(rng: () => number, roads: ResolvedRoad[]): ResolvedVeh
 function generateBoats(rng: () => number): ResolvedBoat[] {
   const spots: [number, number, string][] = [
     // Mainland-to-island lagoon channel
-    [90, 180, 'ferry'], [120, 188, 'canoe'], [145, 178, 'ferry'],
-    [175, 195, 'canoe'], [210, 190, 'cargo'], [240, 192, 'canoe'],
-    [275, 185, 'ferry'], [310, 188, 'canoe'], [345, 182, 'cargo'],
-    [155, 210, 'canoe'], [190, 215, 'ferry'], [260, 215, 'canoe'],
-    [135, 225, 'cargo'], [290, 225, 'canoe'], [170, 240, 'canoe'],
+    [90, 180, 'ferry'],
+    [120, 188, 'canoe'],
+    [145, 178, 'ferry'],
+    [175, 195, 'canoe'],
+    [210, 190, 'cargo'],
+    [240, 192, 'canoe'],
+    [275, 185, 'ferry'],
+    [310, 188, 'canoe'],
+    [345, 182, 'cargo'],
+    [155, 210, 'canoe'],
+    [190, 215, 'ferry'],
+    [260, 215, 'canoe'],
+    [135, 225, 'cargo'],
+    [290, 225, 'canoe'],
+    [170, 240, 'canoe'],
     // Makoko water channels
-    [198, 212, 'canoe'], [208, 220, 'canoe'], [215, 224, 'canoe'],
-    [222, 218, 'canoe'], [228, 226, 'canoe'], [202, 230, 'canoe'],
-    [224, 232, 'canoe'], [210, 234, 'canoe'],
+    [198, 212, 'canoe'],
+    [208, 220, 'canoe'],
+    [215, 224, 'canoe'],
+    [222, 218, 'canoe'],
+    [228, 226, 'canoe'],
+    [202, 230, 'canoe'],
+    [224, 232, 'canoe'],
+    [210, 234, 'canoe'],
     // Makoko moorings (clustered)
-    [205, 240, 'canoe'], [215, 238, 'canoe'], [220, 240, 'canoe'],
+    [205, 240, 'canoe'],
+    [215, 238, 'canoe'],
+    [220, 240, 'canoe'],
     // Lagos Island waterfront (ferries at terminals)
-    [118, 248, 'ferry'], [138, 245, 'ferry'], [158, 248, 'ferry'],
-    [125, 252, 'cargo'], [150, 255, 'cargo'],
+    [118, 248, 'ferry'],
+    [138, 245, 'ferry'],
+    [158, 248, 'ferry'],
+    [125, 252, 'cargo'],
+    [150, 255, 'cargo'],
     // Victoria Island marina
-    [290, 235, 'ferry'], [310, 238, 'canoe'], [330, 235, 'ferry'],
-    [345, 240, 'cargo'], [370, 238, 'canoe'],
+    [290, 235, 'ferry'],
+    [310, 238, 'canoe'],
+    [330, 235, 'ferry'],
+    [345, 240, 'cargo'],
+    [370, 238, 'canoe'],
     // Lekki shore
-    [120, 260, 'ferry'], [200, 255, 'canoe'], [280, 250, 'cargo'],
-    [145, 290, 'canoe'], [230, 280, 'ferry'], [310, 285, 'canoe'],
+    [120, 260, 'ferry'],
+    [200, 255, 'canoe'],
+    [280, 250, 'cargo'],
+    [145, 290, 'canoe'],
+    [230, 280, 'ferry'],
+    [310, 285, 'canoe'],
     // Atlantic (south)
-    [100, 310, 'cargo'], [180, 305, 'canoe'], [260, 310, 'ferry'],
-    [320, 305, 'cargo'], [140, 320, 'canoe'], [220, 325, 'ferry'],
+    [100, 310, 'cargo'],
+    [180, 305, 'canoe'],
+    [260, 310, 'ferry'],
+    [320, 305, 'cargo'],
+    [140, 320, 'canoe'],
+    [220, 325, 'ferry'],
     // Speedboats
-    [165, 205, 'speedboat'], [250, 220, 'speedboat'], [195, 225, 'speedboat'],
-    [325, 218, 'speedboat'], [140, 232, 'speedboat'],
+    [165, 205, 'speedboat'],
+    [250, 220, 'speedboat'],
+    [195, 225, 'speedboat'],
+    [325, 218, 'speedboat'],
+    [140, 232, 'speedboat'],
     // More ferries in the lagoon channel
-    [75, 185, 'ferry'], [105, 192, 'ferry'], [160, 200, 'ferry'],
-    [220, 195, 'ferry'], [295, 195, 'ferry'],
+    [75, 185, 'ferry'],
+    [105, 192, 'ferry'],
+    [160, 200, 'ferry'],
+    [220, 195, 'ferry'],
+    [295, 195, 'ferry'],
     // More canoes near Makoko + mainland
-    [185, 205, 'canoe'], [195, 218, 'canoe'], [225, 220, 'canoe'],
-    [235, 230, 'canoe'], [172, 192, 'canoe'], [255, 205, 'canoe'],
+    [185, 205, 'canoe'],
+    [195, 218, 'canoe'],
+    [225, 220, 'canoe'],
+    [235, 230, 'canoe'],
+    [172, 192, 'canoe'],
+    [255, 205, 'canoe'],
     // Cargo boats near jetties
-    [110, 254, 'cargo'], [145, 252, 'cargo'], [280, 242, 'cargo'],
+    [110, 254, 'cargo'],
+    [145, 252, 'cargo'],
+    [280, 242, 'cargo'],
     // Speedboats at marinas
-    [300, 232, 'speedboat'], [340, 228, 'speedboat'],
+    [300, 232, 'speedboat'],
+    [340, 228, 'speedboat'],
   ]
   const boats: ResolvedBoat[] = []
   for (const [cx, cy, type] of spots) {
     const w = type === 'ferry' ? 9 : type === 'cargo' ? 7 : type === 'speedboat' ? 5 : 3.5
     const h = type === 'ferry' ? 3 : type === 'cargo' ? 2.5 : type === 'speedboat' ? 2 : 1.5
-    const hull = type === 'ferry' ? PALETTE.BOATS.ferry : type === 'cargo' ? PALETTE.BOATS.cargo : type === 'speedboat' ? '#D05030' : PALETTE.BOATS.canoe
-    const accent = type === 'ferry' ? PALETTE.BOATS.ferryAccent : type === 'cargo' ? PALETTE.BOATS.cargoAccent : type === 'speedboat' ? '#F0F0F0' : PALETTE.BOATS.canoe
+    const hull =
+      type === 'ferry'
+        ? PALETTE.BOATS.ferry
+        : type === 'cargo'
+          ? PALETTE.BOATS.cargo
+          : type === 'speedboat'
+            ? '#D05030'
+            : PALETTE.BOATS.canoe
+    const accent =
+      type === 'ferry'
+        ? PALETTE.BOATS.ferryAccent
+        : type === 'cargo'
+          ? PALETTE.BOATS.cargoAccent
+          : type === 'speedboat'
+            ? '#F0F0F0'
+            : PALETTE.BOATS.canoe
     boats.push({
-      cx, cy, w, h, hullColor: hull, accentColor: accent,
+      cx,
+      cy,
+      w,
+      h,
+      hullColor: hull,
+      accentColor: accent,
       type: type as 'ferry' | 'canoe' | 'cargo' | 'speedboat',
       rot: rngRange(rng, -0.15, 0.15),
       sortY: cy + h,
@@ -545,8 +796,15 @@ function generateMarketStalls(rng: () => number, zone: BuildZone): ResolvedMarke
       if (!pointInEllipse(px, py, zone.cx, zone.cy, zone.rx, zone.ry)) continue
       const sizeMul = rngRange(rng, 0.6, 1.4)
       stalls.push({
-        cx: px, cy: py,
-        canopyColor: pick(rng, [...PALETTE.MARKET.canopies, '#D04040', '#E07030', '#40A0C0', '#D0B030']),
+        cx: px,
+        cy: py,
+        canopyColor: pick(rng, [
+          ...PALETTE.MARKET.canopies,
+          '#D04040',
+          '#E07030',
+          '#40A0C0',
+          '#D0B030',
+        ]),
         w: rngRange(rng, 2.5, 5.5) * sizeMul,
         h: rngRange(rng, 2, 4.5) * sizeMul,
         sortY: py + 3,
@@ -557,14 +815,21 @@ function generateMarketStalls(rng: () => number, zone: BuildZone): ResolvedMarke
 }
 
 // ---- Bridges ----
-function buildBridge(x1: number, y1: number, x2: number, y2: number, w: number, type: 'cable' | 'suspension' | 'simple'): ResolvedBridge {
+function buildBridge(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  w: number,
+  type: 'cable' | 'suspension' | 'simple',
+): ResolvedBridge {
   return { x1, y1, x2, y2, w, type, sortY: (y1 + y2) / 2 }
 }
 
 // ---- Streetlights ----
 function generateStreetlights(rng: () => number, roads: ResolvedRoad[]): ResolvedStreetlight[] {
   const lights: ResolvedStreetlight[] = []
-  for (const r of roads.filter(rr => rr.level !== 'local')) {
+  for (const r of roads.filter((rr) => rr.level !== 'local')) {
     for (let i = 2; i < r.points.length - 1; i += 4) {
       const [x, y] = r.points[i]
       const offset = rngRange(rng, -3, 3)
@@ -578,7 +843,7 @@ function generateStreetlights(rng: () => number, roads: ResolvedRoad[]): Resolve
 function generateBillboards(rng: () => number, roads: ResolvedRoad[]): ResolvedBillboard[] {
   const boards: ResolvedBillboard[] = []
   const colors = ['#E07040', '#3A9BC8', '#D4A030', '#50B080', '#C060C0']
-  for (const r of roads.filter(rr => rr.level === 'primary')) {
+  for (const r of roads.filter((rr) => rr.level === 'primary')) {
     for (let i = 3; i < r.points.length - 1; i += 6) {
       const [x, y] = r.points[i]
       boards.push({
@@ -599,51 +864,381 @@ export function generateCityScene(seed: number): ResolvedScene {
   // ---- Build zones (elliptical) ----
   const zones: BuildZone[] = [
     // Mainland: periphery (very sparse — urban fringe)
-    { districtKey: 'periphery', cx: 250, cy: 35, rx: 230, ry: 38, type: 'residential', density: 0.60, gridW: 16, gridH: 12, minW: 4, maxW: 7, minD: 3, maxD: 5, minH: 3, maxH: 5, depthLayer: 0 },
+    {
+      districtKey: 'periphery',
+      cx: 250,
+      cy: 35,
+      rx: 230,
+      ry: 38,
+      type: 'residential',
+      density: 0.6,
+      gridW: 16,
+      gridH: 12,
+      minW: 4,
+      maxW: 7,
+      minD: 3,
+      maxD: 5,
+      minH: 3,
+      maxH: 5,
+      depthLayer: 0,
+    },
     // Mainland: west (Alimosho — mid-density residential)
-    { districtKey: 'alimosho', cx: 90, cy: 100, rx: 88, ry: 65, type: 'residential', density: 0.80, gridW: 10, gridH: 8, minW: 5, maxW: 7, minD: 3, maxD: 5, minH: 3, maxH: 8, depthLayer: 0 },
+    {
+      districtKey: 'alimosho',
+      cx: 90,
+      cy: 100,
+      rx: 88,
+      ry: 65,
+      type: 'residential',
+      density: 0.8,
+      gridW: 10,
+      gridH: 8,
+      minW: 5,
+      maxW: 7,
+      minD: 3,
+      maxD: 5,
+      minH: 3,
+      maxH: 8,
+      depthLayer: 0,
+    },
     // Mainland: center (Oshodi — mixed-use, higher)
-    { districtKey: 'oshodi', cx: 235, cy: 105, rx: 82, ry: 65, type: 'mixedUse', density: 0.78, gridW: 10, gridH: 8, minW: 5, maxW: 8, minD: 4, maxD: 5, minH: 5, maxH: 14, depthLayer: 1 },
+    {
+      districtKey: 'oshodi',
+      cx: 235,
+      cy: 105,
+      rx: 82,
+      ry: 65,
+      type: 'mixedUse',
+      density: 0.78,
+      gridW: 10,
+      gridH: 8,
+      minW: 5,
+      maxW: 8,
+      minD: 4,
+      maxD: 5,
+      minH: 5,
+      maxH: 14,
+      depthLayer: 1,
+    },
     // Mainland: east (Surulere — mixed-use)
-    { districtKey: 'surulere', cx: 370, cy: 100, rx: 82, ry: 60, type: 'mixedUse', density: 0.75, gridW: 10, gridH: 8, minW: 5, maxW: 8, minD: 4, maxD: 5, minH: 5, maxH: 14, depthLayer: 0 },
+    {
+      districtKey: 'surulere',
+      cx: 370,
+      cy: 100,
+      rx: 82,
+      ry: 60,
+      type: 'mixedUse',
+      density: 0.75,
+      gridW: 10,
+      gridH: 8,
+      minW: 5,
+      maxW: 8,
+      minD: 4,
+      maxD: 5,
+      minH: 5,
+      maxH: 14,
+      depthLayer: 0,
+    },
     // Fill gap between Oshodi and Surulere
-    { districtKey: 'surulere', cx: 305, cy: 105, rx: 25, ry: 55, type: 'mixedUse', density: 0.68, gridW: 10, gridH: 8, minW: 4, maxW: 7, minD: 3, maxD: 5, minH: 4, maxH: 10, depthLayer: 0 },
+    {
+      districtKey: 'surulere',
+      cx: 305,
+      cy: 105,
+      rx: 25,
+      ry: 55,
+      type: 'mixedUse',
+      density: 0.68,
+      gridW: 10,
+      gridH: 8,
+      minW: 4,
+      maxW: 7,
+      minD: 3,
+      maxD: 5,
+      minH: 4,
+      maxH: 10,
+      depthLayer: 0,
+    },
     // Fill gap between Alimosho and Periphery
-    { districtKey: 'periphery', cx: 90, cy: 55, rx: 55, ry: 30, type: 'residential', density: 0.65, gridW: 7, gridH: 6, minW: 4, maxW: 7, minD: 3, maxD: 5, minH: 3, maxH: 6, depthLayer: 0 },
+    {
+      districtKey: 'periphery',
+      cx: 90,
+      cy: 55,
+      rx: 55,
+      ry: 30,
+      type: 'residential',
+      density: 0.65,
+      gridW: 7,
+      gridH: 6,
+      minW: 4,
+      maxW: 7,
+      minD: 3,
+      maxD: 5,
+      minH: 3,
+      maxH: 6,
+      depthLayer: 0,
+    },
     // Industrial block between Alimosho and lagoon
-    { districtKey: 'alimosho', cx: 160, cy: 140, rx: 32, ry: 20, type: 'residential', density: 0.70, gridW: 8, gridH: 7, minW: 6, maxW: 12, minD: 3, maxD: 5, minH: 2, maxH: 5, depthLayer: 0 },
+    {
+      districtKey: 'alimosho',
+      cx: 160,
+      cy: 140,
+      rx: 32,
+      ry: 20,
+      type: 'residential',
+      density: 0.7,
+      gridW: 8,
+      gridH: 7,
+      minW: 6,
+      maxW: 12,
+      minD: 3,
+      maxD: 5,
+      minH: 2,
+      maxH: 5,
+      depthLayer: 0,
+    },
     // Island: Lagos Island
-    { districtKey: 'lagosIsland', cx: 135, cy: 218, rx: 48, ry: 32, type: 'mixedUse', density: 0.75, gridW: 8, gridH: 6, minW: 5, maxW: 7, minD: 4, maxD: 5, minH: 5, maxH: 12, depthLayer: 1 },
+    {
+      districtKey: 'lagosIsland',
+      cx: 135,
+      cy: 218,
+      rx: 48,
+      ry: 32,
+      type: 'mixedUse',
+      density: 0.75,
+      gridW: 8,
+      gridH: 6,
+      minW: 5,
+      maxW: 7,
+      minD: 4,
+      maxD: 5,
+      minH: 5,
+      maxH: 12,
+      depthLayer: 1,
+    },
     // Island: Victoria Island (high-density business district)
-    { districtKey: 'ikoyi', cx: 215, cy: 215, rx: 30, ry: 18, type: 'residential', density: 0.38, gridW: 15, gridH: 13, minW: 9, maxW: 20, minD: 7, maxD: 13, minH: 5, maxH: 14, depthLayer: 1 },
-    { districtKey: 'victoriaIsland', cx: 310, cy: 212, rx: 72, ry: 48, type: 'glassTower', density: 0.75, gridW: 8, gridH: 6, minW: 7, maxW: 9, minD: 4, maxD: 5, minH: 22, maxH: 40, depthLayer: 1 },
+    {
+      districtKey: 'ikoyi',
+      cx: 215,
+      cy: 215,
+      rx: 30,
+      ry: 18,
+      type: 'residential',
+      density: 0.38,
+      gridW: 15,
+      gridH: 13,
+      minW: 9,
+      maxW: 20,
+      minD: 7,
+      maxD: 13,
+      minH: 5,
+      maxH: 14,
+      depthLayer: 1,
+    },
+    {
+      districtKey: 'victoriaIsland',
+      cx: 310,
+      cy: 212,
+      rx: 72,
+      ry: 48,
+      type: 'glassTower',
+      density: 0.75,
+      gridW: 8,
+      gridH: 6,
+      minW: 7,
+      maxW: 9,
+      minD: 4,
+      maxD: 5,
+      minH: 22,
+      maxH: 40,
+      depthLayer: 1,
+    },
     // Stilt: Makoko micro-zone West (spread further apart)
-    { districtKey: 'makoko', cx: 192, cy: 228, rx: 10, ry: 8, type: 'stilt', density: 0.90, gridW: 4, gridH: 3, minW: 2, maxW: 5, minD: 2, maxD: 3, minH: 2, maxH: 4, depthLayer: 2 },
+    {
+      districtKey: 'makoko',
+      cx: 192,
+      cy: 228,
+      rx: 10,
+      ry: 8,
+      type: 'stilt',
+      density: 0.9,
+      gridW: 4,
+      gridH: 3,
+      minW: 2,
+      maxW: 5,
+      minD: 2,
+      maxD: 3,
+      minH: 2,
+      maxH: 4,
+      depthLayer: 2,
+    },
     // Stilt: Makoko micro-zone Center
-    { districtKey: 'makoko', cx: 214, cy: 232, rx: 8, ry: 7, type: 'stilt', density: 0.88, gridW: 4, gridH: 3, minW: 2, maxW: 5, minD: 2, maxD: 3, minH: 2, maxH: 4, depthLayer: 2 },
+    {
+      districtKey: 'makoko',
+      cx: 214,
+      cy: 232,
+      rx: 8,
+      ry: 7,
+      type: 'stilt',
+      density: 0.88,
+      gridW: 4,
+      gridH: 3,
+      minW: 2,
+      maxW: 5,
+      minD: 2,
+      maxD: 3,
+      minH: 2,
+      maxH: 4,
+      depthLayer: 2,
+    },
     // Stilt: Makoko micro-zone North
-    { districtKey: 'makoko', cx: 206, cy: 215, rx: 7, ry: 6, type: 'stilt', density: 0.85, gridW: 4, gridH: 3, minW: 2, maxW: 4, minD: 2, maxD: 3, minH: 2, maxH: 3, depthLayer: 2 },
+    {
+      districtKey: 'makoko',
+      cx: 206,
+      cy: 215,
+      rx: 7,
+      ry: 6,
+      type: 'stilt',
+      density: 0.85,
+      gridW: 4,
+      gridH: 3,
+      minW: 2,
+      maxW: 4,
+      minD: 2,
+      maxD: 3,
+      minH: 2,
+      maxH: 3,
+      depthLayer: 2,
+    },
     // Stilt: Makoko micro-zone East
-    { districtKey: 'makoko', cx: 234, cy: 226, rx: 8, ry: 7, type: 'stilt', density: 0.90, gridW: 4, gridH: 3, minW: 2, maxW: 5, minD: 2, maxD: 3, minH: 2, maxH: 4, depthLayer: 2 },
+    {
+      districtKey: 'makoko',
+      cx: 234,
+      cy: 226,
+      rx: 8,
+      ry: 7,
+      type: 'stilt',
+      density: 0.9,
+      gridW: 4,
+      gridH: 3,
+      minW: 2,
+      maxW: 5,
+      minD: 2,
+      maxD: 3,
+      minH: 2,
+      maxH: 4,
+      depthLayer: 2,
+    },
     // South: Lekki
-    { districtKey: 'lekki', cx: 230, cy: 298, rx: 85, ry: 32, type: 'mixedUse', density: 0.70, gridW: 12, gridH: 10, minW: 5, maxW: 8, minD: 4, maxD: 5, minH: 5, maxH: 14, depthLayer: 2 },
+    {
+      districtKey: 'lekki',
+      cx: 230,
+      cy: 298,
+      rx: 85,
+      ry: 32,
+      type: 'mixedUse',
+      density: 0.7,
+      gridW: 12,
+      gridH: 10,
+      minW: 5,
+      maxW: 8,
+      minD: 4,
+      maxD: 5,
+      minH: 5,
+      maxH: 14,
+      depthLayer: 2,
+    },
   ]
 
   // Dense cores (small tight zones for visual contrast)
   zones.push({
-    districtKey: 'alimosho', cx: 85, cy: 100, rx: 28, ry: 22, type: 'residential', density: 0.85, gridW: 8, gridH: 6, minW: 4, maxW: 6, minD: 3, maxD: 5, minH: 5, maxH: 12, depthLayer: 0,
+    districtKey: 'alimosho',
+    cx: 85,
+    cy: 100,
+    rx: 28,
+    ry: 22,
+    type: 'residential',
+    density: 0.85,
+    gridW: 8,
+    gridH: 6,
+    minW: 4,
+    maxW: 6,
+    minD: 3,
+    maxD: 5,
+    minH: 5,
+    maxH: 12,
+    depthLayer: 0,
   })
   zones.push({
-    districtKey: 'oshodi', cx: 235, cy: 105, rx: 20, ry: 18, type: 'mixedUse', density: 0.82, gridW: 9, gridH: 7, minW: 5, maxW: 8, minD: 4, maxD: 5, minH: 8, maxH: 18, depthLayer: 1,
+    districtKey: 'oshodi',
+    cx: 235,
+    cy: 105,
+    rx: 20,
+    ry: 18,
+    type: 'mixedUse',
+    density: 0.82,
+    gridW: 9,
+    gridH: 7,
+    minW: 5,
+    maxW: 8,
+    minD: 4,
+    maxD: 5,
+    minH: 8,
+    maxH: 18,
+    depthLayer: 1,
   })
   zones.push({
-    districtKey: 'surulere', cx: 370, cy: 100, rx: 18, ry: 16, type: 'mixedUse', density: 0.80, gridW: 9, gridH: 7, minW: 5, maxW: 7, minD: 4, maxD: 5, minH: 8, maxH: 16, depthLayer: 0,
+    districtKey: 'surulere',
+    cx: 370,
+    cy: 100,
+    rx: 18,
+    ry: 16,
+    type: 'mixedUse',
+    density: 0.8,
+    gridW: 9,
+    gridH: 7,
+    minW: 5,
+    maxW: 7,
+    minD: 4,
+    maxD: 5,
+    minH: 8,
+    maxH: 16,
+    depthLayer: 0,
   })
   zones.push({
-    districtKey: 'victoriaIsland', cx: 310, cy: 210, rx: 28, ry: 22, type: 'glassTower', density: 0.85, gridW: 11, gridH: 8, minW: 8, maxW: 12, minD: 5, maxD: 7, minH: 38, maxH: 50, depthLayer: 1,
+    districtKey: 'victoriaIsland',
+    cx: 310,
+    cy: 210,
+    rx: 28,
+    ry: 22,
+    type: 'glassTower',
+    density: 0.85,
+    gridW: 11,
+    gridH: 8,
+    minW: 8,
+    maxW: 12,
+    minD: 5,
+    maxD: 7,
+    minH: 38,
+    maxH: 50,
+    depthLayer: 1,
   })
   zones.push({
-    districtKey: 'ekoAtlantic', cx: 362, cy: 214, rx: 24, ry: 18, type: 'glassTower', density: 0.65, gridW: 12, gridH: 9, minW: 6, maxW: 9, minD: 3, maxD: 5, minH: 12, maxH: 24, depthLayer: 1,
+    districtKey: 'ekoAtlantic',
+    cx: 362,
+    cy: 214,
+    rx: 24,
+    ry: 18,
+    type: 'glassTower',
+    density: 0.65,
+    gridW: 12,
+    gridH: 9,
+    minW: 6,
+    maxW: 9,
+    minD: 3,
+    maxD: 5,
+    minH: 12,
+    maxH: 24,
+    depthLayer: 1,
   })
 
   // ---- Generate buildings ----
@@ -651,24 +1246,36 @@ export function generateCityScene(seed: number): ResolvedScene {
   for (const z of zones) {
     let roofs: string[], walls: string[], shadows: string[], accent: string | undefined
     if (z.type === 'residential') {
-      roofs = PALETTE.RESIDENTIAL.roofs; walls = PALETTE.RESIDENTIAL.walls; shadows = PALETTE.RESIDENTIAL.shadows; accent = undefined
+      roofs = PALETTE.RESIDENTIAL.roofs
+      walls = PALETTE.RESIDENTIAL.walls
+      shadows = PALETTE.RESIDENTIAL.shadows
+      accent = undefined
     } else if (z.type === 'mixedUse') {
-      roofs = PALETTE.MIXED_USE.roofs; walls = PALETTE.MIXED_USE.walls; shadows = PALETTE.MIXED_USE.shadows; accent = PALETTE.MIXED_USE.windowColor
+      roofs = PALETTE.MIXED_USE.roofs
+      walls = PALETTE.MIXED_USE.walls
+      shadows = PALETTE.MIXED_USE.shadows
+      accent = PALETTE.MIXED_USE.windowColor
     } else if (z.type === 'glassTower') {
-      roofs = PALETTE.GLASS_TOWER.glass; walls = PALETTE.GLASS_TOWER.glass; shadows = PALETTE.GLASS_TOWER.glassShadow; accent = PALETTE.GLASS_TOWER.highlight
+      roofs = PALETTE.GLASS_TOWER.glass
+      walls = PALETTE.GLASS_TOWER.glass
+      shadows = PALETTE.GLASS_TOWER.glassShadow
+      accent = PALETTE.GLASS_TOWER.highlight
     } else {
-      roofs = PALETTE.STILT.roofs; walls = PALETTE.STILT.walls; shadows = [PALETTE.STILT.wood]; accent = undefined
+      roofs = PALETTE.STILT.roofs
+      walls = PALETTE.STILT.walls
+      shadows = [PALETTE.STILT.wood]
+      accent = undefined
     }
     if (z.districtKey === 'ikoyi') {
-      roofs = ['#C87860','#B86848','#D08070','#C07058','#BC6850','#C87060']
-      walls = ['#F2EAD8','#EEE6CC','#F4EEE0','#F0E8D4','#EEEADC','#F2ECD8']
-      shadows = ['#CEC0A0','#C4B898','#D0C4A4','#C8BAA0','#CCBEA4','#C8BAA2']
+      roofs = ['#C87860', '#B86848', '#D08070', '#C07058', '#BC6850', '#C87060']
+      walls = ['#F2EAD8', '#EEE6CC', '#F4EEE0', '#F0E8D4', '#EEEADC', '#F2ECD8']
+      shadows = ['#CEC0A0', '#C4B898', '#D0C4A4', '#C8BAA0', '#CCBEA4', '#C8BAA2']
       accent = undefined
     }
     if (z.districtKey === 'lekki') {
-      roofs = ['#D8D4C8','#D0CCB8','#E0DCC8','#D4D0BC','#DCDAC8','#D8D4C0']
-      walls = ['#F2F0E8','#EEECD8','#F4F0E4','#F0EEE0','#F2EFDC','#EEECE0']
-      shadows = ['#C8C4B8','#C4C0B0','#CCCAB8','#C8C4B4','#CACAB6','#C6C0AE']
+      roofs = ['#D8D4C8', '#D0CCB8', '#E0DCC8', '#D4D0BC', '#DCDAC8', '#D8D4C0']
+      walls = ['#F2F0E8', '#EEECD8', '#F4F0E4', '#F0EEE0', '#F2EFDC', '#EEECE0']
+      shadows = ['#C8C4B8', '#C4C0B0', '#CCCAB8', '#C8C4B4', '#CACAB6', '#C6C0AE']
       accent = undefined
     }
     allBuildings.push(...generateInZone(rng, z, roofs, walls, shadows, accent))
@@ -676,8 +1283,11 @@ export function generateCityScene(seed: number): ResolvedScene {
 
   // Eko Atlantic supertall — Victoria Island hero building
   allBuildings.push({
-    cx: 304, cy: 207,
-    w: 16, d: 11, h: 65,
+    cx: 304,
+    cy: 207,
+    w: 16,
+    d: 11,
+    h: 65,
     roofColor: '#A0C8E8',
     wallColor: '#B0D4F0',
     shadowColor: '#6A8AAA',
@@ -714,21 +1324,69 @@ export function generateCityScene(seed: number): ResolvedScene {
 
   // ---- Walkways (Makoko boardwalks) ----
   const walkways: ResolvedWalkway[] = [
-    { points: [[192, 228], [206, 215], [214, 232]], sortY: 220 },
-    { points: [[214, 232], [234, 226]], sortY: 232 },
-    { points: [[192, 228], [186, 222]], sortY: 226 },
-    { points: [[206, 215], [202, 210]], sortY: 214 },
-    { points: [[214, 232], [220, 234]], sortY: 232 },
-    { points: [[234, 226], [240, 220]], sortY: 226 },
+    {
+      points: [
+        [192, 228],
+        [206, 215],
+        [214, 232],
+      ],
+      sortY: 220,
+    },
+    {
+      points: [
+        [214, 232],
+        [234, 226],
+      ],
+      sortY: 232,
+    },
+    {
+      points: [
+        [192, 228],
+        [186, 222],
+      ],
+      sortY: 226,
+    },
+    {
+      points: [
+        [206, 215],
+        [202, 210],
+      ],
+      sortY: 214,
+    },
+    {
+      points: [
+        [214, 232],
+        [220, 234],
+      ],
+      sortY: 232,
+    },
+    {
+      points: [
+        [234, 226],
+        [240, 220],
+      ],
+      sortY: 226,
+    },
   ]
 
   // ---- Vehicles ----
   const vehicles = generateVehicles(rng, roads)
   // Market loading trucks near Lagos Island market
-  for (const [tx, ty] of [[108, 242], [130, 245], [155, 242]]) {
+  for (const [tx, ty] of [
+    [108, 242],
+    [130, 245],
+    [155, 242],
+  ]) {
     vehicles.push({
-      cx: tx, cy: ty, color: '#807060', accentColor: '#605040',
-      w: 6, h: 3, isBRT: false, rot: 0, sortY: ty,
+      cx: tx,
+      cy: ty,
+      color: '#807060',
+      accentColor: '#605040',
+      w: 6,
+      h: 3,
+      isBRT: false,
+      rot: 0,
+      sortY: ty,
     })
   }
 
@@ -736,15 +1394,19 @@ export function generateCityScene(seed: number): ResolvedScene {
   const boats = generateBoats(rng)
 
   // ---- Market stalls ----
-  const marketZoneLagos = zones.find(z => z.districtKey === 'lagosIsland')!
+  const marketZoneLagos = zones.find((z) => z.districtKey === 'lagosIsland')
+  if (!marketZoneLagos) throw new Error('Missing lagosIsland zone')
   const marketStalls = generateMarketStalls(rng, marketZoneLagos)
-  const oshodiZone = zones.find(z => z.districtKey === 'oshodi')
-  if (oshodiZone) marketStalls.push(...generateMarketStalls(rng, { ...oshodiZone, cx: 235, cy: 105, rx: 25, ry: 20 }))
+  const oshodiZone = zones.find((z) => z.districtKey === 'oshodi')
+  if (oshodiZone)
+    marketStalls.push(
+      ...generateMarketStalls(rng, { ...oshodiZone, cx: 235, cy: 105, rx: 25, ry: 20 }),
+    )
 
   // Market zones for high-density patchwork renderer
   const marketZones: ResolvedMarketZone[] = [
-    { cx: 128, cy: 220, rx: 28, ry: 16 },  // Balogun / Lagos Island
-    { cx: 235, cy: 105, rx: 24, ry: 18 },   // Tejuosho / Oshodi
+    { cx: 128, cy: 220, rx: 28, ry: 16 }, // Balogun / Lagos Island
+    { cx: 235, cy: 105, rx: 24, ry: 18 }, // Tejuosho / Oshodi
   ]
 
   // ---- Pins — one per unique district zone ----
@@ -770,7 +1432,14 @@ export function generateCityScene(seed: number): ResolvedScene {
 
   // ---- Organic landmasses ----
   const mainlandRaw: [number, number][] = [
-    [5, 5], [60, 3], [120, 7], [180, 4], [250, 6], [320, 3], [390, 5], [460, 4],
+    [5, 5],
+    [60, 3],
+    [120, 7],
+    [180, 4],
+    [250, 6],
+    [320, 3],
+    [390, 5],
+    [460, 4],
     [485, 15],
     [475, 35],
     [490, 55],
@@ -805,30 +1474,64 @@ export function generateCityScene(seed: number): ResolvedScene {
   const mainlandPts = perturbPolygon(mainlandRaw, 7, 2, rng)
 
   const lagosRaw: [number, number][] = [
-    [68, 198], [92, 190], [120, 195], [155, 190], [185, 196],
-    [195, 210], [188, 228], [165, 242], [130, 250], [98, 240],
-    [78, 225], [65, 210],
+    [68, 198],
+    [92, 190],
+    [120, 195],
+    [155, 190],
+    [185, 196],
+    [195, 210],
+    [188, 228],
+    [165, 242],
+    [130, 250],
+    [98, 240],
+    [78, 225],
+    [65, 210],
   ]
   const lagosPts = perturbPolygon(lagosRaw, 5, 1, rng)
 
   const vicRaw: [number, number][] = [
-    [220, 192], [260, 186], [305, 188], [345, 182], [385, 190],
-    [398, 206], [388, 224], [355, 240], [310, 248], [268, 240],
-    [238, 225], [222, 210],
+    [220, 192],
+    [260, 186],
+    [305, 188],
+    [345, 182],
+    [385, 190],
+    [398, 206],
+    [388, 224],
+    [355, 240],
+    [310, 248],
+    [268, 240],
+    [238, 225],
+    [222, 210],
   ]
   const vicPts = perturbPolygon(vicRaw, 5, 1, rng)
 
   const mkWest: [number, number][] = [
-    [186, 222], [198, 218], [204, 224], [200, 234], [186, 236],
+    [186, 222],
+    [198, 218],
+    [204, 224],
+    [200, 234],
+    [186, 236],
   ]
   const mkCenter: [number, number][] = [
-    [210, 226], [222, 222], [228, 228], [222, 238], [208, 236],
+    [210, 226],
+    [222, 222],
+    [228, 228],
+    [222, 238],
+    [208, 236],
   ]
   const mkNorth: [number, number][] = [
-    [202, 210], [212, 206], [216, 212], [210, 218], [202, 216],
+    [202, 210],
+    [212, 206],
+    [216, 212],
+    [210, 218],
+    [202, 216],
   ]
   const mkEast: [number, number][] = [
-    [230, 218], [240, 214], [246, 222], [240, 232], [228, 230],
+    [230, 218],
+    [240, 214],
+    [246, 222],
+    [240, 232],
+    [228, 230],
   ]
   const mkWestPts = perturbPolygon(mkWest, 2, 1, rng)
   const mkCenterPts = perturbPolygon(mkCenter, 2, 1, rng)
@@ -836,9 +1539,20 @@ export function generateCityScene(seed: number): ResolvedScene {
   const mkEastPts = perturbPolygon(mkEast, 2, 1, rng)
 
   const lekkiRaw: [number, number][] = [
-    [105, 268], [155, 260], [210, 264], [260, 260], [310, 265],
-    [350, 262], [362, 278], [348, 300], [310, 318], [260, 328],
-    [200, 330], [155, 315], [118, 298], [102, 282],
+    [105, 268],
+    [155, 260],
+    [210, 264],
+    [260, 260],
+    [310, 265],
+    [350, 262],
+    [362, 278],
+    [348, 300],
+    [310, 318],
+    [260, 328],
+    [200, 330],
+    [155, 315],
+    [118, 298],
+    [102, 282],
   ]
   const lekkiPts = perturbPolygon(lekkiRaw, 6, 1, rng)
 

@@ -69,9 +69,7 @@ export function generateGodfatherPhaseMessage(
     warning: [
       'I notice certain promises have not materialised. Lagos remembers its friends, Governor. And its forgetful ones.',
     ],
-    break: [
-      'You have made your position clear. Expect mine soon. You will not like it.',
-    ],
+    break: ['You have made your position clear. Expect mine soon. You will not like it.'],
     reconciled: [
       'Water under the bridge, Governor. Let us focus on what matters — Lagos. My door remains open.',
     ],
@@ -93,7 +91,12 @@ export function generateGodfatherPhaseMessage(
     week,
     subject: newPhase === 'dead' ? 'Announcement' : subjects[newPhase],
     body: variants[idx],
-    tone: newPhase === 'break' || newPhase === 'warning' ? 'cold' : newPhase === 'dead' ? 'neutral' : 'warm',
+    tone:
+      newPhase === 'break' || newPhase === 'warning'
+        ? 'cold'
+        : newPhase === 'dead'
+          ? 'neutral'
+          : 'warm',
     read: false,
   }
 }
@@ -147,7 +150,12 @@ export function generateNPCActivationMessage(
     from: charId,
     fromLabel: label,
     week: state.week,
-    subject: charId === 'neo' ? 'Watching' : charId === 'dayo' ? 'The youth expect better' : 'A word from the party',
+    subject:
+      charId === 'neo'
+        ? 'Watching'
+        : charId === 'dayo'
+          ? 'The youth expect better'
+          : 'A word from the party',
     body: variants[idx],
     tone: charId === 'neo' ? 'neutral' : charId === 'dayo' ? 'warm' : 'neutral',
     read: false,
@@ -166,9 +174,15 @@ export function generateNPCEscalationMessage(
   const label = npcLabel(npc)
   /* DRAFT — VOICE PASS NEEDED */
   const bodies: Record<string, string[]> = {
-    neo: ['I am picking up something concerning. My sources say your administration is not as clean as it claims. I will be watching closely.'],
-    dayo: ['The streets are talking, Governor. Young people are losing patience. When the budget fails the poor, they do not forget at the ballot box.'],
-    smj: ['A friendly word from someone who wants you to succeed. Certain people are getting nervous. You might want to reach out before they act.'],
+    neo: [
+      'I am picking up something concerning. My sources say your administration is not as clean as it claims. I will be watching closely.',
+    ],
+    dayo: [
+      'The streets are talking, Governor. Young people are losing patience. When the budget fails the poor, they do not forget at the ballot box.',
+    ],
+    smj: [
+      'A friendly word from someone who wants you to succeed. Certain people are getting nervous. You might want to reach out before they act.',
+    ],
   }
   const variants = bodies[charId] ?? ['I need to speak with you, Governor.']
   const idx = state.week % variants.length
@@ -178,7 +192,12 @@ export function generateNPCEscalationMessage(
     from: charId,
     fromLabel: label,
     week: state.week,
-    subject: charId === 'neo' ? 'I have questions' : charId === 'dayo' ? 'Unrest brewing' : 'A quiet warning',
+    subject:
+      charId === 'neo'
+        ? 'I have questions'
+        : charId === 'dayo'
+          ? 'Unrest brewing'
+          : 'A quiet warning',
     body: variants[idx],
     tone: charId === 'neo' ? 'urgent' : 'urgent',
     read: false,
@@ -194,16 +213,18 @@ export function generateChiefOfStaffBriefing(state: GameState): InboxMessage {
   const week = state.week
 
   let cashLine: string
-  if (cash < 0) cashLine = `we are overdrawn by ₦${Math.abs(cash).toFixed(1)}bn — emergency measures needed`
+  if (cash < 0)
+    cashLine = `we are overdrawn by ₦${Math.abs(cash).toFixed(1)}bn — emergency measures needed`
   else if (cash < 10) cashLine = `reserves are critically low at ₦${cash.toFixed(1)}bn`
   else if (cash < 40) cashLine = `reserves at ₦${cash.toFixed(1)}bn — stable but lean`
   else cashLine = `reserves healthy at ₦${cash.toFixed(1)}bn`
 
   const trustFmt = Math.round(trust)
-  const pcFmt    = Math.round(pc)
+  const pcFmt = Math.round(pc)
 
   let trustLine: string
-  if (trust < 25) trustLine = `public trust is dangerously low at ${trustFmt}% — the streets are restless`
+  if (trust < 25)
+    trustLine = `public trust is dangerously low at ${trustFmt}% — the streets are restless`
   else if (trust < 45) trustLine = `trust sitting at ${trustFmt}% — fragile`
   else trustLine = `trust at ${trustFmt}% — no alarm`
 
@@ -225,7 +246,12 @@ export function generateChiefOfStaffBriefing(state: GameState): InboxMessage {
     from: 'chief-of-staff',
     fromLabel: 'Chief of Staff',
     week,
-    subject: week % 12 === 0 ? 'Quarterly Position Report' : week % 4 === 0 ? 'Weekly Briefing' : 'Briefing',
+    subject:
+      week % 12 === 0
+        ? 'Quarterly Position Report'
+        : week % 4 === 0
+          ? 'Weekly Briefing'
+          : 'Briefing',
     body: variants[idx],
     tone: cash < 0 ? 'urgent' : cash < 10 ? 'cold' : 'neutral',
     read: false,
@@ -287,21 +313,32 @@ const DEPUTY_LABELS: Record<DeputyKey, string> = {
 }
 
 /** Deputy message — on resentment threshold crossed */
-export function generateDeputyMessage(
-  state: GameState,
-  deputyKey: DeputyKey,
-): InboxMessage | null {
+export function generateDeputyMessage(state: GameState, deputyKey: DeputyKey): InboxMessage | null {
   const deputy = state.deputy
   if (!deputy) return null
   /* DRAFT — VOICE PASS NEEDED */
   const bodies: Record<DeputyKey, string[]> = {
-    technocrat: ['Governor, the infrastructure plan is stalling. I cannot deliver results if the funding keeps getting diverted. My reputation is on the line.'],
-    politician: ['The LG chairmen are getting restless. They feel you are ignoring them. I have been defending you but my arguments are wearing thin.'],
-    loyalist: ['I have stood by you through everything. But I am hearing things that worry me. If there is something you need to tell me, now is the time.'],
-    reformer: ['You know why I took this job. If we are going to compromise on every principle, I do not see what I am doing here.'],
-    traditionalist: ['The traditional council is asking questions. Your relationship with the godfathers affects how they see you. I need something to tell them.'],
-    economist: ['Governor, the debt situation is worse than the public numbers show. If we do not act soon, the bond market will act for us.'],
-    'security-chief': ['Security intelligence is concerning. Certain actors are testing our response. We need to be visible in the coming weeks.'],
+    technocrat: [
+      'Governor, the infrastructure plan is stalling. I cannot deliver results if the funding keeps getting diverted. My reputation is on the line.',
+    ],
+    politician: [
+      'The LG chairmen are getting restless. They feel you are ignoring them. I have been defending you but my arguments are wearing thin.',
+    ],
+    loyalist: [
+      'I have stood by you through everything. But I am hearing things that worry me. If there is something you need to tell me, now is the time.',
+    ],
+    reformer: [
+      'You know why I took this job. If we are going to compromise on every principle, I do not see what I am doing here.',
+    ],
+    traditionalist: [
+      'The traditional council is asking questions. Your relationship with the godfathers affects how they see you. I need something to tell them.',
+    ],
+    economist: [
+      'Governor, the debt situation is worse than the public numbers show. If we do not act soon, the bond market will act for us.',
+    ],
+    'security-chief': [
+      'Security intelligence is concerning. Certain actors are testing our response. We need to be visible in the coming weeks.',
+    ],
   }
   const variants = bodies[deputyKey] ?? ['Governor, we need to talk.']
   const idx = state.week % variants.length
@@ -335,7 +372,10 @@ export function pruneInbox(inbox: InboxMessage[], cap = INBOX_CAP): InboxMessage
   const needsAction = (m: InboxMessage) => m.isGodfatherAsk === true && m.actioned !== true
   const mustKeepIds = new Set(inbox.filter(needsAction).map((m) => m.id))
   const recentIds = new Set(
-    inbox.filter((m) => !mustKeepIds.has(m.id)).slice(-cap).map((m) => m.id),
+    inbox
+      .filter((m) => !mustKeepIds.has(m.id))
+      .slice(-cap)
+      .map((m) => m.id),
   )
   return inbox.filter((m) => mustKeepIds.has(m.id) || recentIds.has(m.id))
 }

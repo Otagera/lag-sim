@@ -1,20 +1,20 @@
+import { BRIDGE as BCOL, LAND, VEHICLES as VCOL, WATER } from '../data/cityPalette'
 import type {
-  ResolvedScene,
-  ResolvedBuilding,
-  ResolvedTree,
-  ResolvedVehicle,
+  ResolvedBillboard,
   ResolvedBoat,
-  ResolvedLandmass,
-  ResolvedRoad,
   ResolvedBridge,
-  ResolvedPin,
+  ResolvedBuilding,
+  ResolvedLandmass,
   ResolvedMarketStall,
   ResolvedMarketZone,
+  ResolvedPin,
+  ResolvedRoad,
+  ResolvedScene,
   ResolvedStreetlight,
-  ResolvedBillboard,
+  ResolvedTree,
+  ResolvedVehicle,
 } from '../data/cityScene'
 import { mulberry32 } from '../data/cityScene'
-import { WATER, LAND, BRIDGE as BCOL, VEHICLES as VCOL } from '../data/cityPalette'
 import { projectToIso } from './mapData'
 
 // ---- Depth multiplier ----
@@ -50,7 +50,13 @@ function drawWater(ctx: CanvasRenderingContext2D, w: number, h: number, scale: n
 }
 
 // ---- Landmass with beach edge ----
-function drawLandmass(ctx: CanvasRenderingContext2D, lm: ResolvedLandmass, scale: number, ox: number, oy: number) {
+function drawLandmass(
+  ctx: CanvasRenderingContext2D,
+  lm: ResolvedLandmass,
+  scale: number,
+  ox: number,
+  oy: number,
+) {
   const pts = lm.points.map(([x, y]) => projectToIso(x, y, scale, ox, oy))
 
   ctx.save()
@@ -108,10 +114,17 @@ function drawLandmass(ctx: CanvasRenderingContext2D, lm: ResolvedLandmass, scale
 }
 
 // ---- Roads with hierarchy ----
-function drawRoad(ctx: CanvasRenderingContext2D, r: ResolvedRoad, scale: number, ox: number, oy: number) {
+function drawRoad(
+  ctx: CanvasRenderingContext2D,
+  r: ResolvedRoad,
+  scale: number,
+  ox: number,
+  oy: number,
+) {
   const pts = r.points.map(([x, y]) => projectToIso(x, y, scale, ox, oy))
 
-  const roadColor = r.level === 'primary' ? '#B8A060' : r.level === 'secondary' ? '#C8B070' : '#D8C088'
+  const roadColor =
+    r.level === 'primary' ? '#B8A060' : r.level === 'secondary' ? '#C8B070' : '#D8C088'
   const edgeColor = r.level === 'primary' ? '#907038' : '#A89050'
 
   ctx.strokeStyle = r.level === 'primary' ? 'rgba(60,45,20,0.55)' : 'rgba(100,80,50,0.35)'
@@ -120,7 +133,8 @@ function drawRoad(ctx: CanvasRenderingContext2D, r: ResolvedRoad, scale: number,
   ctx.lineJoin = 'round'
   ctx.beginPath()
   ctx.moveTo(pts[0][0], pts[0][1] + (r.level === 'primary' ? 3 : 1.5) * scale)
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1] + (r.level === 'primary' ? 3 : 1.5) * scale)
+  for (let i = 1; i < pts.length; i++)
+    ctx.lineTo(pts[i][0], pts[i][1] + (r.level === 'primary' ? 3 : 1.5) * scale)
   ctx.stroke()
 
   ctx.strokeStyle = roadColor
@@ -140,8 +154,8 @@ function drawRoad(ctx: CanvasRenderingContext2D, r: ResolvedRoad, scale: number,
         const dx = pts[di + 1][0] - pts[di][0]
         const dy = pts[di + 1][1] - pts[di][1]
         const len = Math.hypot(dx, dy) || 1
-        const px = (-dy / len) * (r.w * scale / 2) * side
-        const py = (dx / len) * (r.w * scale / 2) * side
+        const px = (-dy / len) * ((r.w * scale) / 2) * side
+        const py = (dx / len) * ((r.w * scale) / 2) * side
         if (i === 0) ctx.moveTo(pts[i][0] + px, pts[i][1] + py)
         else ctx.lineTo(pts[i][0] + px, pts[i][1] + py)
       }
@@ -171,13 +185,21 @@ function drawRoad(ctx: CanvasRenderingContext2D, r: ResolvedRoad, scale: number,
 }
 
 // ---- Bridges ----
-function drawBridge(ctx: CanvasRenderingContext2D, b: ResolvedBridge, scale: number, ox: number, oy: number) {
+function drawBridge(
+  ctx: CanvasRenderingContext2D,
+  b: ResolvedBridge,
+  scale: number,
+  ox: number,
+  oy: number,
+) {
   const [x1, y1] = projectToIso(b.x1, b.y1, scale, ox, oy)
   const [x2, y2] = projectToIso(b.x2, b.y2, scale, ox, oy)
-  const hw = b.w * scale / 2
-  const dx = x2 - x1, dy = y2 - y1
+  const hw = (b.w * scale) / 2
+  const dx = x2 - x1,
+    dy = y2 - y1
   const len = Math.hypot(dx, dy) || 1
-  const nx = -dy / len, ny = dx / len
+  const nx = -dy / len,
+    ny = dx / len
 
   ctx.strokeStyle = 'rgba(160,140,120,0.2)'
   ctx.lineWidth = b.w * scale + 2 * scale
@@ -226,8 +248,10 @@ function drawBridge(ctx: CanvasRenderingContext2D, b: ResolvedBridge, scale: num
     ctx.lineWidth = 0.5 * scale
     for (let i = 0; i <= 6; i++) {
       const t = i / 6
-      const dx2 = x2 - midX, dy2 = y2 - midY
-      const ex = midX + dx2 * t, ey = midY + dy2 * t
+      const dx2 = x2 - midX,
+        dy2 = y2 - midY
+      const ex = midX + dx2 * t,
+        ey = midY + dy2 * t
       ctx.beginPath()
       ctx.moveTo(midX, midY - pylonH)
       ctx.lineTo(ex, ey)
@@ -235,8 +259,10 @@ function drawBridge(ctx: CanvasRenderingContext2D, b: ResolvedBridge, scale: num
     }
     for (let i = 0; i <= 6; i++) {
       const t = i / 6
-      const dx2 = x1 - midX, dy2 = y1 - midY
-      const ex = midX + dx2 * t, ey = midY + dy2 * t
+      const dx2 = x1 - midX,
+        dy2 = y1 - midY
+      const ex = midX + dx2 * t,
+        ey = midY + dy2 * t
       ctx.beginPath()
       ctx.moveTo(midX, midY - pylonH)
       ctx.lineTo(ex, ey)
@@ -244,8 +270,10 @@ function drawBridge(ctx: CanvasRenderingContext2D, b: ResolvedBridge, scale: num
     }
   } else if (b.type === 'suspension') {
     const pylonH = 10 * scale
-    const p1x = x1 + dx * 0.25, p1y = y1 + dy * 0.25
-    const p2x = x1 + dx * 0.75, p2y = y1 + dy * 0.75
+    const p1x = x1 + dx * 0.25,
+      p1y = y1 + dy * 0.25
+    const p2x = x1 + dx * 0.75,
+      p2y = y1 + dy * 0.75
 
     ctx.strokeStyle = BCOL.pylon
     ctx.lineWidth = 2.5 * scale
@@ -273,7 +301,8 @@ function drawBridge(ctx: CanvasRenderingContext2D, b: ResolvedBridge, scale: num
     ctx.lineWidth = 0.3 * scale
     for (let i = 1; i < 10; i++) {
       const t = i / 10
-      const deckX = lerp(x1, x2, t), deckY = lerp(y1, y2, t)
+      const deckX = lerp(x1, x2, t),
+        deckY = lerp(y1, y2, t)
       const cableY = deckY - pylonH * Math.sin(t * Math.PI)
       ctx.beginPath()
       ctx.moveTo(deckX, deckY)
@@ -288,7 +317,13 @@ function lerp(a: number, b: number, t: number): number {
 }
 
 // ---- Building ----
-function drawBuilding(ctx: CanvasRenderingContext2D, b: ResolvedBuilding, scale: number, ox: number, oy: number) {
+function drawBuilding(
+  ctx: CanvasRenderingContext2D,
+  b: ResolvedBuilding,
+  scale: number,
+  ox: number,
+  oy: number,
+) {
   const [cx, cy] = projectToIso(b.cx, b.cy, scale, ox, oy)
   const w = b.w * scale
   const d = b.d * scale
@@ -349,9 +384,10 @@ function drawBuilding(ctx: CanvasRenderingContext2D, b: ResolvedBuilding, scale:
         for (let col = 0; col < 3; col++) {
           ctx.fillStyle = 'rgba(200,220,255,0.06)'
           ctx.fillRect(
-            l_t[0] + (b_t[0] - l_t[0]) * (col + 0.4) / 3,
-            l_t[1] - tierH + (row + 0.3) * tierH / 4,
-            lw * 0.06, tierH * 0.12,
+            l_t[0] + ((b_t[0] - l_t[0]) * (col + 0.4)) / 3,
+            l_t[1] - tierH + ((row + 0.3) * tierH) / 4,
+            lw * 0.06,
+            tierH * 0.12,
           )
         }
       }
@@ -361,9 +397,10 @@ function drawBuilding(ctx: CanvasRenderingContext2D, b: ResolvedBuilding, scale:
         for (let col = 0; col < 3; col++) {
           ctx.fillStyle = 'rgba(200,230,255,0.10)'
           ctx.fillRect(
-            r_t[0] + (b_t[0] - r_t[0]) * (col + 0.4) / 3,
-            r_t[1] - tierH + (row + 0.3) * tierH / 4,
-            rw * 0.06, tierH * 0.12,
+            r_t[0] + ((b_t[0] - r_t[0]) * (col + 0.4)) / 3,
+            r_t[1] - tierH + ((row + 0.3) * tierH) / 4,
+            rw * 0.06,
+            tierH * 0.12,
           )
         }
       }
@@ -383,7 +420,8 @@ function drawBuilding(ctx: CanvasRenderingContext2D, b: ResolvedBuilding, scale:
     ctx.lineWidth = 1.5 * scale
     for (let pi = -0.3; pi <= 0.3; pi += 0.6) {
       for (let pj = -0.25; pj <= 0.25; pj += 0.5) {
-        const px = cx + pi * w, py = cy + pj * d
+        const px = cx + pi * w,
+          py = cy + pj * d
         ctx.beginPath()
         ctx.moveTo(px, py)
         ctx.lineTo(px, py + h + 4 * scale)
@@ -469,18 +507,25 @@ function drawBuilding(ctx: CanvasRenderingContext2D, b: ResolvedBuilding, scale:
   if (dm < 1) ctx.globalAlpha = 1
 }
 
-function glassDetails(ctx: CanvasRenderingContext2D, b: ResolvedBuilding, scale: number,
-  start: [number, number], end: [number, number], h: number, side: 'left' | 'right') {
+function glassDetails(
+  ctx: CanvasRenderingContext2D,
+  b: ResolvedBuilding,
+  scale: number,
+  start: [number, number],
+  end: [number, number],
+  h: number,
+  side: 'left' | 'right',
+) {
   if (b.type !== 'glassTower') return
   ctx.strokeStyle = 'rgba(200,220,240,0.10)'
   ctx.lineWidth = 0.3 * scale
   const wallW = Math.hypot(end[0] - start[0], end[1] - start[1])
   for (let row = 0; row < 6; row++) {
     for (let col = 0; col < 4; col++) {
-      const gx = start[0] + (end[0] - start[0]) * (col + 0.5) / 4
-      const gy = start[1] + (end[1] - start[1]) * (col + 0.5) / 4
+      const gx = start[0] + ((end[0] - start[0]) * (col + 0.5)) / 4
+      const gy = start[1] + ((end[1] - start[1]) * (col + 0.5)) / 4
       ctx.fillStyle = side === 'left' ? 'rgba(200,220,255,0.08)' : 'rgba(200,230,255,0.12)'
-      ctx.fillRect(gx - wallW * 0.04, gy + (row + 0.3) * h / 6, wallW * 0.08, h * 0.1)
+      ctx.fillRect(gx - wallW * 0.04, gy + ((row + 0.3) * h) / 6, wallW * 0.08, h * 0.1)
     }
   }
   if (side === 'right') {
@@ -496,7 +541,13 @@ function glassDetails(ctx: CanvasRenderingContext2D, b: ResolvedBuilding, scale:
 }
 
 // ---- Tree ----
-function drawTree(ctx: CanvasRenderingContext2D, t: ResolvedTree, scale: number, ox: number, oy: number) {
+function drawTree(
+  ctx: CanvasRenderingContext2D,
+  t: ResolvedTree,
+  scale: number,
+  ox: number,
+  oy: number,
+) {
   const [cx, cy] = projectToIso(t.cx, t.cy, scale, ox, oy)
   const cr = t.canopyR * scale
 
@@ -557,7 +608,13 @@ function drawTree(ctx: CanvasRenderingContext2D, t: ResolvedTree, scale: number,
 }
 
 // ---- Vehicle ----
-function drawVehicle(ctx: CanvasRenderingContext2D, v: ResolvedVehicle, scale: number, ox: number, oy: number) {
+function drawVehicle(
+  ctx: CanvasRenderingContext2D,
+  v: ResolvedVehicle,
+  scale: number,
+  ox: number,
+  oy: number,
+) {
   const [cx, cy] = projectToIso(v.cx, v.cy, scale, ox, oy)
   const w2 = v.w * scale
   const h2 = v.h * scale
@@ -593,7 +650,13 @@ function drawVehicle(ctx: CanvasRenderingContext2D, v: ResolvedVehicle, scale: n
 }
 
 // ---- Boat ----
-function drawBoat(ctx: CanvasRenderingContext2D, b: ResolvedBoat, scale: number, ox: number, oy: number) {
+function drawBoat(
+  ctx: CanvasRenderingContext2D,
+  b: ResolvedBoat,
+  scale: number,
+  ox: number,
+  oy: number,
+) {
   const [cx, cy] = projectToIso(b.cx, b.cy, scale, ox, oy)
   const w2 = b.w * scale
   const h2 = b.h * scale
@@ -640,7 +703,13 @@ function drawBoat(ctx: CanvasRenderingContext2D, b: ResolvedBoat, scale: number,
 }
 
 // ---- Market stall ----
-function drawMarketStall(ctx: CanvasRenderingContext2D, m: ResolvedMarketStall, scale: number, ox: number, oy: number) {
+function drawMarketStall(
+  ctx: CanvasRenderingContext2D,
+  m: ResolvedMarketStall,
+  scale: number,
+  ox: number,
+  oy: number,
+) {
   const [cx, cy] = projectToIso(m.cx, m.cy, scale, ox, oy)
   const w2 = m.w * scale
   const h2 = m.h * scale
@@ -684,7 +753,14 @@ function drawMarketStall(ctx: CanvasRenderingContext2D, m: ResolvedMarketStall, 
 // ---- High-density market patchwork ----
 const MARKET_PATCH_COLORS = ['#E07040', '#D4A030', '#C04040', '#3A9BC8', '#E8A040', '#50B080']
 
-function drawMarketZone(ctx: CanvasRenderingContext2D, z: ResolvedMarketZone, seed: number, scale: number, ox: number, oy: number) {
+function drawMarketZone(
+  ctx: CanvasRenderingContext2D,
+  z: ResolvedMarketZone,
+  seed: number,
+  scale: number,
+  ox: number,
+  oy: number,
+) {
   const rng = mulberry32(seed + Math.round(z.cx * 100 + z.cy * 3))
   for (let i = 0; i < 150; i++) {
     const rx = z.cx + (rng() - 0.5) * z.rx * 1.4
@@ -705,7 +781,13 @@ function drawMarketZone(ctx: CanvasRenderingContext2D, z: ResolvedMarketZone, se
 }
 
 // ---- Streetlight ----
-function drawStreetlight(ctx: CanvasRenderingContext2D, s: ResolvedStreetlight, scale: number, ox: number, oy: number) {
+function drawStreetlight(
+  ctx: CanvasRenderingContext2D,
+  s: ResolvedStreetlight,
+  scale: number,
+  ox: number,
+  oy: number,
+) {
   const [cx, cy] = projectToIso(s.cx, s.cy, scale, ox, oy)
   ctx.strokeStyle = '#A09888'
   ctx.lineWidth = 0.6 * scale
@@ -720,7 +802,13 @@ function drawStreetlight(ctx: CanvasRenderingContext2D, s: ResolvedStreetlight, 
 }
 
 // ---- Billboard ----
-function drawBillboard(ctx: CanvasRenderingContext2D, b: ResolvedBillboard, scale: number, ox: number, oy: number) {
+function drawBillboard(
+  ctx: CanvasRenderingContext2D,
+  b: ResolvedBillboard,
+  scale: number,
+  ox: number,
+  oy: number,
+) {
   const [cx, cy] = projectToIso(b.cx, b.cy, scale, ox, oy)
   const bw = 3 * scale
   const bh = 2.5 * scale
@@ -744,7 +832,13 @@ function drawBillboard(ctx: CanvasRenderingContext2D, b: ResolvedBillboard, scal
 }
 
 // ---- Pin ----
-function drawPin(ctx: CanvasRenderingContext2D, p: ResolvedPin, scale: number, ox: number, oy: number) {
+function drawPin(
+  ctx: CanvasRenderingContext2D,
+  p: ResolvedPin,
+  scale: number,
+  ox: number,
+  oy: number,
+) {
   const [cx, cy] = projectToIso(p.cx, p.cy, scale, ox, oy)
   const r = 8 * scale
 
@@ -774,7 +868,13 @@ function drawPin(ctx: CanvasRenderingContext2D, p: ResolvedPin, scale: number, o
 }
 
 // ---- Walkway ----
-function drawWalkway(ctx: CanvasRenderingContext2D, pts: [number, number][], scale: number, ox: number, oy: number) {
+function drawWalkway(
+  ctx: CanvasRenderingContext2D,
+  pts: [number, number][],
+  scale: number,
+  ox: number,
+  oy: number,
+) {
   const scaled = pts.map(([x, y]) => projectToIso(x, y, scale, ox, oy))
   ctx.strokeStyle = '#8B7B5A'
   ctx.lineWidth = 1.2 * scale
@@ -795,7 +895,14 @@ function drawWalkway(ctx: CanvasRenderingContext2D, pts: [number, number][], sca
 }
 
 // ---- Boat wake ----
-function drawWake(ctx: CanvasRenderingContext2D, bx: number, by: number, rot: number, w: number, scale: number) {
+function drawWake(
+  ctx: CanvasRenderingContext2D,
+  bx: number,
+  by: number,
+  rot: number,
+  w: number,
+  scale: number,
+) {
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'
   ctx.lineWidth = 0.5 * scale
   ctx.lineCap = 'round'
@@ -806,7 +913,7 @@ function drawWake(ctx: CanvasRenderingContext2D, bx: number, by: number, rot: nu
   ctx.lineTo(bx + Math.cos(ang) * wakeLen, by + Math.sin(ang) * wakeLen)
   ctx.stroke()
   for (const side of [-1, 1]) {
-    const sa = rot - Math.PI / 4 * side
+    const sa = rot - (Math.PI / 4) * side
     ctx.beginPath()
     ctx.moveTo(bx + Math.cos(rot) * w * 0.1 * scale, by + Math.sin(rot) * w * 0.1 * scale)
     ctx.lineTo(bx + Math.cos(sa) * wakeLen * 0.6, by + Math.sin(sa) * wakeLen * 0.6)
@@ -815,7 +922,14 @@ function drawWake(ctx: CanvasRenderingContext2D, bx: number, by: number, rot: nu
 }
 
 // ---- Ferry terminal dock ----
-function drawFerryTerminal(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, ox: number, oy: number) {
+function drawFerryTerminal(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  scale: number,
+  ox: number,
+  oy: number,
+) {
   const [px, py] = projectToIso(x, y, scale, ox, oy)
   const dw = 5 * scale
   const dh = 3 * scale
@@ -836,8 +950,11 @@ function drawFerryTerminal(ctx: CanvasRenderingContext2D, x: number, y: number, 
 // ---- Main render ----
 export function drawCity(
   ctx: CanvasRenderingContext2D,
-  w: number, h: number,
-  scale: number, ox: number, oy: number,
+  w: number,
+  h: number,
+  scale: number,
+  ox: number,
+  oy: number,
   scene: ResolvedScene,
 ) {
   drawWater(ctx, w, h, scale)
@@ -848,18 +965,43 @@ export function drawCity(
   for (const ww of scene.walkways) drawWalkway(ctx, ww.points, scale, ox, oy)
 
   const terminals: [number, number][] = [
-    [115, 250], [135, 248], [290, 238], [90, 182], [200, 258],
+    [115, 250],
+    [135, 248],
+    [290, 238],
+    [90, 182],
+    [200, 258],
   ]
   for (const [tx, ty] of terminals) drawFerryTerminal(ctx, tx, ty, scale, ox, oy)
 
   const depthElements: { sortY: number; draw: () => void }[] = []
-  for (const b of scene.buildings) { const b2 = b; depthElements.push({ sortY: b.sortY, draw: () => drawBuilding(ctx, b2, scale, ox, oy) }) }
-  for (const t of scene.trees) { const t2 = t; depthElements.push({ sortY: t.sortY, draw: () => drawTree(ctx, t2, scale, ox, oy) }) }
-  for (const m of scene.marketStalls) { const m2 = m; depthElements.push({ sortY: m.sortY, draw: () => drawMarketStall(ctx, m2, scale, ox, oy) }) }
-  for (const v of scene.vehicles) { const v2 = v; depthElements.push({ sortY: v.sortY, draw: () => drawVehicle(ctx, v2, scale, ox, oy) }) }
-  for (const b of scene.boats) { const b2 = b; depthElements.push({ sortY: b.sortY, draw: () => drawBoat(ctx, b2, scale, ox, oy) }) }
-  for (const s of scene.streetlights) { const s2 = s; depthElements.push({ sortY: s.sortY, draw: () => drawStreetlight(ctx, s2, scale, ox, oy) }) }
-  for (const b of scene.billboards) { const b2 = b; depthElements.push({ sortY: b.sortY, draw: () => drawBillboard(ctx, b2, scale, ox, oy) }) }
+  for (const b of scene.buildings) {
+    const b2 = b
+    depthElements.push({ sortY: b.sortY, draw: () => drawBuilding(ctx, b2, scale, ox, oy) })
+  }
+  for (const t of scene.trees) {
+    const t2 = t
+    depthElements.push({ sortY: t.sortY, draw: () => drawTree(ctx, t2, scale, ox, oy) })
+  }
+  for (const m of scene.marketStalls) {
+    const m2 = m
+    depthElements.push({ sortY: m.sortY, draw: () => drawMarketStall(ctx, m2, scale, ox, oy) })
+  }
+  for (const v of scene.vehicles) {
+    const v2 = v
+    depthElements.push({ sortY: v.sortY, draw: () => drawVehicle(ctx, v2, scale, ox, oy) })
+  }
+  for (const b of scene.boats) {
+    const b2 = b
+    depthElements.push({ sortY: b.sortY, draw: () => drawBoat(ctx, b2, scale, ox, oy) })
+  }
+  for (const s of scene.streetlights) {
+    const s2 = s
+    depthElements.push({ sortY: s.sortY, draw: () => drawStreetlight(ctx, s2, scale, ox, oy) })
+  }
+  for (const b of scene.billboards) {
+    const b2 = b
+    depthElements.push({ sortY: b.sortY, draw: () => drawBillboard(ctx, b2, scale, ox, oy) })
+  }
 
   depthElements.sort((a, b) => a.sortY - b.sortY)
   for (const el of depthElements) el.draw()

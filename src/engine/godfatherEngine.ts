@@ -1,5 +1,11 @@
 import { fashemuAsks, generalGodfatherPool } from '../data/godfatherAsks'
-import type { EventCard, FashemuPhase, GameState, GodfatherMessage, StatDelta } from '../state/types'
+import type {
+  EventCard,
+  FashemuPhase,
+  GameState,
+  GodfatherMessage,
+  StatDelta,
+} from '../state/types'
 import { applyFactionDelta } from './factionEngine'
 import { applyDelta } from './statEngine'
 
@@ -18,9 +24,7 @@ function pickFashemuAsk(state: GameState): (typeof fashemuAsks)[number] | null {
 }
 
 function pickGeneralAsk(state: GameState): (typeof generalGodfatherPool)[number] | null {
-  const available = generalGodfatherPool.filter(
-    (a) => !state.usedGodfatherAskIds.includes(a.id),
-  )
+  const available = generalGodfatherPool.filter((a) => !state.usedGodfatherAskIds.includes(a.id))
   if (available.length === 0) return null
   return available[Math.floor(Math.random() * available.length)]
 }
@@ -180,7 +184,8 @@ export function applyFashemuPhaseTransition(state: GameState): GameState {
   const refusals = state.godfatherRefusalCount
   // const rel = state.fashemuRelationship
   void state.fashemuRelationship // available for phase transition logic
-  const hasCoopedWithEFCC = state.resolvedEvents.includes('fashemu-efcc-contact') &&
+  const hasCoopedWithEFCC =
+    state.resolvedEvents.includes('fashemu-efcc-contact') &&
     state.timeline.some(
       (e) => e.title === 'EFCC Contact: The Fashemu File' && e.description === 'Cooperate Quietly',
     )
@@ -193,7 +198,9 @@ export function applyFashemuPhaseTransition(state: GameState): GameState {
     newPhase = 'reconciled'
   } else if (refusals >= 4 && state.resolvedEvents.includes('fashemu-public-break')) {
     // Check if player chose fight back or cooperate-efcc
-    const breakEntry = state.timeline.find((e) => e.title === 'The Boa Strikes: Public Confrontation')
+    const breakEntry = state.timeline.find(
+      (e) => e.title === 'The Boa Strikes: Public Confrontation',
+    )
     if (breakEntry?.description === 'Open Back-Channel Talks') {
       newPhase = 'reconciled'
     } else {

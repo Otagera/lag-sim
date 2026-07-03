@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
-import { useGameStore } from '../state/gameStore'
 import { CONSTITUENCIES } from '../data/constituencies'
-import { formatGameDate } from '../utils/calendar'
 import { getPublication } from '../data/publications'
+import { useGameStore } from '../state/gameStore'
 import type { ConstituencyKey } from '../state/types'
+import { formatGameDate } from '../utils/calendar'
 
 function deltaStr(v: number): string {
   return v >= 0 ? `+${v.toFixed(0)}` : `${v.toFixed(0)}`
@@ -51,7 +51,7 @@ export function LagosHerald() {
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [])
+  }, [clearNewspaperHeadline])
 
   if (!newspaperHeadline) return null
 
@@ -257,36 +257,17 @@ export function LagosHerald() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
             {/* Column 1: Deck + editorial note */}
             <div style={{ paddingRight: 14, borderRight: `1px solid ${ruleColor}` }}>
-              {newspaperHeadline.llmGenerated ? (
-                <p
-                  style={{
-                    fontSize: 14,
-                    lineHeight: 1.65,
-                    margin: 0,
-                    fontStyle: 'italic',
-                    color: ink,
-                  }}
-                >
-                  &ldquo;{newspaperHeadline.deck}&rdquo;
-                </p>
-              ) : (
-                <p
-                  style={{
-                    fontSize: 13,
-                    lineHeight: 1.65,
-                    margin: 0,
-                    color: inkLight,
-                    textAlign: 'justify',
-                  }}
-                >
-                  {newspaperHeadline.deck}
-                  {newspaperHeadline.llmPending && (
-                    <span style={{ marginLeft: 6, fontSize: 11, color: inkFaint, fontStyle: 'italic' }}>
-                      polishing&hellip;
-                    </span>
-                  )}
-                </p>
-              )}
+              <p
+                style={{
+                  fontSize: 13,
+                  lineHeight: 1.65,
+                  margin: 0,
+                  color: inkLight,
+                  textAlign: 'justify',
+                }}
+              >
+                {newspaperHeadline.deck}
+              </p>
 
               {newspaperHeadline.framingEditorialNote && (
                 <p
@@ -442,12 +423,7 @@ export function LagosHerald() {
                 <span style={{ color: ink }}>Net</span>
                 <span
                   style={{
-                    color:
-                      netFlow !== null
-                        ? netFlow >= 0
-                          ? '#2e7d32'
-                          : '#c62828'
-                        : inkFaint,
+                    color: netFlow !== null ? (netFlow >= 0 ? '#2e7d32' : '#c62828') : inkFaint,
                   }}
                 >
                   {netFlow !== null

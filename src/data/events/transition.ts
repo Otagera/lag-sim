@@ -17,26 +17,31 @@ But the inauguration is not until week 208. You have eight weeks of transition �
     severity: 'high',
     category: 'political',
     triggerCondition: (state) =>
-      state.week >= 200 && state.reElected === true && !state.resolvedEvents.includes('election-result-victory'),
+      state.week >= 200 &&
+      state.reElected === true &&
+      !state.resolvedEvents.includes('election-result-victory'),
     choices: [
       {
         id: 'transition-continuity',
         label: 'Signal Continuity — Keep the Core Team',
-        description: 'Your commissioners stay. Trust +4, Business +6. The message: steady hands, unfinished business.',
+        description:
+          'Your commissioners stay. Trust +4, Business +6. The message: steady hands, unfinished business.',
         immediate: { publicTrust: 4 },
         factionImpact: { businessCommunity: 6, civilSocietyMedia: 3 },
       },
       {
         id: 'transition-reshuffle',
         label: 'Announce a Reshuffle — Fresh Faces, New Energy',
-        description: 'Replace 3 underperforming commissioners. Trust +6, Political Capital -12. Civil Society +8.',
+        description:
+          'Replace 3 underperforming commissioners. Trust +6, Political Capital -12. Civil Society +8.',
         immediate: { publicTrust: 6, politicalCapital: -12 },
         factionImpact: { civilSocietyMedia: 8, partyGodfathers: -4 },
       },
       {
         id: 'transition-unity',
         label: 'Reach Across — Appoint from Former Opponents',
-        description: 'Offer a cabinet post to a neutral figure. Trust +8, Godfathers -6, Political Capital -18.',
+        description:
+          'Offer a cabinet post to a neutral figure. Trust +8, Godfathers -6, Political Capital -18.',
         immediate: { publicTrust: 8, politicalCapital: -18 },
         factionImpact: { partyGodfathers: -6, civilSocietyMedia: 10 },
       },
@@ -59,21 +64,24 @@ The godfathers are already lobbying for their people. The civil service is watch
       {
         id: 'cabinet-merit',
         label: 'Merit-Based Appointments Only',
-        description: 'Technocrats and proven performers. Infrastructure +4, Civil Society +10. Godfathers -8.',
+        description:
+          'Technocrats and proven performers. Infrastructure +4, Civil Society +10. Godfathers -8.',
         immediate: { infrastructureScore: 4 },
         factionImpact: { civilSocietyMedia: 10, partyGodfathers: -8, businessCommunity: 6 },
       },
       {
         id: 'cabinet-political',
         label: 'Reward Loyalists — Keep the Machine Happy',
-        description: 'Godfathers +10, Political Capital +8. Trust -4. The party expects to be remembered.',
+        description:
+          'Godfathers +10, Political Capital +8. Trust -4. The party expects to be remembered.',
         immediate: { publicTrust: -4, politicalCapital: 8 },
         factionImpact: { partyGodfathers: 10, lgChairmen: 6 },
       },
       {
         id: 'cabinet-balanced',
         label: 'A Balanced Ticket — Competence + Coalition',
-        description: 'Mix of technocrats and political appointees. Moderate gains across the board.',
+        description:
+          'Mix of technocrats and political appointees. Moderate gains across the board.',
         immediate: { publicTrust: 2, politicalCapital: 4 },
         factionImpact: { civilSocietyMedia: 5, partyGodfathers: 4, businessCommunity: 4 },
       },
@@ -103,14 +111,16 @@ This speech will be replayed for the next four years. What is the defining messa
       {
         id: 'speech-reform',
         label: '"Clean House" — Reform & Accountability',
-        description: 'Civil service reform, anti-corruption. Corruption -6, Civil Society +12. Godfathers -10.',
+        description:
+          'Civil service reform, anti-corruption. Corruption -6, Civil Society +12. Godfathers -10.',
         immediate: { corruptionPressure: -6 },
         factionImpact: { civilSocietyMedia: 12, partyGodfathers: -10, informalEconomy: 5 },
       },
       {
         id: 'speech-inclusion',
         label: '"One Lagos" — Unity & Social Investment',
-        description: 'Youth, women, the peripheries. Youth Tension -8, Trust +8, Informal Economy +8.',
+        description:
+          'Youth, women, the peripheries. Youth Tension -8, Trust +8, Informal Economy +8.',
         immediate: { publicTrust: 8, youthTension: -8 },
         factionImpact: { informalEconomy: 8, civilSocietyMedia: 6, partyGodfathers: -5 },
       },
@@ -129,26 +139,31 @@ You have until week 208 to hand over. Eight weeks to prepare a transition briefi
     severity: 'critical',
     category: 'political',
     triggerCondition: (state) =>
-      state.week >= 200 && state.reElected === false && !state.resolvedEvents.includes('election-result-defeat'),
+      state.week >= 200 &&
+      state.reElected === false &&
+      !state.resolvedEvents.includes('election-result-defeat'),
     choices: [
       {
         id: 'defeat-dignified',
         label: 'A Dignified Handover — Full Cooperation',
-        description: 'Offer a clean transition. Civil Society +8, Federal +6. The newspapers will remember your grace.',
+        description:
+          'Offer a clean transition. Civil Society +8, Federal +6. The newspapers will remember your grace.',
         immediate: { publicTrust: 4 },
         factionImpact: { civilSocietyMedia: 8, federalGovt: 6 },
       },
       {
         id: 'defeat-obstruct',
         label: 'Protect Your Legacy — Slow-Walk the Handover',
-        description: 'Delay documents, bury records. Godfathers +6, Federal -8, Trust -4. Your allies stay protected.',
+        description:
+          'Delay documents, bury records. Godfathers +6, Federal -8, Trust -4. Your allies stay protected.',
         immediate: { publicTrust: -4, politicalCapital: 6 },
         factionImpact: { partyGodfathers: 6, federalGovt: -8, civilSocietyMedia: -8 },
       },
       {
         id: 'defeat-pardon',
         label: 'Exercise Clemency — Last-Minute Pardons & Waivers',
-        description: 'Use executive powers before you leave. Godfathers +10, Corruption +8, Civil Society -10.',
+        description:
+          'Use executive powers before you leave. Godfathers +10, Corruption +8, Civil Society -10.',
         immediate: { corruptionPressure: 8 },
         factionImpact: { partyGodfathers: 10, civilSocietyMedia: -10 },
       },
@@ -178,14 +193,16 @@ What you include — and what you leave out — will shape how history judges yo
       {
         id: 'handover-selective',
         label: 'Selective Disclosure — Protect Sensitive Deals',
-        description: 'Godfathers +6, Corruption +4. Civil Society -5. Some records stay in the safe.',
+        description:
+          'Godfathers +6, Corruption +4. Civil Society -5. Some records stay in the safe.',
         immediate: { corruptionPressure: 4 },
         factionImpact: { partyGodfathers: 6, civilSocietyMedia: -5 },
       },
       {
         id: 'handover-golden',
         label: 'The Golden Handshake — Secure Your Future',
-        description: 'Route transition funds to loyalists. Political Capital +10, Godfathers +8, Corruption +6. Trust -6.',
+        description:
+          'Route transition funds to loyalists. Political Capital +10, Godfathers +8, Corruption +6. Trust -6.',
         immediate: { politicalCapital: 10, publicTrust: -6, corruptionPressure: 6 },
         factionImpact: { partyGodfathers: 8, civilSocietyMedia: -8 },
       },
@@ -208,21 +225,24 @@ This is your last word. What will you say?`,
       {
         id: 'farewell-accomplishments',
         label: 'Defend Your Record',
-        description: 'List every achievement. Trust +6, Civil Society +5. History will remember the data.',
+        description:
+          'List every achievement. Trust +6, Civil Society +5. History will remember the data.',
         immediate: { publicTrust: 6 },
         factionImpact: { civilSocietyMedia: 5 },
       },
       {
         id: 'farewell-concede',
         label: 'A Graceful Concession — Thank the People',
-        description: 'Acknowledge the loss, thank your team. Trust +4, Political Capital +6. Leave with dignity.',
+        description:
+          'Acknowledge the loss, thank your team. Trust +4, Political Capital +6. Leave with dignity.',
         immediate: { publicTrust: 4, politicalCapital: 6 },
         factionImpact: { civilSocietyMedia: 8, federalGovt: 4 },
       },
       {
         id: 'farewell-attack',
         label: 'Go Down Fighting — Attack the Incoming Administration',
-        description: 'Claim the election was unfair. Godfathers +6, Trust -4, Civil Society -8. Poison the well.',
+        description:
+          'Claim the election was unfair. Godfathers +6, Trust -4, Civil Society -8. Poison the well.',
         immediate: { publicTrust: -4 },
         factionImpact: { partyGodfathers: 6, civilSocietyMedia: -8, federalGovt: -6 },
       },

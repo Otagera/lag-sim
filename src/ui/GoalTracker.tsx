@@ -1,7 +1,13 @@
-import { useGameStore } from '../state/gameStore'
-import { getGoal, getGoalProgress, getGoalIsMet, getGoalBlocking, getGoalRelevance } from '../data/goals'
-import { RESEARCH_TREE } from '../data/researchTree'
+import {
+  getGoal,
+  getGoalBlocking,
+  getGoalIsMet,
+  getGoalProgress,
+  getGoalRelevance,
+} from '../data/goals'
 import { PROJECTS } from '../data/projects'
+import { RESEARCH_TREE } from '../data/researchTree'
+import { useGameStore } from '../state/gameStore'
 
 const CATEGORY_LABELS: Record<string, string> = {
   transport: 'Transport',
@@ -22,7 +28,10 @@ export function GoalTracker() {
 
   if (!selectedGoalId) {
     return (
-      <div className="p-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+      <div
+        className="p-2 border"
+        style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+      >
         <p className="text-[9px]" style={{ color: 'var(--text-secondary)' }}>
           No goal selected. Choose one from the Legacy screen.
         </p>
@@ -41,29 +50,36 @@ export function GoalTracker() {
   const relevantResearch = relevance
     ? RESEARCH_TREE.filter(
         (n) =>
-          relevance.researchDomains.includes(n.domain) &&
-          researchStatuses[n.id] !== 'completed',
+          relevance.researchDomains.includes(n.domain) && researchStatuses[n.id] !== 'completed',
       )
     : []
 
   const relevantProjects = relevance
     ? PROJECTS.filter(
         (p) =>
-          relevance.projectCategories.includes(p.category) &&
-          projectStatuses[p.id] !== 'completed',
+          relevance.projectCategories.includes(p.category) && projectStatuses[p.id] !== 'completed',
       )
     : []
 
   return (
-    <div className="p-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+    <div
+      className="p-2 border"
+      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+    >
       <div className="flex items-center justify-between mb-1">
         <h3 className="label-caps">{goal.title}</h3>
-        <span className="text-[15px] font-semibold" style={{ color: met ? 'var(--success-11)' : 'var(--text)' }}>
+        <span
+          className="text-[15px] font-semibold"
+          style={{ color: met ? 'var(--success-11)' : 'var(--text)' }}
+        >
           {progress.toFixed(0)}%
         </span>
       </div>
 
-      <div className="w-full h-1.5 mb-1.5 overflow-hidden" style={{ backgroundColor: 'var(--neutral-4)' }}>
+      <div
+        className="w-full h-1.5 mb-1.5 overflow-hidden"
+        style={{ backgroundColor: 'var(--neutral-4)' }}
+      >
         <div
           className="h-full transition-all"
           style={{

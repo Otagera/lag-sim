@@ -1,4 +1,10 @@
-import { isDettyDecember, isHarmattan, isSallahPeriod, seasonOf, weekToDate } from '../utils/calendar'
+import {
+  isDettyDecember,
+  isHarmattan,
+  isSallahPeriod,
+  seasonOf,
+  weekToDate,
+} from '../utils/calendar'
 
 export type SeasonModifier = {
   label: string
@@ -9,10 +15,10 @@ export type SeasonModifier = {
   isHarmattan: boolean
   isDettyDecember: boolean
   isSallahPeriod: boolean
-  faacVarianceScale: number          // wet season: 1.5 (wider FAAC swings)
-  faacBasePenalty: number            // 0–1 fraction of FAAC lost (budget crunch / election noise)
-  politicalCapitalCostScale: number  // federal election year: 1.2 (everything costs more)
-  federalRelationshipWeeklyDrift: number  // negative = downward drift per week
+  faacVarianceScale: number // wet season: 1.5 (wider FAAC swings)
+  faacBasePenalty: number // 0–1 fraction of FAAC lost (budget crunch / election noise)
+  politicalCapitalCostScale: number // federal election year: 1.2 (everything costs more)
+  federalRelationshipWeeklyDrift: number // negative = downward drift per week
   floodEventWeightMultiplier: number // wet-season events: 3.0 in wet season
 }
 

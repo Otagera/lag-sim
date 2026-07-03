@@ -55,9 +55,13 @@ export const LAGOS_ILLUSTRATED_STYLE = {
       type: 'fill',
       source: 'planet',
       'source-layer': 'landuse',
-      filter: ['match', ['get', 'class'],
+      filter: [
+        'match',
+        ['get', 'class'],
         ['park', 'grass', 'forest', 'meadow', 'pitch', 'stadium', 'recreation_ground'],
-        true, false],
+        true,
+        false,
+      ],
       paint: { 'fill-color': '#8DC870', 'fill-opacity': 0.8 },
     },
     {
@@ -65,9 +69,13 @@ export const LAGOS_ILLUSTRATED_STYLE = {
       type: 'fill',
       source: 'planet',
       'source-layer': 'landuse',
-      filter: ['match', ['get', 'class'],
+      filter: [
+        'match',
+        ['get', 'class'],
         ['residential', 'commercial', 'retail', 'industrial'],
-        true, false],
+        true,
+        false,
+      ],
       paint: { 'fill-color': '#E8C89E', 'fill-opacity': 0.5 },
     },
 
@@ -171,9 +179,13 @@ export const LAGOS_ILLUSTRATED_STYLE = {
       type: 'symbol',
       source: 'planet',
       'source-layer': 'place',
-      filter: ['match', ['get', 'class'],
+      filter: [
+        'match',
+        ['get', 'class'],
         ['city', 'town', 'village', 'suburb', 'quarter'],
-        true, false],
+        true,
+        false,
+      ],
       layout: {
         'text-field': ['get', 'name'],
         'text-font': ['Noto Sans Regular'],

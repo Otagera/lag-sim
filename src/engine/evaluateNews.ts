@@ -1,4 +1,4 @@
-import type { GameState, NewsArticle, ConstituencyKey } from '../state/types'
+import type { ConstituencyKey, GameState, NewsArticle } from '../state/types'
 
 type AnalystResult = {
   score: number
@@ -9,10 +9,26 @@ type AnalystResult = {
 } | null
 
 const CONSTITUENCY_TRUST_WEIGHTS: Record<string, number> = {
-  alimosho: 13, oshodiIsolo: 6, mushin: 5, kosofe: 6, surulere: 5,
-  amuwoOdofin: 4, apapa: 3, lagosMainland: 5, ikeja: 5, agege: 5,
-  ifakoIjaye: 4, ikorodu: 7, badagry: 5, ojo: 5, epe: 3,
-  ajeromiIfelodun: 4, shomolu: 4, lagosIsland: 4, etiOsa: 4, ibejuLekki: 3,
+  alimosho: 13,
+  oshodiIsolo: 6,
+  mushin: 5,
+  kosofe: 6,
+  surulere: 5,
+  amuwoOdofin: 4,
+  apapa: 3,
+  lagosMainland: 5,
+  ikeja: 5,
+  agege: 5,
+  ifakoIjaye: 4,
+  ikorodu: 7,
+  badagry: 5,
+  ojo: 5,
+  epe: 3,
+  ajeromiIfelodun: 4,
+  shomolu: 4,
+  lagosIsland: 4,
+  etiOsa: 4,
+  ibejuLekki: 3,
 }
 
 function weightedApproval(state: GameState): number {
@@ -45,9 +61,24 @@ function statAnalyst(prev: GameState, next: GameState): AnalystResult {
       deck: `The state treasury contracted by \u20A6${Math.abs(cashDelta).toFixed(1)}bn this week, reflecting persistent spending pressure against revenue collection.`,
       category: 'fiscal',
       dataPoints: [
-        { label: 'Cash Reserve', value: `\u20A6${next.stats.cashReserve.toFixed(1)}bn`, delta: `${cashDelta.toFixed(1)}bn`, positive: false },
-        { label: 'Revenue', value: `\u20A6${nextRev.toFixed(1)}bn`, delta: revDelta !== 0 ? `${revDelta > 0 ? '+' : ''}${revDelta.toFixed(1)}bn` : undefined, positive: revDelta > 0 },
-        { label: 'Expenditure', value: `\u20A6${nextExp.toFixed(1)}bn`, delta: expDelta !== 0 ? `${expDelta > 0 ? '+' : ''}${expDelta.toFixed(1)}bn` : undefined, positive: expDelta < 0 },
+        {
+          label: 'Cash Reserve',
+          value: `\u20A6${next.stats.cashReserve.toFixed(1)}bn`,
+          delta: `${cashDelta.toFixed(1)}bn`,
+          positive: false,
+        },
+        {
+          label: 'Revenue',
+          value: `\u20A6${nextRev.toFixed(1)}bn`,
+          delta: revDelta !== 0 ? `${revDelta > 0 ? '+' : ''}${revDelta.toFixed(1)}bn` : undefined,
+          positive: revDelta > 0,
+        },
+        {
+          label: 'Expenditure',
+          value: `\u20A6${nextExp.toFixed(1)}bn`,
+          delta: expDelta !== 0 ? `${expDelta > 0 ? '+' : ''}${expDelta.toFixed(1)}bn` : undefined,
+          positive: expDelta < 0,
+        },
       ],
     })
   } else if (prev.stats.cashReserve >= 0 && next.stats.cashReserve < 0) {
@@ -57,7 +88,12 @@ function statAnalyst(prev: GameState, next: GameState): AnalystResult {
       deck: `Cash reserves have fallen below zero for the first time this term. The state is drawing on credit lines to meet obligations.`,
       category: 'crisis',
       dataPoints: [
-        { label: 'Cash Reserve', value: `\u20A6${next.stats.cashReserve.toFixed(1)}bn`, delta: `${cashDelta.toFixed(1)}bn`, positive: false },
+        {
+          label: 'Cash Reserve',
+          value: `\u20A6${next.stats.cashReserve.toFixed(1)}bn`,
+          delta: `${cashDelta.toFixed(1)}bn`,
+          positive: false,
+        },
       ],
     })
   }
@@ -69,7 +105,12 @@ function statAnalyst(prev: GameState, next: GameState): AnalystResult {
       deck: `Governor approval slipped ${Math.abs(trustDelta).toFixed(0)} points this week as political pressures continue to erode public confidence.`,
       category: 'political',
       dataPoints: [
-        { label: 'Public Trust', value: `${next.stats.publicTrust.toFixed(0)}%`, delta: `${trustDelta.toFixed(0)}pts`, positive: false },
+        {
+          label: 'Public Trust',
+          value: `${next.stats.publicTrust.toFixed(0)}%`,
+          delta: `${trustDelta.toFixed(0)}pts`,
+          positive: false,
+        },
       ],
     })
   } else if (trustDelta > 5) {
@@ -79,7 +120,12 @@ function statAnalyst(prev: GameState, next: GameState): AnalystResult {
       deck: `The governor\u2019s approval rating climbed ${trustDelta.toFixed(0)} points this week, signalling improving sentiment among Lagosians.`,
       category: 'political',
       dataPoints: [
-        { label: 'Public Trust', value: `${next.stats.publicTrust.toFixed(0)}%`, delta: `+${trustDelta.toFixed(0)}pts`, positive: true },
+        {
+          label: 'Public Trust',
+          value: `${next.stats.publicTrust.toFixed(0)}%`,
+          delta: `+${trustDelta.toFixed(0)}pts`,
+          positive: true,
+        },
       ],
     })
   }
@@ -91,7 +137,12 @@ function statAnalyst(prev: GameState, next: GameState): AnalystResult {
       deck: `Corruption indicators rose sharply this week. Civil society groups are beginning to take notice.`,
       category: 'political',
       dataPoints: [
-        { label: 'Corruption Pressure', value: `${next.stats.corruptionPressure.toFixed(0)}`, delta: `+${corrDelta.toFixed(0)}`, positive: false },
+        {
+          label: 'Corruption Pressure',
+          value: `${next.stats.corruptionPressure.toFixed(0)}`,
+          delta: `+${corrDelta.toFixed(0)}`,
+          positive: false,
+        },
       ],
     })
   }
@@ -103,7 +154,12 @@ function statAnalyst(prev: GameState, next: GameState): AnalystResult {
       deck: `The state\u2019s infrastructure score fell by ${Math.abs(infraDelta).toFixed(0)} this week as maintenance spending lags behind decay.`,
       category: 'background',
       dataPoints: [
-        { label: 'Infrastructure', value: `${next.stats.infrastructureScore.toFixed(0)}/100`, delta: `${infraDelta.toFixed(0)}pts`, positive: false },
+        {
+          label: 'Infrastructure',
+          value: `${next.stats.infrastructureScore.toFixed(0)}/100`,
+          delta: `${infraDelta.toFixed(0)}pts`,
+          positive: false,
+        },
       ],
     })
   }
@@ -115,13 +171,20 @@ function statAnalyst(prev: GameState, next: GameState): AnalystResult {
       deck: `Lagos recorded a sharp ${revDelta > 0 ? 'increase' : 'decline'} in weekly revenue, driven largely by FAAC volatility and collection efficiency.`,
       category: 'fiscal',
       dataPoints: [
-        { label: 'Revenue Swing', value: `\u20A6${nextRev.toFixed(1)}bn`, delta: `${revDelta > 0 ? '+' : ''}${revDelta.toFixed(1)}bn`, positive: revDelta > 0 },
+        {
+          label: 'Revenue Swing',
+          value: `\u20A6${nextRev.toFixed(1)}bn`,
+          delta: `${revDelta > 0 ? '+' : ''}${revDelta.toFixed(1)}bn`,
+          positive: revDelta > 0,
+        },
       ],
     })
   }
 
   if (candidates.length === 0) return null
-  const sorted = candidates.filter((c): c is NonNullable<typeof c> => true).sort((a, b) => b.score - a.score)
+  const sorted = candidates
+    .filter((c): c is NonNullable<typeof c> => true)
+    .sort((a, b) => b.score - a.score)
   return sorted[0]
 }
 
@@ -193,13 +256,20 @@ function trendAnalyst(prev: GameState, next: GameState): AnalystResult {
       deck: `The constituency-weighted approval average moved ${weightedDelta > 0 ? 'up' : 'down'} by ${Math.abs(weightedDelta).toFixed(1)} points this week, reflecting a broad shift in public sentiment.`,
       category: 'political',
       dataPoints: [
-        { label: 'Weighted Avg.', value: `${nextWeighted.toFixed(1)}%`, delta: `${weightedDelta > 0 ? '+' : ''}${weightedDelta.toFixed(1)}pts`, positive: weightedDelta > 0 },
+        {
+          label: 'Weighted Avg.',
+          value: `${nextWeighted.toFixed(1)}%`,
+          delta: `${weightedDelta > 0 ? '+' : ''}${weightedDelta.toFixed(1)}pts`,
+          positive: weightedDelta > 0,
+        },
       ],
     })
   }
 
   if (candidates.length === 0) return null
-  const sorted2 = candidates.filter((c): c is NonNullable<typeof c> => true).sort((a, b) => b.score - a.score)
+  const sorted2 = candidates
+    .filter((c): c is NonNullable<typeof c> => true)
+    .sort((a, b) => b.score - a.score)
   return sorted2[0]
 }
 
@@ -273,7 +343,9 @@ function compositeAnalyst(prev: GameState, next: GameState): AnalystResult {
       headline: 'International Grants Suspended',
       deck: 'Sustained corruption indicators have triggered a freeze on international development grants. Lagos loses access to external funding.',
       category: 'crisis',
-      dataPoints: [{ label: 'Grant Freeze', value: `${next.grantFreezeDuration} weeks`, positive: false }],
+      dataPoints: [
+        { label: 'Grant Freeze', value: `${next.grantFreezeDuration} weeks`, positive: false },
+      ],
     })
   }
 
@@ -284,9 +356,7 @@ function compositeAnalyst(prev: GameState, next: GameState): AnalystResult {
       headline: `LGA Elections: Party Wins ${result.toFixed(0)}% of LGAs`,
       deck: `Local government elections have concluded. The party-aligned chairman count gives a ${result.toFixed(0)}% loyalty score across the 20 LGAs.`,
       category: 'milestone',
-      dataPoints: [
-        { label: 'Party LGAs', value: `${result.toFixed(0)}%`, positive: result >= 50 },
-      ],
+      dataPoints: [{ label: 'Party LGAs', value: `${result.toFixed(0)}%`, positive: result >= 50 }],
     })
   }
 
@@ -300,7 +370,11 @@ function compositeAnalyst(prev: GameState, next: GameState): AnalystResult {
         : `The governor received ${next.electionResult.toFixed(1)}% of the vote, falling short of the threshold for re-election.`,
       category: 'milestone',
       dataPoints: [
-        { label: 'Vote Share', value: `${next.electionResult.toFixed(1)}%`, positive: won ?? false },
+        {
+          label: 'Vote Share',
+          value: `${next.electionResult.toFixed(1)}%`,
+          positive: won ?? false,
+        },
       ],
     })
   }
@@ -314,7 +388,11 @@ function compositeAnalyst(prev: GameState, next: GameState): AnalystResult {
         : 'The party has chosen a different candidate. The governor\u2019s re-election bid ends here.',
       category: 'milestone',
       dataPoints: [
-        { label: 'Primary Result', value: next.primaryWon ? 'Won' : 'Lost', positive: next.primaryWon },
+        {
+          label: 'Primary Result',
+          value: next.primaryWon ? 'Won' : 'Lost',
+          positive: next.primaryWon,
+        },
       ],
     })
   }
@@ -324,7 +402,9 @@ function compositeAnalyst(prev: GameState, next: GameState): AnalystResult {
   }
 
   if (candidates.length === 0) return null
-  const sorted3 = candidates.filter((c): c is NonNullable<typeof c> => true).sort((a, b) => b.score - a.score)
+  const sorted3 = candidates
+    .filter((c): c is NonNullable<typeof c> => true)
+    .sort((a, b) => b.score - a.score)
   return sorted3[0]
 }
 
@@ -337,15 +417,14 @@ function timelineAnalyst(prev: GameState, next: GameState): AnalystResult {
 
   const deltas = Object.values(entry.statDelta ?? {}) as number[]
   const maxImpact = deltas.length > 0 ? Math.max(...deltas.map(Math.abs)) : 0
-  const score = entry.type === 'godfather' ? 6
-    : maxImpact > 5 ? 6
-    : maxImpact > 3 ? 5
-    : 3
+  const score = entry.type === 'godfather' ? 6 : maxImpact > 5 ? 6 : maxImpact > 3 ? 5 : 3
 
   const category: NewsArticle['category'] =
-    entry.type === 'godfather' ? 'political'
-    : (entry.statDelta?.cashReserve ?? 0) < -3 ? 'fiscal'
-    : 'background'
+    entry.type === 'godfather'
+      ? 'political'
+      : (entry.statDelta?.cashReserve ?? 0) < -3
+        ? 'fiscal'
+        : 'background'
 
   const significantDeltas = Object.entries(entry.statDelta ?? {})
     .filter(([, v]) => Math.abs(v as number) > 1)
@@ -365,7 +444,7 @@ function timelineAnalyst(prev: GameState, next: GameState): AnalystResult {
   }
 }
 
-function mergeDataPoints(sources: (AnalystResult)[]): NewsArticle['dataPoints'] {
+function mergeDataPoints(sources: AnalystResult[]): NewsArticle['dataPoints'] {
   const seen = new Set<string>()
   const result: NewsArticle['dataPoints'] = []
   for (const src of sources) {
@@ -382,17 +461,21 @@ function mergeDataPoints(sources: (AnalystResult)[]): NewsArticle['dataPoints'] 
 }
 
 // Generates a recap article after a fast-forward skip. Always returns an article.
-export function evaluateSkipNews(prev: GameState, next: GameState, weeksSkipped: number): NewsArticle {
-  const cashDelta  = next.stats.cashReserve - prev.stats.cashReserve
+export function evaluateSkipNews(
+  prev: GameState,
+  next: GameState,
+  weeksSkipped: number,
+): NewsArticle {
+  const cashDelta = next.stats.cashReserve - prev.stats.cashReserve
   const trustDelta = next.stats.publicTrust - prev.stats.publicTrust
-  const corrDelta  = next.stats.corruptionPressure - prev.stats.corruptionPressure
+  const corrDelta = next.stats.corruptionPressure - prev.stats.corruptionPressure
 
   const skipEntries = next.timeline.filter((e) => e.week > prev.week && e.week <= next.week)
-  const eventCount  = skipEntries.filter((e) => e.type === 'event').length
+  const eventCount = skipEntries.filter((e) => e.type === 'event').length
 
-  const wentNegative      = prev.stats.cashReserve >= 0 && next.stats.cashReserve < 0
-  const riotStarted       = !prev.riotModeActive && next.riotModeActive
-  const emergencyStarted  = prev.emergencySuspensionWeeks === 0 && next.emergencySuspensionWeeks > 0
+  const wentNegative = prev.stats.cashReserve >= 0 && next.stats.cashReserve < 0
+  const riotStarted = !prev.riotModeActive && next.riotModeActive
+  const emergencyStarted = prev.emergencySuspensionWeeks === 0 && next.emergencySuspensionWeeks > 0
 
   let headline: string
   let deck: string
@@ -491,10 +574,12 @@ export function evaluateNews(prev: GameState, next: GameState): NewsArticle | nu
   }
 
   const candidates: AnalystResult[] = [statResult, trendResult, timelineResult].filter(Boolean)
-  if (candidates.length === 0) return compositeResult && compositeResult.score >= 4 ? compositeResult : null
+  if (candidates.length === 0)
+    return compositeResult && compositeResult.score >= 4 ? compositeResult : null
 
-  candidates.sort((a, b) => b!.score - a!.score)
-  const best = candidates[0]!
+  candidates.sort((a, b) => (b?.score ?? 0) - (a?.score ?? 0))
+  const best = candidates[0]
+  if (!best) return null
   let finalScore = best.score
   if (delayedFired && finalScore >= 3 && finalScore < 7) {
     finalScore = Math.min(finalScore + 2, 9)
@@ -502,14 +587,22 @@ export function evaluateNews(prev: GameState, next: GameState): NewsArticle | nu
 
   if (finalScore < 4) return null
 
-  const deck = delayedFired && best.score >= 3
-    ? 'The consequences of prior decisions are now taking effect. ' + best.deck.charAt(0).toLowerCase() + best.deck.slice(1)
-    : best.deck
+  const deck =
+    delayedFired && best.score >= 3
+      ? 'The consequences of prior decisions are now taking effect. ' +
+        best.deck.charAt(0).toLowerCase() +
+        best.deck.slice(1)
+      : best.deck
 
   return {
     headline: best.headline,
     deck,
     category: best.category,
-    dataPoints: mergeDataPoints([best, statResult !== best ? statResult : null, trendResult !== best ? trendResult : null, timelineResult !== best ? timelineResult : null]),
+    dataPoints: mergeDataPoints([
+      best,
+      statResult !== best ? statResult : null,
+      trendResult !== best ? trendResult : null,
+      timelineResult !== best ? timelineResult : null,
+    ]),
   }
 }

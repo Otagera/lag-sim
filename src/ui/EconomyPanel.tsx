@@ -1,12 +1,19 @@
 import { useState } from 'react'
 import { useGameStore } from '../state/gameStore'
-import type { ExpenditureBreakdown, RevenueBreakdown } from '../state/types'
+import type {
+  ExpenditureBreakdown,
+  FactionDelta,
+  RevenueBreakdown,
+  StatDelta,
+} from '../state/types'
 
 const naira = (v: number) => `₦${Math.abs(v).toFixed(1)}bn`
 
 // ── Helpers ──────────────────────────────────────────────────
 
-function biggestBleed(exp: ExpenditureBreakdown | undefined): { label: string; value: number } | null {
+function biggestBleed(
+  exp: ExpenditureBreakdown | undefined,
+): { label: string; value: number } | null {
   if (!exp) return null
   const lines: { label: string; value: number }[] = [
     { label: 'Personnel', value: exp.personnel },
@@ -18,7 +25,9 @@ function biggestBleed(exp: ExpenditureBreakdown | undefined): { label: string; v
   return lines.reduce((a, b) => (a.value > b.value ? a : b))
 }
 
-function biggestOpportunity(rev: RevenueBreakdown | undefined): { label: string; value: number } | null {
+function biggestOpportunity(
+  rev: RevenueBreakdown | undefined,
+): { label: string; value: number } | null {
   if (!rev) return null
   const lines: { label: string; value: number }[] = [
     { label: 'PAYE', value: rev.paye },
@@ -39,8 +48,8 @@ interface InitiativeDef {
   totalWeeks: number
   completionEventId: string
   pcCost: number
-  factionImpact: Record<string, number>
-  statDelta: Record<string, number>
+  factionImpact: FactionDelta
+  statDelta: StatDelta
   description: string
   payoff: string
 }
@@ -107,9 +116,38 @@ interface LoanDef {
 }
 
 const LOANS: LoanDef[] = [
-  { source: 'world_bank', label: 'World Bank Loan', apr: '4%', term: '20yr', delay: '16wk', pcCost: 5, minAmount: 10, amounts: [10, 25, 50], note: 'open_procurement required' },
-  { source: 'bond_issuance', label: 'Bond Issuance', apr: '16.5%', term: '7yr', delay: '8wk', pcCost: 10, minAmount: 10, amounts: [10, 25, 50] },
-  { source: 'federal_govt', label: 'Federal Loan', apr: '0%', term: '5yr', delay: '4wk', pcCost: 15, minAmount: 10, amounts: [10, 25], note: 'FedRel -10' },
+  {
+    source: 'world_bank',
+    label: 'World Bank Loan',
+    apr: '4%',
+    term: '20yr',
+    delay: '16wk',
+    pcCost: 5,
+    minAmount: 10,
+    amounts: [10, 25, 50],
+    note: 'open_procurement required',
+  },
+  {
+    source: 'bond_issuance',
+    label: 'Bond Issuance',
+    apr: '16.5%',
+    term: '7yr',
+    delay: '8wk',
+    pcCost: 10,
+    minAmount: 10,
+    amounts: [10, 25, 50],
+  },
+  {
+    source: 'federal_govt',
+    label: 'Federal Loan',
+    apr: '0%',
+    term: '5yr',
+    delay: '4wk',
+    pcCost: 15,
+    minAmount: 10,
+    amounts: [10, 25],
+    note: 'FedRel -10',
+  },
 ]
 
 // ── Sub-components ──────────────────────────────────────────
@@ -160,7 +198,10 @@ function ActionRow({
   const canAfford = pc >= pcCost && !disabledReason && !onCooldown
 
   return (
-    <div className="p-1.5 border-b text-[10px]" style={{ borderColor: 'var(--border-subtle)', backgroundColor: 'var(--background)' }}>
+    <div
+      className="p-1.5 border-b text-[10px]"
+      style={{ borderColor: 'var(--border-subtle)', backgroundColor: 'var(--background)' }}
+    >
       {!confirming ? (
         <div>
           <button
@@ -171,7 +212,9 @@ function ActionRow({
             style={{ cursor: canAfford ? 'pointer' : 'default', opacity: canAfford ? 1 : 0.4 }}
           >
             <div className="flex justify-between items-center">
-              <span className="font-semibold" style={{ color: 'var(--text)' }}>{label}</span>
+              <span className="font-semibold" style={{ color: 'var(--text)' }}>
+                {label}
+              </span>
               <span style={{ color: 'var(--text-secondary)' }}>
                 PC:{pcCost}
                 {onCooldown && ` · ${Math.max(0, cooldownWeeks - week)}w`}
@@ -202,7 +245,11 @@ function ActionRow({
               type="button"
               onClick={onCancel}
               className="px-2 py-0.5 text-[9px] border"
-              style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)', backgroundColor: 'var(--surface)' }}
+              style={{
+                borderColor: 'var(--border)',
+                color: 'var(--text-secondary)',
+                backgroundColor: 'var(--surface)',
+              }}
             >
               Cancel
             </button>
@@ -268,13 +315,17 @@ export function EconomyPanel() {
   const initiativeSlotBlocked = activeInitiative !== null
 
   return (
-    <div className="border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+    <div
+      className="border"
+      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+    >
       <div className="p-2">
         <h2 className="label-caps mb-1">Economy</h2>
 
         {bleed && (
           <p className="text-[9px] mb-2 leading-tight" style={{ color: 'var(--warning-11)' }}>
-            Biggest spend: <span className="font-semibold">{bleed.label}</span> ({naira(bleed.value)}/wk)
+            Biggest spend: <span className="font-semibold">{bleed.label}</span> (
+            {naira(bleed.value)}/wk)
             {opp && ` · Largest revenue: ${opp.label} (${naira(opp.value)}/wk)`}
           </p>
         )}
@@ -289,12 +340,26 @@ export function EconomyPanel() {
               pcCost={INITIATIVES['paye-enforcement'].pcCost}
               cooldownWeeks={0}
               onCooldown={false}
-              disabledReason={payeActive ? 'in progress' : initiativeSlotBlocked ? 'initiative slot full' : undefined}
+              disabledReason={
+                payeActive
+                  ? 'in progress'
+                  : initiativeSlotBlocked
+                    ? 'initiative slot full'
+                    : undefined
+              }
               onStart={() => initiateConfirm('paye-enforcement')}
               confirming={confirming === 'paye-enforcement'}
               onConfirm={() => {
                 const d = INITIATIVES['paye-enforcement']
-                launchInitiative(d.id, d.name, d.totalWeeks, d.completionEventId, d.pcCost, d.factionImpact, d.statDelta)
+                launchInitiative(
+                  d.id,
+                  d.name,
+                  d.totalWeeks,
+                  d.completionEventId,
+                  d.pcCost,
+                  d.factionImpact,
+                  d.statDelta,
+                )
                 cancelConfirm()
               }}
               onCancel={cancelConfirm}
@@ -312,7 +377,15 @@ export function EconomyPanel() {
               confirming={confirming === 'luc-audit'}
               onConfirm={() => {
                 const d = INITIATIVES['luc-audit']
-                launchInitiative(d.id, d.name, d.totalWeeks, d.completionEventId, d.pcCost, d.factionImpact, d.statDelta)
+                launchInitiative(
+                  d.id,
+                  d.name,
+                  d.totalWeeks,
+                  d.completionEventId,
+                  d.pcCost,
+                  d.factionImpact,
+                  d.statDelta,
+                )
                 cancelConfirm()
               }}
               onCancel={cancelConfirm}
@@ -325,12 +398,28 @@ export function EconomyPanel() {
               pcCost={INITIATIVES['grants-mobilisation'].pcCost}
               cooldownWeeks={0}
               onCooldown={false}
-              disabledReason={grantActive ? 'in progress' : stats.grantsCompliance >= 0.9 ? 'compliance maxed' : initiativeSlotBlocked ? 'initiative slot full' : undefined}
+              disabledReason={
+                grantActive
+                  ? 'in progress'
+                  : stats.grantsCompliance >= 0.9
+                    ? 'compliance maxed'
+                    : initiativeSlotBlocked
+                      ? 'initiative slot full'
+                      : undefined
+              }
               onStart={() => initiateConfirm('grants-mobilisation')}
               confirming={confirming === 'grants-mobilisation'}
               onConfirm={() => {
                 const d = INITIATIVES['grants-mobilisation']
-                launchInitiative(d.id, d.name, d.totalWeeks, d.completionEventId, d.pcCost, d.factionImpact, d.statDelta)
+                launchInitiative(
+                  d.id,
+                  d.name,
+                  d.totalWeeks,
+                  d.completionEventId,
+                  d.pcCost,
+                  d.factionImpact,
+                  d.statDelta,
+                )
                 cancelConfirm()
               }}
               onCancel={cancelConfirm}
@@ -343,12 +432,26 @@ export function EconomyPanel() {
               pcCost={INITIATIVES['civil-service-reform'].pcCost}
               cooldownWeeks={0}
               onCooldown={false}
-              disabledReason={reformActive ? 'in progress' : initiativeSlotBlocked ? 'initiative slot full' : undefined}
+              disabledReason={
+                reformActive
+                  ? 'in progress'
+                  : initiativeSlotBlocked
+                    ? 'initiative slot full'
+                    : undefined
+              }
               onStart={() => initiateConfirm('civil-service-reform')}
               confirming={confirming === 'civil-service-reform'}
               onConfirm={() => {
                 const d = INITIATIVES['civil-service-reform']
-                launchInitiative(d.id, d.name, d.totalWeeks, d.completionEventId, d.pcCost, d.factionImpact, d.statDelta)
+                launchInitiative(
+                  d.id,
+                  d.name,
+                  d.totalWeeks,
+                  d.completionEventId,
+                  d.pcCost,
+                  d.factionImpact,
+                  d.statDelta,
+                )
                 cancelConfirm()
               }}
               onCancel={cancelConfirm}
@@ -375,7 +478,10 @@ export function EconomyPanel() {
             disabledReason={stats.subventionCutRate >= 0.4 ? 'max cut reached' : undefined}
             onStart={() => initiateConfirm('cut-subventions')}
             confirming={confirming === 'cut-subventions'}
-            onConfirm={() => { cutSubventions(); cancelConfirm() }}
+            onConfirm={() => {
+              cutSubventions()
+              cancelConfirm()
+            }}
             onCancel={cancelConfirm}
           />
           <ActionRow
@@ -387,7 +493,10 @@ export function EconomyPanel() {
             disabledReason={stats.baseOverheads <= -3 ? 'overheads at floor' : undefined}
             onStart={() => initiateConfirm('reduce-overheads')}
             confirming={confirming === 'reduce-overheads'}
-            onConfirm={() => { reduceOverheads(); cancelConfirm() }}
+            onConfirm={() => {
+              reduceOverheads()
+              cancelConfirm()
+            }}
             onCancel={cancelConfirm}
           />
           <ActionRow
@@ -399,7 +508,10 @@ export function EconomyPanel() {
             disabledReason={stats.landUseChargeEnforcement >= 3 ? 'max enforcement' : undefined}
             onStart={() => initiateConfirm('raise-luc')}
             confirming={confirming === 'raise-luc'}
-            onConfirm={() => { raiseLuc(); cancelConfirm() }}
+            onConfirm={() => {
+              raiseLuc()
+              cancelConfirm()
+            }}
             onCancel={cancelConfirm}
           />
         </div>
@@ -418,7 +530,10 @@ export function EconomyPanel() {
               onCooldown={isOnCooldown('court-godfathers')}
               onStart={() => initiateConfirm('court-godfathers')}
               confirming={confirming === 'court-godfathers'}
-              onConfirm={() => { courtGodfathers(); cancelConfirm() }}
+              onConfirm={() => {
+                courtGodfathers()
+                cancelConfirm()
+              }}
               onCancel={cancelConfirm}
             />
           </div>
@@ -431,22 +546,36 @@ export function EconomyPanel() {
             const key = `loan-${loan.source}`
             const inConfirm = confirming === key
             const selectedAmount = inConfirm ? loanAmount : 0
-            const monthlyRepayment = selectedAmount > 0 ? selectedAmount / (parseInt(loan.term) * 52) : 0
-            const weeklyInterest = selectedAmount > 0 ? (selectedAmount * parseFloat(loan.apr) / 100) / 52 : 0
+            const monthlyRepayment =
+              selectedAmount > 0 ? selectedAmount / (parseInt(loan.term, 10) * 52) : 0
+            const weeklyInterest =
+              selectedAmount > 0 ? (selectedAmount * parseFloat(loan.apr)) / 100 / 52 : 0
             const canAfford = pc >= loan.pcCost
 
             return (
-              <div key={key} className="p-1.5 border-b text-[10px]" style={{ borderColor: 'var(--border-subtle)', backgroundColor: 'var(--background)' }}>
+              <div
+                key={key}
+                className="p-1.5 border-b text-[10px]"
+                style={{
+                  borderColor: 'var(--border-subtle)',
+                  backgroundColor: 'var(--background)',
+                }}
+              >
                 {!inConfirm ? (
                   <button
                     type="button"
                     onClick={canAfford ? () => initiateConfirm(key) : undefined}
                     className="w-full text-left"
                     disabled={!canAfford}
-                    style={{ cursor: canAfford ? 'pointer' : 'default', opacity: canAfford ? 1 : 0.4 }}
+                    style={{
+                      cursor: canAfford ? 'pointer' : 'default',
+                      opacity: canAfford ? 1 : 0.4,
+                    }}
                   >
                     <div className="flex justify-between items-center">
-                      <span className="font-semibold" style={{ color: 'var(--text)' }}>{loan.label}</span>
+                      <span className="font-semibold" style={{ color: 'var(--text)' }}>
+                        {loan.label}
+                      </span>
                       <span style={{ color: 'var(--text-secondary)' }}>
                         PC:{loan.pcCost} · {loan.apr} · {loan.term}
                       </span>
@@ -468,7 +597,8 @@ export function EconomyPanel() {
                           onClick={() => setLoanAmount(amt)}
                           className="px-2 py-0.5 text-[9px] font-semibold"
                           style={{
-                            backgroundColor: loanAmount === amt ? 'var(--accent-solid)' : 'var(--surface)',
+                            backgroundColor:
+                              loanAmount === amt ? 'var(--accent-solid)' : 'var(--surface)',
                             color: loanAmount === amt ? 'var(--accent-on-solid)' : 'var(--text)',
                             border: '1px solid var(--border)',
                           }}
@@ -478,9 +608,14 @@ export function EconomyPanel() {
                       ))}
                     </div>
                     {selectedAmount > 0 && (
-                      <div className="text-[9px] mb-1 leading-tight" style={{ color: 'var(--text-secondary)' }}>
-                        ₦{selectedAmount}bn now → ₦{(monthlyRepayment + weeklyInterest).toFixed(3)}bn/wk for {loan.term}
-                        {parseFloat(loan.apr) > 0 && ` (₦${weeklyInterest.toFixed(3)}bn/wk interest)`}
+                      <div
+                        className="text-[9px] mb-1 leading-tight"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
+                        ₦{selectedAmount}bn now → ₦{(monthlyRepayment + weeklyInterest).toFixed(3)}
+                        bn/wk for {loan.term}
+                        {parseFloat(loan.apr) > 0 &&
+                          ` (₦${weeklyInterest.toFixed(3)}bn/wk interest)`}
                       </div>
                     )}
                     <div className="flex gap-1.5">
@@ -495,8 +630,10 @@ export function EconomyPanel() {
                         }}
                         className="px-2 py-0.5 text-[9px] font-semibold"
                         style={{
-                          backgroundColor: selectedAmount > 0 ? 'var(--accent-solid)' : 'var(--surface)',
-                          color: selectedAmount > 0 ? 'var(--accent-on-solid)' : 'var(--text-secondary)',
+                          backgroundColor:
+                            selectedAmount > 0 ? 'var(--accent-solid)' : 'var(--surface)',
+                          color:
+                            selectedAmount > 0 ? 'var(--accent-on-solid)' : 'var(--text-secondary)',
                           opacity: selectedAmount > 0 ? 1 : 0.4,
                         }}
                       >
@@ -506,7 +643,11 @@ export function EconomyPanel() {
                         type="button"
                         onClick={cancelConfirm}
                         className="px-2 py-0.5 text-[9px] border"
-                        style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)', backgroundColor: 'var(--surface)' }}
+                        style={{
+                          borderColor: 'var(--border)',
+                          color: 'var(--text-secondary)',
+                          backgroundColor: 'var(--surface)',
+                        }}
                       >
                         Cancel
                       </button>

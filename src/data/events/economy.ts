@@ -150,7 +150,8 @@ export const economyEvents: EventCard[] = [
       {
         id: 'launch-paye-drive',
         label: 'Launch Enforcement Drive',
-        description: 'Commit ₦2bn and 10 weeks to a full crackdown. Expect business community resistance.',
+        description:
+          'Commit ₦2bn and 10 weeks to a full crackdown. Expect business community resistance.',
         immediate: { cashReserve: -2, politicalCapital: -5 },
         factionImpact: { businessCommunity: -8, civilSocietyMedia: 3 },
         launchInitiative: {
@@ -402,14 +403,16 @@ export const economyEvents: EventCard[] = [
       {
         id: 'support-cbn-assist-transition',
         label: 'Support CBN, Offer LASG Transition Assistance',
-        description: 'Align with Abuja. Federal Relationship +8, Informal Economy -8, Business -5, Trust +3.',
+        description:
+          'Align with Abuja. Federal Relationship +8, Informal Economy -8, Business -5, Trust +3.',
         immediate: { publicTrust: 3 },
         factionImpact: { federalGovt: 8, informalEconomy: -8, businessCommunity: -5 },
       },
       {
         id: 'lobby-cbn-lagos-extension',
         label: 'Lobby CBN for Lagos-Specific Extension',
-        description: 'Formally request a 90-day transition extension for Lagos. Federal Relationship -3, Informal Economy +5, Business +4. Delayed resolution.',
+        description:
+          'Formally request a 90-day transition extension for Lagos. Federal Relationship -3, Informal Economy +5, Business +4. Delayed resolution.',
         immediate: {},
         factionImpact: { federalGovt: -3, informalEconomy: 5, businessCommunity: 4 },
         delayed: {
@@ -421,7 +424,8 @@ export const economyEvents: EventCard[] = [
       {
         id: 'publicly-oppose-directive',
         label: 'Publicly Oppose the Directive',
-        description: 'Challenge CBN in a press statement. Federal Relationship -10, Informal Economy +8, Civil Society -5.',
+        description:
+          'Challenge CBN in a press statement. Federal Relationship -10, Informal Economy +8, Civil Society -5.',
         immediate: { publicTrust: 4 },
         factionImpact: { federalGovt: -10, informalEconomy: 8, civilSocietyMedia: -5 },
       },
@@ -438,7 +442,8 @@ export const economyEvents: EventCard[] = [
       {
         id: 'lobby-nass-formal-brief',
         label: 'Lobby NASS with Formal Lagos State Legal Brief',
-        description: 'Commission AG to file a constitutional objection. Federal Relationship -5, Business +10. Political Capital -20. Delayed result.',
+        description:
+          'Commission AG to file a constitutional objection. Federal Relationship -5, Business +10. Political Capital -20. Delayed result.',
         immediate: {},
         factionImpact: { federalGovt: -5, businessCommunity: 10 },
         politicalCapitalCost: 20,
@@ -451,7 +456,8 @@ export const economyEvents: EventCard[] = [
       {
         id: 'host-fintech-public-coalition',
         label: 'Host Fintech Summit — Build Public Coalition',
-        description: 'Make this a public fight with Lagos and fintech sector against the bill. Trust +6, Business +8, Civil Society +5, Federal Relationship -5.',
+        description:
+          'Make this a public fight with Lagos and fintech sector against the bill. Trust +6, Business +8, Civil Society +5, Federal Relationship -5.',
         immediate: { publicTrust: 6 },
         factionImpact: { businessCommunity: 8, civilSocietyMedia: 5, federalGovt: -5 },
       },
@@ -475,14 +481,16 @@ export const economyEvents: EventCard[] = [
       {
         id: 'emergency-contractor-payment',
         label: 'Emergency Contractor Payment from Reserve',
-        description: 'Release ₦1bn to highest-priority backlog contractors. Cash -1, Infrastructure +5, Business +8, Trust +4.',
+        description:
+          'Release ₦1bn to highest-priority backlog contractors. Cash -1, Infrastructure +5, Business +8, Trust +4.',
         immediate: { cashReserve: -1, infrastructureScore: 5, publicTrust: 4 },
         factionImpact: { businessCommunity: 8 },
       },
       {
         id: 'negotiate-payment-plan',
-        label: 'Negotiate Payment Plan, Engage Moody\'s',
-        description: 'Structured creditor engagement. Political Capital -15, Business +5. Delayed 12 weeks.',
+        label: "Negotiate Payment Plan, Engage Moody's",
+        description:
+          'Structured creditor engagement. Political Capital -15, Business +5. Delayed 12 weeks.',
         immediate: {},
         factionImpact: { businessCommunity: 5 },
         politicalCapitalCost: 15,
@@ -495,7 +503,8 @@ export const economyEvents: EventCard[] = [
       {
         id: 'dispute-rating-publicly',
         label: 'Dispute the Rating Methodology Publicly',
-        description: 'Challenge Moody\'s in a press statement. Business -8, Federal Relationship -3, Trust -5.',
+        description:
+          "Challenge Moody's in a press statement. Business -8, Federal Relationship -3, Trust -5.",
         immediate: { publicTrust: -5 },
         factionImpact: { businessCommunity: -8, federalGovt: -3 },
       },
@@ -512,7 +521,8 @@ export const economyEvents: EventCard[] = [
       {
         id: 'refer-icpc-new-procurement',
         label: 'Refer to ICPC, Open Competitive Procurement',
-        description: 'Corruption Pressure -8, Civil Society +12, Business -12, Godfathers -10. Some contracts stall for 8 weeks.',
+        description:
+          'Corruption Pressure -8, Civil Society +12, Business -12, Godfathers -10. Some contracts stall for 8 weeks.',
         immediate: { corruptionPressure: -8 },
         factionImpact: { civilSocietyMedia: 12, businessCommunity: -12, partyGodfathers: -10 },
         delayed: {
@@ -531,7 +541,8 @@ export const economyEvents: EventCard[] = [
       {
         id: 'defend-procurement-publicly',
         label: 'Defend Procurement Process Publicly',
-        description: 'Deny the report findings. Corruption Pressure +8, Civil Society -12, Trust -10.',
+        description:
+          'Deny the report findings. Corruption Pressure +8, Civil Society -12, Trust -10.',
         immediate: { corruptionPressure: 8, publicTrust: -10 },
         factionImpact: { civilSocietyMedia: -12 },
       },

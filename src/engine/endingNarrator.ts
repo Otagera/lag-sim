@@ -1,5 +1,5 @@
-import type { GameState, GameOverType, TimelineEntry } from '../state/types'
-import { getGoal, getGoalProgress, getGoalIsMet } from '../data/goals'
+import { getGoal, getGoalIsMet, getGoalProgress } from '../data/goals'
+import type { GameOverType, GameState, TimelineEntry } from '../state/types'
 
 function hashInt(seed: string): number {
   let h = 0
@@ -27,12 +27,25 @@ function worstLGA(state: GameState): { key: string; label: string; approval: num
     }
   }
   const labels: Record<string, string> = {
-    lagosIsland: 'Lagos Island', etiOsa: 'Eti Osa', ibejuLekki: 'Ibeju-Lekki',
-    surulere: 'Surulere', amuwoOdofin: 'Amuwo Odofin', apapa: 'Apapa',
-    oshodiIsolo: 'Oshodi/Isolo', mushin: 'Mushin', shomolu: 'Shomolu',
-    kosofe: 'Kosofe', lagosMainland: 'Lagos Mainland', ikeja: 'Ikeja',
-    alimosho: 'Alimosho', agege: 'Agege', ifakoIjaye: 'Ifako/Ijaye',
-    badagry: 'Badagry', epe: 'Epe', ikorodu: 'Ikorodu', ojo: 'Ojo',
+    lagosIsland: 'Lagos Island',
+    etiOsa: 'Eti Osa',
+    ibejuLekki: 'Ibeju-Lekki',
+    surulere: 'Surulere',
+    amuwoOdofin: 'Amuwo Odofin',
+    apapa: 'Apapa',
+    oshodiIsolo: 'Oshodi/Isolo',
+    mushin: 'Mushin',
+    shomolu: 'Shomolu',
+    kosofe: 'Kosofe',
+    lagosMainland: 'Lagos Mainland',
+    ikeja: 'Ikeja',
+    alimosho: 'Alimosho',
+    agege: 'Agege',
+    ifakoIjaye: 'Ifako/Ijaye',
+    badagry: 'Badagry',
+    epe: 'Epe',
+    ikorodu: 'Ikorodu',
+    ojo: 'Ojo',
     ajeromiIfelodun: 'Ajeromi/Ifelodun',
   }
   return { key: worstKey, label: labels[worstKey] ?? worstKey, approval: worstVal }
@@ -58,11 +71,25 @@ function scoreTimelineEntry(entry: TimelineEntry, state: GameState): number {
   const factionScore = entry.factionDelta
     ? Object.values(entry.factionDelta).reduce((a, b) => a + Math.abs(b ?? 0), 0)
     : 0
-  const crisisBonuses = ['riot', 'emergency', 'impeachment', 'removal', 'protest', 'uprising',
-    'looting', 'arrest', 'indictment', 'collapse', 'scandal', 'inquiry']
-  const narrativeBonus = crisisBonuses.some((kw) =>
-    entry.title.toLowerCase().includes(kw) || entry.description.toLowerCase().includes(kw)
-  ) ? 8 : 0
+  const crisisBonuses = [
+    'riot',
+    'emergency',
+    'impeachment',
+    'removal',
+    'protest',
+    'uprising',
+    'looting',
+    'arrest',
+    'indictment',
+    'collapse',
+    'scandal',
+    'inquiry',
+  ]
+  const narrativeBonus = crisisBonuses.some(
+    (kw) => entry.title.toLowerCase().includes(kw) || entry.description.toLowerCase().includes(kw),
+  )
+    ? 8
+    : 0
 
   const recentPenalty = state.week - entry.week > 100 ? -3 : 0
 
@@ -81,7 +108,7 @@ function pickKeyMoments(state: GameState, count: number, seed: string): ScoredTi
 
   const top = scored.slice(0, count * 2)
 
-  const offset = hashInt(seed + 'moments') % Math.max(1, top.length - count + 1)
+  const offset = hashInt(`${seed}moments`) % Math.max(1, top.length - count + 1)
   return top.slice(offset, offset + count)
 }
 
@@ -99,15 +126,32 @@ function goalLine(state: GameState): string {
 
 function pickProject(state: GameState, seed: string): string | null {
   const projectFlags = Object.keys(state.stateFlags).filter(
-    (f) => f.includes('hub') || f.includes('construction') || f.includes('built') || f.includes('completed') || f.includes('commissioned') || f.includes('laboratory') || f.includes('forensic') || f.includes('hospital') || f.includes('school') || f.includes('road') || f.includes('market') || f.includes('terminal') || f.includes('plant') || f.includes('dump') || f.includes('bus') || f.includes('rail') || f.includes('metro'),
+    (f) =>
+      f.includes('hub') ||
+      f.includes('construction') ||
+      f.includes('built') ||
+      f.includes('completed') ||
+      f.includes('commissioned') ||
+      f.includes('laboratory') ||
+      f.includes('forensic') ||
+      f.includes('hospital') ||
+      f.includes('school') ||
+      f.includes('road') ||
+      f.includes('market') ||
+      f.includes('terminal') ||
+      f.includes('plant') ||
+      f.includes('dump') ||
+      f.includes('bus') ||
+      f.includes('rail') ||
+      f.includes('metro'),
   )
   if (projectFlags.length === 0) {
     const projects = state.capitalProjects.filter((p) => p.status === 'completed')
     if (projects.length === 0) return null
-    const idx = hashInt(seed + 'project') % projects.length
+    const idx = hashInt(`${seed}project`) % projects.length
     return projects[idx].name
   }
-  const idx = hashInt(seed + 'flag') % projectFlags.length
+  const idx = hashInt(`${seed}flag`) % projectFlags.length
   return projectFlags[idx].replace(/-/g, ' ')
 }
 
@@ -200,7 +244,8 @@ const PRIMARY_OPENINGS = [
 function primaryWhy(state: GameState): string {
   if (state.stateFlags['primary-b-grassroots']) {
     const lgaResult = state.lgaElectionResult ?? 0
-    if (lgaResult >= 60) return 'The grassroots delivered your LGA base but the party machinery held against you'
+    if (lgaResult >= 60)
+      return 'The grassroots delivered your LGA base but the party machinery held against you'
     return 'Without the LGA delegate base or civil society endorsement, the ward counts did not hold'
   }
   if (state.stateFlags['primary-b-civil-society']) {
@@ -318,17 +363,9 @@ const PRIMARY_VERDICTS = [
   'Party Above Governor',
 ]
 
-const LOSS_VERDICTS = [
-  'One Term, Not Extended',
-  'The Voters Chose Change',
-  'A Single-Term Record',
-]
+const LOSS_VERDICTS = ['One Term, Not Extended', 'The Voters Chose Change', 'A Single-Term Record']
 
-const WIN_VERDICTS = [
-  'The Mandate Renewed',
-  'Four More Years',
-  'The People Returned You',
-]
+const WIN_VERDICTS = ['The Mandate Renewed', 'Four More Years', 'The People Returned You']
 
 const SECOND_TERM_VERDICTS = [
   'Eight Years in the Hardest Job',
@@ -338,14 +375,22 @@ const SECOND_TERM_VERDICTS = [
 
 function pickVerdict(exit: GameOverType, seed: string): string {
   switch (exit) {
-    case 'bankruptcy': return pickVariant(BANKRUPTCY_VERDICTS, seed)
-    case 'federalTakeover': return pickVariant(FEDERAL_VERDICTS, seed)
-    case 'massUprising': return pickVariant(UPRISING_VERDICTS, seed)
-    case 'impeachment': return pickVariant(IMPEACHMENT_VERDICTS, seed)
-    case 'primaryLoss': return pickVariant(PRIMARY_VERDICTS, seed)
-    case 'termEndLoss': return pickVariant(LOSS_VERDICTS, seed)
-    case 'termEndWin': return pickVariant(WIN_VERDICTS, seed)
-    case 'secondTermEnd': return pickVariant(SECOND_TERM_VERDICTS, seed)
+    case 'bankruptcy':
+      return pickVariant(BANKRUPTCY_VERDICTS, seed)
+    case 'federalTakeover':
+      return pickVariant(FEDERAL_VERDICTS, seed)
+    case 'massUprising':
+      return pickVariant(UPRISING_VERDICTS, seed)
+    case 'impeachment':
+      return pickVariant(IMPEACHMENT_VERDICTS, seed)
+    case 'primaryLoss':
+      return pickVariant(PRIMARY_VERDICTS, seed)
+    case 'termEndLoss':
+      return pickVariant(LOSS_VERDICTS, seed)
+    case 'termEndWin':
+      return pickVariant(WIN_VERDICTS, seed)
+    case 'secondTermEnd':
+      return pickVariant(SECOND_TERM_VERDICTS, seed)
   }
 }
 
@@ -355,9 +400,8 @@ export function buildEndingNarrative(state: GameState, exit: GameOverType): stri
   const seed = `ending-${exit}-${state.week}-${state.stats.publicTrust.toFixed(0)}-${state.stats.cashReserve.toFixed(0)}-${state.timeline.length}`
 
   const moments = pickKeyMoments(state, 2, seed)
-  const momentsText = moments.length > 0
-    ? moments.map((m) => `${capitalise(m.title)}`).join('. ') + '.'
-    : ''
+  const momentsText =
+    moments.length > 0 ? `${moments.map((m) => `${capitalise(m.title)}`).join('. ')}.` : ''
 
   const goalFrag = goalLine(state)
   const trust = state.stats.publicTrust.toFixed(0)
@@ -373,11 +417,8 @@ export function buildEndingNarrative(state: GameState, exit: GameOverType): stri
   const project = pickProject(state, seed)
 
   const csScore = state.factions.civilSocietyMedia
-  const csDescription = csScore >= 60
-    ? 'endorsed you'
-    : csScore >= 40
-      ? 'stayed engaged'
-      : 'turned against you'
+  const csDescription =
+    csScore >= 60 ? 'endorsed you' : csScore >= 40 ? 'stayed engaged' : 'turned against you'
 
   const wLGA = worstLGA(state)
   const worstLGAVal = wLGA.approval.toFixed(0)
@@ -409,63 +450,64 @@ export function buildEndingNarrative(state: GameState, exit: GameOverType): stri
 
   switch (exit) {
     case 'bankruptcy': {
-      const opening = pickVariant(BANKRUPTCY_OPENINGS, seed + 'o')
-      const achievements = pickVariant(BANKRUPTCY_ACHIEVEMENTS, seed + 'a')
-      const closing = pickVariant(BANKRUPTCY_CLOSINGS, seed + 'c')
-      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? momentsText + ' ' : ''}${fill(closing)}`
+      const opening = pickVariant(BANKRUPTCY_OPENINGS, `${seed}o`)
+      const achievements = pickVariant(BANKRUPTCY_ACHIEVEMENTS, `${seed}a`)
+      const closing = pickVariant(BANKRUPTCY_CLOSINGS, `${seed}c`)
+      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
       break
     }
     case 'federalTakeover': {
-      const opening = pickVariant(FEDERAL_OPENINGS, seed + 'o')
-      const achievements = pickVariant(FEDERAL_ACHIEVEMENTS, seed + 'a')
-      const closing = pickVariant(FEDERAL_CLOSINGS, seed + 'c')
-      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? momentsText + ' ' : ''}${fill(closing)}`
+      const opening = pickVariant(FEDERAL_OPENINGS, `${seed}o`)
+      const achievements = pickVariant(FEDERAL_ACHIEVEMENTS, `${seed}a`)
+      const closing = pickVariant(FEDERAL_CLOSINGS, `${seed}c`)
+      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
       break
     }
     case 'massUprising': {
-      const opening = pickVariant(UPRISING_OPENINGS, seed + 'o')
-      const achievements = pickVariant(UPRISING_ACHIEVEMENTS, seed + 'a')
-      const closing = pickVariant(UPRISING_CLOSINGS, seed + 'c')
-      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? momentsText + ' ' : ''}${fill(closing)}`
+      const opening = pickVariant(UPRISING_OPENINGS, `${seed}o`)
+      const achievements = pickVariant(UPRISING_ACHIEVEMENTS, `${seed}a`)
+      const closing = pickVariant(UPRISING_CLOSINGS, `${seed}c`)
+      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
       break
     }
     case 'impeachment': {
       const defied = state.timeline.some(
-        (e) => e.title === 'Removal Resolution: First Reading' && e.description === 'Defy the Assembly',
+        (e) =>
+          e.title === 'Removal Resolution: First Reading' && e.description === 'Defy the Assembly',
       )
       const openings = defied ? IMPEACHMENT_OPENINGS_DEFIED : IMPEACHMENT_OPENINGS_CONCEDED
-      const opening = pickVariant(openings, seed + 'o')
-      const achievements = pickVariant(IMPEACHMENT_ACHIEVEMENTS, seed + 'a')
-      const closing = pickVariant(IMPEACHMENT_CLOSINGS, seed + 'c')
-      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? momentsText + ' ' : ''}${fill(closing)}`
+      const opening = pickVariant(openings, `${seed}o`)
+      const achievements = pickVariant(IMPEACHMENT_ACHIEVEMENTS, `${seed}a`)
+      const closing = pickVariant(IMPEACHMENT_CLOSINGS, `${seed}c`)
+      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
       break
     }
     case 'primaryLoss': {
-      const opening = pickVariant(PRIMARY_OPENINGS, seed + 'o')
-      const achievements = pickVariant(PRIMARY_ACHIEVEMENTS, seed + 'a')
-      const closing = pickVariant(PRIMARY_CLOSINGS, seed + 'c')
-      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? momentsText + ' ' : ''}${fill(closing)}`
+      const opening = pickVariant(PRIMARY_OPENINGS, `${seed}o`)
+      const achievements = pickVariant(PRIMARY_ACHIEVEMENTS, `${seed}a`)
+      const closing = pickVariant(PRIMARY_CLOSINGS, `${seed}c`)
+      narrative = `${fill(opening)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
       break
     }
     case 'termEndLoss': {
-      const why = pickVariant(LOSS_WHY_DIAGNOSES, seed + 'w')
-      const achievements = pickVariant(LOSS_ACHIEVEMENTS, seed + 'a')
-      const closing = pickVariant(LOSS_CLOSINGS, seed + 'c')
-      narrative = `${fill(why)}\n\n${fill(achievements)}\n\n${momentsText ? momentsText + ' ' : ''}${fill(closing)}`
+      const why = pickVariant(LOSS_WHY_DIAGNOSES, `${seed}w`)
+      const achievements = pickVariant(LOSS_ACHIEVEMENTS, `${seed}a`)
+      const closing = pickVariant(LOSS_CLOSINGS, `${seed}c`)
+      narrative = `${fill(why)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
       break
     }
     case 'termEndWin': {
-      const narr = pickVariant(WIN_NARRATIVES, seed + 'n')
-      const achievements = pickVariant(WIN_ACHIEVEMENTS, seed + 'a')
-      const closing = pickVariant(WIN_CLOSINGS, seed + 'c')
-      narrative = `${fill(narr)}\n\n${fill(achievements)}\n\n${momentsText ? momentsText + ' ' : ''}${fill(closing)}`
+      const narr = pickVariant(WIN_NARRATIVES, `${seed}n`)
+      const achievements = pickVariant(WIN_ACHIEVEMENTS, `${seed}a`)
+      const closing = pickVariant(WIN_CLOSINGS, `${seed}c`)
+      narrative = `${fill(narr)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
       break
     }
     case 'secondTermEnd': {
-      const narr = pickVariant(SECOND_TERM_NARRATIVES, seed + 'n')
-      const achievements = pickVariant(SECOND_TERM_ACHIEVEMENTS, seed + 'a')
-      const closing = pickVariant(SECOND_TERM_CLOSINGS, seed + 'c')
-      narrative = `${fill(narr)}\n\n${fill(achievements)}\n\n${momentsText ? momentsText + ' ' : ''}${fill(closing)}`
+      const narr = pickVariant(SECOND_TERM_NARRATIVES, `${seed}n`)
+      const achievements = pickVariant(SECOND_TERM_ACHIEVEMENTS, `${seed}a`)
+      const closing = pickVariant(SECOND_TERM_CLOSINGS, `${seed}c`)
+      narrative = `${fill(narr)}\n\n${fill(achievements)}\n\n${momentsText ? `${momentsText} ` : ''}${fill(closing)}`
       break
     }
   }

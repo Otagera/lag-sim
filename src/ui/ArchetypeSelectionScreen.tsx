@@ -1,13 +1,15 @@
 import { useState } from 'react'
-import { ARCHETYPES, ARCHETYPE_KEY_ORDER, getArchetypeState } from '../data/archetypes'
 import type { ArchetypeKey } from '../data/archetypes'
+import { ARCHETYPE_KEY_ORDER, ARCHETYPES, getArchetypeState } from '../data/archetypes'
 import { useGameStore } from '../state/gameStore'
-import { Button } from './components'
 
 const DAY_ONE: Record<ArchetypeKey, string> = {
-  technocrat: 'The party machine will test you in the first 8 weeks. With zero political capital, even small confrontations cost you double.',
-  loyalist: "Expect the godfather's first ask within 4 weeks. Corruption is already at 50% — any early scandal compounds fast.",
-  outsider: 'Cash reserves are critically thin. Without IGR reform in the first month, you risk insolvency before Year 2.',
+  technocrat:
+    'The party machine will test you in the first 8 weeks. With zero political capital, even small confrontations cost you double.',
+  loyalist:
+    "Expect the godfather's first ask within 4 weeks. Corruption is already at 50% — any early scandal compounds fast.",
+  outsider:
+    'Cash reserves are critically thin. Without IGR reform in the first month, you risk insolvency before Year 2.',
 }
 
 const BORDER_COLOR: Record<ArchetypeKey, string> = {
@@ -31,11 +33,18 @@ export function ArchetypeSelectionScreen({ onSelect }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center py-8 px-4" style={{ backgroundColor: 'var(--background)' }}>
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center py-8 px-4"
+      style={{ backgroundColor: 'var(--background)' }}
+    >
       <div className="w-full max-w-3xl">
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <p className="label-caps" style={{ color: 'var(--accent-text)' }}>Choose your path</p>
-          <h1 className="font-display text-2xl font-semibold mt-1" style={{ color: 'var(--text)' }}>Who Are You?</h1>
+          <p className="label-caps" style={{ color: 'var(--accent-text)' }}>
+            Choose your path
+          </p>
+          <h1 className="font-display text-2xl font-semibold mt-1" style={{ color: 'var(--text)' }}>
+            Who Are You?
+          </h1>
           <p className="text-sm mt-2 max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
             Your background shapes how you enter government. Each archetype starts with different
             strengths and liabilities. Choose wisely — this cannot be undone.
@@ -46,34 +55,56 @@ export function ArchetypeSelectionScreen({ onSelect }: Props) {
           {ARCHETYPE_KEY_ORDER.map((key) => {
             const arch = ARCHETYPES[key]
             return (
-              <div
+              <button
+                type="button"
                 key={key}
                 className="border p-4 flex flex-col gap-3"
                 style={{
+                  appearance: 'none',
+                  width: '100%',
                   borderColor: BORDER_COLOR[key],
                   borderTopWidth: '2px',
                   backgroundColor: 'var(--surface)',
                   cursor: 'pointer',
+                  textAlign: 'left',
                   transform: hoveredKey === key ? 'translateY(-2px)' : 'none',
                   transition: 'transform 200ms ease, box-shadow 200ms ease',
                   boxShadow: hoveredKey === key ? 'var(--shadow-md)' : 'none',
                 }}
+                onClick={() => handleSelect(key)}
                 onMouseEnter={() => setHoveredKey(key)}
                 onMouseLeave={() => setHoveredKey(null)}
               >
                 <div>
-                  <div className="label-caps" style={{ color: BORDER_COLOR[key] }}>{arch.shortName}</div>
-                  <h2 className="text-[13px] font-semibold mt-0.5" style={{ color: 'var(--text)' }}>{arch.name}</h2>
-                  <p className="text-[11px] mt-0.5 italic" style={{ color: BORDER_COLOR[key] }}>{arch.tagline}</p>
+                  <div className="label-caps" style={{ color: BORDER_COLOR[key] }}>
+                    {arch.shortName}
+                  </div>
+                  <h2 className="text-[13px] font-semibold mt-0.5" style={{ color: 'var(--text)' }}>
+                    {arch.name}
+                  </h2>
+                  <p className="text-[11px] mt-0.5 italic" style={{ color: BORDER_COLOR[key] }}>
+                    {arch.tagline}
+                  </p>
                 </div>
 
-                <p className="text-[11px] leading-relaxed flex-1" style={{ color: 'var(--text)' }}>{arch.description}</p>
+                <p className="text-[11px] leading-relaxed flex-1" style={{ color: 'var(--text)' }}>
+                  {arch.description}
+                </p>
 
-                <div style={{ fontSize: '11px', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
+                <div
+                  style={{
+                    fontSize: '11px',
+                    borderTop: '1px solid var(--border)',
+                    paddingTop: '8px',
+                  }}
+                >
                   {arch.statPreview.map((s) => (
                     <div key={s.label} className="flex justify-between">
                       <span style={{ color: 'var(--text-secondary)' }}>{s.label}</span>
-                      <span className="font-semibold" style={{ color: s.positive ? 'var(--success-11)' : 'var(--error-11)' }}>
+                      <span
+                        className="font-semibold"
+                        style={{ color: s.positive ? 'var(--success-11)' : 'var(--error-11)' }}
+                      >
                         {s.value}
                       </span>
                     </div>
@@ -82,31 +113,49 @@ export function ArchetypeSelectionScreen({ onSelect }: Props) {
 
                 <div style={{ fontSize: '11px' }}>
                   <div>
-                    <span className="font-semibold" style={{ color: 'var(--success-11)' }}>Strength: </span>
+                    <span className="font-semibold" style={{ color: 'var(--success-11)' }}>
+                      Strength:{' '}
+                    </span>
                     <span style={{ color: 'var(--text)' }}>{arch.strength}</span>
                   </div>
                   <div>
-                    <span className="font-semibold" style={{ color: 'var(--error-11)' }}>Risk: </span>
+                    <span className="font-semibold" style={{ color: 'var(--error-11)' }}>
+                      Risk:{' '}
+                    </span>
                     <span style={{ color: 'var(--text)' }}>{arch.risk}</span>
                   </div>
                 </div>
 
                 <p
                   className="text-[11px] leading-relaxed pt-2"
-                  style={{ borderTop: '1px solid var(--border)', color: 'var(--text-secondary)', fontStyle: 'italic' }}
+                  style={{
+                    borderTop: '1px solid var(--border)',
+                    color: 'var(--text-secondary)',
+                    fontStyle: 'italic',
+                  }}
                 >
                   {DAY_ONE[key]}
                 </p>
 
-                <Button
-                  variant="primary"
-                  fullWidth
-                  onClick={() => handleSelect(key)}
-                  style={{ background: BORDER_COLOR[key] }}
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '100%',
+                    padding: '9px 18px',
+                    borderRadius: '2px',
+                    fontFamily: "'Archivo Narrow', sans-serif",
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    lineHeight: 1.3,
+                    color: 'var(--accent-on-solid)',
+                    background: BORDER_COLOR[key],
+                  }}
                 >
                   Play as {arch.shortName}
-                </Button>
-              </div>
+                </span>
+              </button>
             )
           })}
         </div>

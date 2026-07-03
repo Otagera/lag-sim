@@ -113,14 +113,16 @@ export const transportEvents: EventCard[] = [
       {
         id: 'extend-phaseout-deadline',
         label: 'Extend Phase-Out Deadline by 12 Months',
-        description: 'Allow yellow buses to operate while BRT fleet clears customs. Informal Economy +8, Infrastructure -3, Trust -4.',
+        description:
+          'Allow yellow buses to operate while BRT fleet clears customs. Informal Economy +8, Infrastructure -3, Trust -4.',
         immediate: { publicTrust: -4 },
         factionImpact: { informalEconomy: 8, businessCommunity: -3 },
       },
       {
         id: 'enforce-phase-out',
         label: 'Enforce Phase-Out, Deploy Police to Motor Parks',
-        description: 'Hold the line. Informal Economy -15, Trust -8, Youth Tension +10. Strike likely.',
+        description:
+          'Hold the line. Informal Economy -15, Trust -8, Youth Tension +10. Strike likely.',
         immediate: { youthTension: 10, publicTrust: -8 },
         factionImpact: { informalEconomy: -15, civilSocietyMedia: -5 },
         constituencyImpact: { agege: -10, oshodiIsolo: -8 },
@@ -128,7 +130,8 @@ export const transportEvents: EventCard[] = [
       {
         id: 'hybrid-route-negotiation',
         label: 'Negotiate Hybrid: Keep 200 Buses on Long Routes',
-        description: 'Allow limited yellow bus operation on Ikorodu and Badagry routes only. Both sides unhappy, city keeps moving. Informal Economy +4, Infrastructure +3, Trust +4.',
+        description:
+          'Allow limited yellow bus operation on Ikorodu and Badagry routes only. Both sides unhappy, city keeps moving. Informal Economy +4, Infrastructure +3, Trust +4.',
         immediate: { publicTrust: 4, infrastructureScore: 3 },
         factionImpact: { informalEconomy: 4, businessCommunity: 3 },
       },
@@ -145,21 +148,24 @@ export const transportEvents: EventCard[] = [
       {
         id: 'protect-rideshare-operators',
         label: 'Protect Rideshare Operators — Arrest Tout Leaders',
-        description: 'Direct Lagos Police to arrest tout leadership and return impounded vehicles. Business +8, Civil Society +5, Informal Economy -12.',
+        description:
+          'Direct Lagos Police to arrest tout leadership and return impounded vehicles. Business +8, Civil Society +5, Informal Economy -12.',
         immediate: { publicTrust: 5 },
         factionImpact: { businessCommunity: 8, civilSocietyMedia: 5, informalEconomy: -12 },
       },
       {
         id: 'back-nurtw',
         label: 'Side With NURTW',
-        description: 'Direct rideshare companies to register with the transport union. Informal Economy +10, Business -8, Civil Society -8.',
+        description:
+          'Direct rideshare companies to register with the transport union. Informal Economy +10, Business -8, Civil Society -8.',
         immediate: { publicTrust: -4 },
         factionImpact: { informalEconomy: 10, businessCommunity: -8, civilSocietyMedia: -8 },
       },
       {
         id: 'regulate-both',
         label: 'Create a Dual Licensing Framework',
-        description: 'LASG will issue transport licences for both unions and rideshare platforms. Delayed, Political Capital -15. Long-term stability.',
+        description:
+          'LASG will issue transport licences for both unions and rideshare platforms. Delayed, Political Capital -15. Long-term stability.',
         immediate: {},
         factionImpact: {},
         politicalCapitalCost: 15,
@@ -182,7 +188,8 @@ export const transportEvents: EventCard[] = [
       {
         id: 'emergency-fleet-procurement',
         label: 'Emergency Fleet Procurement',
-        description: 'Procure 4 new vessels from River State Ferry Corp and NDDC on emergency transfer. Infrastructure +8, Trust +6. Delayed 10 weeks.',
+        description:
+          'Procure 4 new vessels from River State Ferry Corp and NDDC on emergency transfer. Infrastructure +8, Trust +6. Delayed 10 weeks.',
         immediate: {},
         factionImpact: { civilSocietyMedia: 6, businessCommunity: 4 },
         delayed: {
@@ -194,14 +201,16 @@ export const transportEvents: EventCard[] = [
       {
         id: 'subsidise-brt-alternative',
         label: 'Subsidise Road Alternative (Additional BRT)',
-        description: 'Commission 20 extra BRT buses on the VI–Badore road route. Cash -0.8, Infrastructure +3, Trust +2. Congestion increases.',
+        description:
+          'Commission 20 extra BRT buses on the VI–Badore road route. Cash -0.8, Infrastructure +3, Trust +2. Congestion increases.',
         immediate: { cashReserve: -0.8, infrastructureScore: 3, publicTrust: 2 },
         factionImpact: { informalEconomy: 3 },
       },
       {
         id: 'ppp-ferry-contract',
         label: 'Commission PPP Ferry Contract',
-        description: 'Open a public-private partnership tender for the ferry route. No immediate cost. 16 weeks to award. Business Community +6.',
+        description:
+          'Open a public-private partnership tender for the ferry route. No immediate cost. 16 weeks to award. Business Community +6.',
         immediate: {},
         factionImpact: { businessCommunity: 6 },
         delayed: {
@@ -223,14 +232,16 @@ export const transportEvents: EventCard[] = [
       {
         id: 'sack-checkpoint-officers',
         label: 'Dismiss Officers, Roll Out Checkpoint CCTV',
-        description: 'Public action within 48 hours. Trust +8, Civil Society +10, Cash -0.2. LASTMA union angered.',
+        description:
+          'Public action within 48 hours. Trust +8, Civil Society +10, Cash -0.2. LASTMA union angered.',
         immediate: { publicTrust: 8, cashReserve: -0.2 },
         factionImpact: { civilSocietyMedia: 10, informalEconomy: 3 },
       },
       {
         id: 'internal-review-only',
         label: 'Internal Review, No Public Statement',
-        description: 'Handle inside the agency. Trust -6, Corruption Pressure +8. NTA will follow up.',
+        description:
+          'Handle inside the agency. Trust -6, Corruption Pressure +8. NTA will follow up.',
         immediate: { publicTrust: -6, corruptionPressure: 8 },
         factionImpact: { civilSocietyMedia: -8 },
       },
@@ -254,7 +265,8 @@ export const transportEvents: EventCard[] = [
       {
         id: 'defend-lastma-escalate-fmw',
         label: 'Defend LASTMA — Write to Federal Ministry of Works',
-        description: 'Back LASTMA publicly and request a joint enforcement protocol with the Federal Ministry of Works. Trust +4, Federal Govt -5. Delayed infrastructure gain.',
+        description:
+          'Back LASTMA publicly and request a joint enforcement protocol with the Federal Ministry of Works. Trust +4, Federal Govt -5. Delayed infrastructure gain.',
         immediate: { publicTrust: 4 },
         factionImpact: { civilSocietyMedia: 5, federalGovt: -5 },
         politicalCapitalCost: 10,
@@ -267,14 +279,16 @@ export const transportEvents: EventCard[] = [
       {
         id: 'release-officers-accept-frsc',
         label: 'Quietly Accept FRSC Jurisdiction on Federal Roads',
-        description: 'Release the arrested officers, issue no statement, accept the boundary. Trust -4. Federal relations improve.',
+        description:
+          'Release the arrested officers, issue no statement, accept the boundary. Trust -4. Federal relations improve.',
         immediate: { publicTrust: -4 },
         factionImpact: { federalGovt: 6 },
       },
       {
         id: 'joint-enforcement-mou',
         label: 'Propose Joint FRSC-LASTMA Enforcement MOU',
-        description: 'Negotiate a memorandum of understanding for shared enforcement on hybrid roads. Political Capital -15. Delayed infrastructure and trust gains.',
+        description:
+          'Negotiate a memorandum of understanding for shared enforcement on hybrid roads. Political Capital -15. Delayed infrastructure and trust gains.',
         immediate: {},
         factionImpact: { federalGovt: 4, civilSocietyMedia: 3 },
         politicalCapitalCost: 15,
@@ -297,14 +311,16 @@ export const transportEvents: EventCard[] = [
       {
         id: 'pay-restart-works',
         label: 'Pay ₦3bn, Restart Works',
-        description: 'Emergency release from reserve to clear the most overdue certificates. Cash -1, Infrastructure +6, Trust +6.',
+        description:
+          'Emergency release from reserve to clear the most overdue certificates. Cash -1, Infrastructure +6, Trust +6.',
         immediate: { cashReserve: -1, infrastructureScore: 6, publicTrust: 6 },
         factionImpact: { businessCommunity: 8, federalGovt: 4 },
       },
       {
         id: 'negotiate-federal-co-payment',
         label: 'Negotiate Federal Co-Payment',
-        description: 'Push FG to release World Bank tranche jointly. Political Capital -20, Federal Relationship +5. Delayed 8 weeks.',
+        description:
+          'Push FG to release World Bank tranche jointly. Political Capital -20, Federal Relationship +5. Delayed 8 weeks.',
         immediate: {},
         factionImpact: { federalGovt: 5, businessCommunity: -3 },
         politicalCapitalCost: 20,
@@ -317,7 +333,8 @@ export const transportEvents: EventCard[] = [
       {
         id: 'cancel-contract-new-procurement',
         label: 'Cancel Contract, Seek New Procurement',
-        description: 'Terminate CCECC, open international tender. Infrastructure -5, Trust -8, Business -5. Delayed 20 weeks.',
+        description:
+          'Terminate CCECC, open international tender. Infrastructure -5, Trust -8, Business -5. Delayed 20 weeks.',
         immediate: { infrastructureScore: -5, publicTrust: -8 },
         factionImpact: { businessCommunity: -5, civilSocietyMedia: -5 },
       },
@@ -334,7 +351,8 @@ export const transportEvents: EventCard[] = [
       {
         id: 'request-joint-task-force',
         label: 'Request Joint Federal–State Anti-Fraud Task Force',
-        description: 'Federal Relationship +8, Corruption Pressure -3. Delayed results. Abuja involvement brings leverage.',
+        description:
+          'Federal Relationship +8, Corruption Pressure -3. Delayed results. Abuja involvement brings leverage.',
         immediate: {},
         factionImpact: { federalGovt: 8, civilSocietyMedia: 5 },
         delayed: {

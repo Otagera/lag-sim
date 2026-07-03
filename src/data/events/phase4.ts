@@ -67,7 +67,7 @@ export const phase4Events: EventCard[] = [
         id: 'press-witnesses',
         label: 'Mount an Aggressive Cross-Examination',
         description:
-          'PC -20. Partygodfathers -5 (you\'re spending their capital). But strengthens your case — increases final ruling odds.',
+          "PC -20. Partygodfathers -5 (you're spending their capital). But strengthens your case — increases final ruling odds.",
         immediate: { politicalCapital: -20 },
         factionImpact: { partyGodfathers: -5, civilSocietyMedia: 8 },
         setFlags: { 'tribunal-contested-aggressively': true },
@@ -112,8 +112,7 @@ export const phase4Events: EventCard[] = [
       {
         id: 'accept-shield-victory',
         label: 'Address the crowd and thank Lagos',
-        description:
-          'Trust +8. PC +20. Partygodfathers +10 (rebellion broken). Civil Society +8.',
+        description: 'Trust +8. PC +20. Partygodfathers +10 (rebellion broken). Civil Society +8.',
         immediate: { publicTrust: 8, politicalCapital: 20 },
         factionImpact: { civilSocietyMedia: 8, partyGodfathers: 10, informalEconomy: 8 },
         setFlags: { 'populist-shield-invoked': false, 'populist-shield-succeeded': true },
@@ -135,8 +134,7 @@ export const phase4Events: EventCard[] = [
       {
         id: 'regroup-after-failure',
         label: 'Regroup — the assembly now has momentum',
-        description:
-          'Trust -8. PC -15. Partygodfathers -12. The removal process begins.',
+        description: 'Trust -8. PC -15. Partygodfathers -12. The removal process begins.',
         immediate: { publicTrust: -8, politicalCapital: -15 },
         factionImpact: { partyGodfathers: -12, civilSocietyMedia: -5 },
         setFlags: { 'populist-shield-invoked': false },
@@ -186,7 +184,7 @@ export const phase4Events: EventCard[] = [
           weekOffset: 12,
           delta: {},
           eventText:
-            'The opposition offered a better price. Three of the five \'secured\' votes are now bargaining again. The Speaker\'s office reports that envelopes are changing hands in the assembly complex washrooms.',
+            "The opposition offered a better price. Three of the five 'secured' votes are now bargaining again. The Speaker's office reports that envelopes are changing hands in the assembly complex washrooms.",
         },
       },
       {
@@ -287,8 +285,7 @@ export const phase4Events: EventCard[] = [
       {
         id: 'defer-ghost-purge',
         label: 'Defer — Too Politically Sensitive Now',
-        description:
-          'The problem compounds. Corruption pressure rises as the drain continues.',
+        description: 'The problem compounds. Corruption pressure rises as the drain continues.',
         immediate: { corruptionPressure: 5 },
         factionImpact: { lgChairmen: 4 },
       },
@@ -335,8 +332,7 @@ export const phase4Events: EventCard[] = [
       {
         id: 'implement-biometric-outcome',
         label: 'Implement the verified payroll',
-        description:
-          'Ghost worker rate -40%. Civil service reform score +25. Base overheads -2.',
+        description: 'Ghost worker rate -40%. Civil service reform score +25. Base overheads -2.',
         immediate: { ghostWorkerRate: -0.06, civilServiceReformScore: 25, baseOverheads: -2 },
         factionImpact: { civilSocietyMedia: 5, businessCommunity: 5 },
         setFlags: { 'ghost-purge-resolved': true },
@@ -356,8 +352,7 @@ export const phase4Events: EventCard[] = [
       {
         id: 'accept-committee-report',
         label: 'Accept and implement the partial result',
-        description:
-          'Ghost worker rate -20%. Civil service reform score +10.',
+        description: 'Ghost worker rate -20%. Civil service reform score +10.',
         immediate: { ghostWorkerRate: -0.03, civilServiceReformScore: 10 },
         factionImpact: { partyGodfathers: 3 },
         setFlags: { 'ghost-purge-resolved': true },
@@ -373,7 +368,8 @@ export const phase4Events: EventCard[] = [
     category: 'economy',
     isRecurring: true,
     cooldownWeeks: 10,
-    triggerCondition: (state) => (state.week >= 155 || state.inCampaignMode) && state.currentTerm === 1,
+    triggerCondition: (state) =>
+      (state.week >= 155 || state.inCampaignMode) && state.currentTerm === 1,
     choices: [
       {
         id: 'distribute-food-cash',
@@ -394,8 +390,7 @@ export const phase4Events: EventCard[] = [
       {
         id: 'resist-and-build',
         label: 'Resist — Keep Building, Trust the Record',
-        description:
-          'Infrastructure +3. PC -8. Short-term trust loss in swing constituencies.',
+        description: 'Infrastructure +3. PC -8. Short-term trust loss in swing constituencies.',
         immediate: { infrastructureScore: 3, politicalCapital: -8 },
         factionImpact: { civilSocietyMedia: 6, lgChairmen: -6, informalEconomy: -8 },
         constituencyImpact: {
@@ -431,7 +426,9 @@ export const phase4Events: EventCard[] = [
     isRecurring: true,
     cooldownWeeks: 12,
     triggerCondition: (state) =>
-      (state.week >= 165 || state.inCampaignMode) && state.stats.cashReserve > 5 && state.currentTerm === 1,
+      (state.week >= 165 || state.inCampaignMode) &&
+      state.stats.cashReserve > 5 &&
+      state.currentTerm === 1,
     choices: [
       {
         id: 'fund-rallies-from-infra',
@@ -451,8 +448,7 @@ export const phase4Events: EventCard[] = [
       {
         id: 'digital-campaign-only',
         label: 'Digital Campaign — Skip the Rallies',
-        description:
-          'Cash saved. Civil Society +5. LG Chairmen -10 (bypassed). Risky in Alimosho.',
+        description: 'Cash saved. Civil Society +5. LG Chairmen -10 (bypassed). Risky in Alimosho.',
         immediate: {},
         factionImpact: { civilSocietyMedia: 5, lgChairmen: -10 },
         constituencyImpact: { alimosho: -6, oshodiIsolo: -4 },
@@ -495,7 +491,7 @@ export const phase4Events: EventCard[] = [
           weekOffset: 2,
           delta: {},
           eventText:
-            'The Presidency\'s press release landed at 7pm on a Friday — the classic bury. Section 305 has been invoked. A retired general has been sworn in at Alausa. Your security details have been stood down. The flag on the Government House mast is no longer yours.',
+            "The Presidency's press release landed at 7pm on a Friday — the classic bury. Section 305 has been invoked. A retired general has been sworn in at Alausa. Your security details have been stood down. The flag on the Government House mast is no longer yours.",
           followUpEventId: 'federal-emergency-declared',
         },
       },
@@ -582,8 +578,7 @@ export const phase4Events: EventCard[] = [
       {
         id: 'issue-private-statement-2',
         label: 'Issue a Private Statement of Support',
-        description:
-          'Reaches supporters through unofficial channels. Trust +3. LG Chairmen +2.',
+        description: 'Reaches supporters through unofficial channels. Trust +3. LG Chairmen +2.',
         immediate: { publicTrust: 3 },
         factionImpact: { lgChairmen: 2, informalEconomy: 4 },
       },
@@ -610,8 +605,7 @@ export const phase4Events: EventCard[] = [
       {
         id: 'coordinate-through-party-3',
         label: 'Coordinate Through Party Structures',
-        description:
-          'PC -10. Party channels keep loyalists organised despite the dissolution.',
+        description: 'PC -10. Party channels keep loyalists organised despite the dissolution.',
         immediate: { politicalCapital: -10 },
         factionImpact: { partyGodfathers: 5, lgChairmen: 4 },
       },
@@ -681,8 +675,7 @@ export const phase4Events: EventCard[] = [
     severity: 'high',
     category: 'political',
     triggerCondition: (state) =>
-      state.stats.corruptionPressure > 68 &&
-      !state.stateFlags['efcc-investigated'],
+      state.stats.corruptionPressure > 68 && !state.stateFlags['efcc-investigated'],
     choices: [
       {
         id: 'cooperate-with-efcc',
@@ -696,8 +689,7 @@ export const phase4Events: EventCard[] = [
       {
         id: 'challenge-efcc-jurisdiction',
         label: 'Challenge EFCC Jurisdiction in Court',
-        description:
-          'PC -20. Buys 8 weeks. Civil society -8. Corruption +3 (looks guilty).',
+        description: 'PC -20. Buys 8 weeks. Civil society -8. Corruption +3 (looks guilty).',
         immediate: { politicalCapital: -20, corruptionPressure: 3 },
         factionImpact: { civilSocietyMedia: -8, partyGodfathers: 5 },
         setFlags: { 'efcc-investigated': true },

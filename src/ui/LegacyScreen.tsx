@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
+import { getGoal, getGoalIsMet } from '../data/goals'
 import { buildLegacy } from '../data/legacy'
 import { STARTING_STATE } from '../data/startingState'
+import { pickKeyMomentsForLegacy, pickVerdictHeadline } from '../engine/endingNarrator'
 import { useGameStore } from '../state/gameStore'
 import { clearSave } from '../state/persistence'
-import { Heading } from './components'
 import type { ConstituencyKey, FactionKey, GameState } from '../state/types'
-import { getGoal, getGoalIsMet } from '../data/goals'
 import { formatGameDate } from '../utils/calendar'
-import { pickVerdictHeadline, pickKeyMomentsForLegacy } from '../engine/endingNarrator'
+import { Heading } from './components'
 
 const FACTION_LABELS: Record<FactionKey, string> = {
   businessCommunity: 'Business Community',
@@ -19,26 +19,26 @@ const FACTION_LABELS: Record<FactionKey, string> = {
 }
 
 const CONSTITUENCY_LABELS: Record<ConstituencyKey, string> = {
-  lagosIsland:      'Lagos Island',
-  etiOsa:           'Eti Osa',
-  ibejuLekki:       'Ibeju-Lekki',
-  surulere:         'Surulere',
-  amuwoOdofin:      'Amuwo Odofin',
-  apapa:            'Apapa',
-  oshodiIsolo:      'Oshodi/Isolo',
-  mushin:           'Mushin',
-  shomolu:          'Shomolu',
-  kosofe:           'Kosofe',
-  lagosMainland:    'Lagos Mainland',
-  ikeja:            'Ikeja',
-  alimosho:         'Alimosho',
-  agege:            'Agege',
-  ifakoIjaye:       'Ifako/Ijaye',
-  badagry:          'Badagry',
-  epe:              'Epe',
-  ikorodu:          'Ikorodu',
-  ojo:              'Ojo',
-  ajeromiIfelodun:  'Ajeromi/Ifelodun',
+  lagosIsland: 'Lagos Island',
+  etiOsa: 'Eti Osa',
+  ibejuLekki: 'Ibeju-Lekki',
+  surulere: 'Surulere',
+  amuwoOdofin: 'Amuwo Odofin',
+  apapa: 'Apapa',
+  oshodiIsolo: 'Oshodi/Isolo',
+  mushin: 'Mushin',
+  shomolu: 'Shomolu',
+  kosofe: 'Kosofe',
+  lagosMainland: 'Lagos Mainland',
+  ikeja: 'Ikeja',
+  alimosho: 'Alimosho',
+  agege: 'Agege',
+  ifakoIjaye: 'Ifako/Ijaye',
+  badagry: 'Badagry',
+  epe: 'Epe',
+  ikorodu: 'Ikorodu',
+  ojo: 'Ojo',
+  ajeromiIfelodun: 'Ajeromi/Ifelodun',
 }
 
 function grade(value: number, max: number): string {
@@ -52,11 +52,16 @@ function grade(value: number, max: number): string {
 
 function gradeColor(g: string): string {
   switch (g) {
-    case 'A': return 'var(--success-11)'
-    case 'B': return 'var(--info-11)'
-    case 'C': return 'var(--warning-11)'
-    case 'D': return 'var(--warning-9)'
-    default: return 'var(--error-11)'
+    case 'A':
+      return 'var(--success-11)'
+    case 'B':
+      return 'var(--info-11)'
+    case 'C':
+      return 'var(--warning-11)'
+    case 'D':
+      return 'var(--warning-9)'
+    default:
+      return 'var(--error-11)'
   }
 }
 
@@ -64,40 +69,6 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
   const state = useGameStore((s) => s)
   const legacy = buildLegacy(state)
   const [btnHover, setBtnHover] = useState(false)
-  const [llmMonologue, setLlmMonologue] = useState<string | null>(null)
-  const [llmLoading, setLlmLoading] = useState(false)
-  const workerRef = useRef<Worker | null>(null)
-
-  useEffect(() => {
-    // Set to true to re-enable on-device LLM generation (heavy — slows dev).
-    const LLM_ENABLED = false
-    if (!LLM_ENABLED) return
-
-    setLlmLoading(true)
-    const worker = new Worker(new URL('../workers/llmWorker.ts', import.meta.url), {
-      type: 'module',
-    })
-    workerRef.current = worker
-
-    worker.onmessage = (e: MessageEvent<{ type: string; text?: string; message?: string }>) => {
-      if (e.data.type === 'result' && e.data.text) {
-        setLlmMonologue(e.data.text)
-      }
-      setLlmLoading(false)
-    }
-
-    worker.onerror = () => {
-      setLlmLoading(false)
-    }
-
-    worker.postMessage({ prompt: legacy.prompt })
-
-    return () => {
-      worker.terminate()
-      workerRef.current = null
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const endDate = formatGameDate(state.week)
   const totalEvents = state.resolvedEvents.length
@@ -114,7 +85,9 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
     termEndLoss: 'Term Ended — Not Re-Elected',
     secondTermEnd: 'Two Terms Complete — Legacy Sealed',
   }
-  const exitLabel = state.gameOverType ? (exitReasons[state.gameOverType] ?? 'Game Over') : 'Game Over'
+  const exitLabel = state.gameOverType
+    ? (exitReasons[state.gameOverType] ?? 'Game Over')
+    : 'Game Over'
 
   const monologueStyle = legacy.monologueStyle
   const monologueLabel =
@@ -130,15 +103,23 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
   }
 
   return (
-    <div className="min-h-screen py-8 px-4 overflow-y-auto" style={{ backgroundColor: 'var(--background)', color: 'var(--text)' }}>
+    <div
+      className="min-h-screen py-8 px-4 overflow-y-auto"
+      style={{ backgroundColor: 'var(--background)', color: 'var(--text)' }}
+    >
       <div className="max-w-2xl mx-auto space-y-8">
-
         {/* Masthead */}
         <div className="text-center">
-          <div style={{ height: '1px', background: 'linear-gradient(to right, transparent, var(--accent-solid) 30%, transparent)', border: 'none', marginBottom: '16px' }} />
-          <p className="label-caps mb-1">
-            Lagos State Government — {exitLabel}
-          </p>
+          <div
+            style={{
+              height: '1px',
+              background:
+                'linear-gradient(to right, transparent, var(--accent-solid) 30%, transparent)',
+              border: 'none',
+              marginBottom: '16px',
+            }}
+          />
+          <p className="label-caps mb-1">Lagos State Government — {exitLabel}</p>
           <h1 className="font-display text-2xl font-semibold" style={{ color: 'var(--text)' }}>
             {state.currentTerm === 2 && isTermEnd
               ? 'Two Terms: Legacy Sealed'
@@ -152,7 +133,10 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
             {endDate} &middot; {totalEvents} major decisions &middot; {state.week} weeks in office
           </p>
           {state.electionResult !== null && (
-            <p className="mt-2 text-sm font-semibold" style={{ color: state.reElected ? 'var(--success-11)' : 'var(--error-11)' }}>
+            <p
+              className="mt-2 text-sm font-semibold"
+              style={{ color: state.reElected ? 'var(--success-11)' : 'var(--error-11)' }}
+            >
               Election result: {state.electionResult.toFixed(1)}% vote share
             </p>
           )}
@@ -165,11 +149,20 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
             style={{
               borderLeftColor: (() => {
                 switch (state.gameOverType) {
-                  case 'bankruptcy': case 'massUprising': return 'var(--error-9)'
-                  case 'impeachment': case 'federalTakeover': return 'var(--warning-9)'
-                  case 'primaryLoss': case 'termEndLoss': return 'var(--warning-7)'
-                  case 'termEndWin': case 'secondTermEnd': return 'var(--success-9)'
-                  default: return 'var(--accent-solid)'
+                  case 'bankruptcy':
+                  case 'massUprising':
+                    return 'var(--error-9)'
+                  case 'impeachment':
+                  case 'federalTakeover':
+                    return 'var(--warning-9)'
+                  case 'primaryLoss':
+                  case 'termEndLoss':
+                    return 'var(--warning-7)'
+                  case 'termEndWin':
+                  case 'secondTermEnd':
+                    return 'var(--success-9)'
+                  default:
+                    return 'var(--accent-solid)'
                 }
               })(),
               backgroundColor: 'var(--surface)',
@@ -177,9 +170,16 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
               borderBottomRightRadius: '4px',
             }}
           >
-            <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text)', lineHeight: '1.7' }}>
-              {state.endingNarrative.split('\n\n').map((p, i) => (
-                <span key={i}>{p}<br /><br /></span>
+            <p
+              className="text-sm leading-relaxed italic"
+              style={{ color: 'var(--text)', lineHeight: '1.7' }}
+            >
+              {state.endingNarrative.split('\n\n').map((p) => (
+                <span key={`para-${p.slice(0, 32)}`}>
+                  {p}
+                  <br />
+                  <br />
+                </span>
               ))}
             </p>
           </div>
@@ -188,7 +188,9 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
         {/* Verdict Headline */}
         {verdictHeadline && (
           <div className="text-center">
-            <p className="text-[10px] label-caps mb-1" style={{ color: 'var(--text-secondary)' }}>VERDICT</p>
+            <p className="text-[10px] label-caps mb-1" style={{ color: 'var(--text-secondary)' }}>
+              VERDICT
+            </p>
             <Heading level={1} display style={{ color: 'var(--accent-text)' }}>
               {verdictHeadline}
             </Heading>
@@ -200,13 +202,26 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
           <div className="space-y-3">
             <h2 className="label-caps">Key Moments</h2>
             <div className="space-y-2">
-              {keyMoments.map((m, i) => (
-                <div key={i} style={{ borderLeft: '2px solid var(--border)', paddingLeft: '12px' }}>
-                  <p className="text-[9px] mb-0.5 label-caps" style={{ color: 'var(--border-strong)' }}>
+              {keyMoments.map((m) => (
+                <div
+                  key={`moment-${m.week}-${m.title.slice(0, 16)}`}
+                  style={{ borderLeft: '2px solid var(--border)', paddingLeft: '12px' }}
+                >
+                  <p
+                    className="text-[9px] mb-0.5 label-caps"
+                    style={{ color: 'var(--border-strong)' }}
+                  >
                     Week {m.week} &middot; {m.type.toUpperCase()}
                   </p>
-                  <p className="text-xs font-semibold" style={{ color: 'var(--text)' }}>{m.title}</p>
-                  <p className="text-[10px] mt-0.5 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{m.description}</p>
+                  <p className="text-xs font-semibold" style={{ color: 'var(--text)' }}>
+                    {m.title}
+                  </p>
+                  <p
+                    className="text-[10px] mt-0.5 leading-relaxed"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    {m.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -218,14 +233,23 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
           <div className="space-y-4">
             <h2 className="label-caps">The Record — As History Will Judge It</h2>
             {legacy.headlines.map((headline, i) => (
-              <div key={headline.key} style={{ borderLeft: '2px solid var(--border)', paddingLeft: '16px' }}>
+              <div
+                key={headline.key}
+                style={{ borderLeft: '2px solid var(--border)', paddingLeft: '16px' }}
+              >
                 <p className="text-[9px] mb-0.5" style={{ color: 'var(--border-strong)' }}>
                   VANGUARD / PUNCH / THE NATION #{i + 1}
                 </p>
-                <h3 className="font-display text-sm font-semibold leading-snug" style={{ color: 'var(--text)' }}>
+                <h3
+                  className="font-display text-sm font-semibold leading-snug"
+                  style={{ color: 'var(--text)' }}
+                >
                   {headline.headline}
                 </h3>
-                <p className="text-[11px] mt-1 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                <p
+                  className="text-[11px] mt-1 leading-relaxed"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
                   {headline.subhead}
                 </p>
               </div>
@@ -238,9 +262,8 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
           <div
             className="p-4 border transition-all"
             style={{
-              borderColor: llmLoading ? 'var(--accent-solid)' : 'var(--border)',
+              borderColor: 'var(--border)',
               backgroundColor: 'var(--surface)',
-              animation: llmLoading ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none',
             }}
           >
             <div className="flex items-center gap-2 mb-3">
@@ -249,18 +272,12 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
                 className="text-[9px] px-1.5 py-0.5"
                 style={{ backgroundColor: 'var(--neutral-4)', color: 'var(--text-secondary)' }}
               >
-                {llmLoading ? 'composing\u2026' : llmMonologue ? 'AI-generated' : monologueLabel}
+                {monologueLabel}
               </span>
             </div>
-            {llmLoading ? (
-              <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text-secondary)' }}>
-                Composing the address\u2026
-              </p>
-            ) : (
-              <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text)' }}>
-                "{llmMonologue ?? legacy.monologue}"
-              </p>
-            )}
+            <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text)' }}>
+              "{legacy.monologue}"
+            </p>
           </div>
         )}
 
@@ -270,18 +287,32 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
             <h2 className="label-caps">The Road to the Election</h2>
             <div style={{ borderLeft: '2px solid var(--accent-solid)', paddingLeft: '16px' }}>
               <p className="text-[9px] mb-0.5 label-caps" style={{ color: 'var(--border-strong)' }}>
-                {legacy.primaryNarrative.path === 'lost' ? 'PRIMARY \u2014 DEFEATED' : `PRIMARY PATH \u2014 SCENARIO ${legacy.primaryNarrative.path.toUpperCase()}`}
+                {legacy.primaryNarrative.path === 'lost'
+                  ? 'PRIMARY \u2014 DEFEATED'
+                  : `PRIMARY PATH \u2014 SCENARIO ${legacy.primaryNarrative.path.toUpperCase()}`}
               </p>
               <h3 className="font-display text-sm font-semibold" style={{ color: 'var(--text)' }}>
                 {legacy.primaryNarrative.title}
               </h3>
-              <p className="text-[11px] mt-1 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              <p
+                className="text-[11px] mt-1 leading-relaxed"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 {legacy.primaryNarrative.summary}
               </p>
             </div>
-            <div className="text-[10px] p-3" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', border: '1px solid' }}>
+            <div
+              className="text-[10px] p-3"
+              style={{
+                backgroundColor: 'var(--surface)',
+                borderColor: 'var(--border)',
+                border: '1px solid',
+              }}
+            >
               <p className="label-caps mb-1">Endorsement Picture</p>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>{legacy.endorsementSummary}</p>
+              <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                {legacy.endorsementSummary}
+              </p>
             </div>
           </div>
         )}
@@ -290,24 +321,40 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
         <div>
           <h2 className="label-caps mb-3">Final Scorecard</h2>
           <div className="flex justify-center gap-4 mb-4">
-            {(['publicTrust', 'infrastructureScore', 'securityIndex', 'youthTension'] as const).map((key) => {
-              const val = key === 'youthTension' ? 100 - state.stats[key] : state.stats[key]
-              const g = grade(val, 100)
-              const label =
-                key === 'publicTrust' ? 'Trust' :
-                key === 'infrastructureScore' ? 'Infra' :
-                key === 'securityIndex' ? 'Security' : 'Youth'
-              const change = val - (key === 'youthTension' ? 100 - STARTING_STATE.stats[key] : STARTING_STATE.stats[key])
-              return (
-                <div key={key} className="flex flex-col items-center">
-                  <span className="text-2xl font-bold" style={{ color: gradeColor(g) }}>{g}</span>
-                  <span className="label-caps">{label}</span>
-                  <span className="text-[9px]" style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}>
-                    {change >= 0 ? '+' : ''}{change.toFixed(0)}
-                  </span>
-                </div>
-              )
-            })}
+            {(['publicTrust', 'infrastructureScore', 'securityIndex', 'youthTension'] as const).map(
+              (key) => {
+                const val = key === 'youthTension' ? 100 - state.stats[key] : state.stats[key]
+                const g = grade(val, 100)
+                const label =
+                  key === 'publicTrust'
+                    ? 'Trust'
+                    : key === 'infrastructureScore'
+                      ? 'Infra'
+                      : key === 'securityIndex'
+                        ? 'Security'
+                        : 'Youth'
+                const change =
+                  val -
+                  (key === 'youthTension'
+                    ? 100 - STARTING_STATE.stats[key]
+                    : STARTING_STATE.stats[key])
+                return (
+                  <div key={key} className="flex flex-col items-center">
+                    <span className="text-2xl font-bold" style={{ color: gradeColor(g) }}>
+                      {g}
+                    </span>
+                    <span className="label-caps">{label}</span>
+                    <span
+                      className="text-[9px]"
+                      style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}
+                    >
+                      {change >= 0 ? '+' : ''}
+                      {change.toFixed(0)}
+                    </span>
+                  </div>
+                )
+              },
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-[10px]">
@@ -317,11 +364,17 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
                 const change = state.factions[key] - STARTING_STATE.factions[key]
                 return (
                   <div key={key} className="flex justify-between">
-                    <span className="truncate mr-1" style={{ color: 'var(--text-secondary)' }}>{FACTION_LABELS[key]}</span>
+                    <span className="truncate mr-1" style={{ color: 'var(--text-secondary)' }}>
+                      {FACTION_LABELS[key]}
+                    </span>
                     <span className="shrink-0" style={{ color: 'var(--text)' }}>
                       {state.factions[key]}
-                      <span className="ml-0.5" style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}>
-                        ({change >= 0 ? '+' : ''}{change})
+                      <span
+                        className="ml-0.5"
+                        style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}
+                      >
+                        ({change >= 0 ? '+' : ''}
+                        {change})
                       </span>
                     </span>
                   </div>
@@ -331,14 +384,21 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
             <div className="space-y-1">
               <p className="label-caps">Constituencies</p>
               {(Object.keys(state.constituencyApproval) as ConstituencyKey[]).map((key) => {
-                const change = state.constituencyApproval[key] - STARTING_STATE.constituencyApproval[key]
+                const change =
+                  state.constituencyApproval[key] - STARTING_STATE.constituencyApproval[key]
                 return (
                   <div key={key} className="flex justify-between">
-                    <span className="truncate mr-1" style={{ color: 'var(--text-secondary)' }}>{CONSTITUENCY_LABELS[key]}</span>
+                    <span className="truncate mr-1" style={{ color: 'var(--text-secondary)' }}>
+                      {CONSTITUENCY_LABELS[key]}
+                    </span>
                     <span className="shrink-0" style={{ color: 'var(--text)' }}>
                       {state.constituencyApproval[key]}%
-                      <span className="ml-0.5" style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}>
-                        ({change >= 0 ? '+' : ''}{change})
+                      <span
+                        className="ml-0.5"
+                        style={{ color: change >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}
+                      >
+                        ({change >= 0 ? '+' : ''}
+                        {change})
                       </span>
                     </span>
                   </div>
@@ -350,20 +410,32 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
           <div className="mt-3 grid grid-cols-4 gap-2 text-center text-[10px]">
             <div>
               <p className="label-caps">Cash</p>
-              <p className="font-bold" style={{ color: state.stats.cashReserve >= 0 ? 'var(--success-11)' : 'var(--error-11)' }}>
+              <p
+                className="font-bold"
+                style={{
+                  color: state.stats.cashReserve >= 0 ? 'var(--success-11)' : 'var(--error-11)',
+                }}
+              >
                 {state.stats.cashReserve >= 0 ? 'A' : 'F'}
               </p>
-              <p style={{ color: 'var(--text-secondary)' }}>₦{state.stats.cashReserve.toFixed(0)}bn</p>
+              <p style={{ color: 'var(--text-secondary)' }}>
+                ₦{state.stats.cashReserve.toFixed(0)}bn
+              </p>
             </div>
             <div>
               <p className="label-caps">Fashemu</p>
-              <p className="font-semibold capitalize" style={{ color: 'var(--text)' }}>{state.fashemuPhase}</p>
-              <p style={{ color: 'var(--text-secondary)' }}>Path {state.fashemuEndingPath ?? '—'}</p>
+              <p className="font-semibold capitalize" style={{ color: 'var(--text)' }}>
+                {state.fashemuPhase}
+              </p>
+              <p style={{ color: 'var(--text-secondary)' }}>
+                Path {state.fashemuEndingPath ?? '—'}
+              </p>
             </div>
             <div>
               <p className="label-caps">Compliance</p>
               <p className="font-semibold" style={{ color: 'var(--text)' }}>
-                {state.godfatherComplianceCount}/{state.godfatherComplianceCount + state.godfatherRefusalCount}
+                {state.godfatherComplianceCount}/
+                {state.godfatherComplianceCount + state.godfatherRefusalCount}
               </p>
               <p style={{ color: 'var(--text-secondary)' }}>accepted</p>
             </div>
@@ -378,7 +450,10 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
           <div>
             <h2 className="label-caps mb-3">Eight-Year Accountability Index</h2>
             <div className="grid grid-cols-2 gap-3 text-[10px]">
-              <div className="p-3" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
+              <div
+                className="p-3"
+                style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+              >
                 <p className="label-caps mb-1">Corruption at Exit</p>
                 <p
                   className="text-xl font-bold"
@@ -401,7 +476,10 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
                       : 'Clean exit — no material findings'}
                 </p>
               </div>
-              <div className="p-3" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
+              <div
+                className="p-3"
+                style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+              >
                 <p className="label-caps mb-1">Cash at Handover</p>
                 <p className="text-xl font-bold" style={{ color: 'var(--text)' }}>
                   ₦{state.stats.cashReserve.toFixed(0)}bn
@@ -452,20 +530,26 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
 }
 
 function GoalLegacyOutcome({ state }: { state: GameState }) {
-  if (!state.selectedGoalId) return (
-    <>
-      <p className="font-semibold" style={{ color: 'var(--text-secondary)' }}>—</p>
-      <p style={{ color: 'var(--text-secondary)' }}>not chosen</p>
-    </>
-  )
+  if (!state.selectedGoalId)
+    return (
+      <>
+        <p className="font-semibold" style={{ color: 'var(--text-secondary)' }}>
+          —
+        </p>
+        <p style={{ color: 'var(--text-secondary)' }}>not chosen</p>
+      </>
+    )
 
   const goal = getGoal(state.selectedGoalId)
-  if (!goal) return (
-    <>
-      <p className="font-semibold" style={{ color: 'var(--text-secondary)' }}>—</p>
-      <p style={{ color: 'var(--text-secondary)' }}>unknown</p>
-    </>
-  )
+  if (!goal)
+    return (
+      <>
+        <p className="font-semibold" style={{ color: 'var(--text-secondary)' }}>
+          —
+        </p>
+        <p style={{ color: 'var(--text-secondary)' }}>unknown</p>
+      </>
+    )
 
   const met = getGoalIsMet(goal, state)
   return (
@@ -474,7 +558,11 @@ function GoalLegacyOutcome({ state }: { state: GameState }) {
         {met ? 'ACHIEVED' : 'NOT MET'}
       </p>
       <p style={{ color: 'var(--text-secondary)' }}>{goal.title}</p>
-      {met && <p className="text-[9px] italic mt-0.5" style={{ color: 'var(--success-9)' }}>{goal.flavorClosing}</p>}
+      {met && (
+        <p className="text-[9px] italic mt-0.5" style={{ color: 'var(--success-9)' }}>
+          {goal.flavorClosing}
+        </p>
+      )}
     </>
   )
 }

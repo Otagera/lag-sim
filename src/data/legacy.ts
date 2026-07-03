@@ -1,7 +1,7 @@
+import { buildLegacyPrompt, rankDecisions } from '../engine/legacyRanker'
 import type { GameState } from '../state/types'
-import { rankDecisions, buildLegacyPrompt } from '../engine/legacyRanker'
-import { pickChoiceDrivenHeadlines } from './headlineTemplates'
 import type { HeadlineSlot } from './headlineTemplates'
+import { pickChoiceDrivenHeadlines } from './headlineTemplates'
 
 export type { HeadlineSlot }
 export { buildLegacyPrompt }
@@ -27,7 +27,10 @@ function pickHeadlines(state: GameState): HeadlineSlot[] {
   return pickChoiceDrivenHeadlines(state, rankDecisions(state))
 }
 
-function pickMonologue(state: GameState): { text: string; style: 'compliant' | 'reformer' | 'survivor' } {
+function pickMonologue(state: GameState): {
+  text: string
+  style: 'compliant' | 'reformer' | 'survivor'
+} {
   const compliance = state.godfatherComplianceCount
   const refusals = state.godfatherRefusalCount
   const trust = state.stats.publicTrust
@@ -111,7 +114,8 @@ function pickPrimaryNarrative(state: GameState): PrimaryNarrative {
 }
 
 function buildEndorsementSummary(state: GameState): string {
-  const { businessCommunity, civilSocietyMedia, lgChairmen, informalEconomy, partyGodfathers } = state.factions
+  const { businessCommunity, civilSocietyMedia, lgChairmen, informalEconomy, partyGodfathers } =
+    state.factions
   const parts: string[] = []
 
   if (businessCommunity >= 60) parts.push('Business community backing strong')
@@ -130,7 +134,7 @@ function buildEndorsementSummary(state: GameState): string {
   else parts.push('party structure fractured')
 
   if (parts.length === 0) return 'No clear bloc endorsed or opposed the administration.'
-  return parts.join('; ') + '.'
+  return `${parts.join('; ')}.`
 }
 
 export function buildLegacy(state: GameState): LegacyData {
@@ -139,5 +143,12 @@ export function buildLegacy(state: GameState): LegacyData {
   const primaryNarrative = pickPrimaryNarrative(state)
   const endorsementSummary = buildEndorsementSummary(state)
   const prompt = buildLegacyPrompt(state)
-  return { headlines, monologue: text, monologueStyle: style, primaryNarrative, endorsementSummary, prompt }
+  return {
+    headlines,
+    monologue: text,
+    monologueStyle: style,
+    primaryNarrative,
+    endorsementSummary,
+    prompt,
+  }
 }

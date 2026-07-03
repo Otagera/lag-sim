@@ -27,9 +27,10 @@ export function calculateWeeklyRevenue(state: GameState): RevenueBreakdown {
   else faacMultiplier = 0.7
   const faac = 8.7 * faacMultiplier
 
-  const financeCommissioner = state.commissioners?.['finance']
+  const financeCommissioner = state.commissioners?.finance
   const grantsBonus = financeCommissioner ? (financeCommissioner.competence / 100) * 0.15 : 0
-  const grants = state.grantFreezeDuration > 0 ? 0 : 0.8 * Math.min(1, grantsCompliance + grantsBonus)
+  const grants =
+    state.grantFreezeDuration > 0 ? 0 : 0.8 * Math.min(1, grantsCompliance + grantsBonus)
 
   // Tourism: seasonal boost from Detty December; stateFlags surge from event choices
   const dettyBase = isDettyDecember(state.week) ? 0.4 : 0

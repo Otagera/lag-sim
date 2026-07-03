@@ -14,7 +14,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@huggingface/transformers": "^4.2.0",
     "@tanstack/react-router": "^1.170.16",
     "driver.js": "^1.6.0",
     "lucide-react": "^1.21.0",

@@ -30,7 +30,6 @@ export function ViralClip({ article }: { article: NewsArticle }) {
 
   return (
     <div
-      onClick={clearNewspaperHeadline}
       style={{
         position: 'fixed',
         inset: 0,
@@ -39,14 +38,26 @@ export function ViralClip({ article }: { article: NewsArticle }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        cursor: 'pointer',
       }}
     >
+      <button
+        type="button"
+        aria-label="Close viral clip"
+        onClick={clearNewspaperHeadline}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          cursor: 'pointer',
+          border: 'none',
+          padding: 0,
+          background: 'transparent',
+        }}
+      />
       {/* Card — portrait aspect */}
       <div
-        onClick={(e) => e.stopPropagation()}
         style={{
           position: 'relative',
+          zIndex: 1,
           width: 360,
           height: 640,
           borderRadius: 12,
@@ -113,6 +124,7 @@ export function ViralClip({ article }: { article: NewsArticle }) {
             }}
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+              <title>Play</title>
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
@@ -138,7 +150,9 @@ export function ViralClip({ article }: { article: NewsArticle }) {
           ].map(({ icon, count }) => (
             <div key={icon} style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 24, lineHeight: 1 }}>{icon}</div>
-              <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, marginTop: 2 }}>{count}</div>
+              <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, marginTop: 2 }}>
+                {count}
+              </div>
             </div>
           ))}
         </div>
@@ -179,7 +193,8 @@ export function ViralClip({ article }: { article: NewsArticle }) {
               lineHeight: 1.4,
             }}
           >
-            {article.deck.slice(0, 100)}{article.deck.length > 100 ? '…' : ''}
+            {article.deck.slice(0, 100)}
+            {article.deck.length > 100 ? '…' : ''}
           </p>
           <div
             style={{
@@ -200,6 +215,7 @@ export function ViralClip({ article }: { article: NewsArticle }) {
         onClick={clearNewspaperHeadline}
         style={{
           position: 'absolute',
+          zIndex: 1,
           bottom: 32,
           right: 32,
           background: 'rgba(255,255,255,0.12)',

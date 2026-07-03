@@ -1,7 +1,20 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
   "files": {
-    "includes": ["**", "!**/dist", "!**/node_modules", "!**/public/*.svg", "!**/*.test.{ts,tsx}"]
+    "includes": [
+      "**",
+      "!**/coverage",
+      "!**/dist",
+      "!**/ds-bundle",
+      "!**/node_modules",
+      "!**/public/*.svg",
+      "!**/references",
+      "!**/saves",
+      "!**/.ds-sync",
+      "!**/.design-sync",
+      "!**/events.json",
+      "!**/*.test.{ts,tsx}"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -16,7 +29,16 @@
       "preset": "recommended",
       "complexity": {
         "noUselessLoneBlockStatements": "off",
-        "noStaticOnlyClass": "off"
+        "noStaticOnlyClass": "off",
+        "noExcessiveCognitiveComplexity": {
+          "level": "warn",
+          "options": { "maxAllowedComplexity": 25 }
+        },
+        "noExcessiveLinesPerFunction": {
+          "level": "warn",
+          "options": { "maxLines": 80 }
+        },
+        "useArrowFunction": "error"
       },
       "correctness": {
         "noUnusedVariables": "error"

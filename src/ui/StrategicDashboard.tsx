@@ -1,9 +1,9 @@
-import { useGameStore } from '../state/gameStore'
-import { RESEARCH_TREE } from '../data/researchTree'
 import { PROJECTS } from '../data/projects'
-import { useStrategicSelectors } from './useStrategicSelectors'
-import { GoalTracker } from './GoalTracker'
+import { RESEARCH_TREE } from '../data/researchTree'
+import { useGameStore } from '../state/gameStore'
 import { EconomyPanel } from './EconomyPanel'
+import { GoalTracker } from './GoalTracker'
+import { useStrategicSelectors } from './useStrategicSelectors'
 
 const naira = (v: number) => `₦${v.toFixed(1)}bn`
 const colorVar = {
@@ -25,7 +25,10 @@ function BankruptcyClock() {
           : colorVar.error
 
   return (
-    <div className="p-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+    <div
+      className="p-2 border"
+      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+    >
       <div className="flex items-center justify-between mb-1">
         <p className="label-caps">Cash Position</p>
         <span className="text-[15px] font-semibold" style={{ color: 'var(--text)' }}>
@@ -42,9 +45,15 @@ function BankruptcyClock() {
         </p>
       ) : (
         <>
-          <p className="text-[22px] font-bold tracking-tight leading-none" style={{ color: clockColor }}>
+          <p
+            className="text-[22px] font-bold tracking-tight leading-none"
+            style={{ color: clockColor }}
+          >
             {weeksOfCashLeft < 100 ? `~${Math.floor(weeksOfCashLeft)}` : '99+'}
-            <span className="text-[11px] font-medium ml-1" style={{ color: 'var(--text-secondary)' }}>
+            <span
+              className="text-[11px] font-medium ml-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               weeks
             </span>
           </p>
@@ -63,15 +72,25 @@ function InitiativeTracker() {
   const commissionedNodes = useGameStore((s) => s.commissionedResearchNodes)
   const commissionedProjects = useGameStore((s) => s.commissionedProjects)
 
-  const hasAny = initiative || activeProjects.length > 0 || commissionedNodes.length > 0 || commissionedProjects.length > 0
+  const hasAny =
+    initiative ||
+    activeProjects.length > 0 ||
+    commissionedNodes.length > 0 ||
+    commissionedProjects.length > 0
   if (!hasAny) return null
 
   return (
-    <div className="p-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+    <div
+      className="p-2 border"
+      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+    >
       <h3 className="label-caps mb-1.5">In Flight</h3>
 
       {initiative && (
-        <div className="mb-2 p-1.5 border text-[10px]" style={{ borderColor: 'var(--accent-solid)', backgroundColor: 'var(--accent-bg-subtle)' }}>
+        <div
+          className="mb-2 p-1.5 border text-[10px]"
+          style={{ borderColor: 'var(--accent-solid)', backgroundColor: 'var(--accent-bg-subtle)' }}
+        >
           <div className="flex justify-between mb-1">
             <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
               {initiative.name}
@@ -109,14 +128,19 @@ function InitiativeTracker() {
             const progress = total > 0 ? elapsed / total : 0
             const hasOutcomes = !!node.outcomes
             return (
-              <div key={crn.nodeId} className="p-1.5 border text-[10px]" style={{ borderColor: 'var(--accent-solid)', backgroundColor: 'var(--accent-bg-subtle)' }}>
+              <div
+                key={crn.nodeId}
+                className="p-1.5 border text-[10px]"
+                style={{
+                  borderColor: 'var(--accent-solid)',
+                  backgroundColor: 'var(--accent-bg-subtle)',
+                }}
+              >
                 <div className="flex justify-between mb-1">
                   <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
                     {node.title}
                   </span>
-                  <span style={{ color: 'var(--text-secondary)' }}>
-                    {weeksLeft}w left
-                  </span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{weeksLeft}w left</span>
                 </div>
                 <div className="w-full h-1 mb-1" style={{ backgroundColor: 'var(--neutral-4)' }}>
                   <div
@@ -147,14 +171,19 @@ function InitiativeTracker() {
             const elapsed = total - weeksLeft
             const progress = total > 0 ? elapsed / total : 0
             return (
-              <div key={cp.id} className="p-1.5 border text-[10px]" style={{ borderColor: 'var(--success-9)', backgroundColor: 'var(--accent-bg-subtle)' }}>
+              <div
+                key={cp.id}
+                className="p-1.5 border text-[10px]"
+                style={{
+                  borderColor: 'var(--success-9)',
+                  backgroundColor: 'var(--accent-bg-subtle)',
+                }}
+              >
                 <div className="flex justify-between mb-1">
                   <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
                     {def.title}
                   </span>
-                  <span style={{ color: 'var(--text-secondary)' }}>
-                    {weeksLeft}w left
-                  </span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{weeksLeft}w left</span>
                 </div>
                 <div className="w-full h-1 mb-1" style={{ backgroundColor: 'var(--neutral-4)' }}>
                   <div
@@ -195,9 +224,14 @@ function InitiativeTracker() {
                   }}
                 />
               </div>
-              <div className="flex justify-between text-[9px]" style={{ color: 'var(--text-secondary)' }}>
+              <div
+                className="flex justify-between text-[9px]"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 <span>{p.effectiveProgress.toFixed(0)}% complete</span>
-                <span>{naira(p.totalSpent)} / {naira(p.totalCost)}</span>
+                <span>
+                  {naira(p.totalSpent)} / {naira(p.totalCost)}
+                </span>
               </div>
             </div>
           ))}
@@ -216,7 +250,10 @@ function QuarterForecast() {
   const finalCash = forecast.length > 0 ? forecast[forecast.length - 1].cash : 0
 
   return (
-    <div className="p-2 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+    <div
+      className="p-2 border"
+      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+    >
       <div className="flex items-center justify-between mb-1">
         <p className="label-caps">Quarter Forecast</p>
         <p className="text-[9px]" style={{ color: 'var(--text-secondary)' }}>
@@ -256,7 +293,10 @@ function QuarterForecast() {
 
           <div className="flex justify-between text-[10px] mb-1">
             {milestones.map((m) => (
-              <span key={m.week} style={{ color: m.cash < 0 ? colorVar.error : 'var(--text-secondary)' }}>
+              <span
+                key={m.week}
+                style={{ color: m.cash < 0 ? colorVar.error : 'var(--text-secondary)' }}
+              >
                 Wk+{m.week}: {naira(m.cash)}
               </span>
             ))}
@@ -266,11 +306,13 @@ function QuarterForecast() {
             <p className="text-[9px] font-semibold" style={{ color: colorVar.error }}>
               Already insolvent — emergency loan or bankruptcy imminent
             </p>
-          ) : finalCash < 0 && (
-            <p className="text-[9px] font-semibold" style={{ color: colorVar.error }}>
-              Projected bankruptcy:
-              {bankruptcyWeek ? ` week ${bankruptcyWeek}` : ' this quarter'}
-            </p>
+          ) : (
+            finalCash < 0 && (
+              <p className="text-[9px] font-semibold" style={{ color: colorVar.error }}>
+                Projected bankruptcy:
+                {bankruptcyWeek ? ` week ${bankruptcyWeek}` : ' this quarter'}
+              </p>
+            )
           )}
           {netFlow < 0 && finalCash >= 0 && (
             <p className="text-[9px]" style={{ color: 'var(--text-secondary)' }}>

@@ -35,7 +35,11 @@ export type FactionKey =
 
 export type FactionState = Record<FactionKey, number>
 
-export type SecondaryFactionKey = 'creativeEconomy' | 'techSector' | 'medicalAssociation' | 'agrarianSector'
+export type SecondaryFactionKey =
+  | 'creativeEconomy'
+  | 'techSector'
+  | 'medicalAssociation'
+  | 'agrarianSector'
 export type SecondaryFactionState = Record<SecondaryFactionKey, number>
 
 export type FactionDelta = Partial<FactionState>
@@ -162,8 +166,8 @@ export type Choice = {
   npcImpact?: Partial<Record<NPCArchetypeKey, number>>
   secondaryFactionImpact?: Partial<SecondaryFactionState>
   resentmentDelta?: number
-  clearDeputy?: boolean       // sets state.deputy = null (resignation/removal)
-  setDeputy?: DeputyKey       // installs a new deputy (replacement appointment)
+  clearDeputy?: boolean // sets state.deputy = null (resignation/removal)
+  setDeputy?: DeputyKey // installs a new deputy (replacement appointment)
   launchInitiative?: {
     id: string
     name: string
@@ -180,16 +184,16 @@ export type Choice = {
     contractorId: string
   }
   // Phase 4 extensions
-  setSuspensionWeeks?: number  // starts/ends emergency suspension
-  setLitigationTimer?: number  // starts/clears judicial litigation arc
+  setSuspensionWeeks?: number // starts/ends emergency suspension
+  setLitigationTimer?: number // starts/clears judicial litigation arc
   // Deck management
-  diminishingReturns?: boolean  // yield scales down on repeat selection; corruption spikes after 2nd use
+  diminishingReturns?: boolean // yield scales down on repeat selection; corruption spikes after 2nd use
 }
 
 export type EventCard = {
   id: string
   week?: number
-  maxWeek?: number  // event expires from pool after this week (complement to `week` minimum)
+  maxWeek?: number // event expires from pool after this week (complement to `week` minimum)
   triggerCondition?: (state: GameState) => boolean
   title: string
   body: string
@@ -199,7 +203,16 @@ export type EventCard = {
   maxTotalFirings?: number
   weight?: number
   severity: 'low' | 'medium' | 'high' | 'critical'
-  category: 'transport' | 'infrastructure' | 'political' | 'crisis' | 'economy' | 'social' | 'election' | 'riot' | 'godfather'
+  category:
+    | 'transport'
+    | 'infrastructure'
+    | 'political'
+    | 'crisis'
+    | 'economy'
+    | 'social'
+    | 'election'
+    | 'riot'
+    | 'godfather'
   season?: 'wet' | 'dry'
   npcArchetype?: NPCArchetypeKey
   npcTier?: 'ally' | 'neutral' | 'hostile'
@@ -320,8 +333,6 @@ export type NewsArticle = {
     delta?: string
     positive?: boolean
   }>
-  llmGenerated?: boolean
-  llmPending?: boolean
   publicationId?: string
   framingCaption?: string
   framingEditorialNote?: string
@@ -348,7 +359,15 @@ export type GodfatherAsk = {
 
 export interface ProjectDef {
   id: string
-  category: 'transport' | 'power' | 'water' | 'health' | 'education' | 'security' | 'housing' | 'environment'
+  category:
+    | 'transport'
+    | 'power'
+    | 'water'
+    | 'health'
+    | 'education'
+    | 'security'
+    | 'housing'
+    | 'environment'
   title: string
   pitch: string
   cost: number
@@ -367,7 +386,13 @@ export interface CommissionedProject {
 
 // ── Phase E — Research Tree ─────────────────────────────────
 
-export type Domain = 'security' | 'agriculture' | 'innovation' | 'administration' | 'climate' | string
+export type Domain =
+  | 'security'
+  | 'agriculture'
+  | 'innovation'
+  | 'administration'
+  | 'climate'
+  | string
 
 export interface Prerequisite {
   type: 'node' | 'state'
@@ -409,7 +434,14 @@ export interface CommissionedResearchNode {
 
 // ── Phase D — Inbox ─────────────────────────────────────────
 
-export type CharacterId = 'fashemu' | 'chief-of-staff' | 'neo' | 'dayo' | 'smj' | 'commissioner' | 'deputy'
+export type CharacterId =
+  | 'fashemu'
+  | 'chief-of-staff'
+  | 'neo'
+  | 'dayo'
+  | 'smj'
+  | 'commissioner'
+  | 'deputy'
 
 export type InboxMessageTone = 'warm' | 'cold' | 'threatening' | 'neutral' | 'urgent'
 
@@ -505,15 +537,15 @@ export type GameState = {
   inCampaignMode: boolean
   offeredDeputies: DeputyKey[]
   // Phase 4
-  emergencySuspensionWeeks: number  // 0 = normal play; counts down each tick
-  administratorActIndex: number     // which suspension act is next (0–4, cycles)
-  litigationActive: boolean         // judicial arc in progress
-  litigationTimer: number           // weeks until Supreme Court ruling
-  offCycleElection: boolean         // flag set when litigation won
+  emergencySuspensionWeeks: number // 0 = normal play; counts down each tick
+  administratorActIndex: number // which suspension act is next (0–4, cycles)
+  litigationActive: boolean // judicial arc in progress
+  litigationTimer: number // weeks until Supreme Court ruling
+  offCycleElection: boolean // flag set when litigation won
   // Deck management
-  choiceUseCounts: Record<string, number>  // key: `${eventId}:${choiceId}` — tracks repeat selections
+  choiceUseCounts: Record<string, number> // key: `${eventId}:${choiceId}` — tracks repeat selections
   // Term tracking
-  currentTerm: number  // 1 = first term, 2 = second term after re-election
+  currentTerm: number // 1 = first term, 2 = second term after re-election
   // Per-LGA approval sliding window (last 8 weeks)
   approvalHistory: Record<ConstituencyKey, number[]>
   // News engine — set after tick when something newsworthy happens

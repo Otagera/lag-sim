@@ -13,7 +13,8 @@ export const riotEvents: EventCard[] = [
       {
         id: 'blanket-curfew',
         label: 'Blanket Curfew',
-        description: 'State-wide 6pm curfew enforced immediately. Tension falls fast, trust takes a hit.',
+        description:
+          'State-wide 6pm curfew enforced immediately. Tension falls fast, trust takes a hit.',
         immediate: { youthTension: -18, publicTrust: -12, securityIndex: 6 },
         factionImpact: { civilSocietyMedia: -15, informalEconomy: -8 },
         constituencyImpact: { alimosho: -10, surulere: -8 },
@@ -55,7 +56,8 @@ export const riotEvents: EventCard[] = [
       {
         id: 'request-federal-backup',
         label: 'Request Federal Backup',
-        description: 'Army units restore order faster, but federalises a state crisis. Aso Rock gains leverage.',
+        description:
+          'Army units restore order faster, but federalises a state crisis. Aso Rock gains leverage.',
         immediate: { youthTension: -20, securityIndex: 14 },
         factionImpact: { federalGovt: -8, civilSocietyMedia: -10 },
         constituencyImpact: { alimosho: -12, lagosMainland: -8 },
@@ -81,7 +83,8 @@ export const riotEvents: EventCard[] = [
       {
         id: 'meet-publicly',
         label: 'Meet Publicly',
-        description: 'Live-streamed town hall with youth leaders. Trust up, tension drops significantly.',
+        description:
+          'Live-streamed town hall with youth leaders. Trust up, tension drops significantly.',
         immediate: { youthTension: -22, publicTrust: 12 },
         factionImpact: { civilSocietyMedia: 18, partyGodfathers: -5 },
         politicalCapitalCost: 15,
@@ -116,21 +119,24 @@ export const riotEvents: EventCard[] = [
       {
         id: 'suspend-luc-enforcement',
         label: 'Suspend Enforcement, Call Associations In',
-        description: 'Pull the LIRS teams back. Markets reopen within hours. Trust +5, Informal Economy +8. Revenue suspended.',
+        description:
+          'Pull the LIRS teams back. Markets reopen within hours. Trust +5, Informal Economy +8. Revenue suspended.',
         immediate: { youthTension: -15, publicTrust: 5 },
         factionImpact: { informalEconomy: 8, civilSocietyMedia: 5 },
       },
       {
         id: 'maintain-enforcement-rrs',
         label: 'Maintain Enforcement — Deploy RRS',
-        description: 'Hold the line. Arrests, enforcement continues. Youth Tension +10, Trust -8, Informal Economy -12.',
+        description:
+          'Hold the line. Arrests, enforcement continues. Youth Tension +10, Trust -8, Informal Economy -12.',
         immediate: { youthTension: 10, publicTrust: -8, securityIndex: 4 },
         factionImpact: { informalEconomy: -12, civilSocietyMedia: -8 },
       },
       {
         id: 'pay-solidarity-visit',
         label: 'Solidarity Visit to Market Leaders',
-        description: 'Drive to Oyingbo yourself, meet the market leaders on camera. Trust +6, Informal Economy +5. Political Capital cost.',
+        description:
+          'Drive to Oyingbo yourself, meet the market leaders on camera. Trust +6, Informal Economy +5. Political Capital cost.',
         immediate: { youthTension: -10, publicTrust: 6 },
         factionImpact: { informalEconomy: 5, civilSocietyMedia: 8 },
         politicalCapitalCost: 12,
@@ -150,7 +156,8 @@ export const riotEvents: EventCard[] = [
       {
         id: 'press-conference-demand-ig',
         label: 'Public Press Conference — Demand IG Investigation',
-        description: 'Separate Lagos from federal conduct on record. Trust +10, Civil Society +15, Federal Relationship -8, Youth Tension -10.',
+        description:
+          'Separate Lagos from federal conduct on record. Trust +10, Civil Society +15, Federal Relationship -8, Youth Tension -10.',
         immediate: { youthTension: -10, publicTrust: 10 },
         factionImpact: { civilSocietyMedia: 15, federalGovt: -8 },
         constituencyImpact: { mushin: 8, oshodiIsolo: 8 },
@@ -165,7 +172,8 @@ export const riotEvents: EventCard[] = [
       {
         id: 'deploy-lasg-response',
         label: 'Deploy LASG Emergency Response to Affected Areas',
-        description: 'Visibly presence the state on the ground. Security +5, Youth Tension -5. Federal Relationship strained.',
+        description:
+          'Visibly presence the state on the ground. Security +5, Youth Tension -5. Federal Relationship strained.',
         immediate: { youthTension: -5, securityIndex: 5 },
         factionImpact: { federalGovt: -5, civilSocietyMedia: 6 },
       },
@@ -183,7 +191,8 @@ export const riotEvents: EventCard[] = [
       {
         id: 'charge-officer-criminally',
         label: 'Charge Officer, Suspend LAWMA Director',
-        description: 'Criminal charges filed within 24 hours. Trust +12, Civil Society +15, Informal Economy +6.',
+        description:
+          'Criminal charges filed within 24 hours. Trust +12, Civil Society +15, Informal Economy +6.',
         immediate: { youthTension: -18, publicTrust: 12 },
         factionImpact: { civilSocietyMedia: 15, informalEconomy: 6 },
         politicalCapitalCost: 15,
@@ -191,14 +200,16 @@ export const riotEvents: EventCard[] = [
       {
         id: 'compensate-family-internal',
         label: 'Compensate Family, Internal Review Only',
-        description: 'Pay ₦20m to the family, discipline officer internally. Markets reopen slower. Trust -6, Corruption Pressure +5.',
+        description:
+          'Pay ₦20m to the family, discipline officer internally. Markets reopen slower. Trust -6, Corruption Pressure +5.',
         immediate: { youthTension: -8, publicTrust: -6, cashReserve: -0.02 },
         factionImpact: { civilSocietyMedia: -10 },
       },
       {
         id: 'defend-lawma',
         label: 'Defend LAWMA — Call It Accidental',
-        description: 'Back the official line. Markets stay shut longer. Trust -14, Civil Society -18, Youth Tension +15.',
+        description:
+          'Back the official line. Markets stay shut longer. Trust -14, Civil Society -18, Youth Tension +15.',
         immediate: { youthTension: 15, publicTrust: -14 },
         factionImpact: { civilSocietyMedia: -18, informalEconomy: -10 },
         constituencyImpact: { surulere: -15, amuwoOdofin: -8 },
@@ -236,7 +247,8 @@ export const riotEvents: EventCard[] = [
       {
         id: 'enforce-with-rrs',
         label: 'Enforce Disconnections — Deploy RRS',
-        description: 'Force the issue. Trust -10, Youth Tension +12, Security -4, Informal Economy -10.',
+        description:
+          'Force the issue. Trust -10, Youth Tension +12, Security -4, Informal Economy -10.',
         immediate: { youthTension: 12, publicTrust: -10, securityIndex: -4 },
         factionImpact: { informalEconomy: -10, civilSocietyMedia: -12 },
         constituencyImpact: { mushin: -12, shomolu: -15, kosofe: -8 },

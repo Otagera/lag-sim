@@ -26,12 +26,12 @@ export function Heading({ level = 2, children, style, display }: HeadingProps) {
     <Tag
       className={display ? 'font-display' : ''}
       style={{
-        margin:     0,
+        margin: 0,
         fontFamily: display ? undefined : "'Archivo Narrow', sans-serif",
-        fontSize:   sizes[level],
+        fontSize: sizes[level],
         fontWeight: 600,
         lineHeight: 1.25,
-        color:      'var(--text)',
+        color: 'var(--text)',
         ...style,
       }}
     >
@@ -50,7 +50,7 @@ export function Prose({ children, style }: ProseProps) {
       className="prose"
       style={{
         margin: 0,
-        color:  'var(--text-secondary)',
+        color: 'var(--text-secondary)',
         ...style,
       }}
     >

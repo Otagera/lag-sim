@@ -15,13 +15,17 @@ Your chief strategist has spent three days preparing two dossiers. One documents
 You have two hours. What you say in this room will be replayed until February.`,
     severity: 'critical',
     category: 'political',
-    triggerCondition: (state) => state.week >= 195 && !state.resolvedEvents.includes('finale-debate') && state.currentTerm === 1,
+    triggerCondition: (state) =>
+      state.week >= 195 &&
+      !state.resolvedEvents.includes('finale-debate') &&
+      state.currentTerm === 1,
     followUpEventId: 'finale-security-breakdown',
     choices: [
       {
         id: 'run-on-record',
         label: 'Lead With Your Record — Four Years of Delivered Governance',
-        description: 'Infrastructure numbers, fiscal discipline, public trust trajectory. Civil Society +10, Business +6, Trust +8. No knockout — but nothing to walk back. Political Capital -10.',
+        description:
+          'Infrastructure numbers, fiscal discipline, public trust trajectory. Civil Society +10, Business +6, Trust +8. No knockout — but nothing to walk back. Political Capital -10.',
         immediate: { publicTrust: 8, politicalCapital: -10 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: 6 },
         constituencyImpact: { etiOsa: 6, lagosIsland: 5, ibejuLekki: 5 },
@@ -29,7 +33,8 @@ You have two hours. What you say in this room will be replayed until February.`,
       {
         id: 'go-after-adebayo',
         label: 'Attack — Expose the Contract Scandal and Student Loan Fraud',
-        description: 'Name names. Document three specific Adebayo failures. Trust -5 (negative campaign read), but Alimosho and Periphery +10 (they love the aggression). Political Capital +15. Godfathers +8.',
+        description:
+          'Name names. Document three specific Adebayo failures. Trust -5 (negative campaign read), but Alimosho and Periphery +10 (they love the aggression). Political Capital +15. Godfathers +8.',
         immediate: { publicTrust: -5, politicalCapital: 15 },
         factionImpact: { partyGodfathers: 8, lgChairmen: 6, civilSocietyMedia: -8 },
         constituencyImpact: { alimosho: 10, ikorodu: 8, oshodiIsolo: 6 },
@@ -37,7 +42,8 @@ You have two hours. What you say in this room will be replayed until February.`,
       {
         id: 'vision-second-term',
         label: 'Pivot to Vision — Announce Three Signature Second-Term Promises',
-        description: 'Lagos Metro Phase 3. Free vocational training. Digital land registry. Youth Tension -8. Trust +5 in peripheral constituencies. Political Capital -15. A bet on aspiration over record.',
+        description:
+          'Lagos Metro Phase 3. Free vocational training. Digital land registry. Youth Tension -8. Trust +5 in peripheral constituencies. Political Capital -15. A bet on aspiration over record.',
         immediate: { publicTrust: 5, politicalCapital: -15, youthTension: -8 },
         factionImpact: { civilSocietyMedia: 6, informalEconomy: 5 },
         constituencyImpact: { alimosho: 8, ikorodu: 8, lagosMainland: 6, surulere: 5 },
@@ -61,7 +67,8 @@ Every choice here will be in the tribunal record if this election is contested.`
       {
         id: 'deploy-security-forces',
         label: 'Deploy LASG Security — Arrest the Coordinators',
-        description: 'Security Index +5. Alimosho +8 (your people see you protecting them). Federal Relationship -8 (Abuja sees it as political policing). Civil Society -6. Political Capital -20.',
+        description:
+          'Security Index +5. Alimosho +8 (your people see you protecting them). Federal Relationship -8 (Abuja sees it as political policing). Civil Society -6. Political Capital -20.',
         immediate: { securityIndex: 5, politicalCapital: -20 },
         factionImpact: { federalGovt: -8, civilSocietyMedia: -6, lgChairmen: 8 },
         constituencyImpact: { alimosho: 8, oshodiIsolo: 5 },
@@ -69,7 +76,8 @@ Every choice here will be in the tribunal record if this election is contested.`
       {
         id: 'community-response',
         label: 'Activate Community Leaders — De-escalate Through Channels',
-        description: 'Trust your LGA chairmen and ward agents. Trust +5. No arrest, no federal confrontation. lgChairmen +10. Civil Society +6. Slower — some intimidation continues until polls. Alimosho +4.',
+        description:
+          'Trust your LGA chairmen and ward agents. Trust +5. No arrest, no federal confrontation. lgChairmen +10. Civil Society +6. Slower — some intimidation continues until polls. Alimosho +4.',
         immediate: { publicTrust: 5 },
         factionImpact: { lgChairmen: 10, civilSocietyMedia: 6, partyGodfathers: 3 },
         constituencyImpact: { alimosho: 4, ikorodu: 4 },
@@ -77,7 +85,8 @@ Every choice here will be in the tribunal record if this election is contested.`
       {
         id: 'federal-mediation',
         label: 'Call the Inspector-General — Request Federal Electoral Security',
-        description: 'Bring the federal government in as neutral referee. Federal Relationship +6. Loses narrative advantage — Adebayo will frame it as you admitting you\'ve lost control. Political Capital -10.',
+        description:
+          "Bring the federal government in as neutral referee. Federal Relationship +6. Loses narrative advantage — Adebayo will frame it as you admitting you've lost control. Political Capital -10.",
         immediate: { politicalCapital: -10 },
         factionImpact: { federalGovt: 6, civilSocietyMedia: 4, partyGodfathers: -5 },
         constituencyImpact: { alimosho: 2 },
@@ -102,15 +111,23 @@ The choice made tonight is the last one you will make as a candidate. Tomorrow, 
       {
         id: 'full-mobilisation',
         label: 'Full Deployment — Empty the War Chest',
-        description: 'Every LGA chairman, every ward agent, every truck, every loudspeaker. Cash -6. Political Capital -30. Maximum turnout operation. Alimosho +12, Periphery +10, Surulere +8, Oshodi +8. You spend everything you built.',
+        description:
+          'Every LGA chairman, every ward agent, every truck, every loudspeaker. Cash -6. Political Capital -30. Maximum turnout operation. Alimosho +12, Periphery +10, Surulere +8, Oshodi +8. You spend everything you built.',
         immediate: { cashReserve: -6, politicalCapital: -30 },
         factionImpact: { lgChairmen: 8, informalEconomy: 8, partyGodfathers: 5 },
-        constituencyImpact: { alimosho: 12, ikorodu: 10, surulere: 8, oshodiIsolo: 8, lagosMainland: 5 },
+        constituencyImpact: {
+          alimosho: 12,
+          ikorodu: 10,
+          surulere: 8,
+          oshodiIsolo: 8,
+          lagosMainland: 5,
+        },
       },
       {
         id: 'targeted-mobilisation',
         label: 'Targeted — Concentrate Resources on the Six Swing Wards',
-        description: 'Precision over saturation. Cash -3. Political Capital -15. Alimosho +8, Periphery +6. You leave some wards to their own momentum. Higher ceiling in the six targets, lower floor everywhere else.',
+        description:
+          'Precision over saturation. Cash -3. Political Capital -15. Alimosho +8, Periphery +6. You leave some wards to their own momentum. Higher ceiling in the six targets, lower floor everywhere else.',
         immediate: { cashReserve: -3, politicalCapital: -15 },
         factionImpact: { lgChairmen: 5, informalEconomy: 5 },
         constituencyImpact: { alimosho: 8, ikorodu: 6, oshodiIsolo: 5, surulere: 4 },
@@ -118,7 +135,8 @@ The choice made tonight is the last one you will make as a candidate. Tomorrow, 
       {
         id: 'trust-the-lead',
         label: 'Hold — The Record Speaks. Let It.',
-        description: 'Conserve. Your governance record is your argument. Political Capital -5. No constituency surge — but no desperate optics either. A risk in close wards, dignity in every one.',
+        description:
+          'Conserve. Your governance record is your argument. Political Capital -5. No constituency surge — but no desperate optics either. A risk in close wards, dignity in every one.',
         immediate: { politicalCapital: -5 },
         factionImpact: { civilSocietyMedia: 8, businessCommunity: 5 },
       },

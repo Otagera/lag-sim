@@ -10,7 +10,7 @@ const REACTIONS: Record<string, string[][]> = {
     ['Alimosho Residents', '1:03 PM', 'I said it! Something was bound to happen. Nobody listened'],
   ],
   political: [
-    ['Kemi A.', '2:14 PM', 'So this is what is happening? 😒 They think we don\'t know'],
+    ['Kemi A.', '2:14 PM', "So this is what is happening? 😒 They think we don't know"],
     ['Dr. Rotimi', '2:19 PM', 'Una see am? I knew from day one. Nothing will change'],
     ['Naija Matters 🇳🇬', '2:27 PM', 'Forward this to every Lagos person in your contact 🔁'],
     ['Bayo Esq.', '2:33 PM', 'They will come and be doing press conference. Rubbish'],
@@ -18,19 +18,19 @@ const REACTIONS: Record<string, string[][]> = {
   fiscal: [
     ['Emeka L.', '9:04 AM', 'Where exactly is this money going? Someone should explain'],
     ['Ifeoma', '9:11 AM', 'This thing will affect all of us by end of month 😔'],
-    ['Concerned Citizens 📢', '9:18 AM', 'Please share. Our children\'s future is at stake'],
+    ['Concerned Citizens 📢', '9:18 AM', "Please share. Our children's future is at stake"],
     ['Tunde B.', '9:24 AM', 'My own question is — who approved this? Accountability!'],
   ],
   milestone: [
     ['Amaka O.', '3:52 PM', 'Finally!! Something positive for once 🙌🙌'],
     ['Yemi F.', '3:58 PM', 'This is good news sha. About time they do something right'],
     ['Lagos Pride 🟢', '4:05 PM', 'Forward this! Good things deserve to spread too 🙏'],
-    ['Bayo Esq.', '4:09 PM', 'Let\'s see if they will maintain it. I hope they don\'t mess it up'],
+    ['Bayo Esq.', '4:09 PM', "Let's see if they will maintain it. I hope they don't mess it up"],
   ],
   background: [
     ['Shade M.', '7:30 PM', 'I heard this since last week. My cousin confirmed it'],
-    ['Emeka L.', '7:35 PM', 'Hmm. Not everything you hear is true sha. Let\'s wait'],
-    ['Naija Matters 🇳🇬', '7:41 PM', 'Spread this. They don\'t want us to know 👀'],
+    ['Emeka L.', '7:35 PM', "Hmm. Not everything you hear is true sha. Let's wait"],
+    ['Naija Matters 🇳🇬', '7:41 PM', "Spread this. They don't want us to know 👀"],
     ['Ifeoma', '7:48 PM', 'True true. This has been going on for long'],
   ],
 }
@@ -79,6 +79,7 @@ function ForwardBubble({
           }}
         >
           <svg width="10" height="10" viewBox="0 0 24 24" fill="rgba(255,255,255,0.4)">
+            <title>Forward</title>
             <path d="M14.5 4l-1.41 1.41L18.67 11H3v2h15.67l-5.58 5.59L14.5 20l8-8z" />
           </svg>
           <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10, fontStyle: 'italic' }}>
@@ -91,7 +92,9 @@ function ForwardBubble({
         <p style={{ color: 'rgba(255,255,255,0.92)', fontSize: 13, lineHeight: 1.4, margin: 0 }}>
           {message}
         </p>
-        <div style={{ textAlign: 'right', marginTop: 3, fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>
+        <div
+          style={{ textAlign: 'right', marginTop: 3, fontSize: 10, color: 'rgba(255,255,255,0.3)' }}
+        >
           {time} ✓✓
         </div>
       </div>
@@ -106,9 +109,7 @@ export function WhatsAppChain({ article }: { article: NewsArticle }) {
   const forwardCount = meta?.forwardCount ?? 18
   const isRumor = meta?.isRumor ?? false
 
-  const messageText = article.deck.length > 130
-    ? article.deck.slice(0, 130) + '…'
-    : article.deck
+  const messageText = article.deck.length > 130 ? `${article.deck.slice(0, 130)}…` : article.deck
 
   // Pick reactions for this category, offset by headline hash for variety
   const pool = REACTIONS[article.category] ?? DEFAULT_REACTIONS
@@ -128,11 +129,24 @@ export function WhatsAppChain({ article }: { article: NewsArticle }) {
         justifyContent: 'center',
         backdropFilter: 'blur(3px)',
       }}
-      onClick={clearNewspaperHeadline}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
+      <button
+        type="button"
+        aria-label="Close WhatsApp chain"
+        onClick={clearNewspaperHeadline}
         style={{
+          position: 'absolute',
+          inset: 0,
+          cursor: 'pointer',
+          border: 'none',
+          padding: 0,
+          background: 'transparent',
+        }}
+      />
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
           width: 360,
           maxWidth: 'calc(100vw - 32px)',
           borderRadius: 12,
@@ -171,6 +185,7 @@ export function WhatsAppChain({ article }: { article: NewsArticle }) {
             </div>
           </div>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="rgba(255,255,255,0.45)">
+            <title>Profile</title>
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
           </svg>
         </div>
@@ -188,9 +203,11 @@ export function WhatsAppChain({ article }: { article: NewsArticle }) {
         >
           {/* Double forward arrows */}
           <svg width="11" height="11" viewBox="0 0 24 24" fill="#8b7355">
+            <title>Forward</title>
             <path d="M14.5 4l-1.41 1.41 4.58 4.59H3v2h14.67l-4.58 4.59L14.5 20l8-8-8-8z" />
           </svg>
           <svg width="11" height="11" viewBox="0 0 24 24" fill="#8b7355" style={{ marginLeft: -7 }}>
+            <title>Forward</title>
             <path d="M14.5 4l-1.41 1.41 4.58 4.59H3v2h14.67l-4.58 4.59L14.5 20l8-8-8-8z" />
           </svg>
           <span style={{ fontSize: 11, color: '#6b5940', fontStyle: 'italic' }}>
@@ -225,13 +242,22 @@ export function WhatsAppChain({ article }: { article: NewsArticle }) {
               {/* Forwarded label on incoming too */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 3 }}>
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="rgba(0,0,0,0.28)">
+                  <title>Forward</title>
                   <path d="M14.5 4l-1.41 1.41 4.58 4.59H3v2h14.67l-4.58 4.59L14.5 20l8-8-8-8z" />
                 </svg>
                 <span style={{ color: 'rgba(0,0,0,0.28)', fontSize: 10, fontStyle: 'italic' }}>
                   Forwarded
                 </span>
               </div>
-              <p style={{ color: '#1a1a1a', fontSize: 13, lineHeight: 1.4, margin: 0, fontWeight: 600 }}>
+              <p
+                style={{
+                  color: '#1a1a1a',
+                  fontSize: 13,
+                  lineHeight: 1.4,
+                  margin: 0,
+                  fontWeight: 600,
+                }}
+              >
                 {article.headline}
               </p>
               <p style={{ color: '#444', fontSize: 12, lineHeight: 1.4, margin: '4px 0 0' }}>
@@ -246,7 +272,7 @@ export function WhatsAppChain({ article }: { article: NewsArticle }) {
           {/* Forwarded reactions chain */}
           {reactions.map(([sender, time, message], i) => (
             <ForwardBubble
-              key={`${sender}-${i}`}
+              key={`${sender}-${time}-${message.slice(0, 12)}`}
               sender={sender}
               time={time}
               message={message}

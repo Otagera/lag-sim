@@ -92,7 +92,7 @@ export const electionEvents: EventCard[] = [
       },
       {
         id: 'attack-opponent',
-        label: 'Attack Opponent\'s Credibility',
+        label: "Attack Opponent's Credibility",
         description:
           'Effective if they have vulnerabilities. Trust -4 (negative campaign), but Political Capital +8. Godfathers like the aggression.',
         immediate: { publicTrust: -4, politicalCapital: 8 },

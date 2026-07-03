@@ -1,16 +1,21 @@
-import { useState, useMemo } from 'react'
-import { X, GitBranch, Lock, Clock, CheckCircle } from 'lucide-react'
-import { useGameStore } from '../state/gameStore'
+import { CheckCircle, Clock, GitBranch, Lock, X } from 'lucide-react'
+import { type KeyboardEvent, useMemo, useState } from 'react'
 import { RESEARCH_TREE } from '../data/researchTree'
-import { computeNodeLayout, getNodeStatus, getNodeDef, getPrereqLines } from '../engine/researchEngine'
+import {
+  computeNodeLayout,
+  getNodeDef,
+  getNodeStatus,
+  getPrereqLines,
+} from '../engine/researchEngine'
+import { useGameStore } from '../state/gameStore'
 import type { ResearchNodeStatus } from '../state/types'
 
 const DOMAIN_COLORS: Record<string, { solid: string; bg: string; text: string; line: string }> = {
-  security:    { solid: '#2563eb', bg: '#1e3a5f', text: '#93c5fd', line: '#3b82f6' },
+  security: { solid: '#2563eb', bg: '#1e3a5f', text: '#93c5fd', line: '#3b82f6' },
   agriculture: { solid: '#16a34a', bg: '#1a3a2a', text: '#86efac', line: '#22c55e' },
-  innovation:  { solid: '#d97706', bg: '#3a2a1a', text: '#fde68a', line: '#eab308' },
+  innovation: { solid: '#d97706', bg: '#3a2a1a', text: '#fde68a', line: '#eab308' },
   administration: { solid: '#7c3aed', bg: '#2e1a5e', text: '#c4b5fd', line: '#8b5cf6' },
-  climate:    { solid: '#0891b2', bg: '#0a2e3a', text: '#67e8f9', line: '#06b6d4' },
+  climate: { solid: '#0891b2', bg: '#0a2e3a', text: '#67e8f9', line: '#06b6d4' },
 }
 
 const NODE_WIDTH = 220
@@ -19,22 +24,32 @@ const NODE_HEIGHT = 72
 function nodeStatusColor(status: ResearchNodeStatus, domain: string): string {
   const domainColor = DOMAIN_COLORS[domain]
   switch (status) {
-    case 'available':    return domainColor?.solid ?? '#666'
-    case 'commissioned': return '#a855f7'
-    case 'completed':    return '#16a34a'
-    case 'locked':       return '#555'
-    default:             return '#555'
+    case 'available':
+      return domainColor?.solid ?? '#666'
+    case 'commissioned':
+      return '#a855f7'
+    case 'completed':
+      return '#16a34a'
+    case 'locked':
+      return '#555'
+    default:
+      return '#555'
   }
 }
 
 function nodeBackgroundColor(status: ResearchNodeStatus, domain: string): string {
   const c = DOMAIN_COLORS[domain]
   switch (status) {
-    case 'available':    return c?.bg ?? '#222'
-    case 'commissioned': return '#3b1a6e'
-    case 'completed':    return '#1a3a1a'
-    case 'locked':       return '#1a1a1a'
-    default:             return '#1a1a1a'
+    case 'available':
+      return c?.bg ?? '#222'
+    case 'commissioned':
+      return '#3b1a6e'
+    case 'completed':
+      return '#1a3a1a'
+    case 'locked':
+      return '#1a1a1a'
+    default:
+      return '#1a1a1a'
   }
 }
 
@@ -85,6 +100,13 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
     }
   }
 
+  function handleGraphNodeKeyDown(event: KeyboardEvent<SVGGElement>, nodeId: string) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      handleNodeClick(nodeId)
+    }
+  }
+
   function handleCommission() {
     if (!selectedNodeId) return
     commissionResearchNodeAction(selectedNodeId)
@@ -105,8 +127,9 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
     return Math.max(300, maxY + NODE_HEIGHT + 40)
   }
 
-  const netFlow = (stats.igr - stats.expenditure)
-  const weeksOfCash = netFlow >= 0 ? Infinity : Math.abs(cashReserve / Math.max(0.1, Math.abs(netFlow)))
+  const netFlow = stats.igr - stats.expenditure
+  const weeksOfCash =
+    netFlow >= 0 ? Infinity : Math.abs(cashReserve / Math.max(0.1, Math.abs(netFlow)))
 
   return (
     <div
@@ -120,10 +143,15 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
       >
         <div className="flex items-center gap-2">
           <GitBranch className="w-4 h-4" style={{ color: 'var(--text)' }} />
-          <h2 className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Commission the Future</h2>
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
+            Commission the Future
+          </h2>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[10px] font-medium" style={{ color: cashReserve < 0 ? 'var(--error-11)' : 'var(--text-secondary)' }}>
+          <span
+            className="text-[10px] font-medium"
+            style={{ color: cashReserve < 0 ? 'var(--error-11)' : 'var(--text-secondary)' }}
+          >
             Cash: {naira(cashReserve)}
           </span>
           <span className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
@@ -158,6 +186,7 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
             viewBox={`0 0 ${svgWidth()} ${svgHeight()}`}
             style={{ minWidth: svgWidth(), minHeight: svgHeight() }}
           >
+            <title>Research tree</title>
             {/* Prerequisite lines */}
             {lines.map((line) => {
               const from = layouts.find((l) => l.nodeId === line.from)
@@ -170,7 +199,12 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
                   y1={from.y + NODE_HEIGHT}
                   x2={to.x + NODE_WIDTH / 2}
                   y2={to.y}
-                  stroke={line.crossDomain ? '#888' : (DOMAIN_COLORS[RESEARCH_TREE.find(n => n.id === line.from)?.domain ?? '']?.line ?? '#666')}
+                  stroke={
+                    line.crossDomain
+                      ? '#888'
+                      : (DOMAIN_COLORS[RESEARCH_TREE.find((n) => n.id === line.from)?.domain ?? '']
+                          ?.line ?? '#666')
+                  }
                   strokeWidth={line.crossDomain ? 1 : 2}
                   strokeDasharray={line.crossDomain ? '5,3' : 'none'}
                   opacity={0.4}
@@ -189,10 +223,15 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
               const domainColor = DOMAIN_COLORS[node.domain]
 
               return (
+                // biome-ignore lint/a11y/useSemanticElements: SVG <g> cannot be replaced by <button>
                 <g
                   key={layout.nodeId}
+                  aria-label={node.title}
                   onClick={() => handleNodeClick(layout.nodeId)}
+                  onKeyDown={(event) => handleGraphNodeKeyDown(event, layout.nodeId)}
+                  role="button"
                   style={{ cursor: isClickable ? 'pointer' : 'default' }}
+                  tabIndex={0}
                 >
                   {/* Card background */}
                   <rect
@@ -220,12 +259,7 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
                   )}
 
                   {/* foreignObject for proper HTML rendering */}
-                  <foreignObject
-                    x={layout.x}
-                    y={layout.y}
-                    width={NODE_WIDTH}
-                    height={NODE_HEIGHT}
-                  >
+                  <foreignObject x={layout.x} y={layout.y} width={NODE_WIDTH} height={NODE_HEIGHT}>
                     <div
                       style={{
                         width: '100%',
@@ -240,7 +274,14 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
                       title={node.title}
                     >
                       {/* Row 1: Domain + Status icon */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          marginBottom: '2px',
+                        }}
+                      >
                         <span
                           style={{
                             fontSize: '8px',
@@ -258,9 +299,7 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
                         {status === 'commissioned' && (
                           <Clock width={12} height={12} stroke="#a855f7" />
                         )}
-                        {status === 'locked' && (
-                          <Lock width={12} height={12} stroke="#666" />
-                        )}
+                        {status === 'locked' && <Lock width={12} height={12} stroke="#666" />}
                       </div>
 
                       {/* Row 2: Title */}
@@ -311,7 +350,8 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Mobile list view */}
-        <div className={`${showMobileList ? 'flex' : 'hidden'} lg:hidden flex-1 overflow-y-auto p-3 flex-col gap-3`}
+        <div
+          className={`${showMobileList ? 'flex' : 'hidden'} lg:hidden flex-1 overflow-y-auto p-3 flex-col gap-3`}
           style={{ backgroundColor: 'var(--background)' }}
         >
           {['security', 'agriculture', 'innovation', 'administration', 'climate'].map((domain) => {
@@ -341,11 +381,17 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
                           borderColor: bc,
                           backgroundColor: bg,
                           opacity: status === 'locked' ? 0.5 : 1,
-                          cursor: status === 'commissioned' || status === 'completed' ? 'default' : 'pointer',
+                          cursor:
+                            status === 'commissioned' || status === 'completed'
+                              ? 'default'
+                              : 'pointer',
                         }}
                       >
                         <div className="flex justify-between items-center">
-                          <span className="font-semibold" style={{ color: status === 'locked' ? '#888' : '#e0e0e0' }}>
+                          <span
+                            className="font-semibold"
+                            style={{ color: status === 'locked' ? '#888' : '#e0e0e0' }}
+                          >
                             {node.title}
                           </span>
                           <span className="text-[9px] font-medium uppercase" style={{ color: bc }}>
@@ -360,7 +406,9 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
                         )}
                         {status === 'locked' && (
                           <span className="text-[9px]" style={{ color: '#888' }}>
-                            {node.prerequisites.length > 0 ? `Needs: ${node.prerequisites.map(p => p.label).join(', ')}` : 'Insufficient funds'}
+                            {node.prerequisites.length > 0
+                              ? `Needs: ${node.prerequisites.map((p) => p.label).join(', ')}`
+                              : 'Insufficient funds'}
                           </span>
                         )}
                       </button>
@@ -377,16 +425,29 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
       {selectedNode && (selectedStatus === 'available' || selectedStatus === 'locked') && (
         <div
           className="absolute inset-0 flex items-center justify-center z-10 p-4"
-          style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
-          onClick={() => { setSelectedNodeId(null); setConfirming(false) }}
+          style={{ backgroundColor: 'transparent' }}
         >
+          <button
+            type="button"
+            aria-label="Close research details"
+            className="absolute inset-0"
+            style={{
+              backgroundColor: 'rgba(0,0,0,0.4)',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+            }}
+            onClick={() => {
+              setSelectedNodeId(null)
+              setConfirming(false)
+            }}
+          />
           <div
-            className="w-full max-w-md border rounded-lg p-4 space-y-3"
+            className="relative z-10 w-full max-w-md border rounded-lg p-4 space-y-3"
             style={{
               backgroundColor: 'var(--surface)',
               borderColor: selectedStatus === 'available' ? 'var(--accent-solid)' : 'var(--border)',
             }}
-            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
               <DomainBadge domain={selectedNode.domain} />
@@ -401,31 +462,42 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
               </span>
             </div>
 
-            <h3 className="text-base font-bold" style={{ color: 'var(--text)' }}>{selectedNode.title}</h3>
+            <h3 className="text-base font-bold" style={{ color: 'var(--text)' }}>
+              {selectedNode.title}
+            </h3>
             <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
               {selectedNode.pitch}
             </p>
 
             <div className="flex gap-3 text-[10px]">
               <span style={{ color: 'var(--text)' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Cost:</span> {naira(selectedNode.cost)}
+                <span style={{ color: 'var(--text-secondary)' }}>Cost:</span>{' '}
+                {naira(selectedNode.cost)}
               </span>
               <span style={{ color: 'var(--text)' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Duration:</span> {selectedNode.weeksToComplete} weeks
+                <span style={{ color: 'var(--text-secondary)' }}>Duration:</span>{' '}
+                {selectedNode.weeksToComplete} weeks
               </span>
             </div>
 
             {selectedNode.prerequisites.length > 0 && (
               <div className="space-y-0.5">
-                <span className="text-[9px] font-semibold uppercase" style={{ color: 'var(--text-secondary)' }}>
+                <span
+                  className="text-[9px] font-semibold uppercase"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
                   Requirements
                 </span>
-                {selectedNode.prerequisites.map((prereq, i) => {
-                  const met = prereq.type === 'node'
-                    ? nodeStatuses.get(prereq.nodeId ?? '') === 'completed'
-                    : prereq.predicate?.(state) ?? false
+                {selectedNode.prerequisites.map((prereq) => {
+                  const met =
+                    prereq.type === 'node'
+                      ? nodeStatuses.get(prereq.nodeId ?? '') === 'completed'
+                      : (prereq.predicate?.(state) ?? false)
                   return (
-                    <div key={i} className="flex items-center gap-1.5 text-[10px]">
+                    <div
+                      key={`${prereq.type}-${prereq.nodeId ?? prereq.predicate?.name ?? prereq.label}`}
+                      className="flex items-center gap-1.5 text-[10px]"
+                    >
                       <span style={{ color: met ? '#16a34a' : 'var(--error-9)' }}>
                         {met ? '✓' : '✗'}
                       </span>
@@ -439,12 +511,17 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
             )}
 
             {selectedNode.outcomes && (
-              <div className="p-2 border text-[10px] leading-relaxed" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--accent-bg-subtle)' }}>
+              <div
+                className="p-2 border text-[10px] leading-relaxed"
+                style={{ borderColor: 'var(--border)', backgroundColor: 'var(--accent-bg-subtle)' }}
+              >
                 <span className="font-semibold" style={{ color: 'var(--accent-text)' }}>
                   Prospects: uncertain
                 </span>
                 <span style={{ color: 'var(--text-secondary)' }}>
-                  {' '}— Corruption, infrastructure, and cash reserves will shape the outcome. No guarantees.
+                  {' '}
+                  — Corruption, infrastructure, and cash reserves will shape the outcome. No
+                  guarantees.
                 </span>
               </div>
             )}
@@ -455,7 +532,10 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
                   type="button"
                   onClick={() => setConfirming(true)}
                   className="flex-1 py-2 text-[11px] font-semibold transition-colors"
-                  style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
+                  style={{
+                    backgroundColor: 'var(--accent-solid)',
+                    color: 'var(--accent-on-solid)',
+                  }}
                 >
                   Commission — {naira(selectedNode.cost)}
                 </button>
@@ -492,7 +572,10 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
               )}
               <button
                 type="button"
-                onClick={() => { setSelectedNodeId(null); setConfirming(false) }}
+                onClick={() => {
+                  setSelectedNodeId(null)
+                  setConfirming(false)
+                }}
                 className="px-3 py-2 text-[11px] border"
                 style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
               >

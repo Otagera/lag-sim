@@ -16,7 +16,8 @@ You have two hours before your first full cabinet briefing. The dossier will def
       {
         id: 'read-everything',
         label: 'Read the Full Report',
-        description: 'Work through it yourself. Political Capital -8. You will know exactly what you inherited — no surprises later.',
+        description:
+          'Work through it yourself. Political Capital -8. You will know exactly what you inherited — no surprises later.',
         immediate: { politicalCapital: -8, publicTrust: 4 },
         factionImpact: { civilSocietyMedia: 3 },
       },
@@ -30,7 +31,8 @@ You have two hours before your first full cabinet briefing. The dossier will def
       {
         id: 'assign-to-commissioners',
         label: 'Distribute to Commissioners',
-        description: 'Delegate the reading. Political Capital +5. You will not know what you missed.',
+        description:
+          'Delegate the reading. Political Capital +5. You will not know what you missed.',
         immediate: { politicalCapital: 5 },
         factionImpact: {},
       },
@@ -50,27 +52,31 @@ This is not a new problem. It is an inherited one. How you handle it is the firs
       {
         id: 'clear-all-arrears',
         label: 'Clear All Three Months Now',
-        description: 'Schools open. Teachers paid. Cash Reserve -₦8.4bn. Trust +10. Civil Society +8.',
+        description:
+          'Schools open. Teachers paid. Cash Reserve -₦8.4bn. Trust +10. Civil Society +8.',
         immediate: { cashReserve: -8.4, publicTrust: 10, youthTension: -5 },
         factionImpact: { civilSocietyMedia: 8 },
       },
       {
         id: 'partial-arrears',
         label: 'Pay Two Months, Audit the Third',
-        description: 'Clear ₦5.6bn now. Audit the disputed final month. Teachers accept reluctantly.',
+        description:
+          'Clear ₦5.6bn now. Audit the disputed final month. Teachers accept reluctantly.',
         immediate: { cashReserve: -5.6, publicTrust: 5 },
         factionImpact: { civilSocietyMedia: 4 },
       },
       {
         id: 'audit-first',
         label: 'Order a Full Audit Before Any Payment',
-        description: 'Responsible governance — but it takes weeks. Teachers stay home. Looks like stalling.',
+        description:
+          'Responsible governance — but it takes weeks. Teachers stay home. Looks like stalling.',
         immediate: { publicTrust: -5, youthTension: 8 },
         factionImpact: { civilSocietyMedia: -6 },
         delayed: {
           weekOffset: 4,
           delta: { cashReserve: -5.6, publicTrust: 3 },
-          eventText: 'The audit has concluded. Two months of arrears confirmed legitimate. Payment processed — four weeks late.',
+          eventText:
+            'The audit has concluded. Two months of arrears confirmed legitimate. Payment processed — four weeks late.',
         },
       },
     ],
@@ -89,21 +95,24 @@ Finance Ministry has prepared three narrative options. Each tells a true story. 
       {
         id: 'austerity-frame',
         label: 'Fiscal Discipline: The State We Inherited',
-        description: 'Name the problems, announce cost cuts. Business +8, Civil Society -5, Trust -3, Political Capital +8.',
+        description:
+          'Name the problems, announce cost cuts. Business +8, Civil Society -5, Trust -3, Political Capital +8.',
         immediate: { politicalCapital: 8, publicTrust: -3 },
         factionImpact: { businessCommunity: 8, civilSocietyMedia: -5, partyGodfathers: -4 },
       },
       {
         id: 'reform-frame',
         label: 'Investment: A New Revenue Story',
-        description: 'Lead with IGR reform and infrastructure. Civil Society +8, Business +3, Political Capital -5.',
+        description:
+          'Lead with IGR reform and infrastructure. Civil Society +8, Business +3, Political Capital -5.',
         immediate: { politicalCapital: -5, infrastructureScore: 2 },
         factionImpact: { civilSocietyMedia: 8, businessCommunity: 3 },
       },
       {
         id: 'continuity-frame',
         label: 'Continuity: Building on the Foundation',
-        description: 'Reassure everyone. Political Capital +10, Godfathers +5. The assembly applauds politely and waits to see what you actually do.',
+        description:
+          'Reassure everyone. Political Capital +10, Godfathers +5. The assembly applauds politely and waits to see what you actually do.',
         immediate: { politicalCapital: 10 },
         factionImpact: { partyGodfathers: 5, civilSocietyMedia: -2 },
       },
@@ -126,26 +135,30 @@ This happens every year. The drainage system was last upgraded in 2009. Your Wor
       {
         id: 'emergency-drainage',
         label: 'Emergency Drainage Clearance',
-        description: 'Deploy LAWMA and Works teams now. Cash Reserve -₦1.5bn, Infrastructure +3, Trust +5.',
+        description:
+          'Deploy LAWMA and Works teams now. Cash Reserve -₦1.5bn, Infrastructure +3, Trust +5.',
         immediate: { cashReserve: -1.5, infrastructureScore: 3, publicTrust: 5 },
         factionImpact: { lgChairmen: 4 },
       },
       {
         id: 'redirect-infra-budget',
         label: 'Redirect Infrastructure Budget',
-        description: 'Pull from planned project allocations. Infrastructure +2 now, stalls compound later.',
+        description:
+          'Pull from planned project allocations. Infrastructure +2 now, stalls compound later.',
         immediate: { infrastructureScore: 2 },
         factionImpact: {},
         delayed: {
           weekOffset: 10,
           delta: { infrastructureScore: -3 },
-          eventText: 'Flooding response diversions have stalled two road contracts in Oshodi and Alimosho. The arrears are beginning to show.',
+          eventText:
+            'Flooding response diversions have stalled two road contracts in Oshodi and Alimosho. The arrears are beginning to show.',
         },
       },
       {
         id: 'declare-state-emergency',
         label: 'Declare Emergency in Affected LGAs',
-        description: 'Unlocks federal emergency funds. Trust +3, Youth Tension -3, Business Community -4.',
+        description:
+          'Unlocks federal emergency funds. Trust +3, Youth Tension -3, Business Community -4.',
         immediate: { publicTrust: 3, youthTension: -3, cashReserve: 2 },
         factionImpact: { businessCommunity: -4, lgChairmen: 3 },
       },
@@ -165,21 +178,24 @@ This is the moment your administration acquires a public character — the story
       {
         id: 'publish-detailed-report',
         label: 'Publish a Detailed 100-Day Report',
-        description: 'Civil Society +8, Trust +5, Political Capital -5. You have to justify every line.',
+        description:
+          'Civil Society +8, Trust +5, Political Capital -5. You have to justify every line.',
         immediate: { publicTrust: 5, politicalCapital: -5 },
         factionImpact: { civilSocietyMedia: 8 },
       },
       {
         id: 'single-press-conference',
         label: 'Hold One Press Conference',
-        description: 'Controlled messaging. Trust +3, Civil Society +2. Less exposure, less upside.',
+        description:
+          'Controlled messaging. Trust +3, Civil Society +2. Less exposure, less upside.',
         immediate: { publicTrust: 3 },
         factionImpact: { civilSocietyMedia: 2 },
       },
       {
         id: 'decline-hundred-days',
         label: 'No Engagement: "We Govern, Not Perform"',
-        description: 'Trust -4, Civil Society -6. Looks defensive. The narrative writes itself without you.',
+        description:
+          'Trust -4, Civil Society -6. Looks defensive. The narrative writes itself without you.',
         immediate: { publicTrust: -4, politicalCapital: 5 },
         factionImpact: { civilSocietyMedia: -6 },
       },
@@ -202,14 +218,16 @@ This is the moment your administration acquires a public character — the story
       {
         id: 'prioritise-infrastructure',
         label: 'Prioritise Infrastructure',
-        description: 'Shift funds to road maintenance and drainage. Infrastructure +3, Expenditure +0.3bn.',
+        description:
+          'Shift funds to road maintenance and drainage. Infrastructure +3, Expenditure +0.3bn.',
         immediate: { infrastructureScore: 3, expenditure: 0.3 },
         factionImpact: { businessCommunity: 3 },
       },
       {
         id: 'prioritise-social',
         label: 'Prioritise Social Programmes',
-        description: 'Fund health and education. Public Trust +3, Youth Tension -2, Expenditure +0.3bn.',
+        description:
+          'Fund health and education. Public Trust +3, Youth Tension -2, Expenditure +0.3bn.',
         immediate: { publicTrust: 3, youthTension: -2, expenditure: 0.3 },
         factionImpact: { civilSocietyMedia: 3 },
       },
@@ -225,7 +243,7 @@ This is the moment your administration acquires a public character — the story
   {
     id: 'routine-media-cycle',
     title: 'Weekly Media Cycle',
-    body: 'A journalist is asking about your administration\'s progress on last term\'s campaign promises. The story will run tomorrow morning. Your team has prepared three possible angles.',
+    body: "A journalist is asking about your administration's progress on last term's campaign promises. The story will run tomorrow morning. Your team has prepared three possible angles.",
     severity: 'low',
     category: 'political',
     isRecurring: true,
@@ -250,7 +268,8 @@ This is the moment your administration acquires a public character — the story
       {
         id: 'deflect-and-attack',
         label: 'Deflect and Attack',
-        description: 'Blame previous administration and federal government. Political Capital +5, Trust -4.',
+        description:
+          'Blame previous administration and federal government. Political Capital +5, Trust -4.',
         immediate: { politicalCapital: 5, publicTrust: -4 },
         factionImpact: { federalGovt: -3 },
       },
@@ -270,7 +289,8 @@ This is the moment your administration acquires a public character — the story
       {
         id: 'approve-digital',
         label: 'Approve Digital Collection',
-        description: 'IGR +0.5bn, Informal Economy -5 (they bear the brunt), Infrastructure +2 from increased revenue.',
+        description:
+          'IGR +0.5bn, Informal Economy -5 (they bear the brunt), Infrastructure +2 from increased revenue.',
         immediate: { igr: 0.5, infrastructureScore: 2 },
         factionImpact: { informalEconomy: -5 },
       },
@@ -311,14 +331,16 @@ This is the moment your administration acquires a public character — the story
       {
         id: 'increase-patrols',
         label: 'Increase Patrols, No New Funding',
-        description: 'Security +2. No budget impact but police morale dips. Officers stretched thin.',
+        description:
+          'Security +2. No budget impact but police morale dips. Officers stretched thin.',
         immediate: { securityIndex: 2 },
         factionImpact: {},
       },
       {
         id: 'focus-on-oshodi',
         label: 'Targeted Sweep in Hotspots',
-        description: 'Security +3 short-term. Youth Tension +5. Civil Society raises concerns about profiling.',
+        description:
+          'Security +3 short-term. Youth Tension +5. Civil Society raises concerns about profiling.',
         immediate: { securityIndex: 3, youthTension: 5 },
         factionImpact: { civilSocietyMedia: -4 },
       },
@@ -338,7 +360,8 @@ This is the moment your administration acquires a public character — the story
       {
         id: 'approve-full-maintenance',
         label: 'Approve Full Maintenance',
-        description: 'Infrastructure +4, Expenditure +0.6bn. Preventative — saves money in long run.',
+        description:
+          'Infrastructure +4, Expenditure +0.6bn. Preventative — saves money in long run.',
         immediate: { infrastructureScore: 4, expenditure: 0.6 },
         factionImpact: {},
       },
@@ -352,7 +375,8 @@ This is the moment your administration acquires a public character — the story
       {
         id: 'defer-to-next-quarter',
         label: 'Defer to Next Quarter',
-        description: 'Save money now. Infrastructure -2 decay accelerates. Flooding likely when rains come.',
+        description:
+          'Save money now. Infrastructure -2 decay accelerates. Flooding likely when rains come.',
         immediate: { infrastructureScore: -2 },
         factionImpact: {},
       },
@@ -372,7 +396,8 @@ This is the moment your administration acquires a public character — the story
       {
         id: 'attend-personally',
         label: 'Attend Personally',
-        description: 'Youth Tension -5, Public Trust +3, Political Capital +3. You make promises you will need to keep.',
+        description:
+          'Youth Tension -5, Public Trust +3, Political Capital +3. You make promises you will need to keep.',
         immediate: { youthTension: -5, publicTrust: 3, politicalCapital: 3 },
         factionImpact: { civilSocietyMedia: 5 },
       },
@@ -406,7 +431,8 @@ This is the moment your administration acquires a public character — the story
       {
         id: 'visit-with-fanfare',
         label: 'Visit with Full Entourage',
-        description: 'Constituency +5 (random mainland zone), Trust +2. Costs Political Capital (expectations raised).',
+        description:
+          'Constituency +5 (random mainland zone), Trust +2. Costs Political Capital (expectations raised).',
         immediate: { publicTrust: 2, politicalCapital: -3 },
         constituencyImpact: { alimosho: 5, oshodiIsolo: 5, surulere: 3 },
         factionImpact: { lgChairmen: 3 },
@@ -414,7 +440,8 @@ This is the moment your administration acquires a public character — the story
       {
         id: 'quick-stopover',
         label: 'Quick Stopover',
-        description: 'Constituency +2. Respectful but perfunctory. Shows you care without over-promising.',
+        description:
+          'Constituency +2. Respectful but perfunctory. Shows you care without over-promising.',
         immediate: {},
         constituencyImpact: { alimosho: 2, oshodiIsolo: 2 },
         factionImpact: {},
@@ -442,7 +469,8 @@ This is the moment your administration acquires a public character — the story
       {
         id: 'strict-enforcement',
         label: 'Strict Enforcement',
-        description: 'Infrastructure +3 (cleaner city), Informal Economy -6 (market stalls closed), Trust +4 from resident associations.',
+        description:
+          'Infrastructure +3 (cleaner city), Informal Economy -6 (market stalls closed), Trust +4 from resident associations.',
         immediate: { infrastructureScore: 3, publicTrust: 4 },
         factionImpact: { informalEconomy: -6 },
       },
@@ -456,7 +484,8 @@ This is the moment your administration acquires a public character — the story
       {
         id: 'no-enforcement',
         label: 'No Enforcement',
-        description: 'No political cost today. Infrastructure -1 decay accelerates. Markets stay open.',
+        description:
+          'No political cost today. Infrastructure -1 decay accelerates. Markets stay open.',
         immediate: { infrastructureScore: -1 },
         factionImpact: { informalEconomy: 4 },
       },

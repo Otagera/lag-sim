@@ -43,10 +43,7 @@ function MessageRow({
         <AvatarMonogram charId={msg.from} size={28} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-1">
-            <span
-              className="text-[10px] font-semibold truncate"
-              style={{ color: 'var(--text)' }}
-            >
+            <span className="text-[10px] font-semibold truncate" style={{ color: 'var(--text)' }}>
               {msg.fromLabel}
             </span>
             <span className="text-[8px] shrink-0" style={{ color: 'var(--text-secondary)' }}>
@@ -70,7 +67,10 @@ function MessageRow({
           />
         )}
         {msg.isGodfatherAsk && !msg.actioned && (
-          <span className="text-[9px] font-semibold shrink-0 mt-0.5" style={{ color: 'var(--error-9)' }}>
+          <span
+            className="text-[9px] font-semibold shrink-0 mt-0.5"
+            style={{ color: 'var(--error-9)' }}
+          >
             ⚠
           </span>
         )}
@@ -79,13 +79,7 @@ function MessageRow({
   )
 }
 
-function MessageDetail({
-  msg,
-  onBack,
-}: {
-  msg: InboxMessage
-  onBack: () => void
-}) {
+function MessageDetail({ msg, onBack }: { msg: InboxMessage; onBack: () => void }) {
   const borderColor = TONE_COLORS[msg.tone] ?? 'var(--border)'
 
   return (
@@ -179,7 +173,7 @@ export function Inbox() {
 
   const sorted = [...inbox].sort((a, b) => b.week - a.week)
   const unreadCount = inbox.filter((m) => !m.read).length
-  const selected = selectedId ? inbox.find((m) => m.id === selectedId) ?? null : null
+  const selected = selectedId ? (inbox.find((m) => m.id === selectedId) ?? null) : null
 
   const filtered = sorted.filter((m) => {
     if (filter === 'unread') return !m.read
@@ -209,7 +203,10 @@ export function Inbox() {
         className="flex items-center justify-between px-2 py-1.5 shrink-0"
         style={{ borderBottom: '1px solid var(--border-subtle)' }}
       >
-        <h2 className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text)' }}>
+        <h2
+          className="text-[10px] font-semibold uppercase tracking-wide"
+          style={{ color: 'var(--text)' }}
+        >
           Inbox
         </h2>
         {unreadCount > 0 && (
@@ -227,7 +224,12 @@ export function Inbox() {
       {/* Tabs */}
       <div className="flex" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
         <Tab label="All" active={filter === 'all'} onClick={() => setFilter('all')} />
-        <Tab label="Unread" badge={unreadCount} active={filter === 'unread'} onClick={() => setFilter('unread')} />
+        <Tab
+          label="Unread"
+          badge={unreadCount}
+          active={filter === 'unread'}
+          onClick={() => setFilter('unread')}
+        />
         <Tab label="Read" active={filter === 'read'} onClick={() => setFilter('read')} />
       </div>
 
@@ -237,18 +239,17 @@ export function Inbox() {
       ) : filtered.length === 0 ? (
         <div className="flex-1 flex items-center justify-center p-4">
           <p className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
-            {filter === 'unread' ? 'No unread messages.' : filter === 'read' ? 'No read messages.' : 'No messages yet.'}
+            {filter === 'unread'
+              ? 'No unread messages.'
+              : filter === 'read'
+                ? 'No read messages.'
+                : 'No messages yet.'}
           </p>
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto">
           {filtered.map((msg) => (
-            <MessageRow
-              key={msg.id}
-              msg={msg}
-              selected={false}
-              onClick={() => handleSelect(msg)}
-            />
+            <MessageRow key={msg.id} msg={msg} selected={false} onClick={() => handleSelect(msg)} />
           ))}
         </div>
       )}

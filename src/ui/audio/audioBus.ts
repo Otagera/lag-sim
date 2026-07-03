@@ -20,8 +20,8 @@ export type AudioSituation = 'calm' | 'election' | 'crisis' | 'storm'
 export type Cue = 'commit' | 'crisis' | 'blackout'
 
 let ctx: AudioContext | null = null
-let master: GainNode | null = null       // mute / master volume
-let reverbIn: GainNode | null = null      // send bus into the reverb
+let master: GainNode | null = null // mute / master volume
+let reverbIn: GainNode | null = null // send bus into the reverb
 let muted = true
 let desired: AudioSituation | null = null
 let current: AmbientVoice | null = null
@@ -37,7 +37,9 @@ function ensureCtx(): AudioContext | null {
   if (typeof window === 'undefined') return null
   try {
     if (!ctx) {
-      const Ctor = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+      const Ctor =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
       if (!Ctor) return null
       ctx = new Ctor()
 
@@ -81,7 +83,7 @@ function makeImpulse(c: AudioContext, seconds: number, decay: number): AudioBuff
   for (let ch = 0; ch < 2; ch++) {
     const data = buf.getChannelData(ch)
     for (let i = 0; i < len; i++) {
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay)
+      data[i] = (Math.random() * 2 - 1) * (1 - i / len) ** decay
     }
   }
   return buf
@@ -104,14 +106,14 @@ function getNoise(c: AudioContext): AudioBuffer {
 // "real world" moods (election crowds, crisis unrest) that synthesis can't fake.
 const SAMPLE_BASE = '/audio'
 const AMBIENT_SRC: Record<AudioSituation, string[]> = {
-  calm:     [`${SAMPLE_BASE}/ambient-calm.ogg`,     `${SAMPLE_BASE}/ambient-calm.mp3`],
+  calm: [`${SAMPLE_BASE}/ambient-calm.ogg`, `${SAMPLE_BASE}/ambient-calm.mp3`],
   election: [`${SAMPLE_BASE}/ambient-election.ogg`, `${SAMPLE_BASE}/ambient-election.mp3`],
-  crisis:   [`${SAMPLE_BASE}/ambient-crisis.ogg`,   `${SAMPLE_BASE}/ambient-crisis.mp3`],
-  storm:    [`${SAMPLE_BASE}/ambient-storm.ogg`,    `${SAMPLE_BASE}/ambient-storm.mp3`],
+  crisis: [`${SAMPLE_BASE}/ambient-crisis.ogg`, `${SAMPLE_BASE}/ambient-crisis.mp3`],
+  storm: [`${SAMPLE_BASE}/ambient-storm.ogg`, `${SAMPLE_BASE}/ambient-storm.mp3`],
 }
 const CUE_SRC: Record<Cue, string[]> = {
-  commit:   [`${SAMPLE_BASE}/cue-commit.ogg`,   `${SAMPLE_BASE}/cue-commit.mp3`],
-  crisis:   [`${SAMPLE_BASE}/cue-crisis.ogg`,   `${SAMPLE_BASE}/cue-crisis.mp3`],
+  commit: [`${SAMPLE_BASE}/cue-commit.ogg`, `${SAMPLE_BASE}/cue-commit.mp3`],
+  crisis: [`${SAMPLE_BASE}/cue-crisis.ogg`, `${SAMPLE_BASE}/cue-crisis.mp3`],
   blackout: [`${SAMPLE_BASE}/cue-blackout.ogg`, `${SAMPLE_BASE}/cue-blackout.mp3`],
 }
 const sampleBuf = new Map<string, AudioBuffer>()
@@ -124,7 +126,9 @@ async function loadFirst(c: AudioContext, key: string, urls: string[]): Promise<
       if (!res.ok) continue
       sampleBuf.set(key, await c.decodeAudioData(await res.arrayBuffer()))
       return
-    } catch { /* try next url, else stay on synth */ }
+    } catch {
+      /* try next url, else stay on synth */
+    }
   }
 }
 
@@ -174,7 +178,10 @@ export function playCue(type: Cue): void {
   const c = ensureCtx()
   if (!c || !master || !reverbIn) return
   const buf = sampleBuf.get(`cue:${type}`)
-  if (buf) { playSample(c, buf, 0.9, 0.18); return } // local file wins
+  if (buf) {
+    playSample(c, buf, 0.9, 0.18)
+    return
+  } // local file wins
   const t = c.currentTime
   if (type === 'commit') cueCommit(c, t)
   else if (type === 'crisis') cueCrisis(c, t)
@@ -199,7 +206,8 @@ export function stopAll(): void {
 function route(node: AudioNode, wet = 0.5): void {
   if (master) node.connect(master)
   if (reverbIn && wet > 0) {
-    const send = ctx!.createGain()
+    const send = ctx?.createGain()
+    if (!send) return
     send.gain.value = wet
     node.connect(send)
     send.connect(reverbIn)
@@ -225,10 +233,13 @@ function cueCommit(c: AudioContext, t: number): void {
   o2.frequency.setValueAtTime(784, t) // soft octave shimmer
   const o2g = c.createGain()
   o2g.gain.value = 0.3
-  o2.connect(o2g); o2g.connect(g)
+  o2.connect(o2g)
+  o2g.connect(g)
   o1.connect(g)
-  o1.start(t); o2.start(t)
-  o1.stop(t + 0.55); o2.stop(t + 0.55)
+  o1.start(t)
+  o2.start(t)
+  o1.stop(t + 0.55)
+  o2.stop(t + 0.55)
 
   // tiny percussive tick for tactility
   tick(c, t, 0.05, 2200)
@@ -249,13 +260,18 @@ function cueCrisis(c: AudioContext, t: number): void {
   lp.connect(g)
   route(g, 0.55)
 
-  for (const [f, det] of [[146.8, 0], [155.6, 4]] as const) { // D3 + Eb3 (minor 2nd)
+  for (const [f, det] of [
+    [146.8, 0],
+    [155.6, 4],
+  ] as const) {
+    // D3 + Eb3 (minor 2nd)
     const o = c.createOscillator()
     o.type = 'triangle'
     o.frequency.value = f
     o.detune.value = det
     o.connect(lp)
-    o.start(t); o.stop(t + 1.45)
+    o.start(t)
+    o.stop(t + 1.45)
   }
 }
 
@@ -271,7 +287,8 @@ function cueBlackout(c: AudioContext, t: number): void {
   og.gain.exponentialRampToValueAtTime(0.0001, t + 0.7)
   o.connect(og)
   route(og, 0.4)
-  o.start(t); o.stop(t + 0.75)
+  o.start(t)
+  o.stop(t + 0.75)
 
   // noise whoosh dying with the power
   const n = c.createBufferSource()
@@ -283,9 +300,11 @@ function cueBlackout(c: AudioContext, t: number): void {
   const ng = c.createGain()
   ng.gain.setValueAtTime(0.12, t)
   ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.65)
-  n.connect(nf); nf.connect(ng)
+  n.connect(nf)
+  nf.connect(ng)
   route(ng, 0.5)
-  n.start(t); n.stop(t + 0.7)
+  n.start(t)
+  n.stop(t + 0.7)
 }
 
 function tick(c: AudioContext, t: number, gain: number, cutoff: number): void {
@@ -298,34 +317,67 @@ function tick(c: AudioContext, t: number, gain: number, cutoff: number): void {
   const g = c.createGain()
   g.gain.setValueAtTime(gain, t)
   g.gain.exponentialRampToValueAtTime(0.0001, t + 0.06)
-  n.connect(bp); bp.connect(g)
+  n.connect(bp)
+  bp.connect(g)
   route(g, 0.2)
-  n.start(t); n.stop(t + 0.08)
+  n.start(t)
+  n.stop(t + 0.08)
 }
 
 // ─── Ambient beds (warm pads + texture, never raw drones) ────────────────────────
 
 // Each bed is a chord of detuned sine partials through a slowly-moving lowpass,
 // plus an optional filtered-noise layer. Kept quiet — a bed you feel, not hear.
-const BEDS: Record<AudioSituation, {
-  chord: number[]     // partial frequencies (Hz)
-  detune: number      // ± cents spread for warmth/chorus
-  gain: number        // pad loudness (low)
-  cutoff: number      // lowpass centre
-  sweep: number       // ± Hz the cutoff drifts
-  sweepHz: number     // cutoff drift rate (breathing)
-  noise?: { type: BiquadFilterType; freq: number; q: number; gain: number }
-}> = {
+const BEDS: Record<
+  AudioSituation,
+  {
+    chord: number[] // partial frequencies (Hz)
+    detune: number // ± cents spread for warmth/chorus
+    gain: number // pad loudness (low)
+    cutoff: number // lowpass centre
+    sweep: number // ± Hz the cutoff drifts
+    sweepHz: number // cutoff drift rate (breathing)
+    noise?: { type: BiquadFilterType; freq: number; q: number; gain: number }
+  }
+> = {
   // Warm, consonant, restful — a major-ish spread
-  calm:     { chord: [98, 147, 196, 294], detune: 6, gain: 0.05, cutoff: 700, sweep: 260, sweepHz: 0.05 },
+  calm: {
+    chord: [98, 147, 196, 294],
+    detune: 6,
+    gain: 0.05,
+    cutoff: 700,
+    sweep: 260,
+    sweepHz: 0.05,
+  },
   // Brighter with a hint of tension (added 2nd), gentle motion
-  election: { chord: [110, 165, 220, 247], detune: 7, gain: 0.05, cutoff: 900, sweep: 320, sweepHz: 0.09 },
+  election: {
+    chord: [110, 165, 220, 247],
+    detune: 7,
+    gain: 0.05,
+    cutoff: 900,
+    sweep: 320,
+    sweepHz: 0.09,
+  },
   // Minor, close intervals that beat slightly — unease without harshness
-  crisis:   { chord: [110, 131, 165, 196], detune: 10, gain: 0.055, cutoff: 520, sweep: 200, sweepHz: 0.14,
-              noise: { type: 'bandpass', freq: 320, q: 0.7, gain: 0.02 } },
+  crisis: {
+    chord: [110, 131, 165, 196],
+    detune: 10,
+    gain: 0.055,
+    cutoff: 520,
+    sweep: 200,
+    sweepHz: 0.14,
+    noise: { type: 'bandpass', freq: 320, q: 0.7, gain: 0.02 },
+  },
   // Low rumble + wind/rain hiss; the pad sits deep and dark
-  storm:    { chord: [55, 82, 110], detune: 9, gain: 0.06, cutoff: 300, sweep: 140, sweepHz: 0.2,
-              noise: { type: 'lowpass', freq: 700, q: 0.9, gain: 0.05 } },
+  storm: {
+    chord: [55, 82, 110],
+    detune: 9,
+    gain: 0.06,
+    cutoff: 300,
+    sweep: 140,
+    sweepHz: 0.2,
+    noise: { type: 'lowpass', freq: 700, q: 0.9, gain: 0.05 },
+  },
 }
 
 const AMBIENT_FADE = 1.6 // seconds
@@ -384,8 +436,10 @@ function buildSynthBed(c: AudioContext, situation: AudioSituation): AmbientVoice
   lfo.frequency.value = cfg.sweepHz
   const lfoGain = c.createGain()
   lfoGain.gain.value = cfg.sweep
-  lfo.connect(lfoGain); lfoGain.connect(lp.frequency)
-  lfo.start(t); sources.push(lfo)
+  lfo.connect(lfoGain)
+  lfoGain.connect(lp.frequency)
+  lfo.start(t)
+  sources.push(lfo)
 
   const padGain = c.createGain()
   padGain.gain.value = cfg.gain / cfg.chord.length
@@ -399,7 +453,8 @@ function buildSynthBed(c: AudioContext, situation: AudioSituation): AmbientVoice
       o.frequency.value = f
       o.detune.value = sign * cfg.detune + (i - 1) * 1.5
       o.connect(padGain)
-      o.start(t); sources.push(o)
+      o.start(t)
+      sources.push(o)
     }
   })
 
@@ -414,8 +469,11 @@ function buildSynthBed(c: AudioContext, situation: AudioSituation): AmbientVoice
     nf.Q.value = cfg.noise.q
     const ng = c.createGain()
     ng.gain.value = cfg.noise.gain
-    n.connect(nf); nf.connect(ng); ng.connect(lp)
-    n.start(t); sources.push(n)
+    n.connect(nf)
+    nf.connect(ng)
+    ng.connect(lp)
+    n.start(t)
+    sources.push(n)
   }
 
   return { situation, sources, fade }
@@ -430,6 +488,10 @@ function stopAmbient(fade: number): void {
   voice.fade.gain.setValueAtTime(voice.fade.gain.value, t)
   voice.fade.gain.linearRampToValueAtTime(0.0001, t + fade)
   for (const s of voice.sources) {
-    try { s.stop(t + fade + 0.05) } catch { /* already stopped */ }
+    try {
+      s.stop(t + fade + 0.05)
+    } catch {
+      /* already stopped */
+    }
   }
 }

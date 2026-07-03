@@ -1,6 +1,9 @@
-import type { NewsArticle, InboxMessage, EventCard, Choice } from '../../state/types'
+import type { Choice, EventCard, InboxMessage, NewsArticle } from '../../state/types'
 
-export const FIXTURE_ARTICLES: Record<'fiscal' | 'political' | 'crisis' | 'milestone', NewsArticle> = {
+export const FIXTURE_ARTICLES: Record<
+  'fiscal' | 'political' | 'crisis' | 'milestone',
+  NewsArticle
+> = {
   fiscal: {
     headline: 'Lagos Posts ₦48.2B Budget Surplus — IGR Hits Record High',
     deck: 'Internally Generated Revenue surges past FAAC allocation for the first time, driven by land-use charge enforcement and informal sector formalisation.',
@@ -11,13 +14,13 @@ export const FIXTURE_ARTICLES: Record<'fiscal' | 'political' | 'crisis' | 'miles
       { label: 'Operating Surplus', value: '₦48.2B', delta: '+₦9.7B YoY', positive: true },
       { label: 'Debt Service Ratio', value: '18.3%', delta: '-2.1pp', positive: true },
     ],
-    llmGenerated: false,
     channelMeta: {
       channel: 'newspaper',
     },
   },
   political: {
-    headline: 'LAHA Speaker Challenges Governor Over Executive Bill 47: "This House Will Not Be Bypassed"',
+    headline:
+      'LAHA Speaker Challenges Governor Over Executive Bill 47: "This House Will Not Be Bypassed"',
     deck: 'A coalition of 23 lawmakers from both parties blocked the second reading of the Transport Reform Bill, citing insufficient consultation with Local Government Councils.',
     category: 'political',
     dataPoints: [
@@ -26,7 +29,6 @@ export const FIXTURE_ARTICLES: Record<'fiscal' | 'political' | 'crisis' | 'miles
       { label: 'Abstentions', value: '5', delta: '', positive: false },
       { label: 'Public Sentiment', value: '52% support', delta: '', positive: true },
     ],
-    llmGenerated: false,
     channelMeta: {
       channel: 'tweet',
       handle: '@LagosPunch',
@@ -45,7 +47,6 @@ export const FIXTURE_ARTICLES: Record<'fiscal' | 'political' | 'crisis' | 'miles
       { label: 'Emergency Fund Released', value: '₦1.2B', delta: '', positive: true },
       { label: 'Rainfall (72h)', value: '284mm', delta: '+61% vs avg', positive: false },
     ],
-    llmGenerated: false,
     channelMeta: {
       channel: 'whatsapp',
       forwardCount: 8400,
@@ -62,7 +63,6 @@ export const FIXTURE_ARTICLES: Record<'fiscal' | 'political' | 'crisis' | 'miles
       { label: 'Local Jobs Created', value: '3,800', delta: '', positive: true },
       { label: 'Projected IGR Boost', value: '+₦4.2B/yr', delta: '', positive: true },
     ],
-    llmGenerated: false,
     channelMeta: {
       channel: 'shortVideo',
       views: 1_400_000,
@@ -92,7 +92,8 @@ export const FIXTURE_INBOX: InboxMessage[] = [
     tone: 'threatening',
     read: false,
     isGodfatherAsk: true,
-    godfatherAskDescription: 'Fast-track a controversial building permit for a godfather associate.',
+    godfatherAskDescription:
+      'Fast-track a controversial building permit for a godfather associate.',
   },
   {
     id: 'fixture-inbox-3',
@@ -110,13 +111,19 @@ export const FIXTURE_INBOX: InboxMessage[] = [
     fromLabel: 'Commissioner for Finance',
     week: 19,
     subject: 'URGENT: FAAC Shortfall — Treasury Projection',
-    body: "Sir, the Federation Account Allocation Committee has notified us of a 22% shortfall this month due to low oil output. Our cash reserve projection for Week 24 is ₦8.2B — below the operating floor. We need either a spending freeze or a stop-gap borrowing approval.",
+    body: 'Sir, the Federation Account Allocation Committee has notified us of a 22% shortfall this month due to low oil output. Our cash reserve projection for Week 24 is ₦8.2B — below the operating floor. We need either a spending freeze or a stop-gap borrowing approval.',
     tone: 'urgent',
     read: false,
   },
 ]
 
-function mkChoice(id: string, label: string, desc: string, immediate: Record<string, number>, factionImpact?: Record<string, number>): Choice {
+function mkChoice(
+  id: string,
+  label: string,
+  desc: string,
+  immediate: Record<string, number>,
+  factionImpact?: Record<string, number>,
+): Choice {
   return { id, label, description: desc, immediate, factionImpact: factionImpact ?? {} }
 }
 
@@ -128,18 +135,27 @@ export const FIXTURE_EVENTS: EventCard[] = [
     severity: 'high',
     category: 'crisis',
     choices: [
-      mkChoice('fixture-evt-crisis-a', 'Declare an Emergency & Release ₦800M Relief Fund',
+      mkChoice(
+        'fixture-evt-crisis-a',
+        'Declare an Emergency & Release ₦800M Relief Fund',
         'Immediate cash for affected traders, but signals panic to the business community.',
         { cashReserve: -4, publicTrust: 4, politicalCapital: -5 },
-        { informalEconomy: 12, businessCommunity: -3 }),
-      mkChoice('fixture-evt-crisis-b', 'Visit the Site & Promise Structural Reform',
+        { informalEconomy: 12, businessCommunity: -3 },
+      ),
+      mkChoice(
+        'fixture-evt-crisis-b',
+        'Visit the Site & Promise Structural Reform',
         'Photo opportunity and a taskforce, but no immediate cash. Builds political capital.',
         { cashReserve: -1, publicTrust: 2, politicalCapital: 3 },
-        { informalEconomy: 5, civilSocietyMedia: 8 }),
-      mkChoice('fixture-evt-crisis-c', 'Delegate to Deputy Governor & LASEMA',
+        { informalEconomy: 5, civilSocietyMedia: 8 },
+      ),
+      mkChoice(
+        'fixture-evt-crisis-c',
+        'Delegate to Deputy Governor & LASEMA',
         'Standard bureaucratic response. Saves political capital but looks detached.',
         { corruptionPressure: 2, politicalCapital: 2 },
-        { partyGodfathers: 3, lgChairmen: 2 }),
+        { partyGodfathers: 3, lgChairmen: 2 },
+      ),
     ],
   },
   {
@@ -149,18 +165,27 @@ export const FIXTURE_EVENTS: EventCard[] = [
     severity: 'medium',
     category: 'political',
     choices: [
-      mkChoice('fixture-evt-pol-a', 'Endorse the Bill — Full LGA Autonomy',
+      mkChoice(
+        'fixture-evt-pol-a',
+        'Endorse the Bill — Full LGA Autonomy',
         'Popular with civil society and LG chairmen but alienates godfathers.',
         { publicTrust: 5, politicalCapital: -8 },
-        { lgChairmen: 15, civilSocietyMedia: 10, partyGodfathers: -12 }),
-      mkChoice('fixture-evt-pol-b', 'Propose a Compromise — Partial Devolution',
+        { lgChairmen: 15, civilSocietyMedia: 10, partyGodfathers: -12 },
+      ),
+      mkChoice(
+        'fixture-evt-pol-b',
+        'Propose a Compromise — Partial Devolution',
         'Moderate position. Keeps everyone engaged but satisfies no one fully.',
         { politicalCapital: 2, corruptionPressure: 3 },
-        { lgChairmen: 5, partyGodfathers: -3, federalGovt: 3 }),
-      mkChoice('fixture-evt-pol-c', 'Oppose the Bill — Status Quo',
+        { lgChairmen: 5, partyGodfathers: -3, federalGovt: 3 },
+      ),
+      mkChoice(
+        'fixture-evt-pol-c',
+        'Oppose the Bill — Status Quo',
         'Pleases godfathers and federal networks but alienates civil society and the press.',
         { publicTrust: -8, politicalCapital: 5 },
-        { partyGodfathers: 10, civilSocietyMedia: -15, businessCommunity: -3 }),
+        { partyGodfathers: 10, civilSocietyMedia: -15, businessCommunity: -3 },
+      ),
     ],
   },
   {
@@ -170,14 +195,20 @@ export const FIXTURE_EVENTS: EventCard[] = [
     severity: 'low',
     category: 'economy',
     choices: [
-      mkChoice('fixture-evt-low-a', 'Launch a Public Awareness Campaign',
+      mkChoice(
+        'fixture-evt-low-a',
+        'Launch a Public Awareness Campaign',
         'Invest in radio jingles and road shows to smooth adoption.',
         { cashReserve: -1, publicTrust: 3 },
-        { civilSocietyMedia: 5, informalEconomy: 3 }),
-      mkChoice('fixture-evt-low-b', 'Roll Back to Paper Tickets Temporarily',
+        { civilSocietyMedia: 5, informalEconomy: 3 },
+      ),
+      mkChoice(
+        'fixture-evt-low-b',
+        'Roll Back to Paper Tickets Temporarily',
         'Relieves motorist frustration but signals weakness on reform.',
         { publicTrust: -2, corruptionPressure: 5 },
-        { informalEconomy: 3, partyGodfathers: 3 }),
+        { informalEconomy: 3, partyGodfathers: 3 },
+      ),
     ],
   },
 ]

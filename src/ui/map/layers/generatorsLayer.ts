@@ -5,21 +5,21 @@
 // Driven live by zone.powerDeficit = max(0, 60 - infrastructure).
 
 import { Container, Graphics, Sprite, Texture } from 'pixi.js'
-import type { MapLayer } from '../types'
 import type { MapState } from '../../../state/mapSelectors'
 import { mulberry32 } from '../buildings'
-import { isoToScreen, TILE_H } from '../projection'
 import { getLGAGeometry, pointInPolygon } from '../geoProjection'
+import { isoToScreen, TILE_H } from '../projection'
+import type { MapLayer } from '../types'
 
-const GEN_COLOR   = 0xe88a30   // muted diesel-orange (was 0xff9a46 — too hot)
-const MAX_GEN     = 250        // was 600 — generators should be a spare sprinkle, not a mass
+const GEN_COLOR = 0xe88a30 // muted diesel-orange (was 0xff9a46 — too hot)
+const MAX_GEN = 250 // was 600 — generators should be a spare sprinkle, not a mass
 const MAX_DEFICIT = 60
 
 // Diesel generator chug — low pulse, never too bright
 function genAlpha(t: number, phase: number): number {
   const main = Math.sin(t * 0.85 + phase)
-  const spur = Math.sin(t * 3.1  + phase * 1.4) * 0.28
-  return Math.max(0.10, Math.min(0.35, 0.22 + main * 0.08 + spur * 0.04))
+  const spur = Math.sin(t * 3.1 + phase * 1.4) * 0.28
+  return Math.max(0.1, Math.min(0.35, 0.22 + main * 0.08 + spur * 0.04))
 }
 
 interface GenDot {
@@ -28,23 +28,23 @@ interface GenDot {
   screenY: number
   phase: number
   zoneIdx: number
-  deficitThreshold: number  // lights when zone.powerDeficit >= this
+  deficitThreshold: number // lights when zone.powerDeficit >= this
 }
 
 export function createGeneratorsLayer(): MapLayer {
-  const container    = new Container()
-  const glowG        = new Graphics()
+  const container = new Container()
+  const glowG = new Graphics()
   const dotContainer = new Container()
 
-  glowG.blendMode        = 'add'
+  glowG.blendMode = 'add'
   dotContainer.blendMode = 'add'
 
   container.addChild(glowG)
   container.addChild(dotContainer)
 
   let _t = 0
-  const _gens: GenDot[]                  = []
-  const _prevDeficits: number[]          = new Array(8).fill(0)
+  const _gens: GenDot[] = []
+  const _prevDeficits: number[] = new Array(8).fill(0)
 
   function buildPool(ox: number, oy: number) {
     dotContainer.removeChildren()
@@ -52,7 +52,10 @@ export function createGeneratorsLayer(): MapLayer {
     let total = 0
 
     const lgas = getLGAGeometry()
-    const zonePools = new Map<number, { poly: [number, number][]; rng: () => number; maxForZone: number }[]>()
+    const zonePools = new Map<
+      number,
+      { poly: [number, number][]; rng: () => number; maxForZone: number }[]
+    >()
 
     // Group LGAs by zoneIdx
     for (const lga of lgas) {
@@ -69,14 +72,22 @@ export function createGeneratorsLayer(): MapLayer {
     for (const [, pools] of zonePools) {
       let totalArea = 0
       for (const p of pools) {
-        const ba = p.poly.reduce((s, [a]) => Math.max(s, a), 0) - p.poly.reduce((s, [a]) => Math.min(s, a), 0)
-        const bb = p.poly.reduce((s, [, b]) => Math.max(s, b), 0) - p.poly.reduce((s, [, b]) => Math.min(s, b), 0)
+        const ba =
+          p.poly.reduce((s, [a]) => Math.max(s, a), 0) -
+          p.poly.reduce((s, [a]) => Math.min(s, a), 0)
+        const bb =
+          p.poly.reduce((s, [, b]) => Math.max(s, b), 0) -
+          p.poly.reduce((s, [, b]) => Math.min(s, b), 0)
         totalArea += ba * bb
       }
       for (const p of pools) {
-        const ba = p.poly.reduce((s, [a]) => Math.max(s, a), 0) - p.poly.reduce((s, [a]) => Math.min(s, a), 0)
-        const bb = p.poly.reduce((s, [, b]) => Math.max(s, b), 0) - p.poly.reduce((s, [, b]) => Math.min(s, b), 0)
-        p.maxForZone = Math.max(1, Math.floor((ba * bb) / totalArea * MAX_GEN / pools.length))
+        const ba =
+          p.poly.reduce((s, [a]) => Math.max(s, a), 0) -
+          p.poly.reduce((s, [a]) => Math.min(s, a), 0)
+        const bb =
+          p.poly.reduce((s, [, b]) => Math.max(s, b), 0) -
+          p.poly.reduce((s, [, b]) => Math.min(s, b), 0)
+        p.maxForZone = Math.max(1, Math.floor((((ba * bb) / totalArea) * MAX_GEN) / pools.length))
       }
     }
 
@@ -84,36 +95,45 @@ export function createGeneratorsLayer(): MapLayer {
       for (const pool of pools) {
         const { poly, rng, maxForZone } = pool
         // Bounding box for rejection sampling
-        let aMin = Infinity, aMax = -Infinity, bMin = Infinity, bMax = -Infinity
+        let aMin = Infinity,
+          aMax = -Infinity,
+          bMin = Infinity,
+          bMax = -Infinity
         for (const [a, b] of poly) {
-          if (a < aMin) aMin = a; if (a > aMax) aMax = a
-          if (b < bMin) bMin = b; if (b > bMax) bMax = b
+          if (a < aMin) aMin = a
+          if (a > aMax) aMax = a
+          if (b < bMin) bMin = b
+          if (b > bMax) bMax = b
         }
 
         let placed = 0
-        for (let attempt = 0; attempt < maxForZone * 20 && placed < maxForZone && total < MAX_GEN; attempt++) {
+        for (
+          let attempt = 0;
+          attempt < maxForZone * 20 && placed < maxForZone && total < MAX_GEN;
+          attempt++
+        ) {
           const a = aMin + rng() * (aMax - aMin)
           const b = bMin + rng() * (bMax - bMin)
           if (!pointInPolygon(a, b, poly)) continue
 
           const { x, y } = isoToScreen(a, b, ox, oy)
 
-          const sp    = new Sprite(Texture.WHITE)
-          sp.width    = 2
-          sp.height   = 2
+          const sp = new Sprite(Texture.WHITE)
+          sp.width = 2
+          sp.height = 2
           sp.anchor.set(0.5, 0.5)
-          sp.x        = x
-          sp.y        = y + TILE_H
-          sp.tint     = GEN_COLOR
-          sp.visible  = false
+          sp.x = x
+          sp.y = y + TILE_H
+          sp.tint = GEN_COLOR
+          sp.visible = false
           dotContainer.addChild(sp)
 
           _gens.push({
-            sprite:           sp,
-            screenX:          x,
-            screenY:          y + TILE_H,
-            phase:            rng() * Math.PI * 2,
-            zoneIdx:          zi,
+            sprite: sp,
+            screenX: x,
+            screenY: y + TILE_H,
+            phase: rng() * Math.PI * 2,
+            zoneIdx: zi,
             deficitThreshold: (placed / maxForZone) * (MAX_DEFICIT - 2) + 2,
           })
           placed++
@@ -129,7 +149,7 @@ export function createGeneratorsLayer(): MapLayer {
       const zone = state.zones[gen.zoneIdx]
       if (!zone || zone.powerDeficit < gen.deficitThreshold) continue
       // Single soft circle — no inner core (was two overlapping = hotspot). Sparse sprinkle, never a mass.
-      glowG.circle(gen.screenX, gen.screenY, 4).fill({ color: GEN_COLOR, alpha: 0.10 })
+      glowG.circle(gen.screenX, gen.screenY, 4).fill({ color: GEN_COLOR, alpha: 0.1 })
     }
   }
 

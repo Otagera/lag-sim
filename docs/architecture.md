@@ -117,9 +117,8 @@ type DelayedConsequence = {
     electionEngine.ts    — Vote share calculation
     seasonEngine.ts      — Season modifier (wet/dry, election year, budget crunch)
     constituencyEngine.ts — applyConstituencyImpact()
-    legacyRanker.ts      — Builds valedictory address LLM prompt
+    legacyRanker.ts      — Builds valedictory address from ranked key moments
     evaluateNews.ts      — Generates newspaper articles from stat changes
-    llmNews.ts           — Optional LLM-powered news text (currently disabled)
     budgetEngine.ts      — Deprecated simple budget (not used in tick)
     corruptionEngine.ts  — Stub (returns 0)
     simulateEngine.ts    — simulateWeeks() for fast-forward / dev mode
@@ -137,9 +136,7 @@ type DelayedConsequence = {
     types.ts             — ALL TypeScript types (source of truth)
     gameStore.ts         — Zustand store + actions
     persistence.ts       — Serialize/deserialize + migration chain (SAVE_VERSION = 4)
-  /engine/__tests__      — Unit tests (~475 total)
-  /workers
-    llmWorker.ts         — Web worker for optional LLM news generation
+  /engine/__tests__      — Unit tests (~601 total)
 /scripts
   benchmark.ts           — Win-rate benchmark for simulation strategies
 /docs                    — Documentation

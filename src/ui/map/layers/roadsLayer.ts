@@ -3,10 +3,10 @@
 // This makes the 20 LGA shapes visible and connects the map to the polling panel.
 
 import { Container, Graphics } from 'pixi.js'
-import type { MapLayer } from '../types'
 import type { MapState } from '../../../state/mapSelectors'
-import { isoToScreen } from '../projection'
 import { getLGAGeometry } from '../geoProjection'
+import { isoToScreen } from '../projection'
+import type { MapLayer } from '../types'
 
 export function createRoadsLayer(): MapLayer {
   const container = new Container()
@@ -23,11 +23,12 @@ export function createRoadsLayer(): MapLayer {
       const lgas = getLGAGeometry()
       for (const lga of lgas) {
         const pts = lga.isoPolygon.map(([a, b]) => isoToScreen(a, b, ox, oy))
-        g.poly(pts.flatMap(p => [p.x, p.y]))
-          .stroke({ color: 0x2a3a5a, width: 0.8, alpha: 0.30 })
+        g.poly(pts.flatMap((p) => [p.x, p.y])).stroke({ color: 0x2a3a5a, width: 0.8, alpha: 0.3 })
       }
     },
     update() {},
-    destroy() { container.destroy({ children: true }) },
+    destroy() {
+      container.destroy({ children: true })
+    },
   }
 }

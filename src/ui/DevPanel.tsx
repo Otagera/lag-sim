@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { useGameStore } from '../state/gameStore'
-import { SAVE_VERSION } from '../version'
 import { getGoal } from '../data/goals'
 import type { SimulateResult, SimulateStrategy } from '../engine/simulateEngine'
+import { useGameStore } from '../state/gameStore'
+import { SAVE_VERSION } from '../version'
 
 interface StatDiff {
   label: string
@@ -22,7 +22,11 @@ function Diff({ label, before, after, unit = '', invert = false }: StatDiff) {
   return (
     <div className="flex justify-between text-[10px]">
       <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
-      <span style={{ color: colorVar }}>{sign}{formatted}{unit}</span>
+      <span style={{ color: colorVar }}>
+        {sign}
+        {formatted}
+        {unit}
+      </span>
     </div>
   )
 }
@@ -35,7 +39,14 @@ export function DevPanel() {
   const [weeks, setWeeks] = useState(52)
   const [strategy, setStrategy] = useState<SimulateStrategy>('weighted')
   const [seedInput, setSeedInput] = useState('')
-  const [result, setResult] = useState<SimulateResult & { weekBefore: number; statsBefore: typeof state.stats; factionsBefore: typeof state.factions } | null>(null)
+  const [result, setResult] = useState<
+    | (SimulateResult & {
+        weekBefore: number
+        statsBefore: typeof state.stats
+        factionsBefore: typeof state.factions
+      })
+    | null
+  >(null)
   const [running, setRunning] = useState(false)
 
   function handleSimulate() {
@@ -107,12 +118,17 @@ export function DevPanel() {
           DEV
         </button>
       ) : (
-        <div className="w-56 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+        <div
+          className="w-56 border"
+          style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+        >
           <div
             className="flex items-center justify-between px-3 py-2"
             style={{ borderBottom: '1px solid var(--border)' }}
           >
-            <span className="text-[10px] font-bold" style={{ color: 'var(--warning-11)' }}>DEV PANEL</span>
+            <span className="text-[10px] font-bold" style={{ color: 'var(--warning-11)' }}>
+              DEV PANEL
+            </span>
             <button
               type="button"
               onClick={() => setOpen(false)}
@@ -125,12 +141,19 @@ export function DevPanel() {
 
           <div className="p-3 space-y-2">
             <div>
-              <label className="label-caps block mb-1">Strategy</label>
+              <label htmlFor="dev-panel-strategy" className="label-caps block mb-1">
+                Strategy
+              </label>
               <select
+                id="dev-panel-strategy"
                 value={strategy}
                 onChange={(e) => setStrategy(e.target.value as SimulateStrategy)}
                 className="w-full px-2 py-1 text-[10px] border"
-                style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)', color: 'var(--text)' }}
+                style={{
+                  borderColor: 'var(--border)',
+                  backgroundColor: 'var(--background)',
+                  color: 'var(--text)',
+                }}
               >
                 <option value="first">First choice (deterministic)</option>
                 <option value="random">Random choices</option>
@@ -140,29 +163,43 @@ export function DevPanel() {
             </div>
 
             <div>
-              <label className="label-caps block mb-1">Weeks to skip</label>
+              <label htmlFor="dev-panel-weeks" className="label-caps block mb-1">
+                Weeks to skip
+              </label>
               <input
+                id="dev-panel-weeks"
                 type="number"
                 min={1}
                 max={208}
                 value={weeks}
-                onChange={(e) => setWeeks(Math.max(1, Math.min(208, parseInt(e.target.value) || 1)))}
+                onChange={(e) =>
+                  setWeeks(Math.max(1, Math.min(208, parseInt(e.target.value, 10) || 1)))
+                }
                 className="w-full px-2 py-1 text-[10px] border"
-                style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)', color: 'var(--text)' }}
+                style={{
+                  borderColor: 'var(--border)',
+                  backgroundColor: 'var(--background)',
+                  color: 'var(--text)',
+                }}
               />
             </div>
 
             <div>
-              <label className="label-caps block mb-1">
+              <label htmlFor="dev-panel-seed" className="label-caps block mb-1">
                 Seed <span style={{ color: 'var(--border-strong)' }}>(blank = random)</span>
               </label>
               <input
+                id="dev-panel-seed"
                 type="text"
                 placeholder="e.g. 42"
                 value={seedInput}
                 onChange={(e) => setSeedInput(e.target.value)}
                 className="w-full px-2 py-1 text-[10px] border"
-                style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)', color: 'var(--text)' }}
+                style={{
+                  borderColor: 'var(--border)',
+                  backgroundColor: 'var(--background)',
+                  color: 'var(--text)',
+                }}
               />
             </div>
 
@@ -183,7 +220,11 @@ export function DevPanel() {
               type="button"
               onClick={handleDownloadReport}
               className="w-full px-2 py-1.5 text-[10px] font-medium transition-colors border"
-              style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
+              style={{
+                backgroundColor: 'var(--surface)',
+                borderColor: 'var(--border)',
+                color: 'var(--text-secondary)',
+              }}
               title="Download the current game state as a JSON report"
             >
               ⬇ Download report (JSON)
@@ -194,47 +235,127 @@ export function DevPanel() {
                 <div className="text-[9px]" style={{ color: 'var(--text-secondary)' }}>
                   Seed: {result.seed} · Week {result.weekBefore} → {result.state.week}
                   {result.stoppedEarly && (
-                    <span className="ml-1" style={{ color: 'var(--error-11)' }}>(game over)</span>
+                    <span className="ml-1" style={{ color: 'var(--error-11)' }}>
+                      (game over)
+                    </span>
                   )}
                 </div>
 
                 {result.state.reElected && (
-                  <div className="text-[9px] px-1.5 py-1 font-bold" style={{ color: 'var(--success-11)', backgroundColor: 'var(--success-3)' }}>
-                    RE-ELECTED — {result.state.electionResult?.toFixed(1)}% of vote · Term {result.state.currentTerm}
+                  <div
+                    className="text-[9px] px-1.5 py-1 font-bold"
+                    style={{ color: 'var(--success-11)', backgroundColor: 'var(--success-3)' }}
+                  >
+                    RE-ELECTED — {result.state.electionResult?.toFixed(1)}% of vote · Term{' '}
+                    {result.state.currentTerm}
                   </div>
                 )}
-                {result.state.electionResult !== undefined && result.state.electionResult !== null && !result.state.reElected && (
-                  <div className="text-[9px] px-1.5 py-1 font-bold" style={{ color: 'var(--text)', backgroundColor: 'var(--warning-3)' }}>
-                    Election: {result.state.electionResult.toFixed(1)}% — not re-elected
-                  </div>
-                )}
+                {result.state.electionResult !== undefined &&
+                  result.state.electionResult !== null &&
+                  !result.state.reElected && (
+                    <div
+                      className="text-[9px] px-1.5 py-1 font-bold"
+                      style={{ color: 'var(--text)', backgroundColor: 'var(--warning-3)' }}
+                    >
+                      Election: {result.state.electionResult.toFixed(1)}% — not re-elected
+                    </div>
+                  )}
 
                 {result.state.isGameOver && (
-                  <div className="text-[9px] px-1.5 py-1" style={{ color: 'var(--error-11)', backgroundColor: 'var(--error-3)' }}>
+                  <div
+                    className="text-[9px] px-1.5 py-1"
+                    style={{ color: 'var(--error-11)', backgroundColor: 'var(--error-3)' }}
+                  >
                     {result.state.gameOverReason}
                   </div>
                 )}
 
                 <div className="space-y-0.5">
-                  <Diff label="Cash Reserve" before={result.statsBefore.cashReserve} after={result.state.stats.cashReserve} unit="bn" />
-                  <Diff label="IGR" before={result.statsBefore.igr} after={result.state.stats.igr} unit="bn" />
-                  <Diff label="Public Trust" before={result.statsBefore.publicTrust} after={result.state.stats.publicTrust} unit="pts" />
-                  <Diff label="Corruption" before={result.statsBefore.corruptionPressure} after={result.state.stats.corruptionPressure} unit="pts" invert />
-                  <Diff label="Infrastructure" before={result.statsBefore.infrastructureScore} after={result.state.stats.infrastructureScore} unit="pts" />
-                  <Diff label="Pol. Capital" before={result.statsBefore.politicalCapital} after={result.state.stats.politicalCapital} unit="pts" />
-                  <Diff label="Youth Tension" before={result.statsBefore.youthTension} after={result.state.stats.youthTension} unit="pts" invert />
-                  <Diff label="Debt Stock" before={result.statsBefore.debtStock} after={result.state.stats.debtStock} unit="bn" invert />
+                  <Diff
+                    label="Cash Reserve"
+                    before={result.statsBefore.cashReserve}
+                    after={result.state.stats.cashReserve}
+                    unit="bn"
+                  />
+                  <Diff
+                    label="IGR"
+                    before={result.statsBefore.igr}
+                    after={result.state.stats.igr}
+                    unit="bn"
+                  />
+                  <Diff
+                    label="Public Trust"
+                    before={result.statsBefore.publicTrust}
+                    after={result.state.stats.publicTrust}
+                    unit="pts"
+                  />
+                  <Diff
+                    label="Corruption"
+                    before={result.statsBefore.corruptionPressure}
+                    after={result.state.stats.corruptionPressure}
+                    unit="pts"
+                    invert
+                  />
+                  <Diff
+                    label="Infrastructure"
+                    before={result.statsBefore.infrastructureScore}
+                    after={result.state.stats.infrastructureScore}
+                    unit="pts"
+                  />
+                  <Diff
+                    label="Pol. Capital"
+                    before={result.statsBefore.politicalCapital}
+                    after={result.state.stats.politicalCapital}
+                    unit="pts"
+                  />
+                  <Diff
+                    label="Youth Tension"
+                    before={result.statsBefore.youthTension}
+                    after={result.state.stats.youthTension}
+                    unit="pts"
+                    invert
+                  />
+                  <Diff
+                    label="Debt Stock"
+                    before={result.statsBefore.debtStock}
+                    after={result.state.stats.debtStock}
+                    unit="bn"
+                    invert
+                  />
                 </div>
 
                 <div className="space-y-0.5 pt-1" style={{ borderTop: '1px solid var(--border)' }}>
                   <p className="label-caps">Factions</p>
-                  <Diff label="Godfathers" before={result.factionsBefore.partyGodfathers} after={result.state.factions.partyGodfathers} unit="pts" />
-                  <Diff label="Business" before={result.factionsBefore.businessCommunity} after={result.state.factions.businessCommunity} unit="pts" />
-                  <Diff label="Civil Society" before={result.factionsBefore.civilSocietyMedia} after={result.state.factions.civilSocietyMedia} unit="pts" />
-                  <Diff label="LG Chairmen" before={result.factionsBefore.lgChairmen} after={result.state.factions.lgChairmen} unit="pts" />
+                  <Diff
+                    label="Godfathers"
+                    before={result.factionsBefore.partyGodfathers}
+                    after={result.state.factions.partyGodfathers}
+                    unit="pts"
+                  />
+                  <Diff
+                    label="Business"
+                    before={result.factionsBefore.businessCommunity}
+                    after={result.state.factions.businessCommunity}
+                    unit="pts"
+                  />
+                  <Diff
+                    label="Civil Society"
+                    before={result.factionsBefore.civilSocietyMedia}
+                    after={result.state.factions.civilSocietyMedia}
+                    unit="pts"
+                  />
+                  <Diff
+                    label="LG Chairmen"
+                    before={result.factionsBefore.lgChairmen}
+                    after={result.state.factions.lgChairmen}
+                    unit="pts"
+                  />
                 </div>
 
-                <div className="text-[9px] pt-1" style={{ borderTop: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+                <div
+                  className="text-[9px] pt-1"
+                  style={{ borderTop: '1px solid var(--border)', color: 'var(--text-secondary)' }}
+                >
                   Resolved events: {result.state.resolvedEvents.length}
                   {result.state.grantFreezeCount > 0 && (
                     <span className="ml-2" style={{ color: 'var(--warning-11)' }}>

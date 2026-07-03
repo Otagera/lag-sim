@@ -35,12 +35,19 @@ function DeltaTag({ label, value }: { label: string; value: number }) {
         color: positive ? 'var(--success-11)' : 'var(--error-11)',
       }}
     >
-      {positive ? '+' : ''}{value.toFixed(0)} {label}
+      {positive ? '+' : ''}
+      {value.toFixed(0)} {label}
     </span>
   )
 }
 
-function DeltaRow({ statDelta, factionDelta }: { statDelta?: StatDelta; factionDelta?: FactionDelta }) {
+function DeltaRow({
+  statDelta,
+  factionDelta,
+}: {
+  statDelta?: StatDelta
+  factionDelta?: FactionDelta
+}) {
   const statTags = statDelta
     ? (Object.entries(statDelta) as [StatKey, number][])
         .filter(([, v]) => v !== 0)
@@ -81,15 +88,30 @@ const TYPE_LABEL: Record<TimelineEntry['type'], string> = {
 
 const PAGE_SIZE = 10
 
+type TimelineEntryWithStableId = TimelineEntry & {
+  id?: string
+  kind?: string
+}
+
+function timelineEntryKey(entry: TimelineEntry): string {
+  const keyedEntry: TimelineEntryWithStableId = entry
+  return `${entry.week}-${entry.title}-${keyedEntry.id ?? keyedEntry.kind ?? entry.type}`
+}
+
 export function TimelinePanel() {
   const timeline = useGameStore((s) => s.timeline)
   const [page, setPage] = useState(0)
 
   if (timeline.length === 0) {
     return (
-      <div className="p-4 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+      <div
+        className="p-4 border"
+        style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+      >
         <h3 className="label-caps mb-2">Decision Log</h3>
-        <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>No decisions yet. Click "Next Week" to begin.</p>
+        <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>
+          No decisions yet. Click "Next Week" to begin.
+        </p>
       </div>
     )
   }
@@ -99,11 +121,17 @@ export function TimelinePanel() {
   const visible = reversed.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
 
   return (
-    <div className="p-3 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+    <div
+      className="p-3 border"
+      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+    >
       <div className="flex items-center justify-between mb-2">
         <h3 className="label-caps">Decision Log ({timeline.length})</h3>
         {totalPages > 1 && (
-          <div className="flex items-center gap-1 text-[10px]" style={{ color: 'var(--text-secondary)' }}>
+          <div
+            className="flex items-center gap-1 text-[10px]"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             <button
               type="button"
               disabled={page === 0}
@@ -112,7 +140,9 @@ export function TimelinePanel() {
             >
               ‹
             </button>
-            <span>{page + 1}/{totalPages}</span>
+            <span>
+              {page + 1}/{totalPages}
+            </span>
             <button
               type="button"
               disabled={page === totalPages - 1}
@@ -126,24 +156,42 @@ export function TimelinePanel() {
       </div>
 
       <div className="space-y-2.5">
-        {visible.map((entry, i) => (
-          <div key={`${entry.week}-${entry.title}-${i}`} className="flex gap-2.5">
+        {visible.map((entry) => (
+          <div key={timelineEntryKey(entry)} className="flex gap-2.5">
             <div className="flex flex-col items-center gap-1 pt-1 shrink-0">
               <div
                 className="w-1.5 h-1.5 rounded-full"
                 style={{ backgroundColor: TYPE_DOT[entry.type] }}
               />
-              <div className="w-px flex-1 min-h-[12px]" style={{ backgroundColor: 'var(--border)' }} />
+              <div
+                className="w-px flex-1 min-h-[12px]"
+                style={{ backgroundColor: 'var(--border)' }}
+              />
             </div>
             <div className="pb-1 min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[9px]" style={{ color: 'var(--border-strong)' }}>{formatGameDate(entry.week)}</span>
-                <span className="text-[9px] font-semibold uppercase tracking-wide" style={{ color: TYPE_DOT[entry.type] }}>
+                <span className="text-[9px]" style={{ color: 'var(--border-strong)' }}>
+                  {formatGameDate(entry.week)}
+                </span>
+                <span
+                  className="text-[9px] font-semibold uppercase tracking-wide"
+                  style={{ color: TYPE_DOT[entry.type] }}
+                >
                   {TYPE_LABEL[entry.type]}
                 </span>
               </div>
-              <p className="text-[12px] font-semibold leading-tight mt-0.5" style={{ color: 'var(--text)' }}>{entry.title}</p>
-              <p className="text-[10px] mt-0.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>{entry.description}</p>
+              <p
+                className="text-[12px] font-semibold leading-tight mt-0.5"
+                style={{ color: 'var(--text)' }}
+              >
+                {entry.title}
+              </p>
+              <p
+                className="text-[10px] mt-0.5 leading-snug"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                {entry.description}
+              </p>
               <DeltaRow statDelta={entry.statDelta} factionDelta={entry.factionDelta} />
             </div>
           </div>

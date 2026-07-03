@@ -91,7 +91,7 @@ function worstLGA(state: GameState): { key: string; label: string; approval: num
 
 function pickStableLGA(state: GameState, seed: string): string {
   const keys = Object.keys(state.constituencyApproval).sort()
-  const idx = hashInt(seed + 'lga') % keys.length
+  const idx = hashInt(`${seed}lga`) % keys.length
   return CONSTITUENCY_LABELS[keys[idx]] ?? keys[idx]
 }
 
@@ -104,13 +104,12 @@ interface FragmentFamily {
 }
 
 const FAMILIES: Record<string, FragmentFamily> = {
-
   'godfather-drop': {
     tone: 'grim',
     draft: false,
     variants: [
-      '{godfather} doesn\'t call. The silence is the message. By Friday, a contractor you\'ve never met has been "recommended" for the {worstLGA} road — a test of whether you\'re listening.',
-      'At the party secretariat, word spreads before you\'ve left your office. {godfather}\'s man in the room doesn\'t meet your eyes. The message is delivered without words.',
+      "{godfather} doesn't call. The silence is the message. By Friday, a contractor you've never met has been \"recommended\" for the {worstLGA} road — a test of whether you're listening.",
+      "At the party secretariat, word spreads before you've left your office. {godfather}'s man in the room doesn't meet your eyes. The message is delivered without words.",
       'The party WhatsApp groups have gone cold. Not hostile — cold. In Lagos politics, cold is what comes before hostile.',
     ],
   },
@@ -119,8 +118,8 @@ const FAMILIES: Record<string, FragmentFamily> = {
     tone: 'hollow',
     draft: false,
     variants: [
-      'The calls come through. Warm, familiar. {godfather}\'s voice on the line, asking after your family. The price, as always, is not mentioned on the call.',
-      '{godfather}\'s man is in the room at the cabinet meeting — not speaking, just present. The chairman of the Governor\'s Advisory Council nods once in your direction. A small thing. Everything.',
+      "The calls come through. Warm, familiar. {godfather}'s voice on the line, asking after your family. The price, as always, is not mentioned on the call.",
+      "{godfather}'s man is in the room at the cabinet meeting — not speaking, just present. The chairman of the Governor's Advisory Council nods once in your direction. A small thing. Everything.",
       'The party WhatsApp groups light up again. Emojis. Praise. The machine has accepted you back. The relief is real. So is the bill.',
     ],
   },
@@ -129,7 +128,7 @@ const FAMILIES: Record<string, FragmentFamily> = {
     tone: 'hollow',
     draft: false,
     variants: [
-      'The headlines are kind today. But in {worstLGA}, where the water still rises and the demolition notices haven\'t been withdrawn, kindness in the papers buys nothing.',
+      "The headlines are kind today. But in {worstLGA}, where the water still rises and the demolition notices haven't been withdrawn, kindness in the papers buys nothing.",
       'Approval ticks up. A focus group in {worstLGA} shows the gap — they see the effort, but effort doesn\'t fix the drainage. "He tries," one woman says. "Trying isn\'t enough."',
       'Your pollster calls with good news. Then he pauses. "{worstLGA} is still at the bottom. Everywhere else has moved. They\'re watching to see if you notice them."',
     ],
@@ -161,7 +160,7 @@ const FAMILIES: Record<string, FragmentFamily> = {
     variants: [
       'On paper, a victory. In the treasury, the same red. The applause costs more than it looks.',
       'The numbers move in the right direction. The Accountant-General notes it without celebrating — he can see the cash position behind the headline figure, and he is not celebrating.',
-      'A genuine win, made honestly, in a hole. The civil servants who will benefit from it work in offices that haven\'t seen a budget reallocation in three years. They\'ll take it.',
+      "A genuine win, made honestly, in a hole. The civil servants who will benefit from it work in offices that haven't seen a budget reallocation in three years. They'll take it.",
     ],
   },
 
@@ -169,9 +168,9 @@ const FAMILIES: Record<string, FragmentFamily> = {
     tone: 'hollow',
     draft: false,
     variants: [
-      'The right thing, done the right way. Your Finance Commissioner thinks you\'re being naïve. Maybe. But for the first time this month, you can read the accounts without flinching.',
+      "The right thing, done the right way. Your Finance Commissioner thinks you're being naïve. Maybe. But for the first time this month, you can read the accounts without flinching.",
       'You sign the directive. No kickback. No "mobilisation fee." Your staff exchange a glance. This is not how things are done. Perhaps that is the point.',
-      'A clean procurement, properly tendered. The contractor who didn\'t win the job is already lobbying against you. The one who did doesn\'t know your name. That is how you know you got it right.',
+      "A clean procurement, properly tendered. The contractor who didn't win the job is already lobbying against you. The one who did doesn't know your name. That is how you know you got it right.",
     ],
   },
 
@@ -179,8 +178,8 @@ const FAMILIES: Record<string, FragmentFamily> = {
     tone: 'grim',
     draft: false,
     variants: [
-      'The Permanent Secretary smiles when he hands you the file. That smile has a number attached to it. You don\'t ask what it is. You already know not to ask.',
-      'A memo crosses your desk with figures that don\'t reconcile. You sign it anyway. The arithmetic of Lagos politics does not require honesty — it requires momentum, and momentum has a price.',
+      "The Permanent Secretary smiles when he hands you the file. That smile has a number attached to it. You don't ask what it is. You already know not to ask.",
+      "A memo crosses your desk with figures that don't reconcile. You sign it anyway. The arithmetic of Lagos politics does not require honesty — it requires momentum, and momentum has a price.",
       'Your Commissioner for Works mentions the "mobilisation fee" the way he mentions traffic — as weather. Routine. Structural. You do not correct him. That is the decision.',
     ],
   },
@@ -195,12 +194,12 @@ const FAMILIES: Record<string, FragmentFamily> = {
     ],
   },
 
-  'defiance': {
+  defiance: {
     tone: 'tense',
     draft: false,
     variants: [
-      'You have chosen the hard way. Your staff doesn\'t applaud — they watch. Every directive meets a new form of resistance, every memo a fresh silence. The system has reflexes you haven\'t mapped yet.',
-      'The directive leaves your desk. It will be implemented — eventually, and through layers of people who wished you hadn\'t signed it. But it left. In Lagos, a signed directive that actually leaves is not nothing.',
+      "You have chosen the hard way. Your staff doesn't applaud — they watch. Every directive meets a new form of resistance, every memo a fresh silence. The system has reflexes you haven't mapped yet.",
+      "The directive leaves your desk. It will be implemented — eventually, and through layers of people who wished you hadn't signed it. But it left. In Lagos, a signed directive that actually leaves is not nothing.",
       'Your Chief of Staff raises an eyebrow. Says nothing. The system has absorbed bolder gestures than this and continued as before. But you signed it anyway. That counts.',
     ],
   },
@@ -219,7 +218,7 @@ const FAMILIES: Record<string, FragmentFamily> = {
     tone: 'tense',
     draft: false,
     variants: [
-      'By 9am the civic coalition\'s letter is in the group chats. By noon it is a thread. By 3pm your press office is drafting a response to a story that has already moved on without them.',
+      "By 9am the civic coalition's letter is in the group chats. By noon it is a thread. By 3pm your press office is drafting a response to a story that has already moved on without them.",
       'The NUJ Lagos chapter issues a statement your media aide learns about from X, not from the PR firm. That is the problem — not the statement itself, but the fact that it arrived that way.',
       'A SERAP press release sits in your inbox, flagged by your Chief of Staff. "This one has claws," she has written in the margin. It does.',
     ],
@@ -239,8 +238,8 @@ const FAMILIES: Record<string, FragmentFamily> = {
     tone: 'neutral',
     draft: false,
     variants: [
-      'The RRS unit deployed to Mushin last week has done what three press conferences couldn\'t. The night market on Lagos-Abeokuta Road reopened last night. Small radius. Genuine relief.',
-      'The police commissioner\'s weekly report mentions Ikeja GRA for the first time this year — not as a flashpoint, but as a restored area. One less red mark on the map.',
+      "The RRS unit deployed to Mushin last week has done what three press conferences couldn't. The night market on Lagos-Abeokuta Road reopened last night. Small radius. Genuine relief.",
+      "The police commissioner's weekly report mentions Ikeja GRA for the first time this year — not as a flashpoint, but as a restored area. One less red mark on the map.",
       'A community leader in Badagry sends a voice note to your aide: "The road is safe at night now." He has been saying the opposite for two years.',
     ],
   },
@@ -249,7 +248,7 @@ const FAMILIES: Record<string, FragmentFamily> = {
     tone: 'tense',
     draft: false,
     variants: [
-      'The Mushin night market is closing before 7pm. Not by order — by common sense. When a market starts closing early in Lagos, the police aren\'t saying something they should be saying.',
+      "The Mushin night market is closing before 7pm. Not by order — by common sense. When a market starts closing early in Lagos, the police aren't saying something they should be saying.",
       'Armed robbery at Berger interchange, 11pm, three vehicles. The victims posted before the police were called. Your security coordinator is watching the same Instagram story as everyone else.',
       'A community watch group in Ajegunle has started patrolling with torches. When residents organise their own security in Lagos, the state has already lost that argument.',
     ],
@@ -261,7 +260,7 @@ const FAMILIES: Record<string, FragmentFamily> = {
     variants: [
       'The Accountant-General calls at 7.14am. He never calls before 9. That tells you everything before he says a word. "The FAAC figure came in low, sir."',
       'Your Finance Commissioner has stopped talking about the medium-term framework. He talks in weeks now. Three contractors on the Ikorodu road project have quietly put their equipment under tarps.',
-      'The weekly treasury brief arrives as an apology. The numbers are the same numbers. They just don\'t add up the same way they did last quarter.',
+      "The weekly treasury brief arrives as an apology. The numbers are the same numbers. They just don't add up the same way they did last quarter.",
     ],
   },
 
@@ -309,7 +308,7 @@ const FAMILIES: Record<string, FragmentFamily> = {
     tone: 'tense',
     draft: false,
     variants: [
-      'The FAAC remittance is ₦1.1bn short. No letter, no explanation. You call the Minister\'s office. His aide says he will pass the message. That is how Abuja declines to discuss something.',
+      "The FAAC remittance is ₦1.1bn short. No letter, no explanation. You call the Minister's office. His aide says he will pass the message. That is how Abuja declines to discuss something.",
       'A federal ministry has opened a new office in Victoria Island. Jurisdiction unclear, mandate unclear. Your Commissioner for Information has called the PS three times. Three voicemails.',
       'Everything from the Presidency now routes through the deputy chief of staff, who is polite and unhelpful in equal parts. Aso Rock is punishing Lagos at a distance, and doing it properly.',
     ],
@@ -329,9 +328,9 @@ const FAMILIES: Record<string, FragmentFamily> = {
     tone: 'tense',
     draft: false,
     variants: [
-      'Balogun Market closed for half a day. No incident, no formal notice — a PSP operator dispute with the traders\' cooperative. Small. Until things like this stop being small.',
+      "Balogun Market closed for half a day. No incident, no formal notice — a PSP operator dispute with the traders' cooperative. Small. Until things like this stop being small.",
       'The agberos at Mile 2 motor park have imposed a new "environment levy" nobody authorised. Your transport regulation office sends a letter. The agberos send it back.',
-      'A spontaneous market shutdown in {worstLGA} — traders simply didn\'t open. No strike declaration, no leadership statement. Just closed gates. In Lagos, that silence organises faster than noise.',
+      "A spontaneous market shutdown in {worstLGA} — traders simply didn't open. No strike declaration, no leadership statement. Just closed gates. In Lagos, that silence organises faster than noise.",
     ],
   },
 
@@ -339,8 +338,8 @@ const FAMILIES: Record<string, FragmentFamily> = {
     tone: 'neutral',
     draft: false,
     variants: [
-      'A Lagos Chamber of Commerce delegation comes to the Secretariat — not to complain, which is what delegations usually come to do. They want to discuss the investment climate survey. First time they\'ve led with something positive.',
-      'A major FMCG group that had been reviewing its Lagos presence has quietly taken a new long-lease on a Lekki Free Zone space. They didn\'t announce it. Your investment officer found it on a property database.',
+      "A Lagos Chamber of Commerce delegation comes to the Secretariat — not to complain, which is what delegations usually come to do. They want to discuss the investment climate survey. First time they've led with something positive.",
+      "A major FMCG group that had been reviewing its Lagos presence has quietly taken a new long-lease on a Lekki Free Zone space. They didn't announce it. Your investment officer found it on a property database.",
       'At the Eko Club last night, three business contacts who have not attended a state event in eight months were in the room. Not warmly. But in the room. That distance is closing.',
     ],
   },
@@ -349,7 +348,7 @@ const FAMILIES: Record<string, FragmentFamily> = {
     tone: 'tense',
     draft: false,
     variants: [
-      'The Lagos Chamber issues a statement in the careful, hedged language of an institution that has been patient and has now stopped being patient. The language is diplomatic. The meaning isn\'t.',
+      "The Lagos Chamber issues a statement in the careful, hedged language of an institution that has been patient and has now stopped being patient. The language is diplomatic. The meaning isn't.",
       'A manufacturing group negotiating a ₦4bn Lekki Free Zone expansion has paused the process. "Regulatory uncertainty," their filing says. That phrase means they spoke to a lawyer before they called you.',
       'The BOI liaison desk in Ikeja has seen traffic drop by a third this quarter. Nobody said anything. Nobody had to. The empty desk is the statement.',
     ],
@@ -359,9 +358,9 @@ const FAMILIES: Record<string, FragmentFamily> = {
     tone: 'neutral',
     draft: false,
     variants: [
-      'The Ikorodu LGA chairman attended Monday\'s briefing himself — not a representative, himself. That small detail has a meaning everyone in the room understood and nobody stated.',
+      "The Ikorodu LGA chairman attended Monday's briefing himself — not a representative, himself. That small detail has a meaning everyone in the room understood and nobody stated.",
       'Three LG chairmen co-signed a project support letter this week without being asked to. Your Chief of Staff flags it at the morning brief. "That doesn\'t happen," she says.',
-      'The Epe chairman calls to say the community leaders\' forum will publicly back the coastal road project on Thursday. Epe doesn\'t move early on anything. This means something.',
+      "The Epe chairman calls to say the community leaders' forum will publicly back the coastal road project on Thursday. Epe doesn't move early on anything. This means something.",
     ],
   },
 
@@ -375,12 +374,12 @@ const FAMILIES: Record<string, FragmentFamily> = {
     ],
   },
 
-  'neutral': {
+  neutral: {
     tone: 'neutral',
     draft: false,
     variants: [
       'The week ends in the ordinary way government weeks end: a 4pm briefing, three pending memos, one signed. Lagos does not notice. The work continues regardless.',
-      'Something moved. Something didn\'t. The balance sheet of governance is not always legible on the day it is made. Your Chief of Staff has already moved to the next item on the list.',
+      "Something moved. Something didn't. The balance sheet of governance is not always legible on the day it is made. Your Chief of Staff has already moved to the next item on the list.",
       'The state moves at the speed the state moves — not fast, not without cost, not without meaning. Lagos is large enough to absorb decisions that feel small on the day they are signed.',
     ],
   },
@@ -439,7 +438,11 @@ function changeToFamily(
       // Check for hollow-win again (direct cash gain while insolvent)
       if (dir === 'gain' && nextState.stats.cashReserve < 0) return 'hollow-win'
       // Large clean spend (corruption not rising) → clean-but-costly
-      if (dir === 'loss' && Math.abs(delta) >= 2 && (choice.immediate.corruptionPressure ?? 0) <= 0) {
+      if (
+        dir === 'loss' &&
+        Math.abs(delta) >= 2 &&
+        (choice.immediate.corruptionPressure ?? 0) <= 0
+      ) {
         return 'clean-but-costly'
       }
       return dir === 'gain' ? 'cash-gain' : 'cash-drop'
@@ -518,7 +521,7 @@ export function narrateConsequence(
     const anyNew = Object.keys(choice.setFlags).some((k) => !state.stateFlags[k])
     if (anyNew && candidates.length <= 1) {
       // If the only meaningful change is the flag itself, use defiance
-      const family = FAMILIES['defiance']
+      const family = FAMILIES.defiance
       const raw = pickVariant(family.variants, seed)
       const text = fillPlaceholders(raw, nextState, seed)
       return {

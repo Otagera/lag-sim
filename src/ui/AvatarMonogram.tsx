@@ -10,22 +10,11 @@ const CHAR_AVATARS: Record<CharacterId, { initials: string; color: string }> = {
   deputy: { initials: 'DP', color: '#F59E0B' },
 }
 
-export function AvatarMonogram({
-  charId,
-  size = 28,
-}: {
-  charId: CharacterId
-  size?: number
-}) {
+export function AvatarMonogram({ charId, size = 28 }: { charId: CharacterId; size?: number }) {
   const def = CHAR_AVATARS[charId] ?? { initials: '?', color: '#6B7280' }
   const r = size / 2
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
-      aria-label={def.initials}
-    >
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-label={def.initials}>
       <circle cx={r} cy={r} r={r} fill={def.color} opacity={0.85} />
       <text
         x={r}

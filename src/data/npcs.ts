@@ -76,8 +76,7 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
     description:
       'A lawmaker with deep roots in the party machine who operates in the shadows. When godfathers are unhappy, he is their instrument.',
     goal: 'Undermine Governor',
-    activationCondition: (s) =>
-      s.factions.partyGodfathers < 45 || s.godfatherRefusalCount >= 2,
+    activationCondition: (s) => s.factions.partyGodfathers < 45 || s.godfatherRefusalCount >= 2,
     baseWeeklyPressure: (r) => (r < 30 ? 3 : r < 65 ? 1 : 0),
     passiveEffect: (npc) => {
       if (npc.relationship < 30) return { politicalCapital: -1 }
@@ -102,8 +101,7 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
     description:
       'Controls public-sector workers across infrastructure, health, and education. A strike call can paralyse the state in 48 hours.',
     goal: 'Protect Workers',
-    activationCondition: (s) =>
-      s.stats.infrastructureScore < 40 || s.stats.contractorBacklog > 3,
+    activationCondition: (s) => s.stats.infrastructureScore < 40 || s.stats.contractorBacklog > 3,
     baseWeeklyPressure: (r) => (r < 30 ? 4 : r < 65 ? 2 : 0),
     passiveEffect: (npc) => {
       if (npc.relationship < 30) return { civilServiceReformScore: -0.3 }
@@ -244,10 +242,7 @@ export function pickThreeNPCArchetypes(): [NPCArchetypeKey, NPCArchetypeKey, NPC
   return [shuffled[0], shuffled[1], shuffled[2]]
 }
 
-export function findNPCSlot(
-  state: GameState,
-  archetypeKey: NPCArchetypeKey,
-): NPCState | null {
+export function findNPCSlot(state: GameState, archetypeKey: NPCArchetypeKey): NPCState | null {
   for (const slot of ['npc1', 'npc2', 'npc3'] as const) {
     if (state.activeNPCs[slot].archetypeKey === archetypeKey) {
       return state.activeNPCs[slot]

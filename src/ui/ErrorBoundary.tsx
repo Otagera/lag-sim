@@ -43,9 +43,15 @@ export class GameErrorBoundary extends Component<Props, State> {
         <h1 className="font-display" style={{ fontSize: '24px' }}>
           Something went wrong
         </h1>
-        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', maxWidth: '400px', lineHeight: 1.6 }}>
-          The game encountered an unexpected error. A state snapshot has been logged
-          to the console.
+        <p
+          style={{
+            fontSize: '13px',
+            color: 'var(--text-secondary)',
+            maxWidth: '400px',
+            lineHeight: 1.6,
+          }}
+        >
+          The game encountered an unexpected error. A state snapshot has been logged to the console.
         </p>
         <pre
           style={{

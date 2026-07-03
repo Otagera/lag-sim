@@ -114,9 +114,9 @@ export function GoalJourneyPrototype({
         aria-label={`${goal.title} journey`}
       >
         {/* Road */}
-        {segments.map((seg, i) => (
+        {segments.map((seg) => (
           <path
-            key={`road-${i}`}
+            key={`road-${seg.p0.x}-${seg.p0.y}-${seg.p3.x}-${seg.p3.y}`}
             d={segmentPath(seg)}
             fill="none"
             stroke="#37494a"
@@ -124,9 +124,9 @@ export function GoalJourneyPrototype({
             strokeLinecap="round"
           />
         ))}
-        {segments.map((seg, i) => (
+        {segments.map((seg) => (
           <path
-            key={`curb-${i}`}
+            key={`curb-${seg.p0.x}-${seg.p0.y}-${seg.p3.x}-${seg.p3.y}`}
             d={segmentPath(seg)}
             fill="none"
             stroke="#26332f"
@@ -138,10 +138,10 @@ export function GoalJourneyPrototype({
         ))}
 
         {/* Lane markers */}
-        {segments.map((seg, si) =>
-          sampleLaneMarkers(seg, 4).map((p, pi) => (
+        {segments.map((seg) =>
+          sampleLaneMarkers(seg, 4).map((p) => (
             <rect
-              key={`dash-${si}-${pi}`}
+              key={`dash-${p.x}-${p.y}`}
               x={p.x - 5}
               y={p.y - 1.5}
               width={10}

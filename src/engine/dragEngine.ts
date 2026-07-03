@@ -1,7 +1,7 @@
 import type { GameState, HiddenDrag } from '../state/types'
 
 export function calculateHiddenDrag(state: GameState, capitalSpend: number): HiddenDrag {
-  const worksCommissioner = state.commissioners?.['works']
+  const worksCommissioner = state.commissioners?.works
   const godfatherLeakageBonus = worksCommissioner?.isGodfatherChoice ? 0.05 : 0
   const leakageRate = 0.15 + (state.stats.corruptionPressure / 100) * 0.25 + godfatherLeakageBonus
   const procurementLeakage = capitalSpend * leakageRate

@@ -1,5 +1,16 @@
 import { useReducedMotion } from './design/useReducedMotion'
-import { SkyDanfo, SkyBRT, SkyTheatre, SkyEyo, SkyTrain, SkyLagRide, SkyAmbulance, SkyFerry, SkyMarinaStation, SkyOkada } from './skyline'
+import {
+  SkyAmbulance,
+  SkyBRT,
+  SkyDanfo,
+  SkyEyo,
+  SkyFerry,
+  SkyLagRide,
+  SkyMarinaStation,
+  SkyOkada,
+  SkyTheatre,
+  SkyTrain,
+} from './skyline'
 
 /**
  * LagosSkyline — a layered, parallax Lagos vignette remixed from dedicated
@@ -27,12 +38,21 @@ const KEYFRAMES = `
 export function LagosSkyline({ height = 300 }: { height?: number | string }) {
   const reduced = useReducedMotion()
   const move = (name: string, secs: number, delay = 0) =>
-    reduced ? undefined : { animation: `${name} ${secs}s linear infinite`, animationDelay: `${delay}s` }
+    reduced
+      ? undefined
+      : { animation: `${name} ${secs}s linear infinite`, animationDelay: `${delay}s` }
 
   return (
-    <div style={{ position: 'relative', width: '100%', height, overflow: 'hidden', borderRadius: 6 }}>
+    <div
+      style={{ position: 'relative', width: '100%', height, overflow: 'hidden', borderRadius: 6 }}
+    >
       <style>{KEYFRAMES}</style>
-      <svg viewBox="0 0 800 340" preserveAspectRatio="xMidYMax slice" style={{ width: '100%', height: '100%', display: 'block' }}>
+      <svg
+        viewBox="0 0 800 340"
+        preserveAspectRatio="xMidYMax slice"
+        style={{ width: '100%', height: '100%', display: 'block' }}
+      >
+        <title>Lagos skyline</title>
         <defs>
           <linearGradient id="lsky-sky" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#bfe0ea" />
@@ -56,10 +76,14 @@ export function LagosSkyline({ height = 300 }: { height?: number | string }) {
 
         {/* Clouds (far parallax) */}
         <g style={move('lsky-drift', 95)} opacity="0.9">
-          <Cloud x={130} y={54} s={1} /><Cloud x={520} y={92} s={0.7} /><Cloud x={880} y={60} s={0.9} />
+          <Cloud x={130} y={54} s={1} />
+          <Cloud x={520} y={92} s={0.7} />
+          <Cloud x={880} y={60} s={0.9} />
         </g>
         <g style={move('lsky-drift2', 64)} opacity="0.55">
-          <Cloud x={320} y={36} s={0.55} /><Cloud x={720} y={48} s={0.5} /><Cloud x={1040} y={40} s={0.6} />
+          <Cloud x={320} y={36} s={0.55} />
+          <Cloud x={720} y={48} s={0.5} />
+          <Cloud x={1040} y={40} s={0.6} />
         </g>
 
         {/* ── Far skyline: Eko Atlantic + Marina Station (atmospheric, desaturated) ── */}
@@ -88,12 +112,32 @@ export function LagosSkyline({ height = 300 }: { height?: number | string }) {
         {/* ── Lagoon ── */}
         <rect x="0" y="210" width="800" height="78" fill="url(#lsky-water)" />
         <g stroke="#eaf6f3" strokeWidth="2" strokeLinecap="round" opacity="0.7">
-          <line x1="40" y1="234" x2="250" y2="234" style={reduced ? undefined : { animation: 'lsky-shim 5s ease-in-out infinite' }} />
-          <line x1="300" y1="248" x2="520" y2="248" style={reduced ? undefined : { animation: 'lsky-shim 6.5s ease-in-out infinite' }} />
-          <line x1="540" y1="240" x2="740" y2="240" style={reduced ? undefined : { animation: 'lsky-shim 4.2s ease-in-out infinite' }} />
+          <line
+            x1="40"
+            y1="234"
+            x2="250"
+            y2="234"
+            style={reduced ? undefined : { animation: 'lsky-shim 5s ease-in-out infinite' }}
+          />
+          <line
+            x1="300"
+            y1="248"
+            x2="520"
+            y2="248"
+            style={reduced ? undefined : { animation: 'lsky-shim 6.5s ease-in-out infinite' }}
+          />
+          <line
+            x1="540"
+            y1="240"
+            x2="740"
+            y2="240"
+            style={reduced ? undefined : { animation: 'lsky-shim 4.2s ease-in-out infinite' }}
+          />
         </g>
         {/* Ferry drifting across the lagoon */}
-        <g style={move('lsky-ferry', 55)}><SkyFerry x={0} y={238} scale={1} /></g>
+        <g style={move('lsky-ferry', 55)}>
+          <SkyFerry x={0} y={238} scale={1} />
+        </g>
 
         {/* ── Promenade ── */}
         <rect x="0" y="286" width="800" height="54" fill="#d6c8ad" />
@@ -115,14 +159,26 @@ export function LagosSkyline({ height = 300 }: { height?: number | string }) {
         {/* ── Road ── */}
         <rect x="0" y="308" width="800" height="32" fill="#37494a" />
         <g fill="#e8c94a" opacity="0.7">
-          {[20, 110, 200, 290, 380, 470, 560, 650, 740].map((x) => <rect key={x} x={x} y="322" width="28" height="3" />)}
+          {[20, 110, 200, 290, 380, 470, 560, 650, 740].map((x) => (
+            <rect key={x} x={x} y="322" width="28" height="3" />
+          ))}
         </g>
         {/* Road traffic: BRT, danfo, LagRide, ambulance, and a faster okada in front */}
-        <g style={move('lsky-brt', 30)}><SkyBRT x={0} y={307} scale={0.08} /></g>
-        <g style={move('lsky-danfo', 22)}><SkyDanfo x={0} y={310} scale={0.08} /></g>
-        <g style={move('lsky-lagride', 26)}><SkyLagRide x={0} y={312} scale={0.06} /></g>
-        <g style={move('lsky-ambulance', 18)}><SkyAmbulance x={0} y={313} scale={0.08} /></g>
-        <g style={move('lsky-okada', 14)}><SkyOkada x={0} y={318} scale={0.2} /></g>
+        <g style={move('lsky-brt', 30)}>
+          <SkyBRT x={0} y={307} scale={0.08} />
+        </g>
+        <g style={move('lsky-danfo', 22)}>
+          <SkyDanfo x={0} y={310} scale={0.08} />
+        </g>
+        <g style={move('lsky-lagride', 26)}>
+          <SkyLagRide x={0} y={312} scale={0.06} />
+        </g>
+        <g style={move('lsky-ambulance', 18)}>
+          <SkyAmbulance x={0} y={313} scale={0.08} />
+        </g>
+        <g style={move('lsky-okada', 14)}>
+          <SkyOkada x={0} y={318} scale={0.2} />
+        </g>
       </svg>
     </div>
   )
@@ -143,7 +199,13 @@ function Cloud({ x, y, s }: { x: number; y: number; s: number }) {
 function Palm({ x, baseY, h, flip }: { x: number; baseY: number; h: number; flip: boolean }) {
   return (
     <g transform={`translate(${x},${baseY}) scale(${flip ? -1 : 1},1)`}>
-      <path d={`M0,0 q-6,${-h * 0.55} 2,${-h}`} fill="none" stroke="#6b5334" strokeWidth="6" strokeLinecap="round" />
+      <path
+        d={`M0,0 q-6,${-h * 0.55} 2,${-h}`}
+        fill="none"
+        stroke="#6b5334"
+        strokeWidth="6"
+        strokeLinecap="round"
+      />
       <g transform={`translate(2,${-h})`} fill="#3f7d4e">
         <path d="M0,0 Q-34,-6 -52,10 Q-30,-2 0,4 Z" />
         <path d="M0,0 Q-24,-22 -40,-30 Q-18,-14 0,2 Z" />
@@ -155,6 +217,3 @@ function Palm({ x, baseY, h, flip }: { x: number; baseY: number; h: number; flip
     </g>
   )
 }
-
-
-

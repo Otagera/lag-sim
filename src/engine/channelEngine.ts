@@ -1,4 +1,4 @@
-import type { NewsArticle, GameState, ChannelMeta, MediaChannel } from '../state/types'
+import type { ChannelMeta, GameState, MediaChannel, NewsArticle } from '../state/types'
 
 function hashInt(s: string): number {
   let h = 0
@@ -11,13 +11,23 @@ function pick<T>(arr: T[], seed: string): T {
 }
 
 const CREATOR_HANDLES = [
-  '@LagosEye', '@NaijaSceneDaily', '@AbikeReports', '@LekkoStar',
-  '@IsiomaTV', '@OluwafemiLive', '@BukkyViewpoint', '@LagosUncensored',
+  '@LagosEye',
+  '@NaijaSceneDaily',
+  '@AbikeReports',
+  '@LekkoStar',
+  '@IsiomaTV',
+  '@OluwafemiLive',
+  '@BukkyViewpoint',
+  '@LagosUncensored',
 ]
 
 const TWEET_HANDLES = [
-  '@AkinwaleReporter', '@OlabisiMedialagi', '@LagosWatcher',
-  '@NnamdiPolitics', '@RCFarukh', '@ChidimmaReacts',
+  '@AkinwaleReporter',
+  '@OlabisiMedialagi',
+  '@LagosWatcher',
+  '@NnamdiPolitics',
+  '@RCFarukh',
+  '@ChidimmaReacts',
 ]
 
 const HASHTAGS: Record<NewsArticle['category'], string[]> = {
@@ -29,53 +39,51 @@ const HASHTAGS: Record<NewsArticle['category'], string[]> = {
 }
 
 const PODCAST_SHOWS = [
-  'State of Play', 'Lagos Governance Watch', 'The Alausa Brief',
-  'Policy Corner', 'Nigerian Matters',
+  'State of Play',
+  'Lagos Governance Watch',
+  'The Alausa Brief',
+  'Policy Corner',
+  'Nigerian Matters',
 ]
 
-const PODCAST_HOSTS = [
-  'Tokunbo Adeyemi', 'Ngozi Osei-Eze', 'Femi Badmus', 'Amaka Okafor',
-]
+const PODCAST_HOSTS = ['Tokunbo Adeyemi', 'Ngozi Osei-Eze', 'Femi Badmus', 'Amaka Okafor']
 
-export function selectChannelMeta(
-  article: NewsArticle,
-  state: GameState,
-): ChannelMeta {
+export function selectChannelMeta(article: NewsArticle, state: GameState): ChannelMeta {
   const seed = article.headline.slice(0, 20)
   const channel = pickChannel(article, state)
 
   switch (channel) {
     case 'shortVideo': {
-      const viewBase = 500_000 + hashInt(seed + 'v') % 2_000_000
+      const viewBase = 500_000 + (hashInt(`${seed}v`) % 2_000_000)
       return {
         channel,
         views: Math.round(viewBase / 1000) * 1000,
-        creatorHandle: pick(CREATOR_HANDLES, seed + 'h'),
+        creatorHandle: pick(CREATOR_HANDLES, `${seed}h`),
       }
     }
     case 'tweet': {
-      const rtBase = 800 + hashInt(seed + 'rt') % 12000
-      const likeBase = rtBase * 3 + hashInt(seed + 'lk') % 20000
+      const rtBase = 800 + (hashInt(`${seed}rt`) % 12000)
+      const likeBase = rtBase * 3 + (hashInt(`${seed}lk`) % 20000)
       return {
         channel,
-        handle: pick(TWEET_HANDLES, seed + 'tw'),
-        hashtag: pick(HASHTAGS[article.category] ?? HASHTAGS.background, seed + 'ht'),
+        handle: pick(TWEET_HANDLES, `${seed}tw`),
+        hashtag: pick(HASHTAGS[article.category] ?? HASHTAGS.background, `${seed}ht`),
         retweets: Math.round(rtBase / 100) * 100,
         likes: Math.round(likeBase / 100) * 100,
       }
     }
     case 'podcast': {
-      const minBase = 22 + hashInt(seed + 'm') % 38
+      const minBase = 22 + (hashInt(`${seed}m`) % 38)
       return {
         channel,
-        showName: pick(PODCAST_SHOWS, seed + 'sh'),
-        hostName: pick(PODCAST_HOSTS, seed + 'ho'),
-        duration: `${minBase}:${String(hashInt(seed + 's') % 60).padStart(2, '0')}`,
+        showName: pick(PODCAST_SHOWS, `${seed}sh`),
+        hostName: pick(PODCAST_HOSTS, `${seed}ho`),
+        duration: `${minBase}:${String(hashInt(`${seed}s`) % 60).padStart(2, '0')}`,
         keyQuote: buildKeyQuote(article),
       }
     }
     case 'whatsapp': {
-      const fwd = 3 + hashInt(seed + 'f') % 47
+      const fwd = 3 + (hashInt(`${seed}f`) % 47)
       return {
         channel,
         forwardCount: fwd,
@@ -97,7 +105,8 @@ function pickChannel(article: NewsArticle, state: GameState): MediaChannel {
   if (category === 'crisis') return 'shortVideo'
 
   // Political with any credibility gap → tweet thread
-  if (category === 'political' && (trust < 60 || state.stats.corruptionPressure > 40)) return 'tweet'
+  if (category === 'political' && (trust < 60 || state.stats.corruptionPressure > 40))
+    return 'tweet'
 
   // Background / rumour → WhatsApp (unverified info travels via forwarded messages)
   if (category === 'background') return 'whatsapp'
@@ -113,7 +122,7 @@ function pickChannel(article: NewsArticle, state: GameState): MediaChannel {
   // Use a stable hash so the same article always gets the same channel
   if (category === 'political') {
     const channels: MediaChannel[] = ['newspaper', 'tweet', 'newspaper']
-    return pick(channels, seed + 'r')
+    return pick(channels, `${seed}r`)
   }
 
   return 'newspaper'
@@ -122,7 +131,5 @@ function pickChannel(article: NewsArticle, state: GameState): MediaChannel {
 function buildKeyQuote(article: NewsArticle): string {
   const words = article.deck.split(' ')
   const snippet = words.slice(0, 18).join(' ')
-  return snippet.endsWith('.') || snippet.endsWith(',')
-    ? snippet
-    : snippet + '…'
+  return snippet.endsWith('.') || snippet.endsWith(',') ? snippet : `${snippet}…`
 }

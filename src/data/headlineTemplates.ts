@@ -1,5 +1,5 @@
-import type { GameState } from '../state/types'
 import type { RankedDecision } from '../engine/legacyRanker'
+import type { GameState } from '../state/types'
 
 export type HeadlineSlot = {
   key: string
@@ -49,7 +49,8 @@ const FLAG_HEADLINES: Partial<Record<string, HeadlineSlot>> = {
   },
   'valedictory-infrastructure': {
     key: 'valedictory-infrastructure',
-    headline: "Governor Chose Concrete as His Final Statement. Lagos Still Debates Whether It Was Enough.",
+    headline:
+      'Governor Chose Concrete as His Final Statement. Lagos Still Debates Whether It Was Enough.',
     subhead:
       'The valedictory address, centred on infrastructure delivery, was well-received by business groups but drew criticism from civil society for not reckoning with social equity gaps.',
   },
@@ -91,9 +92,9 @@ const FLAG_HEADLINES: Partial<Record<string, HeadlineSlot>> = {
   },
   'vp-deal-accepted': {
     key: 'vp-deal-accepted',
-    headline: "Lagos Dropped Its VAT Case. The Former Governor Has Never Fully Explained Why.",
+    headline: 'Lagos Dropped Its VAT Case. The Former Governor Has Never Fully Explained Why.',
     subhead:
-      "The withdrawal of the VAT Supreme Court suit — announced with no press conference — remains the most studied episode in Lagos fiscal history. The terms of the settlement have never been published.",
+      'The withdrawal of the VAT Supreme Court suit — announced with no press conference — remains the most studied episode in Lagos fiscal history. The terms of the settlement have never been published.',
   },
   'efcc-cooperated-term2': {
     key: 'efcc-cooperated-term2',
@@ -111,7 +112,7 @@ const FLAG_HEADLINES: Partial<Record<string, HeadlineSlot>> = {
     key: 'handover-published',
     headline: 'The Handover Note That Changed Nigerian Transition Standards',
     subhead:
-      "Publishing the full 480-page administration archive simultaneously with the official handover was unprecedented. Three subsequent Nigerian state administrations have cited it as the new baseline for transparency.",
+      'Publishing the full 480-page administration archive simultaneously with the official handover was unprecedented. Three subsequent Nigerian state administrations have cited it as the new baseline for transparency.',
   },
   'archive-opened-cleanly': {
     key: 'archive-opened-cleanly',
@@ -121,15 +122,16 @@ const FLAG_HEADLINES: Partial<Record<string, HeadlineSlot>> = {
   },
   'financial-disclosure-published': {
     key: 'financial-disclosure-published',
-    headline: 'Eight-Year Financial Disclosure: Still the Most Complete in Nigerian Gubernatorial History',
+    headline:
+      'Eight-Year Financial Disclosure: Still the Most Complete in Nigerian Gubernatorial History',
     subhead:
       "The administration's release of full state accounts to counter a disinformation campaign produced an unintended benefit: the most thoroughly documented gubernatorial financial record in Nigeria.",
   },
   'deputy-hostile': {
     key: 'deputy-hostile',
-    headline: "The Governor Backed a Rival Against His Own Deputy. Lagos Remembers.",
+    headline: 'The Governor Backed a Rival Against His Own Deputy. Lagos Remembers.',
     subhead:
-      'The decision to oppose the Deputy Governor\'s gubernatorial bid created a rupture that shaped Lagos party politics for the next election cycle. It is now a case study in lame-duck executive relationships.',
+      "The decision to oppose the Deputy Governor's gubernatorial bid created a rupture that shaped Lagos party politics for the next election cycle. It is now a case study in lame-duck executive relationships.",
   },
   'commissioners-purged': {
     key: 'commissioners-purged',
@@ -141,17 +143,17 @@ const FLAG_HEADLINES: Partial<Record<string, HeadlineSlot>> = {
     key: 'populist-shield-succeeded',
     headline: 'Market Women and Agberos Who Held the Assembly House — A Lagos Story',
     subhead:
-      "The popular mobilisation that stopped the 2025 quorum maneuver has entered Lagos political mythology. Transport union leaders who participated still reference it when describing their civic role.",
+      'The popular mobilisation that stopped the 2025 quorum maneuver has entered Lagos political mythology. Transport union leaders who participated still reference it when describing their civic role.',
   },
   'legal-challenge-succeeded': {
     key: 'legal-challenge-succeeded',
-    headline: "Court Victory During Suspension: A Constitutional Precedent",
+    headline: 'Court Victory During Suspension: A Constitutional Precedent',
     subhead:
-      "The successful Federal High Court challenge to the Section 305 emergency declaration set a procedural standard for what constitutes lawful National Assembly ratification. Law faculties still teach it.",
+      'The successful Federal High Court challenge to the Section 305 emergency declaration set a procedural standard for what constitutes lawful National Assembly ratification. Law faculties still teach it.',
   },
   'makoko-demolished': {
     key: 'makoko-demolished',
-    headline: "Makoko: A Decade On, the Argument Has Not Ended",
+    headline: 'Makoko: A Decade On, the Argument Has Not Ended',
     subhead:
       "The demolition of West Africa's largest floating settlement remains the administration's most contested act. Every anniversary produces new testimonies — from residents who were displaced and those who were rehoused.",
   },
@@ -159,14 +161,14 @@ const FLAG_HEADLINES: Partial<Record<string, HeadlineSlot>> = {
     key: 'ghost-purge-resolved',
     headline: 'The Biometric Audit That Saved Lagos ₦2.4bn Monthly',
     subhead:
-      "Removing 6,200 ghost workers from the state payroll is described by fiscal analysts as the single highest-return administrative reform of the administration. The saving compounded over eight years.",
+      'Removing 6,200 ghost workers from the state payroll is described by fiscal analysts as the single highest-return administrative reform of the administration. The saving compounded over eight years.',
   },
 }
 
 const RESOLVED_EVENT_HEADLINES: Record<string, HeadlineSlot> = {
   'makoko-demolition-order': {
     key: 'makoko-resolved',
-    headline: "Makoko: A Decade On, the Argument Has Not Ended",
+    headline: 'Makoko: A Decade On, the Argument Has Not Ended',
     subhead:
       "The demolition of West Africa's largest floating settlement remains the administration's most contested act. Every anniversary produces new testimonies — from residents who were displaced and those who were rehoused.",
   },
@@ -178,7 +180,9 @@ function genericRankedHeadline(decision: RankedDecision, rank: number): Headline
     (delta.publicTrust ?? 0) > 0 ||
     (delta.infrastructureScore ?? 0) > 0 ||
     (delta.cashReserve ?? 0) > 0
-  const direction = isPositive ? 'remains credited with measurable improvement' : 'is still debated by policy analysts'
+  const direction = isPositive
+    ? 'remains credited with measurable improvement'
+    : 'is still debated by policy analysts'
 
   return {
     key: `ranked-${rank}`,
@@ -225,7 +229,8 @@ function statFallbackHeadlines(state: GameState, needed: number): HeadlineSlot[]
       result.push({
         key: 'finance',
         headline: `Lagos State Faces ₦${Math.abs(cash).toFixed(0)}bn Liquidity Crisis at Handover`,
-        subhead: 'Civil servants unpaid for weeks. The incoming administration faces an immediate fiscal emergency.',
+        subhead:
+          'Civil servants unpaid for weeks. The incoming administration faces an immediate fiscal emergency.',
       })
     } else {
       result.push({
@@ -241,13 +246,15 @@ function statFallbackHeadlines(state: GameState, needed: number): HeadlineSlot[]
       result.push({
         key: 'trust',
         headline: 'Outgoing Governor Leaves With 60%+ Approval — Unusually High for Lagos',
-        subhead: 'Public trust built through visible service delivery and disciplined communication. Pollsters note it rarely lasts into a successor administration.',
+        subhead:
+          'Public trust built through visible service delivery and disciplined communication. Pollsters note it rarely lasts into a successor administration.',
       })
     } else {
       result.push({
         key: 'trust',
         headline: `Final Approval Rating: ${state.stats.publicTrust.toFixed(0)}% — A Mixed Verdict`,
-        subhead: 'Polls show deep geographic variation: higher approval in Victoria Island and Lekki, lower in Alimosho and the periphery.',
+        subhead:
+          'Polls show deep geographic variation: higher approval in Victoria Island and Lekki, lower in Alimosho and the periphery.',
       })
     }
   }

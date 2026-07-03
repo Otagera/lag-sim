@@ -18,13 +18,26 @@ export function ElectionWatermark() {
         overflow: 'hidden',
       }}
     >
-      {Array.from({ length: 12 }).map((_, i) => (
+      {[
+        { top: '5%', left: '5%' },
+        { top: '23%', left: '55%' },
+        { top: '41%', left: '5%' },
+        { top: '59%', left: '55%' },
+        { top: '77%', left: '5%' },
+        { top: '95%', left: '55%' },
+        { top: '14%', left: '30%' },
+        { top: '32%', left: '80%' },
+        { top: '50%', left: '30%' },
+        { top: '68%', left: '80%' },
+        { top: '86%', left: '30%' },
+        { top: '104%', left: '80%' },
+      ].map((pos) => (
         <div
-          key={i}
+          key={`watermark-${pos.top}-${pos.left}`}
           style={{
             position: 'absolute',
-            top: `${(i % 6) * 18 + 5}%`,
-            left: `${(i % 2 === 0 ? 5 : 55)}%`,
+            top: pos.top,
+            left: pos.left,
             transform: 'rotate(-22deg)',
             fontSize: '13px',
             fontWeight: 700,

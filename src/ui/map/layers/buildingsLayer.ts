@@ -1,12 +1,16 @@
 import { Container, Graphics } from 'pixi.js'
-import type { MapLayer } from '../types'
-import type { MapState } from '../../../state/mapSelectors'
 import type { ZoneType } from '../../../data/lagosLayout'
-import { generateBuildings, mulberry32, type Building } from '../buildings'
-import { isoToScreen, TILE_W, TILE_H, FLOOR_H } from '../projection'
+import type { MapState } from '../../../state/mapSelectors'
+import { type Building, generateBuildings, mulberry32 } from '../buildings'
+import { FLOOR_H, isoToScreen, TILE_H, TILE_W } from '../projection'
+import type { MapLayer } from '../types'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-interface FaceColors { top: number; left: number; right: number }
+interface FaceColors {
+  top: number
+  left: number
+  right: number
+}
 
 // ── Color palettes — 4 variants per zone type ────────────────────────────────
 // All deliberately dark (night silhouettes). Windows from lightsLayer sit on top.
@@ -29,60 +33,80 @@ const PALETTES: Record<ZoneType, FaceColors[]> = {
     { top: 0x2d3e55, left: 0x1a2a40, right: 0x25354c },
     { top: 0x384c62, left: 0x22364c, right: 0x2e4058 },
   ],
-  'towers': [
-    { top: 0x48607e, left: 0x2c4060, right: 0x3c5270 },  // steel blue
-    { top: 0x4a6588, left: 0x2d426c, right: 0x3d5578 },  // deeper glass
-    { top: 0x506878, left: 0x30485a, right: 0x40586a },  // concrete grey
-    { top: 0x3e5870, left: 0x264052, right: 0x324862 },  // dark prestige
+  towers: [
+    { top: 0x48607e, left: 0x2c4060, right: 0x3c5270 }, // steel blue
+    { top: 0x4a6588, left: 0x2d426c, right: 0x3d5578 }, // deeper glass
+    { top: 0x506878, left: 0x30485a, right: 0x40586a }, // concrete grey
+    { top: 0x3e5870, left: 0x264052, right: 0x324862 }, // dark prestige
   ],
-  'stilt': [
+  stilt: [
     { top: 0x283848, left: 0x182838, right: 0x22323e },
     { top: 0x25343e, left: 0x162630, right: 0x1e2e38 },
     { top: 0x2a3a48, left: 0x1a2a38, right: 0x223242 },
     { top: 0x263040, left: 0x162030, right: 0x1e2a38 },
   ],
-  'port': [
+  port: [
     { top: 0x2a3848, left: 0x182535, right: 0x222e40 },
     { top: 0x2c3e50, left: 0x1a2c3e, right: 0x243648 },
     { top: 0x284050, left: 0x183042, right: 0x203848 },
     { top: 0x2e3a4a, left: 0x1c2a3a, right: 0x253242 },
   ],
-  'lagoon':   [{ top: 0x0b1a2d, left: 0x0b1a2d, right: 0x0b1a2d }],
-  'atlantic': [{ top: 0x06101e, left: 0x06101e, right: 0x06101e }],
+  lagoon: [{ top: 0x0b1a2d, left: 0x0b1a2d, right: 0x0b1a2d }],
+  atlantic: [{ top: 0x06101e, left: 0x06101e, right: 0x06101e }],
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function lighten(hex: number, f: number): number {
   const d = Math.round(f * 255)
   const r = Math.min(255, ((hex >> 16) & 0xff) + d)
-  const g = Math.min(255, ((hex >>  8) & 0xff) + d)
-  const b = Math.min(255, ( hex        & 0xff) + d)
+  const g = Math.min(255, ((hex >> 8) & 0xff) + d)
+  const b = Math.min(255, (hex & 0xff) + d)
   return (r << 16) | (g << 8) | b
 }
 
 // Core iso-box: top face + left face + right face
 function drawIsoBox(
   g: Graphics,
-  sx: number, sy: number,
-  hw: number, hh: number,
+  sx: number,
+  sy: number,
+  hw: number,
+  hh: number,
   totalH: number,
   col: FaceColors,
 ) {
   const th = hh * 2
   // top (roof rhombus)
-  g.poly([sx, sy-totalH, sx+hw, sy-totalH+hh, sx, sy-totalH+th, sx-hw, sy-totalH+hh]).fill(col.top)
+  g.poly([
+    sx,
+    sy - totalH,
+    sx + hw,
+    sy - totalH + hh,
+    sx,
+    sy - totalH + th,
+    sx - hw,
+    sy - totalH + hh,
+  ]).fill(col.top)
   // left face (b-side parallelogram)
-  g.poly([sx-hw, sy-totalH+hh, sx, sy-totalH+th, sx, sy+th, sx-hw, sy+hh]).fill(col.left)
+  g.poly([sx - hw, sy - totalH + hh, sx, sy - totalH + th, sx, sy + th, sx - hw, sy + hh]).fill(
+    col.left,
+  )
   // right face (a-side parallelogram)
-  g.poly([sx+hw, sy-totalH+hh, sx, sy-totalH+th, sx, sy+th, sx+hw, sy+hh]).fill(col.right)
+  g.poly([sx + hw, sy - totalH + hh, sx, sy - totalH + th, sx, sy + th, sx + hw, sy + hh]).fill(
+    col.right,
+  )
 }
 
 // ── Residential (dense-low / sprawl-low) ─────────────────────────────────────
 // v0: plain box  v1/v3: peaked roof  v2: flat parapet
 function drawLowrise(
-  g: Graphics, sx: number, sy: number,
-  hw: number, hh: number, totalH: number,
-  col: FaceColors, v: number,
+  g: Graphics,
+  sx: number,
+  sy: number,
+  hw: number,
+  hh: number,
+  totalH: number,
+  col: FaceColors,
+  v: number,
 ) {
   drawIsoBox(g, sx, sy, hw, hh, totalH, col)
 
@@ -90,49 +114,125 @@ function drawLowrise(
     // Peaked roof: small triangle above the roof diamond
     const peakH = Math.max(2, Math.round(hw * 0.55))
     g.poly([
-      sx,             sy - totalH - peakH,
-      sx + hw * 0.72, sy - totalH + hh * 0.42,
-      sx - hw * 0.72, sy - totalH + hh * 0.42,
+      sx,
+      sy - totalH - peakH,
+      sx + hw * 0.72,
+      sy - totalH + hh * 0.42,
+      sx - hw * 0.72,
+      sy - totalH + hh * 0.42,
     ]).fill(0x141c26)
   } else if (v === 2) {
     // Flat parapet: thin darker strip capping both faces
     const ph = 2
-    g.poly([sx-hw, sy-totalH+hh, sx, sy-totalH+hh*2, sx, sy-totalH+hh*2+ph, sx-hw, sy-totalH+hh+ph]).fill(0x101820)
-    g.poly([sx+hw, sy-totalH+hh, sx, sy-totalH+hh*2, sx, sy-totalH+hh*2+ph, sx+hw, sy-totalH+hh+ph]).fill(0x121c24)
+    g.poly([
+      sx - hw,
+      sy - totalH + hh,
+      sx,
+      sy - totalH + hh * 2,
+      sx,
+      sy - totalH + hh * 2 + ph,
+      sx - hw,
+      sy - totalH + hh + ph,
+    ]).fill(0x101820)
+    g.poly([
+      sx + hw,
+      sy - totalH + hh,
+      sx,
+      sy - totalH + hh * 2,
+      sx,
+      sy - totalH + hh * 2 + ph,
+      sx + hw,
+      sy - totalH + hh + ph,
+    ]).fill(0x121c24)
   }
 }
 
 // ── Mid-rise commercial / residential block ───────────────────────────────────
 // All variants get a concrete parapet. v2/v3 add a rooftop unit (water tank).
 function drawMidrise(
-  g: Graphics, sx: number, sy: number,
-  hw: number, hh: number, totalH: number,
-  col: FaceColors, v: number,
+  g: Graphics,
+  sx: number,
+  sy: number,
+  hw: number,
+  hh: number,
+  totalH: number,
+  col: FaceColors,
+  v: number,
 ) {
   drawIsoBox(g, sx, sy, hw, hh, totalH, col)
 
   // Concrete parapet (1px cap on both faces — defines the skyline edge)
   const ph = 1
-  g.poly([sx-hw, sy-totalH+hh, sx, sy-totalH+hh*2, sx, sy-totalH+hh*2+ph, sx-hw, sy-totalH+hh+ph]).fill(0x0d1520)
-  g.poly([sx+hw, sy-totalH+hh, sx, sy-totalH+hh*2, sx, sy-totalH+hh*2+ph, sx+hw, sy-totalH+hh+ph]).fill(0x0f1822)
+  g.poly([
+    sx - hw,
+    sy - totalH + hh,
+    sx,
+    sy - totalH + hh * 2,
+    sx,
+    sy - totalH + hh * 2 + ph,
+    sx - hw,
+    sy - totalH + hh + ph,
+  ]).fill(0x0d1520)
+  g.poly([
+    sx + hw,
+    sy - totalH + hh,
+    sx,
+    sy - totalH + hh * 2,
+    sx,
+    sy - totalH + hh * 2 + ph,
+    sx + hw,
+    sy - totalH + hh + ph,
+  ]).fill(0x0f1822)
 
   if ((v === 2 || v === 3) && hw >= 3) {
     // Rooftop unit: tiny iso box sitting on the roof center
     const tw = Math.max(1.5, hw * 0.35)
     const th = Math.max(1, hh * 0.35)
     const rh = 3
-    g.poly([sx, sy-totalH-rh, sx+tw, sy-totalH-rh+th, sx, sy-totalH-rh+th*2, sx-tw, sy-totalH-rh+th]).fill(0x1a2535)
-    g.poly([sx-tw, sy-totalH-rh+th, sx, sy-totalH-rh+th*2, sx, sy-totalH+th*2, sx-tw, sy-totalH+th]).fill(0x121c2a)
-    g.poly([sx+tw, sy-totalH-rh+th, sx, sy-totalH-rh+th*2, sx, sy-totalH+th*2, sx+tw, sy-totalH+th]).fill(0x151f2e)
+    g.poly([
+      sx,
+      sy - totalH - rh,
+      sx + tw,
+      sy - totalH - rh + th,
+      sx,
+      sy - totalH - rh + th * 2,
+      sx - tw,
+      sy - totalH - rh + th,
+    ]).fill(0x1a2535)
+    g.poly([
+      sx - tw,
+      sy - totalH - rh + th,
+      sx,
+      sy - totalH - rh + th * 2,
+      sx,
+      sy - totalH + th * 2,
+      sx - tw,
+      sy - totalH + th,
+    ]).fill(0x121c2a)
+    g.poly([
+      sx + tw,
+      sy - totalH - rh + th,
+      sx,
+      sy - totalH - rh + th * 2,
+      sx,
+      sy - totalH + th * 2,
+      sx + tw,
+      sy - totalH + th,
+    ]).fill(0x151f2e)
   }
 }
 
 // ── Tower (VI / Lekki high-rise) ──────────────────────────────────────────────
 // v0: plain  v1: antenna  v2: antenna + dish dot  v3: glass bands + antenna
 function drawTower(
-  g: Graphics, sx: number, sy: number,
-  hw: number, hh: number, totalH: number,
-  col: FaceColors, v: number,
+  g: Graphics,
+  sx: number,
+  sy: number,
+  hw: number,
+  hh: number,
+  totalH: number,
+  col: FaceColors,
+  v: number,
 ) {
   drawIsoBox(g, sx, sy, hw, hh, totalH, col)
 
@@ -141,19 +241,18 @@ function drawTower(
     const floors = Math.round(totalH / FLOOR_H)
     for (let f = 1; f < floors; f += 2) {
       const y = sy - f * FLOOR_H
-      g.poly([
-        sx + hw, y - hh,
-        sx,      y,
-        sx,      y + 1,
-        sx + hw, y - hh + 1,
-      ]).fill({ color: lighten(col.right, 0.10), alpha: 0.65 })
+      g.poly([sx + hw, y - hh, sx, y, sx, y + 1, sx + hw, y - hh + 1]).fill({
+        color: lighten(col.right, 0.1),
+        alpha: 0.65,
+      })
     }
   }
 
   if (v >= 1) {
     // Communication antenna above apex
     const aH = Math.max(4, Math.round(totalH * 0.13))
-    g.moveTo(sx, sy - totalH).lineTo(sx, sy - totalH - aH)
+    g.moveTo(sx, sy - totalH)
+      .lineTo(sx, sy - totalH - aH)
       .stroke({ color: 0x5a6878, width: 1 })
     if (v === 2) {
       // Dish / beacon dot at antenna tip
@@ -165,8 +264,12 @@ function drawTower(
 // ── Stilt huts (Makoko) ───────────────────────────────────────────────────────
 // All stilt buildings: box + peaked roof + visible stilt posts below
 function drawStilt(
-  g: Graphics, sx: number, sy: number,
-  hw: number, hh: number, totalH: number,
+  g: Graphics,
+  sx: number,
+  sy: number,
+  hw: number,
+  hh: number,
+  totalH: number,
   col: FaceColors,
 ) {
   // Stilt posts visible below the ground level of the hut
@@ -182,18 +285,26 @@ function drawStilt(
   // Peaked roof on all stilt huts — most recognisable silhouette
   const peakH = Math.max(2, Math.round(hw * 0.6))
   g.poly([
-    sx,             sy - totalH - peakH,
-    sx + hw * 0.78, sy - totalH + hh * 0.38,
-    sx - hw * 0.78, sy - totalH + hh * 0.38,
+    sx,
+    sy - totalH - peakH,
+    sx + hw * 0.78,
+    sy - totalH + hh * 0.38,
+    sx - hw * 0.78,
+    sy - totalH + hh * 0.38,
   ]).fill(0x0e1520)
 }
 
 // ── Port / industrial (Apapa) ─────────────────────────────────────────────────
 // v0/2: warehouse box  v1/3: container stacks  v2: crane protrusion
 function drawPort(
-  g: Graphics, sx: number, sy: number,
-  hw: number, hh: number, totalH: number,
-  col: FaceColors, v: number,
+  g: Graphics,
+  sx: number,
+  sy: number,
+  hw: number,
+  hh: number,
+  totalH: number,
+  col: FaceColors,
+  v: number,
 ) {
   drawIsoBox(g, sx, sy, hw, hh, totalH, col)
 
@@ -203,12 +314,16 @@ function drawPort(
     for (let f = 0; f < nBands; f++) {
       const y1 = sy - (f + 1) * FLOOR_H
       const y2 = y1 + FLOOR_H - 1
-      const bc  = f % 2 === 0 ? 0x1e3040 : 0x283848
+      const bc = f % 2 === 0 ? 0x1e3040 : 0x283848
       g.poly([
-        sx + hw * 0.25, y1 + hh * 0.4,
-        sx + hw * 0.85, y1 + hh * 0.85,
-        sx + hw * 0.85, y2 + hh * 0.85,
-        sx + hw * 0.25, y2 + hh * 0.4,
+        sx + hw * 0.25,
+        y1 + hh * 0.4,
+        sx + hw * 0.85,
+        y1 + hh * 0.85,
+        sx + hw * 0.85,
+        y2 + hh * 0.85,
+        sx + hw * 0.25,
+        y2 + hh * 0.4,
       ]).fill(bc)
     }
   }
@@ -216,7 +331,7 @@ function drawPort(
   if (v === 2) {
     // Simple jib crane: vertical post + horizontal arm
     const postH = 5
-    const armW  = hw * 0.7
+    const armW = hw * 0.7
     g.moveTo(sx + hw * 0.45, sy - totalH)
       .lineTo(sx + hw * 0.45, sy - totalH - postH)
       .stroke({ color: 0x3a4c5c, width: 1 })
@@ -243,11 +358,21 @@ function drawBuilding(g: Graphics, bld: Building, ox: number, oy: number) {
   const col = palette[v]
 
   switch (bld.type) {
-    case 'towers':   drawTower  (g, sx, sy, hw, hh, totalH, col, v); break
-    case 'mid-rise': drawMidrise(g, sx, sy, hw, hh, totalH, col, v); break
-    case 'stilt':    drawStilt  (g, sx, sy, hw, hh, totalH, col);    break
-    case 'port':     drawPort   (g, sx, sy, hw, hh, totalH, col, v); break
-    default:         drawLowrise(g, sx, sy, hw, hh, totalH, col, v); break
+    case 'towers':
+      drawTower(g, sx, sy, hw, hh, totalH, col, v)
+      break
+    case 'mid-rise':
+      drawMidrise(g, sx, sy, hw, hh, totalH, col, v)
+      break
+    case 'stilt':
+      drawStilt(g, sx, sy, hw, hh, totalH, col)
+      break
+    case 'port':
+      drawPort(g, sx, sy, hw, hh, totalH, col, v)
+      break
+    default:
+      drawLowrise(g, sx, sy, hw, hh, totalH, col, v)
+      break
   }
 }
 
@@ -264,13 +389,20 @@ export function createBuildingsLayer(): MapLayer {
     for (const bld of generateBuildings()) {
       drawBuilding(g, bld, ox, oy)
     }
-    void TILE_W; void TILE_H
+    void TILE_W
+    void TILE_H
   }
 
   return {
     container,
-    init(_state: MapState, w: number, h: number) { render(w, h) },
-    update() { /* static — lightsLayer handles all dynamic content */ },
-    destroy() { container.destroy({ children: true }) },
+    init(_state: MapState, w: number, h: number) {
+      render(w, h)
+    },
+    update() {
+      /* static — lightsLayer handles all dynamic content */
+    },
+    destroy() {
+      container.destroy({ children: true })
+    },
   }
 }

@@ -2,12 +2,12 @@
 // approval percentage. Click highlights the LGA (future: connect to panel).
 
 import { Container, Graphics, Text, TextStyle } from 'pixi.js'
-import type { MapLayer } from '../types'
-import type { MapState } from '../../../state/mapSelectors'
-import { isoToScreen } from '../projection'
-import { getLGAGeometry } from '../geoProjection'
 import { useGameStore } from '../../../state/gameStore'
+import type { MapState } from '../../../state/mapSelectors'
 import type { ConstituencyKey } from '../../../state/types'
+import { getLGAGeometry } from '../geoProjection'
+import { isoToScreen } from '../projection'
+import type { MapLayer } from '../types'
 
 const LABEL_STYLE = new TextStyle({
   fontFamily: 'Archivo Narrow, sans-serif',
@@ -43,7 +43,8 @@ export function createLabelsLayer(): MapLayer {
   container.addChild(alwaysC)
   container.addChild(hitC)
 
-  let _ox = 0, _oy = 0
+  let _ox = 0,
+    _oy = 0
   let _activeLabel: Text | null = null
   let _activeValue: Text | null = null
 
@@ -57,7 +58,7 @@ export function createLabelsLayer(): MapLayer {
       label.anchor.set(0.5, 0)
       label.x = x
       label.y = y + 12
-      label.alpha = 0.30
+      label.alpha = 0.3
       label.zIndex = 50
       alwaysC.addChild(label)
     }

@@ -1,20 +1,27 @@
-import { createRootRoute, createRoute, createRouter, Outlet, useNavigate } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
-import { ThemeProvider } from './ui/design/ThemeProvider'
-import { DevPanel } from './ui/DevPanel'
-import { WelcomeScreen } from './ui/WelcomeScreen'
-import { WelcomeModal, hasSeenIntro } from './ui/WelcomeModal'
-import { GameErrorBoundary } from './ui/ErrorBoundary'
-import { ArchetypeSelectionScreen } from './ui/ArchetypeSelectionScreen'
-import { DeputySelectionScreen } from './ui/DeputySelectionScreen'
-import { HandoverNotesModal } from './ui/HandoverNotesModal'
-import { GoalSelectionScreen } from './ui/GoalSelectionScreen'
-import { StyleLab } from './ui/StyleLab'
+import {
+  createRootRoute,
+  createRoute,
+  createRouter,
+  Outlet,
+  useNavigate,
+} from '@tanstack/react-router'
+import { lazy, useEffect, useState } from 'react'
+import GameApp from './App'
+import type { ArchetypeKey } from './data/archetypes'
+import { STARTING_STATE } from './data/startingState'
 import { useGameStore } from './state/gameStore'
 import { clearSave, hasSavedGame, loadGame } from './state/persistence'
-import { STARTING_STATE } from './data/startingState'
-import type { ArchetypeKey } from './data/archetypes'
-import GameApp from './App'
+import { ArchetypeSelectionScreen } from './ui/ArchetypeSelectionScreen'
+import { DeputySelectionScreen } from './ui/DeputySelectionScreen'
+import { DevPanel } from './ui/DevPanel'
+import { ThemeProvider } from './ui/design/ThemeProvider'
+import { GameErrorBoundary } from './ui/ErrorBoundary'
+import { GoalSelectionScreen } from './ui/GoalSelectionScreen'
+import { HandoverNotesModal } from './ui/HandoverNotesModal'
+import { hasSeenIntro, WelcomeModal } from './ui/WelcomeModal'
+import { WelcomeScreen } from './ui/WelcomeScreen'
+
+const LazyStyleLab = lazy(() => import('./ui/StyleLab').then((m) => ({ default: m.StyleLab })))
 
 // ─── Root layout ─────────────────────────────────────────────────────────────
 const rootRoute = createRootRoute({
@@ -73,11 +80,7 @@ const introRoute = createRoute({
   path: '/intro',
   component: function IntroRoute() {
     const navigate = useNavigate()
-    return (
-      <WelcomeModal
-        onStart={() => navigate({ to: '/new-game/archetype', replace: true })}
-      />
-    )
+    return <WelcomeModal onStart={() => navigate({ to: '/new-game/archetype', replace: true })} />
   },
 })
 
@@ -124,7 +127,9 @@ const handoverRoute = createRoute({
     return (
       <HandoverNotesModal
         archetypeKey={archetypeKey}
-        onClose={() => navigate({ to: '/new-game/goal', search: { context: 'new-game' }, replace: true })}
+        onClose={() =>
+          navigate({ to: '/new-game/goal', search: { context: 'new-game' }, replace: true })
+        }
       />
     )
   },
@@ -135,7 +140,9 @@ const goalRoute = createRoute({
   getParentRoute: () => newGameRoute,
   path: '/goal',
   validateSearch: (search: Record<string, unknown>) => ({
-    context: (search.context === 'migration' ? 'migration' : 'new-game') as 'new-game' | 'migration',
+    context: (search.context === 'migration' ? 'migration' : 'new-game') as
+      | 'new-game'
+      | 'migration',
   }),
   component: function GoalRoute() {
     const navigate = useNavigate()
@@ -166,9 +173,7 @@ function GameRouteGuard() {
     // 2. No save — check if store has been properly initialised from setup flow
     const state = useGameStore.getState()
     const hasValidGame =
-      state.week >= 1 &&
-      state.runMeta.archetype !== null &&
-      state.deputy !== null
+      state.week >= 1 && state.runMeta.archetype !== null && state.deputy !== null
 
     if (!hasValidGame) {
       navigate({ to: '/', replace: true })
@@ -196,19 +201,13 @@ const gameRoute = createRoute({
 const styleLabRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/style-lab',
-  component: StyleLab,
+  component: LazyStyleLab,
 })
 
 // ─── Router ──────────────────────────────────────────────────────────────────
 const routeTree = rootRoute.addChildren([
   indexRoute,
-  newGameRoute.addChildren([
-    introRoute,
-    archetypeRoute,
-    deputyRoute,
-    handoverRoute,
-    goalRoute,
-  ]),
+  newGameRoute.addChildren([introRoute, archetypeRoute, deputyRoute, handoverRoute, goalRoute]),
   gameRoute,
   styleLabRoute,
 ])
