@@ -51,7 +51,10 @@ function DeskShell({
         margin: '0 auto',
         background: wallColor,
         borderRadius: '8px',
-        overflow: 'hidden',
+        // Not clipped: the document can be taller than the desk artwork
+        // (a multi-choice event card vs. a one-line empty state) and needs
+        // to extend past it rather than being cut off.
+        overflow: 'visible',
         boxShadow: isDark
           ? 'inset 0 0 60px rgba(0,0,0,.15), 0 4px 20px rgba(0,0,0,.2)'
           : 'inset 0 0 40px rgba(0,0,0,.03), 0 4px 20px rgba(0,0,0,.12)',
@@ -84,18 +87,29 @@ function DeskShell({
         }}
       >
         {children}
-        <div
-          style={{
-            width: '100%',
-            height: '20px',
-            background: isDark
-              ? 'linear-gradient(180deg, #8a7a6a, #7a6a5a)'
-              : 'linear-gradient(180deg, #c8b8a8, #b8a898)',
-            transition: 'background .6s ease',
-          }}
-        />
       </div>
     </div>
+  )
+}
+
+// The desk's own drawn legs/feet already read as "the desk," but this floor
+// strip is the room's front edge below it — purely decorative, no relation
+// to document content. It's bundled with the SVG (not appended after
+// whatever the document renders) specifically so its position is pinned to
+// the artwork's own fixed height and can never be displaced by document
+// height, regardless of how the document is laid out above it.
+function FloorStrip({ isDark }: { isDark: boolean }) {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '20px',
+        background: isDark
+          ? 'linear-gradient(180deg, #8a7a6a, #7a6a5a)'
+          : 'linear-gradient(180deg, #c8b8a8, #b8a898)',
+        transition: 'background .6s ease',
+      }}
+    />
   )
 }
 
@@ -106,6 +120,7 @@ function WindowArea({ situation, showWindow }: { situation: Situation; showWindo
 
   return (
     <div
+      className="hidden sm:block"
       style={{
         position: 'relative',
         marginBottom: '0',
@@ -174,7 +189,7 @@ function DeskSvg({
   )
 }
 
-function DocumentMat({ document, isDark }: { document: ReactNode; isDark: boolean }) {
+function DocumentMat({ document }: { document: ReactNode }) {
   if (!document) {
     return null
   }
@@ -184,23 +199,15 @@ function DocumentMat({ document, isDark }: { document: ReactNode; isDark: boolea
       className="atm-grain"
       style={{
         width: '100%',
-        padding: '14px',
-        borderRadius: '2px',
-        background: isDark ? '#c9b183' : '#dcc79a',
-        boxShadow: isDark
-          ? '0 2px 6px rgba(0,0,0,.35), 0 16px 32px rgba(0,0,0,.4)'
-          : '0 2px 5px rgba(60,40,20,.18), 0 16px 32px rgba(50,32,14,.22)',
+        borderRadius: '6px',
+        overflow: 'hidden',
+        background: 'var(--paper)',
+        boxShadow: 'var(--shadow-atm)',
+        transform: 'rotate(-0.6deg)',
         transition: 'background .6s ease, box-shadow .6s ease',
       }}
     >
-      <div
-        style={{
-          transform: 'rotate(-0.6deg)',
-          boxShadow: '0 2px 6px rgba(30,20,10,.2)',
-        }}
-      >
-        {document}
-      </div>
+      {document}
     </div>
   )
 }
@@ -222,24 +229,51 @@ export function DeskScene({
 
   return (
     <DeskShell wallColor={wallColor} isDark={isDark}>
-      <WindowArea situation={situation} showWindow={showWindow} />
-      <div style={{ height: '16px' }} />
-      <DeskSvg deskStyle={deskStyle} situation={situation} showProps={showProps} />
-
-      <div
-        style={{
-          width: '56%',
-          marginTop: '-41.6%',
-          position: 'relative',
-          zIndex: 2,
-          flexDirection: 'column',
-          alignItems: 'center',
-          display: 'flex',
-          gap: '10px',
-        }}
-      >
-        <DocumentMat document={document} isDark={isDark} />
-        {rest}
+      {/* Desk art and the document share one grid cell, so the taller of the
+          two drives the height: an empty state lets the desk art size the box
+          (desk fully visible); a tall multi-choice card sizes it instead, and
+          DeskShell grows with it so the last choice can't hide under the dock. */}
+      <div style={{ display: 'grid', width: '100%' }}>
+        <div
+          style={{
+            gridColumn: 1,
+            gridRow: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            // Decoration only — must never intercept clicks on the choices it
+            // overlaps.
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        >
+          <WindowArea situation={situation} showWindow={showWindow} />
+          <div style={{ height: '16px' }} />
+          <DeskSvg deskStyle={deskStyle} situation={situation} showProps={showProps} />
+          <FloorStrip isDark={isDark} />
+        </div>
+        <div
+          style={{
+            gridColumn: 1,
+            gridRow: 1,
+            justifySelf: 'center',
+            // 56% of an 860px desktop shell is a sensible ~480px card, but
+            // the same 56% of a ~360px phone shell crushes it to ~200px —
+            // capping the width and letting it grow to 90% below that cap
+            // keeps the card readable at any size instead of just scaling
+            // the desktop proportion down.
+            width: 'min(480px, 90%)',
+            paddingTop: '4%',
+            zIndex: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          <DocumentMat document={document} />
+          {rest}
+        </div>
       </div>
     </DeskShell>
   )

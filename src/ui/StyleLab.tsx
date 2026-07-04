@@ -39,6 +39,7 @@ import { HelpReference } from './HelpReference'
 import { Inbox } from './Inbox'
 import { LagosHerald } from './LagosHerald'
 import { LagosSkyline } from './LagosSkyline'
+import { OnboardingRedesignTab } from './onboarding/OnboardingRedesignTab'
 import { PodcastCard } from './PodcastCard'
 import { ProjectsPanel } from './ProjectsPanel'
 import { CastGallery } from './portraits/CastGallery'
@@ -70,7 +71,7 @@ const FIXED_OVERRIDE_CSS = `
 // ─── Types ────────────────────────────────────────────────────────────────────
 type GameState = 'calm' | 'election' | 'crisis' | 'storm'
 type Variant = 'clean' | 'bold' | 'atmospheric'
-type TabId = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
+type TabId = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
 
 interface Theme {
   bg: string
@@ -1443,6 +1444,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 8, label: 'Seals' },
   { id: 9, label: 'Cast' },
   { id: 10, label: 'Share' },
+  { id: 11, label: 'Onboarding Redesign' },
 ]
 
 function TabBar({ activeTab, onChange }: { activeTab: TabId; onChange: (id: TabId) => void }) {
@@ -2437,6 +2439,8 @@ function StyleLabTabContent({
       return <CastGallery />
     case 10:
       return <ShareLabPanel />
+    case 11:
+      return <OnboardingRedesignTab />
     default:
       return null
   }

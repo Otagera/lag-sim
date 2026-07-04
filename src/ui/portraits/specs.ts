@@ -1,3 +1,4 @@
+import type { ArchetypeKey } from '../../data/archetypes'
 import type { CharacterId, CommissionerRole, DeputyKey } from '../../state/types'
 import type { BustSpec } from './types'
 
@@ -251,6 +252,80 @@ export const CAST_SPECS: Record<string, BustSpec> = {
     accentColor: '#D4AF37',
     bgTint: '#181C20',
   },
+
+  /* ── Player archetype (LegacyScreen governor portrait) ── */
+  'archetype-technocrat': {
+    skinTone: 'medium',
+    headShape: 'oval',
+    face: {
+      // precise, unshowy — delivery over politics
+      browTilt: 0.5,
+      browW: 6,
+      browWeight: 1.6,
+      noseW: 6.6,
+      mouth: 'pressed',
+      mouthW: 4.8,
+    },
+    hair: 'lowFade',
+    clothing: 'suit',
+    accessories: ['roundGlasses'],
+    fabricColor: '#243447',
+    accentColor: '#3B9FE0',
+    bgTint: '#12202E',
+  },
+  'archetype-loyalist': {
+    skinTone: 'mediumDark',
+    headShape: 'broad',
+    face: {
+      // machine politics: knowing half-smile, one brow up
+      browTilt: 0.9,
+      browWeight: 2.1,
+      browRaiseRight: 1.3,
+      eyes: 'heavy',
+      noseW: 7.6,
+      mouth: 'smirk',
+      mouthW: 5.2,
+      smileLineRight: true,
+    },
+    hair: 'greyTemp',
+    clothing: 'agbada',
+    accessories: ['coralBeads', 'lapelPin'],
+    fabricColor: '#5A1F1F',
+    accentColor: '#D4AF37',
+    bgTint: '#1E1210',
+  },
+  'archetype-outsider': {
+    skinTone: 'dark',
+    headShape: 'slim',
+    face: {
+      // popular anger, civil-society energy — wide, alert, young
+      browY: 33.6,
+      browTilt: 1.4,
+      browW: 6.2,
+      browWeight: 1.8,
+      eyes: 'wide',
+      noseW: 6.6,
+      mouth: 'set',
+      mouthW: 5,
+      chinCrease: true,
+    },
+    hair: 'naturalVolume',
+    clothing: 'teeUnderJacket',
+    accessories: [],
+    fabricColor: '#1F3B2E',
+    accentColor: '#3AA048',
+    bgTint: '#101C16',
+  },
+}
+
+const ARCHETYPE_SPEC_KEYS: Record<ArchetypeKey, string> = {
+  technocrat: 'archetype-technocrat',
+  loyalist: 'archetype-loyalist',
+  outsider: 'archetype-outsider',
+}
+
+export function getArchetypePortraitSpecKey(archetype: ArchetypeKey): string {
+  return ARCHETYPE_SPEC_KEYS[archetype]
 }
 
 export const COMMISSIONER_VARIANTS: Record<CommissionerRole, string> = {

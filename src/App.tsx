@@ -12,7 +12,7 @@ import {
   Wallet,
   Zap,
 } from 'lucide-react'
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 
 import { STARTING_STATE } from './data/startingState'
 import { useGameStore } from './state/gameStore'
@@ -34,11 +34,12 @@ import { Seal } from './ui/components/Seal'
 import { Stat } from './ui/components/Stat'
 import { Tab } from './ui/components/Tab'
 import { DeputyPanel } from './ui/DeputyPanel'
+import { useSituation } from './ui/design/ThemeProvider'
+import { DeskScene } from './ui/desk/DeskScene'
 import { ElectionWatermark } from './ui/ElectionWatermark'
 import { GuidedTour } from './ui/GuidedTour'
 import { DiagnosisBanner } from './ui/game/DiagnosisBanner'
 import { StateOfTheState } from './ui/game/StateOfTheState'
-import { LagosSkyline } from './ui/LagosSkyline'
 import { formatGameMonth } from './utils/calendar'
 
 const LazyLegacyScreen = lazy(() =>
@@ -511,11 +512,16 @@ function useActiveHint() {
     setCurrentHint(nextId)
   }, [currentHint, hintQueue])
 
-  function handleDismissHint() {
+  // Memoized: ContextualHint's effect depends on this callback's identity,
+  // and re-runs it on every change — an unmemoized function here recreated
+  // a new driver.js popover on every unrelated App re-render (of which there
+  // are many, from frequent store updates elsewhere), which read as the
+  // hint tooltip "flashing" or reappearing on its own.
+  const handleDismissHint = useCallback(() => {
     if (!currentHint) return
     dismissHint(currentHint)
     setCurrentHint(null)
-  }
+  }, [currentHint, dismissHint])
 
   const hintDef = currentHint ? (ALL_HINTS.find((h) => h.id === currentHint) ?? null) : null
 
@@ -627,40 +633,39 @@ function GameAppHeader({
 }
 
 function GameScene({ isGameOver, onLegacyNewGame }: GameSceneProps) {
+  const situation = useSituation()
+  const inCampaignMode = useGameStore((s) => s.inCampaignMode)
+  const deskSituation = inCampaignMode && situation === 'calm' ? 'election' : situation
+
+  // Game over bypasses the desk entirely — LegacyScreen is its own dense,
+  // full-width scrollable report, not a single document that fits on the
+  // kraft-paper mat DeskScene builds for EventCard.
+  if (isGameOver) {
+    return (
+      <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+        <Suspense fallback={null}>
+          <LazyLegacyScreen onNewGame={onLegacyNewGame} />
+        </Suspense>
+      </div>
+    )
+  }
+
   return (
-    <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, position: 'relative' }}>
-      {/* Skyline backdrop — the "governor's desk with a view" (OTA-46) */}
+    <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
       <div
+        className="event-card-area"
         style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 0,
-          opacity: 0.2,
-          pointerEvents: 'none',
+          maxWidth: '860px',
+          margin: '0 auto',
+          // Bottom padding clears the fixed GameDock (~47px tall) plus the
+          // device safe-area inset, so a tall event's last choice is always
+          // scrollable into view rather than hidden behind the dock.
+          padding: '16px 16px calc(88px + env(safe-area-inset-bottom))',
         }}
       >
-        <LagosSkyline height="100%" />
-      </div>
-      <div style={{ position: 'relative', zIndex: 1 }}>
-        {isGameOver ? (
-          <Suspense fallback={null}>
-            <LazyLegacyScreen onNewGame={onLegacyNewGame} />
-          </Suspense>
-        ) : (
-          <div
-            className="event-card-area"
-            style={{
-              maxWidth: '720px',
-              margin: '0 auto',
-              padding: '16px 16px 80px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px',
-            }}
-          >
-            <EventCard />
-          </div>
-        )}
+        <DeskScene situation={deskSituation} deskStyle="modern">
+          <EventCard />
+        </DeskScene>
       </div>
     </div>
   )

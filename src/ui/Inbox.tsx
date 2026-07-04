@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useGameStore } from '../state/gameStore'
 import type { InboxMessage } from '../state/types'
-import { AvatarMonogram } from './AvatarMonogram'
 import { Tab } from './components'
+import { BustPortrait } from './portraits/BustPortrait'
 
 const TONE_COLORS: Record<string, string> = {
   warm: 'var(--success-9)',
@@ -40,7 +40,7 @@ function MessageRow({
       }}
     >
       <div className="flex items-start gap-2 p-2">
-        <AvatarMonogram charId={msg.from} size={28} />
+        <BustPortrait charId={msg.from} size={28} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-1">
             <span className="text-[10px] font-semibold truncate" style={{ color: 'var(--text)' }}>
@@ -96,7 +96,7 @@ function MessageDetail({ msg, onBack }: { msg: InboxMessage; onBack: () => void 
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
         {/* Header */}
         <div className="flex items-start gap-3">
-          <AvatarMonogram charId={msg.from} size={36} />
+          <BustPortrait charId={msg.from} size={36} />
           <div className="flex-1 min-w-0">
             <h3 className="text-[12px] font-semibold" style={{ color: 'var(--text)' }}>
               {msg.fromLabel}

@@ -56,7 +56,7 @@ export function WelcomeModal({ onStart }: { onStart: () => void }) {
       >
         <div className="p-4" style={{ borderBottom: '2px solid var(--accent-solid)' }}>
           <p className="label-caps" style={{ color: 'var(--accent-text)' }}>
-            Lagos, Nigeria — 2024
+            Lagos, Nigeria — 2026
           </p>
           <h1
             className="font-display font-semibold mt-1"

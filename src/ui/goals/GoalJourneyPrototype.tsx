@@ -142,25 +142,30 @@ function GoalNextSteps({
       style={{
         marginTop: '12px',
         padding: '12px 14px',
-        background: '#1c1c1c',
-        border: '1px solid #333',
-        borderRadius: '4px',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
         fontFamily: "'Archivo Narrow', sans-serif",
       }}
     >
       {met ? (
-        <p style={{ fontSize: '13px', color: '#4ade80', fontWeight: 700, margin: 0 }}>
+        <p style={{ fontSize: '13px', color: 'var(--success-11)', fontWeight: 700, margin: 0 }}>
           On track — hold this to term end
         </p>
       ) : (
-        <p style={{ fontSize: '13px', color: '#eab308', fontWeight: 700, margin: 0 }}>
+        <p style={{ fontSize: '13px', color: 'var(--warning-11)', fontWeight: 700, margin: 0 }}>
           Next: {blockingLabel} — {blockingText}
         </p>
       )}
 
       {!met && (projectPills.length > 0 || researchPills.length > 0) && (
-        <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #333' }}>
-          <p style={{ fontSize: '11px', color: '#999', margin: '0 0 6px' }}>
+        <div
+          style={{
+            marginTop: '10px',
+            paddingTop: '10px',
+            borderTop: '1px solid var(--border-subtle)',
+          }}
+        >
+          <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 6px' }}>
             What advances this — especially toward "{blockingLabel}"
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -170,9 +175,9 @@ function GoalNextSteps({
                 style={{
                   fontSize: '11px',
                   padding: '3px 8px',
-                  background: '#233a37',
-                  color: '#7fd6c8',
-                  border: '1px solid #1A9B8E',
+                  background: 'var(--accent-bg-subtle)',
+                  color: 'var(--accent-text)',
+                  border: '1px solid var(--accent-solid)',
                   borderRadius: '2px',
                   fontWeight: 600,
                   textTransform: 'uppercase',
@@ -188,9 +193,9 @@ function GoalNextSteps({
                 style={{
                   fontSize: '11px',
                   padding: '3px 8px',
-                  background: '#262626',
-                  color: '#bbb',
-                  border: '1px solid #444',
+                  background: 'var(--surface-2)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border)',
                   borderRadius: '2px',
                   fontWeight: 600,
                   textTransform: 'uppercase',

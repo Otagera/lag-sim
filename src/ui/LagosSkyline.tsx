@@ -2,21 +2,30 @@ import { useReducedMotion } from './design/useReducedMotion'
 import {
   SkyAmbulance,
   SkyBRT,
+  SkyCanoe,
   SkyDanfo,
+  SkyEgrets,
   SkyEyo,
   SkyFerry,
+  SkyHawker,
+  SkyKeke,
   SkyLagRide,
+  SkyLastma,
+  SkyLekkiBridge,
+  SkyMakoko,
   SkyMarinaStation,
   SkyOkada,
+  SkyStalls,
+  SkyTanker,
   SkyTheatre,
   SkyTrain,
 } from './skyline'
 
 /**
- * LagosSkyline — a layered, parallax Lagos vignette remixed from dedicated
- * reference SVGs (references/). Each vehicle/landmark is sourced from detailed
- * Lagos-themed art — danfo, BRT, National Theatre, Eyo masquerade, Blue Line
- * train, LagRide, LASAMBUS — wrapping them in animated React components.
+ * LagosSkyline — a layered, parallax Lagos vignette. Hand-drawn and adapted
+ * elements: National Theatre, Lekki-Ikoyi Link Bridge, Makoko stilt houses,
+ * Eyo procession, Blue Line train, ferry + canoe on the lagoon, and a road
+ * full of danfo/BRT/keke/okada/LagRide/LASAMBUS/tanker traffic.
  *
  * viewBox 0 0 800 340. Key horizontal bands:
  *   sky 0–210 · lagoon 210–286 · promenade 286–306 · road 306–340
@@ -26,20 +35,29 @@ const KEYFRAMES = `
 @keyframes lsky-drift  { from { transform: translateX(0); }     to { transform: translateX(-280px); } }
 @keyframes lsky-drift2 { from { transform: translateX(0); }     to { transform: translateX(-460px); } }
 @keyframes lsky-ferry  { from { transform: translateX(-120px); } to { transform: translateX(900px); } }
+@keyframes lsky-canoe  { from { transform: translateX(880px); }  to { transform: translateX(-80px); } }
 @keyframes lsky-brt    { from { transform: translateX(-260px); }  to { transform: translateX(760px); } }
 @keyframes lsky-danfo  { from { transform: translateX(-160px); } to { transform: translateX(880px); } }
 @keyframes lsky-okada  { from { transform: translateX(-80px); }  to { transform: translateX(860px); } }
+@keyframes lsky-keke   { from { transform: translateX(-110px); } to { transform: translateX(870px); } }
+@keyframes lsky-tanker { from { transform: translateX(860px); }  to { transform: translateX(-120px); } }
 @keyframes lsky-train  { from { transform: translateX(-280px); }  to { transform: translateX(780px); } }
 @keyframes lsky-lagride { from { transform: translateX(-200px); } to { transform: translateX(900px); } }
 @keyframes lsky-ambulance { from { transform: translateX(-300px); }  to { transform: translateX(800px); } }
+@keyframes lsky-egrets { from { transform: translateX(0); }      to { transform: translateX(-1060px); } }
+@keyframes lsky-tmb    { from { transform: translateX(0); }      to { transform: translateX(-180px); } }
 @keyframes lsky-shim   { 0%,100% { opacity: .2; } 50% { opacity: .5; } }
 `
 
 export function LagosSkyline({ height = 300 }: { height?: number | string }) {
   const reduced = useReducedMotion()
-  const move = (name: string, secs: number, delay = 0) =>
+  // Animated groups sweep via keyframes; under reduced motion each freezes at
+  // a hand-picked static offset so the still frame is fully composed.
+  const move = (name: string, secs: number, staticX = 0, delay = 0) =>
     reduced
-      ? undefined
+      ? staticX !== 0
+        ? { transform: `translateX(${staticX}px)` }
+        : undefined
       : { animation: `${name} ${secs}s linear infinite`, animationDelay: `${delay}s` }
 
   return (
@@ -86,10 +104,15 @@ export function LagosSkyline({ height = 300 }: { height?: number | string }) {
           <Cloud x={1040} y={40} s={0.6} />
         </g>
 
-        {/* ── Far skyline: Eko Atlantic + Marina Station (atmospheric, desaturated) ── */}
-        <g opacity={0.55}>
-          <SkyMarinaStation x={420} y={130} scale={0.055} />
+        {/* Egrets crossing the sky */}
+        <g style={move('lsky-egrets', 110, -560)}>
+          <SkyEgrets x={860} y={62} />
         </g>
+        <g style={move('lsky-egrets', 150, -880)} opacity="0.7">
+          <SkyEgrets x={1010} y={104} scale={0.6} />
+        </g>
+
+        {/* ── Far skyline: Eko Atlantic towers (atmospheric, desaturated) ── */}
         <g fill="#aac4ca" opacity={0.6}>
           <rect x="600" y="120" width="26" height="92" rx="2" />
           <polygon points="634,212 634,100 660,88 660,212" />
@@ -97,20 +120,55 @@ export function LagosSkyline({ height = 300 }: { height?: number | string }) {
           <rect x="696" y="104" width="30" height="108" rx="2" />
           <rect x="734" y="132" width="22" height="80" rx="2" />
         </g>
-
-        {/* ── Third Mainland Bridge (distant, thin, receding) ── */}
-        <g stroke="#9db8bd" strokeWidth="2" opacity="0.8">
-          <line x1="0" y1="206" x2="800" y2="206" />
-          {[40, 130, 220, 310, 400, 490, 580, 670, 760].map((x) => (
-            <line key={x} x1={x} y1="206" x2={x} y2="220" strokeWidth="1.5" />
-          ))}
+        {/* Marina Station on the far bank, legible scale */}
+        <g opacity={0.6}>
+          <SkyMarinaStation x={455} y={176} scale={0.13} />
         </g>
 
-        {/* ── National Theatre — the hero landmark ── */}
-        <SkyTheatre x={148} y={88} scale={0.38} opacity={0.95} />
+        {/* ── Third Mainland Bridge (distant, left half — the Lekki bridge owns the right) ── */}
+        <g opacity="0.8">
+          <path d="M0 204 L470 204 L470 206.5 L0 206.5 Z" fill="#9db8bd" />
+          <path d="M0 208 L470 208" stroke="#9db8bd" strokeWidth="1" />
+          {[30, 90, 150, 210, 270, 330, 390, 450].map((px) => (
+            <g key={px}>
+              <rect x={px - 1} y={208} width="2" height="11" fill="#9db8bd" />
+              <path
+                d={`M${px - 1.5} 222 L${px + 1.5} 222`}
+                stroke="#9db8bd"
+                strokeWidth="1.2"
+                opacity="0.35"
+              />
+            </g>
+          ))}
+          {/* crawling traffic dashes on the deck */}
+          <g style={move('lsky-tmb', 26)} fill="#7fa0a6">
+            {[0, 90, 180, 270, 360, 450, 540].map((px) => (
+              <rect key={px} x={px} y={201.4} width="7" height="2" rx="1" />
+            ))}
+          </g>
+        </g>
+
+        {/* ── Lekki-Ikoyi Link Bridge (mid-ground right) ── */}
+        <SkyLekkiBridge x={498} y={146} opacity={0.9} />
+
+        {/* ── Far bank + National Theatre (grounded, the hero landmark) ── */}
+        <path
+          d="M84 214 Q150 199 232 200.5 Q300 202 330 214 L330 219 Q230 209 84 219 Z"
+          fill="#cfc2a4"
+        />
+        <path
+          d="M92 212.5 Q160 200.5 232 202 Q296 203.5 322 212.5"
+          fill="none"
+          stroke="#9cb98f"
+          strokeWidth="2.4"
+          opacity="0.8"
+        />
+        <SkyTheatre x={148} y={86} scale={0.38} opacity={0.95} />
 
         {/* ── Lagoon ── */}
         <rect x="0" y="210" width="800" height="78" fill="url(#lsky-water)" />
+        {/* Makoko stilt houses at the water's edge */}
+        <SkyMakoko x={2} y={174} opacity={0.95} />
         <g stroke="#eaf6f3" strokeWidth="2" strokeLinecap="round" opacity="0.7">
           <line
             x1="40"
@@ -134,9 +192,12 @@ export function LagosSkyline({ height = 300 }: { height?: number | string }) {
             style={reduced ? undefined : { animation: 'lsky-shim 4.2s ease-in-out infinite' }}
           />
         </g>
-        {/* Ferry drifting across the lagoon */}
-        <g style={move('lsky-ferry', 55)}>
+        {/* Ferry and canoe crossing the lagoon in opposite directions */}
+        <g style={move('lsky-ferry', 55, 300)}>
           <SkyFerry x={0} y={238} scale={1} />
+        </g>
+        <g style={move('lsky-canoe', 85, 645)}>
+          <SkyCanoe x={0} y={258} />
         </g>
 
         {/* ── Promenade ── */}
@@ -147,12 +208,15 @@ export function LagosSkyline({ height = 300 }: { height?: number | string }) {
         <Palm x={78} baseY={306} h={104} flip={false} />
         <Palm x={726} baseY={306} h={92} flip />
 
-        {/* Eyo masquerade standing on the promenade */}
-        <SkyEyo x={390} y={260} scale={0.14} />
+        {/* Street life: market stalls, hawker, Eyo procession */}
+        <SkyStalls x={520} y={268} />
+        <SkyHawker x={604} y={280} />
+        <SkyEyo x={368} y={248} />
+        <SkyLastma x={676} y={288} />
 
         {/* ── Blue Line train track (elevated, behind road) ── */}
         <rect x="0" y="295" width="800" height="4" fill="#546E7A" />
-        <g style={move('lsky-train', 40)}>
+        <g style={move('lsky-train', 40, -60)}>
           <SkyTrain x={0} y={273} scale={0.85} />
         </g>
 
@@ -163,20 +227,27 @@ export function LagosSkyline({ height = 300 }: { height?: number | string }) {
             <rect key={x} x={x} y="322" width="28" height="3" />
           ))}
         </g>
-        {/* Road traffic: BRT, danfo, LagRide, ambulance, and a faster okada in front */}
-        <g style={move('lsky-brt', 30)}>
+        {/* Road traffic: tanker crawls against the flow; BRT, danfo, LagRide,
+            ambulance, keke, and a faster okada in front */}
+        <g style={move('lsky-tanker', 78, 350)}>
+          <SkyTanker x={0} y={312} />
+        </g>
+        <g style={move('lsky-brt', 30, 280)}>
           <SkyBRT x={0} y={307} scale={0.08} />
         </g>
-        <g style={move('lsky-danfo', 22)}>
+        <g style={move('lsky-danfo', 22, 470)}>
           <SkyDanfo x={0} y={310} scale={0.08} />
         </g>
-        <g style={move('lsky-lagride', 26)}>
+        <g style={move('lsky-lagride', 26, 120)}>
           <SkyLagRide x={0} y={312} scale={0.06} />
         </g>
-        <g style={move('lsky-ambulance', 18)}>
+        <g style={move('lsky-ambulance', 18, 620)}>
           <SkyAmbulance x={0} y={313} scale={0.08} />
         </g>
-        <g style={move('lsky-okada', 14)}>
+        <g style={move('lsky-keke', 16, 190)}>
+          <SkyKeke x={0} y={317} />
+        </g>
+        <g style={move('lsky-okada', 14, 540)}>
           <SkyOkada x={0} y={318} scale={0.2} />
         </g>
       </svg>

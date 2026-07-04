@@ -3,6 +3,7 @@ import { useGameStore } from '../../state/gameStore'
 import { Stat } from '../components/Stat'
 import { Surface } from '../components/Surface'
 import { Kicker } from '../components/Typography'
+import { GoalTracker } from '../GoalTracker'
 
 const FACTION_LABELS: Record<string, string> = {
   businessCommunity: 'Business Community',
@@ -382,6 +383,10 @@ export function StateOfTheState() {
         overflowY: 'auto',
       }}
     >
+      <section>
+        <Kicker accent>Term Goal</Kicker>
+        <GoalTracker />
+      </section>
       <EconomySection stats={stats} revenue={s.lastWeekRevenue} />
       <GovernanceSection
         stats={stats}

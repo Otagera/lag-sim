@@ -2,9 +2,16 @@ import type { LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FACTION_ICONS, SEVERITY_GLYPH, STAT_ICONS } from '../data/icons'
 import { useGameStore } from '../state/gameStore'
-import type { Choice, ConsequenceBeat, EventCard as EventCardData } from '../state/types'
+import type {
+  CharacterId,
+  Choice,
+  ConsequenceBeat,
+  EventCard as EventCardData,
+  NPCArchetypeKey,
+} from '../state/types'
 import { electionYear } from '../utils/calendar'
 import { Pill } from './components'
+import { BustPortrait } from './portraits/BustPortrait'
 
 const STAT_WHITELIST = new Set<string>([
   'cashReserve',
@@ -153,13 +160,11 @@ function AftermathPanel({ beat, onDismiss }: { beat: ConsequenceBeat; onDismiss:
   return (
     <button
       type="button"
-      className="border p-4"
+      className="p-4"
       onClick={onDismiss}
       style={{
-        borderColor: 'var(--border)',
-        borderTopWidth: '2px',
-        borderTopColor: 'var(--accent-solid)',
-        backgroundColor: 'var(--surface)',
+        borderTop: '2px solid var(--accent-solid)',
+        backgroundColor: 'transparent',
         opacity: visible ? 1 : 0,
         transition: 'opacity 0.4s ease',
         cursor: 'pointer',
@@ -213,10 +218,9 @@ function AftermathPanel({ beat, onDismiss }: { beat: ConsequenceBeat; onDismiss:
 function EmptyEventState() {
   return (
     <div
-      className="p-4 text-center border"
+      className="p-4 text-center"
       style={{
-        borderColor: 'var(--border)',
-        backgroundColor: 'var(--surface)',
+        backgroundColor: 'transparent',
         color: 'var(--text-secondary)',
       }}
     >
@@ -279,6 +283,16 @@ function CampaignBadge({ electionYearLabel }: { electionYearLabel: number }) {
   )
 }
 
+// Only the archetypes with a matching, already-authored CAST_SPECS entry get
+// a portrait here — the other NPCArchetypeKey values (union-leader,
+// opposition-senator, diaspora-activist, oba-liaison, business-mogul) have no
+// real spec yet, so they render without one rather than guessing a likeness.
+const NPC_ARCHETYPE_TO_CHAR_ID: Partial<Record<NPCArchetypeKey, CharacterId>> = {
+  journalist: 'neo',
+  'youth-organiser': 'dayo',
+  insider: 'smj',
+}
+
 function EventMeta({
   event,
   inCampaignMode,
@@ -290,8 +304,15 @@ function EventMeta({
 }) {
   const sevLabel = SEVERITY_GLYPH[event.severity] ?? { glyph: '•', color: 'var(--text-secondary)' }
   const isGodfather = event.category === 'godfather'
+  const charId = isGodfather
+    ? 'fashemu'
+    : event.npcArchetype
+      ? NPC_ARCHETYPE_TO_CHAR_ID[event.npcArchetype]
+      : undefined
+
   return (
     <div className="flex items-center gap-2 mb-2">
+      {charId && <BustPortrait charId={charId} size={28} />}
       {isGodfather ? (
         <span className="label-caps" style={{ color: '#8b0000' }}>
           Chief Fashemu
@@ -396,12 +417,9 @@ export function EventCard() {
 
   return (
     <div
-      className="border"
       style={{
-        borderColor: isGodfather ? godfatherColor : 'var(--border)',
-        borderTopWidth: '2px',
-        borderTopColor: accentColor,
-        backgroundColor: 'var(--surface)',
+        borderTop: `2px solid ${accentColor}`,
+        backgroundColor: 'transparent',
         ...(isGodfather ? { boxShadow: 'inset 0 0 0 1px rgba(139,0,0,0.15)' } : {}),
       }}
     >

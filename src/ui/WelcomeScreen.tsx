@@ -51,7 +51,7 @@ export function WelcomeScreen({ onNewGame, onContinue, canContinue }: Props) {
       <div className="flex-1 flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-lg text-center">
           <p className="label-caps" style={{ color: 'var(--accent-text)' }}>
-            Lagos, Nigeria — 2024
+            Lagos, Nigeria — 2026
           </p>
           <h1
             className="font-display font-semibold mt-2"

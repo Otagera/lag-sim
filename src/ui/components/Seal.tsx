@@ -1,46 +1,13 @@
+import { LagosSealMark } from '../seals/LagosSealMark'
+
 interface SealProps {
   size?: number
 }
 
+// Thin wrapper around the richer seal mark built in Style Lab
+// (src/ui/seals/LagosSealMark.tsx) — that component already renders a
+// legible compact reduction below 64px, which is the only size this real
+// call site (StatusBar header, size=28) ever uses.
 export function Seal({ size = 40 }: SealProps) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 40 40"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label="Lagos State Seal"
-    >
-      <circle
-        cx="20"
-        cy="20"
-        r="19"
-        stroke="var(--accent-solid)"
-        strokeWidth="1.5"
-        fill="var(--accent-bg-subtle)"
-      />
-      <circle
-        cx="20"
-        cy="20"
-        r="14"
-        stroke="var(--accent-solid)"
-        strokeWidth="0.75"
-        fill="none"
-        opacity="0.4"
-      />
-      <text
-        x="20"
-        y="23"
-        textAnchor="middle"
-        fontFamily="'Playfair Display', Georgia, serif"
-        fontSize="10"
-        fontWeight="600"
-        fill="var(--accent-solid)"
-        letterSpacing="0.5"
-      >
-        LGS
-      </text>
-    </svg>
-  )
+  return <LagosSealMark size={size} />
 }

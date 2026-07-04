@@ -12,10 +12,11 @@ interface GoalWaypointProps {
   onFlashDone: () => void
 }
 
-const TRACK_COLOR = '#555'
+const TRACK_COLOR = 'var(--border-strong, var(--border))'
 const PROGRESS_COLOR = '#1A9B8E'
 const MET_COLOR = '#16a34a'
 const BLOCKING_COLOR = '#eab308'
+const LABEL_COLOR = 'var(--text-secondary)'
 const R = 14
 const CIRCUMFERENCE = 2 * Math.PI * R
 
@@ -55,6 +56,10 @@ export function GoalWaypoint({
 
   return (
     <g onAnimationEnd={justCompleted && !reduced ? onFlashDone : undefined}>
+      {/* Full label on hover/focus over the dot or the (often-truncated)
+          text below it — waypoint labels routinely run longer than the
+          ~120px of horizontal room between neighboring stops. */}
+      <title>{label}</title>
       {isBlocking && (
         <g transform={`translate(${x}, ${y - R - 22})`} style={pulseStyle} color={BLOCKING_COLOR}>
           <Flag width={16} height={16} fill={BLOCKING_COLOR} stroke={BLOCKING_COLOR} />
@@ -110,7 +115,7 @@ export function GoalWaypoint({
         fontFamily="'Archivo Narrow', sans-serif"
         fontSize="12"
         fontWeight={isBlocking ? 700 : 500}
-        fill={isBlocking ? BLOCKING_COLOR : '#ccc'}
+        fill={isBlocking ? BLOCKING_COLOR : LABEL_COLOR}
       >
         {label.length > 28 ? `${label.slice(0, 27)}…` : label}
       </text>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { getGoal, getGoalIsMet } from '../data/goals'
 import { buildLegacy } from '../data/legacy'
 import { STARTING_STATE } from '../data/startingState'
@@ -8,6 +8,11 @@ import { clearSave } from '../state/persistence'
 import type { ConstituencyKey, FactionKey, GameState } from '../state/types'
 import { formatGameDate } from '../utils/calendar'
 import { Heading } from './components'
+import { BustPortrait } from './portraits/BustPortrait'
+import { getArchetypePortraitSpecKey } from './portraits/specs'
+import { buildShareCardData } from './share/buildShareCardData'
+import { downloadOrShare, exportCard } from './share/exportCard'
+import { ShareCard } from './share/ShareCard'
 
 const FACTION_LABELS: Record<FactionKey, string> = {
   businessCommunity: 'Business Community',
@@ -157,7 +162,7 @@ export function LegacyScreen({ onNewGame }: { onNewGame: () => void }) {
           <LegacyOperationalStats state={state} />
         </div>
         <EightYearAccountability state={state} />
-        <LegacyFooter onNewGame={handleNewGame} />
+        <LegacyFooter state={state} onNewGame={handleNewGame} />
       </div>
     </div>
   )
@@ -167,6 +172,7 @@ function LegacyHeader(props: { legacy: LegacyData; state: GameState }) {
   const { state } = props
   const endDate = formatGameDate(state.week)
   const totalEvents = state.resolvedEvents.length
+  const archetype = state.runMeta.archetype
 
   return (
     <div className="text-center">
@@ -179,6 +185,16 @@ function LegacyHeader(props: { legacy: LegacyData; state: GameState }) {
           marginBottom: '16px',
         }}
       />
+      {archetype && (
+        <div className="flex justify-center mb-3">
+          <BustPortrait
+            charId="fashemu"
+            specKey={getArchetypePortraitSpecKey(archetype)}
+            size={64}
+            shape="arch"
+          />
+        </div>
+      )}
       <p className="label-caps mb-1">Lagos State Government — {getExitLabel(state)}</p>
       <h1 className="font-display text-2xl font-semibold" style={{ color: 'var(--text)' }}>
         {getLegacyTitle(state)}
@@ -569,8 +585,73 @@ function EightYearAccountability({ state }: { state: GameState }) {
   )
 }
 
-function LegacyFooter({ onNewGame }: { onNewGame: () => void }) {
+function ShareLegacyModal({ state, onClose }: { state: GameState; onClose: () => void }) {
+  const [exporting, setExporting] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const data = buildShareCardData(state)
+
+  async function handleExport() {
+    const svgEl = containerRef.current?.querySelector('svg')
+    if (!svgEl) return
+    setExporting(true)
+    try {
+      const blob = await exportCard(svgEl)
+      if (blob) {
+        await downloadOrShare(blob, `lagos-legacy-week${data.weekCount}.png`)
+      }
+    } catch (err) {
+      console.error('Share card export failed:', err)
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 flex items-start justify-center overflow-y-auto py-8 px-4"
+      style={{ backgroundColor: 'rgba(19, 32, 30, 0.7)', zIndex: 100 }}
+    >
+      <div
+        className="w-full space-y-4"
+        style={{ maxWidth: '560px', backgroundColor: 'var(--surface)', padding: '20px' }}
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="label-caps" style={{ color: 'var(--text)' }}>
+            Share Your Legacy
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-sm"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Close
+          </button>
+        </div>
+        <div style={{ lineHeight: 0 }} ref={containerRef}>
+          <ShareCard data={data} />
+        </div>
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={exporting}
+          className="w-full px-6 py-3 text-sm font-semibold transition-colors"
+          style={{
+            backgroundColor: exporting ? 'var(--accent-4)' : 'var(--accent-solid)',
+            color: 'var(--accent-on-solid)',
+            cursor: exporting ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {exporting ? 'Exporting…' : 'Download PNG'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function LegacyFooter({ state, onNewGame }: { state: GameState; onNewGame: () => void }) {
   const [btnHover, setBtnHover] = useState(false)
+  const [showShare, setShowShare] = useState(false)
   const beginSecondTerm = useGameStore((s) => s.beginSecondTerm)
   const gameOverType = useGameStore((s) => s.gameOverType)
 
@@ -591,6 +672,18 @@ function LegacyFooter({ onNewGame }: { onNewGame: () => void }) {
       )}
       <button
         type="button"
+        onClick={() => setShowShare(true)}
+        className="px-8 py-3 text-sm font-semibold transition-colors"
+        style={{
+          backgroundColor: 'var(--surface)',
+          border: '1px solid var(--accent-solid)',
+          color: 'var(--accent-text)',
+        }}
+      >
+        Share Your Legacy
+      </button>
+      <button
+        type="button"
         onClick={onNewGame}
         onMouseEnter={() => setBtnHover(true)}
         onMouseLeave={() => setBtnHover(false)}
@@ -602,6 +695,7 @@ function LegacyFooter({ onNewGame }: { onNewGame: () => void }) {
       >
         New Game
       </button>
+      {showShare && <ShareLegacyModal state={state} onClose={() => setShowShare(false)} />}
     </div>
   )
 }

@@ -58,6 +58,7 @@
   /* Semantic aliases — these are the tokens components use */
   --background: var(--neutral-2);
   --surface: #ffffff;
+  --paper: #f7f1e4;
   --surface-2: var(--neutral-1);
   --surface-hover: #f4fafb;
   --surface-active: var(--neutral-3);
@@ -94,6 +95,7 @@
 html[data-situation="crisis"] {
   --dur: 900ms;
   --background: #fff2ee;
+  --paper: #f3e7d8;
   --surface-2: #ffece6;
   --surface-hover: #fff8f5;
   --border: rgba(215, 50, 42, 0.2);
@@ -112,6 +114,7 @@ html[data-situation="storm"] {
   --dur: 240ms; /* fast hit */
   --background: #0c1720;
   --surface: #101c28;
+  --paper: #16222e;
   --surface-2: #172433;
   --surface-hover: #1e2e3e;
   --surface-active: #253444;

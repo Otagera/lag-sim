@@ -2,7 +2,6 @@ import { CheckCircle, Clock, GitBranch, Lock, X } from 'lucide-react'
 import { type KeyboardEvent, useMemo, useState } from 'react'
 import { RESEARCH_TREE } from '../data/researchTree'
 import {
-  computeNodeLayout,
   getNodeDef,
   getNodeStatus,
   getPrereqLines,
@@ -10,6 +9,11 @@ import {
 } from '../engine/researchEngine'
 import { useGameStore } from '../state/gameStore'
 import type { GameState, ResearchNode, ResearchNodeStatus } from '../state/types'
+import { useReducedMotion } from './design/useReducedMotion'
+import { RESEARCH_KEYFRAMES } from './research/keyframes'
+import { ResearchEdge } from './research/ResearchEdge'
+import { buildCrossDomainPath, buildTreePath } from './research/ResearchGraphPrototype'
+import { computeTreeLayout } from './research/treeLayout'
 
 const DOMAIN_COLORS: Record<string, { solid: string; bg: string; text: string; line: string }> = {
   security: { solid: '#2563eb', bg: '#1e3a5f', text: '#93c5fd', line: '#3b82f6' },
@@ -143,37 +147,78 @@ function ResearchTreeHeader({
   )
 }
 
+function researchNodeProgress(nodeId: string, state: GameState): number | null {
+  const commissioned = state.commissionedResearchNodes.find((crn) => crn.nodeId === nodeId)
+  if (!commissioned) return null
+  const node = getNodeDef(nodeId)
+  if (!node || node.weeksToComplete <= 0) return null
+  const remaining = commissioned.completionWeek - state.week
+  return Math.min(1, Math.max(0, 1 - remaining / node.weeksToComplete))
+}
+
+function TreeEdgeDefs() {
+  return (
+    <defs>
+      {Object.entries(DOMAIN_COLORS).map(([domain, c]) => (
+        <marker
+          key={domain}
+          id={`research-arrow-${domain}`}
+          viewBox="0 0 10 10"
+          refX="8.5"
+          refY="5"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 z" fill={c.line} />
+        </marker>
+      ))}
+    </defs>
+  )
+}
+
 interface TreeEdgesProps {
   layouts: NodeLayout[]
   nodesById: NodesById
+  nodeStatuses: NodeStatusMap
+  state: GameState
+  reduced: boolean
 }
 
-function TreeEdges({ layouts, nodesById }: TreeEdgesProps) {
+function TreeEdges({ layouts, nodesById, nodeStatuses, state, reduced }: TreeEdgesProps) {
   const layoutsById = new Map<string, NodeLayout>(
     layouts.map((layout): [string, NodeLayout] => [layout.nodeId, layout]),
   )
   return (
     <>
+      <TreeEdgeDefs />
       {getPrereqLines().map((line) => {
         const from = layoutsById.get(line.from)
         const to = layoutsById.get(line.to)
-        if (!from || !to) return null
+        const fromNode = nodesById.get(line.from)
+        if (!from || !to || !fromNode) return null
 
-        const stroke = line.crossDomain
-          ? '#888'
-          : (DOMAIN_COLORS[nodesById.get(line.from)?.domain ?? '']?.line ?? '#666')
+        const targetStatus = nodeStatuses.get(line.to) ?? 'locked'
+        const progress =
+          targetStatus === 'commissioned' ? researchNodeProgress(line.to, state) : null
+        const d = line.crossDomain
+          ? buildCrossDomainPath(from.x, from.y, to.x, to.y)
+          : buildTreePath(
+              from.x + NODE_WIDTH / 2,
+              from.y + NODE_HEIGHT,
+              to.x + NODE_WIDTH / 2,
+              to.y,
+            )
 
         return (
-          <line
+          <ResearchEdge
             key={`${line.from}-${line.to}`}
-            x1={from.x + NODE_WIDTH / 2}
-            y1={from.y + NODE_HEIGHT}
-            x2={to.x + NODE_WIDTH / 2}
-            y2={to.y}
-            stroke={stroke}
-            strokeWidth={line.crossDomain ? 1 : 2}
-            strokeDasharray={line.crossDomain ? '5,3' : 'none'}
-            opacity={0.4}
+            d={d}
+            color={DOMAIN_COLORS[fromNode.domain]?.line ?? '#666'}
+            targetStatus={targetStatus}
+            progress={progress}
+            reduced={reduced}
+            arrowMarkerId={`research-arrow-${fromNode.domain}`}
           />
         )
       })}
@@ -685,6 +730,8 @@ interface ResearchGraphProps {
   showMobileList: boolean
   dimensions: { width: number; height: number }
   onNodeClick: (nodeId: string) => void
+  state: GameState
+  reduced: boolean
 }
 
 function ResearchGraph({
@@ -695,6 +742,8 @@ function ResearchGraph({
   showMobileList,
   dimensions,
   onNodeClick,
+  state,
+  reduced,
 }: ResearchGraphProps) {
   return (
     <div className={`flex-1 overflow-auto p-4 ${showMobileList ? 'hidden' : ''} lg:block`}>
@@ -705,7 +754,14 @@ function ResearchGraph({
         style={{ minWidth: dimensions.width, minHeight: dimensions.height }}
       >
         <title>Research tree</title>
-        <TreeEdges layouts={layouts} nodesById={nodesById} />
+        <style>{RESEARCH_KEYFRAMES}</style>
+        <TreeEdges
+          layouts={layouts}
+          nodesById={nodesById}
+          nodeStatuses={nodeStatuses}
+          state={state}
+          reduced={reduced}
+        />
         {layouts.map((layout) => {
           const node = nodesById.get(layout.nodeId)
           if (!node) return null
@@ -746,7 +802,8 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
   const [confirming, setConfirming] = useState(false)
   const [showMobileList, setShowMobileList] = useState(false)
-  const layouts = useMemo(() => computeNodeLayout(), [])
+  const reduced = useReducedMotion()
+  const layouts = useMemo(() => computeTreeLayout(NODE_WIDTH, NODE_HEIGHT, 20, 68, 50, 30), [])
   const nodesById = useMemo(
     () =>
       new Map<string, ResearchNode>(
@@ -801,6 +858,8 @@ export function ResearchTree({ onClose }: { onClose: () => void }) {
         showMobileList={showMobileList}
         dimensions={dimensions}
         onNodeClick={handleNodeClick}
+        state={state}
+        reduced={reduced}
       />
       <ResearchDetailsOverlay
         selectedNode={selectedNode}

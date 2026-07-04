@@ -279,72 +279,17 @@ export interface NodeLayout {
   y: number
 }
 
-export function computeNodeLayout(): NodeLayout[] {
-  const nodes = RESEARCH_TREE
-  const depths = new Map<string, number>()
-  const domainOrder = ['security', 'agriculture', 'innovation', 'administration', 'climate']
-
-  function computeDepth(nodeId: string): number {
-    const cached = depths.get(nodeId)
-    if (cached !== undefined) return cached
-    const node = getNodeDef(nodeId)
-    if (!node) return 0
-
-    const sameDomainPrereqIds = node.prerequisites
-      .filter((p) => p.type === 'node' && p.nodeId)
-      .map((p) => p.nodeId)
-      .filter((id): id is string => {
-        if (id === undefined) return false
-        const prereqNode = getNodeDef(id)
-        return prereqNode?.domain === node.domain
-      })
-
-    if (sameDomainPrereqIds.length === 0) {
-      depths.set(nodeId, 0)
-      return 0
-    }
-
-    const maxDepth = Math.max(...sameDomainPrereqIds.map(computeDepth))
-    depths.set(nodeId, maxDepth + 1)
-    return maxDepth + 1
-  }
-
-  for (const node of nodes) computeDepth(node.id)
-
-  const domainNodes = new Map<string, { node: ResearchNode; depth: number }[]>()
-  for (const node of nodes) {
-    const d = node.domain
-    if (!domainNodes.has(d)) domainNodes.set(d, [])
-    domainNodes.get(d)?.push({ node, depth: depths.get(node.id) ?? 0 })
-  }
-
-  for (const [, group] of domainNodes)
-    group.sort((a, b) => a.depth - b.depth || a.node.id.localeCompare(b.node.id))
-
-  const COLUMN_WIDTH = 240
-  const COLUMN_GAP = 50
-  const ROW_HEIGHT = 140
-  const PADDING_X = 30
-  const PADDING_Y = 30
-
-  const layouts: NodeLayout[] = []
-  for (const [domain, group] of domainNodes) {
-    const domainIndex = domainOrder.indexOf(domain)
-    const idx = domainIndex >= 0 ? domainIndex : domainOrder.length
-    const x = PADDING_X + idx * (COLUMN_WIDTH + COLUMN_GAP)
-
-    const depthOffsets = new Map<string, number>()
-    for (const { node, depth } of group) {
-      const key = String(depth)
-      const offset = depthOffsets.get(key) ?? 0
-      depthOffsets.set(key, offset + 1)
-      const y = PADDING_Y + depth * ROW_HEIGHT + offset * 32
-      layouts.push({ nodeId: node.id, x, y })
-    }
-  }
-
-  return layouts
-}
+// Card height shared with the renderer (src/ui/ResearchTree.tsx) and the
+// tree-layout algorithm (src/ui/research/treeLayout.ts) so the layout math
+// and the card size can't silently drift apart.
+//
+// The column-stacking layout that used to live here (computeNodeLayout)
+// spaced same-depth siblings 32px apart regardless of card height, which
+// guaranteed overlap whenever a domain/depth level had 2+ siblings — it's
+// been replaced by computeTreeLayout() in src/ui/research/treeLayout.ts,
+// a real tree layout that spreads siblings into side-by-side slots instead
+// of stacking them in one column.
+export const NODE_HEIGHT = 72
 
 export function getPrereqLines(): { from: string; to: string; crossDomain: boolean }[] {
   const lines: { from: string; to: string; crossDomain: boolean }[] = []

@@ -23,7 +23,12 @@ const PAD = 56
 // side, not top-to-bottom like the tree's own vertical chains — anchor them
 // on the card's left/right edge (whichever faces the other node) and draw a
 // smooth curve instead of a straight dashed diagonal.
-function buildCrossDomainPath(fromX: number, fromY: number, toX: number, toY: number): string {
+export function buildCrossDomainPath(
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+): string {
   const y1 = fromY + NODE_HEIGHT / 2
   const y2 = toY + NODE_HEIGHT / 2
   const goingRight = fromX < toX
@@ -43,7 +48,7 @@ function buildCrossDomainPath(fromX: number, fromY: number, toX: number, toY: nu
 // (not pinned to the same x as their own endpoint) so the tangent — and the
 // arrowhead orientation, which follows it — actually leans into the curve
 // instead of always snapping to straight-down.
-function buildTreePath(x1: number, y1: number, x2: number, y2: number): string {
+export function buildTreePath(x1: number, y1: number, x2: number, y2: number): string {
   const midY = (y1 + y2) / 2
   const dx = x2 - x1
   const c1x = x1 + dx * 0.3

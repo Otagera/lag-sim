@@ -18,7 +18,9 @@ describe('GoalTracker', () => {
     useGameStore.setState({ selectedGoalId: 'break-the-machine' })
     render(<GoalTracker />)
     expect(screen.getByText('Break the Machine')).toBeInTheDocument()
-    expect(screen.getByText((content) => /\d+%/.test(content))).toBeInTheDocument()
+    // Anchored so this only matches the overall progress readout (e.g. "58%"),
+    // not the journey waypoints' <title> tooltips, which also contain "N%".
+    expect(screen.getByText((content) => /^\d+%$/.test(content))).toBeInTheDocument()
   })
 
   it('renders goal as met when all targets are satisfied', () => {
