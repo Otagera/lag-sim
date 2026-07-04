@@ -13,7 +13,7 @@ const OFFERED: DeputyKey[] = ['technocrat', 'politician', 'security-chief']
 // the two "pick one of several options" screens from each other, and gives
 // BustPortrait (built for Inbox/EventCard/LegacyScreen) a second real
 // consumer to prototype against.
-function DeputyCard({
+export function DeputyCard({
   deputyKey,
   selected,
   onSelect,

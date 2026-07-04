@@ -37,6 +37,7 @@ import {
   generateNPCActivationMessage,
   pruneInbox,
 } from './inboxEngine'
+import { detectMoment } from './momentDetector'
 import { processProjects } from './projectEngine'
 import { tickProjects } from './projectsEngine'
 import { pickFramingVariant, selectPublicationForArticle } from './publicationEngine'
@@ -494,6 +495,15 @@ function tickCleanup(state: GameState, prevState: GameState): GameState {
     if (next.seenHints.includes(hint.id) || next.hintQueue.includes(hint.id)) continue
     if (hint.trigger(prevState, next)) {
       next = { ...next, hintQueue: [...next.hintQueue, hint.id] }
+    }
+  }
+
+  // Shareable "moment" detection — single-slot, offered once per key. Mirrors
+  // the hint loop: compare prev→next, never overwrite a pending offer.
+  if (!next.pendingMoment) {
+    const moment = detectMoment(prevState, next)
+    if (moment && !next.sharedMoments.includes(moment.key)) {
+      next = { ...next, pendingMoment: moment }
     }
   }
 

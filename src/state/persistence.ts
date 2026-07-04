@@ -70,6 +70,11 @@ function migrateV5toV6(raw: RawSaveData): RawSaveData {
   return { ...raw, projectStatuses: {}, commissionedProjects: [], version: 6 }
 }
 
+function migrateV6toV7(raw: RawSaveData): RawSaveData {
+  // v7 is the 0.7 beta batch. No GameState shape change; stamp saves forward.
+  return { ...raw, version: 7 }
+}
+
 /**
  * Applies any needed migrations to bring a raw save up to SAVE_VERSION.
  * Exported so persistence tests can verify migration logic in isolation.
@@ -91,6 +96,7 @@ export function migrate(raw: RawSaveData): SerializableState {
   if (version < 4) data = migrateV3toV4(data)
   if (version < 5) data = migrateV4toV5(data)
   if (version < 6) data = migrateV5toV6(data)
+  if (version < 7) data = migrateV6toV7(data)
 
   return data as SerializableState
 }

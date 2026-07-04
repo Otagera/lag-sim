@@ -54,6 +54,9 @@ export interface GameStore extends GameState {
   inboxMarkAllRead: () => void
   dismissHint: (id: string) => void
   setGoal: (id: string | null) => void
+  setGovernorName: (name: string) => void
+  shareMoment: () => void
+  dismissMoment: () => void
   beginSecondTerm: () => void
   commissionResearchNode: (nodeId: string) => void
   commissionProject: (projectId: string) => void
@@ -89,6 +92,9 @@ type MetaActions = Pick<
   | 'inboxMarkAllRead'
   | 'dismissHint'
   | 'setGoal'
+  | 'setGovernorName'
+  | 'shareMoment'
+  | 'dismissMoment'
   | 'commissionResearchNode'
   | 'commissionProject'
 >
@@ -244,15 +250,31 @@ const createEconomyInvestmentActions = (
 
 const createMetaActions = (set: StoreSet, get: StoreGet): MetaActions => ({
   beginSecondTerm: () =>
-    set((s) => ({
-      ...s,
-      isGameOver: false,
-      gameOverType: undefined,
-      gameOverReason: undefined,
-      endingNarrative: undefined,
-      electionResult: null,
-      reElected: false,
-    })),
+    set((s) => {
+      // Offer the re-election share as the second term begins (capturing the
+      // vote share before electionResult is cleared). It's a game-over at the
+      // moment of victory, so it can't be caught by the tick-based detector.
+      const offerReElection = !s.sharedMoments.includes('re-election') && !s.pendingMoment
+      return {
+        ...s,
+        isGameOver: false,
+        gameOverType: undefined,
+        gameOverReason: undefined,
+        endingNarrative: undefined,
+        electionResult: null,
+        reElected: false,
+        pendingMoment: offerReElection
+          ? {
+              type: 're-election',
+              key: 're-election',
+              label:
+                s.electionResult != null
+                  ? `${s.electionResult.toFixed(1)}% of the vote`
+                  : undefined,
+            }
+          : s.pendingMoment,
+      }
+    }),
   clearNewspaperHeadline: () => set({ newspaperHeadline: undefined }),
   inboxMarkRead: (id) =>
     set((s) => ({ inbox: s.inbox.map((m) => (m.id === id ? { ...m, read: true } : m)) })),
@@ -265,6 +287,23 @@ const createMetaActions = (set: StoreSet, get: StoreGet): MetaActions => ({
     })
   },
   setGoal: (id) => set({ selectedGoalId: id }),
+  // Cap length only; leading/trailing whitespace is trimmed at read-time
+  // (administrationLabel / caption) so spaces can be typed between words.
+  setGovernorName: (name) => set({ governorName: name.slice(0, 24) }),
+  // Sharing or dismissing a moment both retire it into the ledger so it is
+  // never offered again, and clear the pending slot.
+  shareMoment: () =>
+    set((s) =>
+      s.pendingMoment
+        ? { sharedMoments: [...s.sharedMoments, s.pendingMoment.key], pendingMoment: null }
+        : {},
+    ),
+  dismissMoment: () =>
+    set((s) =>
+      s.pendingMoment
+        ? { sharedMoments: [...s.sharedMoments, s.pendingMoment.key], pendingMoment: null }
+        : {},
+    ),
   commissionResearchNode: (nodeId) => {
     const state = get()
     const node = state.researchNodeStatuses[nodeId]

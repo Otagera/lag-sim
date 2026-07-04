@@ -16,13 +16,13 @@ export const ONBOARDING_TOUR_STEPS: DriveStep[] = [
     popover: {
       title: 'Advance Time',
       description:
-        'Click <strong>Next Week</strong> to move time forward. Each week brings new events, revenue, expenditures, and consequences for your choices.',
+        'Click <strong>Advance Week</strong> to move time forward. Each week brings new events, revenue, expenditures, and consequences for your choices.',
       side: 'bottom',
       align: 'end',
     },
   },
   {
-    element: '[title="Weekly revenue minus expenditure"]',
+    element: '[data-tour="cash-chip"]',
     popover: {
       title: 'Your Treasury',
       description:
@@ -32,7 +32,7 @@ export const ONBOARDING_TOUR_STEPS: DriveStep[] = [
     },
   },
   {
-    element: '[title="Public approval rating"]',
+    element: '[data-tour="trust-chip"]',
     popover: {
       title: 'Public Trust',
       description:
@@ -42,7 +42,7 @@ export const ONBOARDING_TOUR_STEPS: DriveStep[] = [
     },
   },
   {
-    element: '[title="Political capital to spend"]',
+    element: '[data-tour="pc-chip"]',
     popover: {
       title: 'Political Capital',
       description:

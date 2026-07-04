@@ -1,114 +1,157 @@
 import { useState } from 'react'
 import { ALL_GOALS, type Goal } from '../../data/goals'
 import { Kicker } from '../components/Typography'
-import { buildJourneySegment, computeAnchors, segmentPath } from '../goals/journeyLayout'
 
-// A static preview of the goal's shape as a journey — reusing the Goal
-// Journey's road/waypoint geometry (src/ui/goals/journeyLayout.ts), the
-// strongest opportunity in this redesign to reuse an already-built prototype
-// rather than invent new visual language, since this screen is literally
-// "pick which journey you're about to walk." Deliberately un-animated and
-// without a traveler marker — that belongs to the real in-progress tracker
-// once a goal is chosen, not to a before-the-fact preview of all of them.
-function JourneyPreview({ goal }: { goal: Goal }) {
-  const anchors = computeAnchors(goal.targets.length)
-  const segments = anchors.slice(1).map((a, i) => buildJourneySegment(anchors[i], a))
-
+// The goal's targets rendered as a numbered journey: a connecting line with a
+// milestone dot per target and its label. Replaces the earlier abstract
+// route-shape preview — same "journey" read, but it actually tells you what
+// the mission demands instead of just how many stops it has.
+function GoalMilestones({ goal, accent }: { goal: Goal; accent: string }) {
+  const count = goal.targets.length
   return (
-    <svg
-      viewBox="0 0 900 220"
-      width="100%"
-      height="64"
-      role="img"
-      aria-label={`${goal.title} route`}
-    >
-      {segments.map((seg) => (
-        <path
-          key={`seg-${seg.p0.x}-${seg.p0.y}`}
-          d={segmentPath(seg)}
-          fill="none"
-          stroke="var(--border-strong, var(--border))"
-          strokeWidth={10}
-          strokeLinecap="round"
-        />
-      ))}
-      <circle cx={anchors[0].x} cy={anchors[0].y} r={9} fill="var(--text-secondary)" />
-      {anchors.slice(1).map((a) => (
-        <circle key={a.targetIndex} cx={a.x} cy={a.y} r={11} fill="var(--accent-solid)" />
-      ))}
-    </svg>
+    <div>
+      <div className="label-caps" style={{ color: 'var(--text-secondary)', marginBottom: '8px' }}>
+        {count} milestone{count === 1 ? '' : 's'} to your legacy
+      </div>
+      <div style={{ position: 'relative', paddingLeft: '2px' }}>
+        {count > 1 && (
+          <div
+            style={{
+              position: 'absolute',
+              left: '11px',
+              top: '10px',
+              bottom: '10px',
+              width: '2px',
+              background: accent,
+              opacity: 0.25,
+            }}
+          />
+        )}
+        {goal.targets.map((t, i) => (
+          <div
+            key={t.label}
+            style={{
+              position: 'relative',
+              display: 'flex',
+              gap: '10px',
+              alignItems: 'flex-start',
+              marginBottom: i < count - 1 ? '8px' : 0,
+            }}
+          >
+            <span
+              style={{
+                flexShrink: 0,
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                background: accent,
+                color: '#fff',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: 700,
+                fontFamily: "'Archivo Narrow', sans-serif",
+              }}
+            >
+              {i + 1}
+            </span>
+            <span
+              style={{ fontSize: '11px', lineHeight: 1.4, color: 'var(--text)', paddingTop: '2px' }}
+            >
+              {t.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 
-function GoalCard({
+export function GoalCard({
   goal,
   selected,
   onSelect,
+  accent = 'var(--accent-solid)',
 }: {
   goal: Goal
   selected: boolean
   onSelect: () => void
+  accent?: string
 }) {
   return (
-    <div
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
       style={{
-        border: `1px solid ${selected ? 'var(--accent-solid)' : 'var(--border)'}`,
+        appearance: 'none',
+        textAlign: 'left',
+        width: '100%',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: selected ? accent : 'var(--border)',
+        borderTopWidth: '3px',
+        borderTopColor: accent,
         background: 'var(--surface)',
         padding: '16px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '10px',
-        boxShadow: selected ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+        gap: '12px',
+        cursor: 'pointer',
+        boxShadow: selected ? `0 0 0 2px ${accent}, var(--shadow-md)` : 'var(--shadow-sm)',
+        transition: 'box-shadow var(--dur-fast) ease',
       }}
     >
-      <div>
-        <h3
-          className="font-display font-semibold"
-          style={{ fontSize: '17px', color: 'var(--text)', margin: 0 }}
-        >
-          {goal.title}
-        </h3>
-        <p
-          className="prose"
-          style={{
-            fontStyle: 'italic',
-            fontSize: '12px',
-            color: 'var(--text-secondary)',
-            margin: '4px 0 0',
-          }}
-        >
-          {goal.pitch}
-        </p>
-      </div>
-
-      <JourneyPreview goal={goal} />
-
-      <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: '11px', color: 'var(--text)' }}>
-        {goal.targets.map((t) => (
-          <li key={t.label} style={{ marginBottom: '2px' }}>
-            {t.label}
-          </li>
-        ))}
-      </ul>
-
-      <button
-        type="button"
-        onClick={onSelect}
+      <div
         style={{
-          marginTop: 'auto',
-          padding: '9px',
-          border: 'none',
-          background: 'var(--accent-solid)',
-          color: 'var(--accent-on-solid)',
-          fontFamily: "'Archivo Narrow', sans-serif",
-          fontSize: '12px',
-          fontWeight: 600,
-          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: '8px',
         }}
       >
-        {selected ? 'This is my goal ✓' : 'Make it my goal'}
-      </button>
-    </div>
+        <div>
+          <h3
+            className="font-display font-semibold"
+            style={{ fontSize: '17px', color: 'var(--text)', margin: 0 }}
+          >
+            {goal.title}
+          </h3>
+          <p
+            className="prose"
+            style={{
+              fontStyle: 'italic',
+              fontSize: '12px',
+              color: 'var(--text-secondary)',
+              margin: '4px 0 0',
+            }}
+          >
+            {goal.pitch}
+          </p>
+        </div>
+        {selected && (
+          <span
+            style={{
+              flexShrink: 0,
+              width: '22px',
+              height: '22px',
+              borderRadius: '50%',
+              background: accent,
+              color: '#fff',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '13px',
+            }}
+          >
+            ✓
+          </span>
+        )}
+      </div>
+
+      <GoalMilestones goal={goal} accent={accent} />
+    </button>
   )
 }
 

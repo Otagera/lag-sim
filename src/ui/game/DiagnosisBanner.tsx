@@ -7,9 +7,9 @@ function deriveDiagnosis(s: ReturnType<typeof useGameStore.getState>): string | 
   if (s.riotModeActive)
     return 'Riots in the streets — security situation critical. Your administration is losing control.'
   if (s.consecutiveBankruptWeeks >= 2)
-    return 'Two consecutive bankruptcy weeks. The treasury is empty and salary payments are at risk.'
+    return 'Two consecutive bankruptcy weeks. Cash reserves are exhausted and salary payments are at risk.'
   if (s.stats.cashReserve < 8)
-    return `Treasury critically low: ₦${s.stats.cashReserve.toFixed(1)}bn remaining. Payroll risk this week.`
+    return `Cash critically low: ₦${s.stats.cashReserve.toFixed(1)}bn remaining. Payroll risk this week.`
   if (s.stats.publicTrust < 30)
     return `Public trust has collapsed to ${Math.round(s.stats.publicTrust)}%. Citizens have lost faith in this government.`
   if (s.stats.politicalCapital < 15)
@@ -17,7 +17,7 @@ function deriveDiagnosis(s: ReturnType<typeof useGameStore.getState>): string | 
   if (s.stats.corruptionPressure > 75)
     return 'Corruption is rampant across MDAs. Media exposure and EFCC scrutiny are imminent.'
   if (s.stats.cashReserve < 15)
-    return `Treasury under pressure: ₦${s.stats.cashReserve.toFixed(1)}bn — overheads are bleeding you dry.`
+    return `Cash under pressure: ₦${s.stats.cashReserve.toFixed(1)}bn — overheads are bleeding you dry.`
   if (s.stats.publicTrust < 40)
     return `Trust eroding: ${Math.round(s.stats.publicTrust)}%. Streets are growing restless.`
   if (s.stats.politicalCapital < 25)

@@ -1,5 +1,5 @@
 import { useGameStore } from '../state/gameStore'
-import type { NewsArticle } from '../state/types'
+import type { NewsArticle, SocialReply } from '../state/types'
 import { formatGameDate } from '../utils/calendar'
 
 function formatCount(n: number): string {
@@ -237,6 +237,60 @@ function StatsContextBar({
   )
 }
 
+function RepliesThread({ replies }: { replies: SocialReply[] }) {
+  if (replies.length === 0) return null
+  return (
+    <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+      {replies.map((reply, i) => {
+        const displayHandle = reply.handle ?? `@${reply.author.replace(/\s+/g, '')}`
+        return (
+          <div
+            key={`${displayHandle}-${i}`}
+            style={{
+              display: 'flex',
+              gap: 10,
+              padding: '10px 0',
+              borderBottom:
+                i === replies.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.05)',
+            }}
+          >
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: avatarColor(displayHandle),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 13,
+                fontWeight: 700,
+                color: '#fff',
+                flexShrink: 0,
+              }}
+            >
+              {avatarInitial(displayHandle)}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, lineHeight: 1.2 }}>
+                <span style={{ color: '#e7e9ea', fontWeight: 700 }}>{reply.author}</span>{' '}
+                <span style={{ color: 'rgba(231,233,234,0.4)' }}>{displayHandle}</span>
+              </div>
+              <p style={{ color: '#e7e9ea', fontSize: 14, lineHeight: 1.45, margin: '2px 0 4px' }}>
+                {reply.text}
+              </p>
+              <div style={{ display: 'flex', gap: 16, color: 'rgba(231,233,234,0.4)', fontSize: 12 }}>
+                <span>♥ {formatCount(reply.likes ?? 0)}</span>
+                <span>↻ {formatCount(Math.round((reply.likes ?? 0) * 0.2))}</span>
+              </div>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function SocialContinueButton({ onClick }: { onClick: () => void }) {
   return (
     <div
@@ -278,7 +332,8 @@ export function SocialPost({ article }: { article: NewsArticle }) {
   const hashtag = meta?.hashtag ?? '#LagosPolitics'
   const retweets = meta?.retweets ?? 2400
   const likes = meta?.likes ?? 7100
-  const replies = Math.round(retweets * 0.3)
+  const tweetReplies = meta?.tweetReplies ?? []
+  const replies = tweetReplies.length > 0 ? tweetReplies.length : Math.round(retweets * 0.3)
   const views = likes * 12
 
   const trustDelta = snapshot ? trust - snapshot.publicTrust : 0
@@ -336,6 +391,7 @@ export function SocialPost({ article }: { article: NewsArticle }) {
           <TweetText text={tweetText} />
           <ArticleDeck deck={article.deck} />
           <MetricsRow replies={replies} retweets={retweets} likes={likes} views={views} />
+          <RepliesThread replies={tweetReplies} />
         </div>
         <StatsContextBar week={week} trust={trust} trustDelta={trustDelta} />
         <SocialContinueButton onClick={clearNewspaperHeadline} />

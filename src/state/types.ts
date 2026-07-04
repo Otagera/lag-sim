@@ -301,7 +301,44 @@ export type RunMeta = {
   simWeeksSkipped: number | null
 }
 
+// Curated, brag-worthy mid-game beats that offer a share.
+export type MomentType = 're-election' | 'crisis-survived' | 'landmark-delivered' | 'term-milestone'
+
+export type PendingMoment = {
+  type: MomentType
+  /** Unique-per-occurrence key; also the anti-repeat ledger entry. */
+  key: string
+  /** Specific detail the card needs — e.g. the project name or crisis label. */
+  label?: string
+}
+
 export type MediaChannel = 'newspaper' | 'shortVideo' | 'tweet' | 'podcast' | 'whatsapp'
+
+export type SocialTone = 'positive' | 'negative' | 'rumor' | 'neutral'
+
+export interface SocialReply {
+  author: string
+  handle?: string
+  text: string
+  likes?: number
+}
+
+export interface WhatsAppMsg {
+  sender: string
+  time: string
+  text: string
+  outgoing?: boolean
+}
+
+export interface EmojiTally {
+  emoji: string
+  count: number
+}
+
+export interface PodcastLine {
+  speaker: string
+  text: string
+}
 
 export interface ChannelMeta {
   channel: MediaChannel
@@ -321,6 +358,21 @@ export interface ChannelMeta {
   // whatsapp
   forwardCount?: number
   isRumor?: boolean
+  // --- context/variety chatter (all optional, deterministic, seeded) ---
+  // tweet
+  tweetReplies?: SocialReply[]
+  // shortVideo
+  videoComments?: SocialReply[]
+  // podcast
+  coHostName?: string
+  podcastExchange?: PodcastLine[]
+  // whatsapp
+  whatsappMode?: 'group' | 'channel' | 'forward'
+  groupName?: string
+  memberCount?: number
+  followerCount?: number
+  whatsappMessages?: WhatsAppMsg[]
+  emojiTallies?: EmojiTally[]
 }
 
 export type NewsArticle = {
@@ -553,6 +605,14 @@ export type GameState = {
   lastNewsWeek: number
   // Run metadata — diagnostic only, no gameplay effect
   runMeta: RunMeta
+  // Player-chosen governor surname — signs the share cards ("The X Administration").
+  // Empty string = unnamed (cards fall back to a generic administration label).
+  governorName: string
+  // Mid-game shareable "moments". `sharedMoments` is a ledger of moment keys
+  // already offered (so each fires at most once); `pendingMoment` is the single
+  // currently-offered moment awaiting a share/dismiss (null when none).
+  sharedMoments: string[]
+  pendingMoment: PendingMoment | null
   // Goal tracking
   selectedGoalId: string | null
   // Phase B — consequence beat queue (after choice resolution, research payoff, etc.)

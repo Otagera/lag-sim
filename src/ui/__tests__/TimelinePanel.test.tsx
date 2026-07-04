@@ -12,7 +12,7 @@ beforeEach(() => {
 describe('TimelinePanel', () => {
   it('shows placeholder when empty', () => {
     render(<TimelinePanel />)
-    expect(screen.getByText('No decisions yet. Click "Next Week" to begin.')).toBeInTheDocument()
+    expect(screen.getByText('No decisions yet. Click "Advance Week" to begin.')).toBeInTheDocument()
   })
 
   it('renders timeline entries in reverse order', () => {

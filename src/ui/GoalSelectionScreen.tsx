@@ -12,6 +12,8 @@ type Props = {
 export function GoalSelectionScreen({ onSelect, context }: Props) {
   const state = useGameStore.getState()
   const setGoal = useGameStore((s) => s.setGoal)
+  const governorName = useGameStore((s) => s.governorName)
+  const setGovernorName = useGameStore((s) => s.setGovernorName)
 
   function handleSelect(id: string | null) {
     setGoal(id)
@@ -45,6 +47,40 @@ export function GoalSelectionScreen({ onSelect, context }: Props) {
               ? 'Your administration is already in motion. Choose what you want it to be remembered for — the targets adapt to where you stand today.'
               : 'Your inheritance is clear. The handover has shown you what you are walking into. Now decide what this administration will be remembered for.'}
           </p>
+
+          <div className="mt-6 mx-auto" style={{ maxWidth: '320px' }}>
+            <label
+              htmlFor="governor-name"
+              className="label-caps"
+              style={{ display: 'block', marginBottom: '5px', color: 'var(--accent-text)' }}
+            >
+              Sign your administration
+            </label>
+            <input
+              id="governor-name"
+              type="text"
+              value={governorName}
+              onChange={(e) => setGovernorName(e.target.value)}
+              placeholder="Governor's surname (optional)"
+              maxLength={24}
+              autoComplete="off"
+              className="w-full text-center"
+              style={{
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: '4px',
+                padding: '9px 12px',
+                fontSize: '15px',
+                fontFamily: "'Archivo Narrow', sans-serif",
+                color: 'var(--text)',
+              }}
+            />
+            <p className="mt-1.5" style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
+              {governorName.trim()
+                ? `Your shareable card will read "The ${governorName.trim()} Administration".`
+                : 'Names your shareable legacy card. You can leave this blank.'}
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

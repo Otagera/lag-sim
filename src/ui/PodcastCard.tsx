@@ -1,5 +1,5 @@
 import { useGameStore } from '../state/gameStore'
-import type { NewsArticle } from '../state/types'
+import type { NewsArticle, PodcastLine } from '../state/types'
 import { formatGameDate } from '../utils/calendar'
 
 function avatarInitial(name: string): string {
@@ -229,6 +229,76 @@ function KeyQuote({ quote }: { quote: string }) {
   )
 }
 
+function TranscriptExchange({
+  exchange,
+  hostName,
+}: {
+  exchange: PodcastLine[]
+  hostName: string
+}) {
+  if (exchange.length === 0) return null
+  return (
+    <div style={{ margin: '0 20px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div
+        style={{
+          color: 'rgba(200,168,75,0.55)',
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: '0.08em',
+        }}
+      >
+        TRANSCRIPT
+      </div>
+      {exchange.map((line, i) => {
+        const isHost = line.speaker === hostName
+        return (
+          <div key={`${line.speaker}-${i}`} style={{ display: 'flex', gap: 8 }}>
+            <div
+              style={{
+                width: 26,
+                height: 26,
+                borderRadius: '50%',
+                background: isHost ? 'rgba(200,168,75,0.25)' : 'rgba(255,255,255,0.08)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 10,
+                fontWeight: 700,
+                color: isHost ? '#c8a84b' : 'rgba(255,240,180,0.7)',
+                flexShrink: 0,
+              }}
+            >
+              {avatarInitial(line.speaker)}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  color: isHost ? '#c8a84b' : 'rgba(255,240,180,0.7)',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  marginBottom: 2,
+                }}
+              >
+                {line.speaker}
+              </div>
+              <p
+                style={{
+                  color: 'rgba(255,240,180,0.85)',
+                  fontSize: 13,
+                  lineHeight: 1.5,
+                  margin: 0,
+                }}
+              >
+                {line.text}
+              </p>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function HostFooter({
   article,
   hostName,
@@ -321,6 +391,7 @@ export function PodcastCard({ article }: { article: NewsArticle }) {
   const hostName = meta?.hostName ?? 'Tokunbo Adeyemi'
   const duration = meta?.duration ?? '34:12'
   const keyQuote = meta?.keyQuote ?? `${article.deck.slice(0, 90)}…`
+  const exchange = meta?.podcastExchange ?? []
 
   const episodeNum = Math.max(1, Math.round(week / 6))
 
@@ -371,6 +442,7 @@ export function PodcastCard({ article }: { article: NewsArticle }) {
         />
         <PodcastPlayer duration={duration} />
         <KeyQuote quote={keyQuote} />
+        <TranscriptExchange exchange={exchange} hostName={hostName} />
         <HostFooter article={article} hostName={hostName} week={week} />
         <ContinueButton onClick={clearNewspaperHeadline} />
       </div>

@@ -13,7 +13,7 @@ const BORDER_COLOR: Record<ArchetypeKey, string> = {
 // is styled to *look* like the actual button, so hover/focus land on the
 // wrong element visually. Here only the CTA at the bottom is interactive —
 // the rest of the card is context you read, not a mystery hit-target.
-function ArchetypeCard({
+export function ArchetypeCard({
   archetypeKey,
   selected,
   onSelect,
@@ -28,7 +28,9 @@ function ArchetypeCard({
   return (
     <div
       style={{
-        border: `1px solid ${selected ? border : 'var(--border)'}`,
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: selected ? border : 'var(--border)',
         borderTopWidth: '3px',
         borderTopColor: border,
         background: 'var(--surface)',

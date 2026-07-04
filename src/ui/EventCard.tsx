@@ -224,7 +224,7 @@ function EmptyEventState() {
         color: 'var(--text-secondary)',
       }}
     >
-      No active event. Click "Next Week" to advance.
+      No active event. Click "Advance Week" to advance.
     </div>
   )
 }

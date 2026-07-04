@@ -158,6 +158,9 @@ export const STARTING_STATE: GameState = {
   currentTerm: 1,
   // Run metadata
   runMeta: { archetype: null, simStrategy: null, simSeed: null, simWeeksSkipped: null },
+  governorName: '',
+  sharedMoments: [],
+  pendingMoment: null,
   // Goal tracking
   selectedGoalId: null,
   // Phase B

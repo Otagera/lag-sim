@@ -335,13 +335,13 @@ function QuarterForecast() {
   )
 }
 
-export function StrategicDashboard() {
+export function StrategicDashboard({ showGoalTracker = true }: { showGoalTracker?: boolean }) {
   return (
     <div className="space-y-2">
       <BankruptcyClock />
       <EconomyPanel />
       <InitiativeTracker />
-      <GoalTracker />
+      {showGoalTracker ? <GoalTracker /> : null}
       <QuarterForecast />
     </div>
   )

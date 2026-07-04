@@ -1,45 +1,33 @@
 import { useNavigate } from '@tanstack/react-router'
-import type { LucideIcon } from 'lucide-react'
-import {
-  BarChart3,
-  DollarSign,
-  GanttChartSquare,
-  Heart,
-  Inbox as InboxIcon,
-  Landmark,
-  Users,
-  Vote,
-  Wallet,
-  Zap,
-} from 'lucide-react'
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 
 import { STARTING_STATE } from './data/startingState'
 import { useGameStore } from './state/gameStore'
 import { clearSave } from './state/persistence'
-import { BudgetPanel } from './ui/BudgetPanel'
 import { EventCard } from './ui/EventCard'
-import { FactionPanel } from './ui/FactionPanel'
 import { HelpReference } from './ui/HelpReference'
-import { Inbox } from './ui/Inbox'
 import { MediaRouter } from './ui/MediaRouter'
-import { NPCPanel } from './ui/NPCPanel'
-import { PollPanel } from './ui/PollPanel'
 import 'driver.js/dist/driver.css'
 import { ALL_HINTS } from './data/hints'
 import { getSeasonModifier } from './engine/seasonEngine'
-import { CabinetPanel } from './ui/CabinetPanel'
 import { ContextualHint } from './ui/ContextualHint'
-import { Seal } from './ui/components/Seal'
-import { Stat } from './ui/components/Stat'
 import { Tab } from './ui/components/Tab'
-import { DeputyPanel } from './ui/DeputyPanel'
 import { useSituation } from './ui/design/ThemeProvider'
 import { DeskScene } from './ui/desk/DeskScene'
+import { getDockBadges } from './ui/dock/dockSelectors'
+import { DOCK_TABS } from './ui/dock/dockTabs'
+import type { DockTab } from './ui/dock/dockTypes'
+import { BriefingPanel } from './ui/dock/panels/BriefingPanel'
+import { DeliveryPanel } from './ui/dock/panels/DeliveryPanel'
+import { LagosPulsePanel } from './ui/dock/panels/LagosPulsePanel'
+import { LegacyPanel } from './ui/dock/panels/LegacyPanel'
+import { PowerMapPanel } from './ui/dock/panels/PowerMapPanel'
+import { TreasuryPanel } from './ui/dock/panels/TreasuryPanel'
 import { ElectionWatermark } from './ui/ElectionWatermark'
 import { GuidedTour } from './ui/GuidedTour'
 import { DiagnosisBanner } from './ui/game/DiagnosisBanner'
-import { StateOfTheState } from './ui/game/StateOfTheState'
+import { SituationBar } from './ui/SituationBar'
+import { MomentToast } from './ui/share'
 import { formatGameMonth } from './utils/calendar'
 
 const LazyLegacyScreen = lazy(() =>
@@ -51,251 +39,32 @@ const LazyResearchTree = lazy(() =>
 const LazyProjectsPanel = lazy(() =>
   import('./ui/ProjectsPanel').then((m) => ({ default: m.ProjectsPanel })),
 )
-const LazyCampaignTracker = lazy(() =>
-  import('./ui/CampaignTracker').then((m) => ({ default: m.CampaignTracker })),
-)
-const LazyStrategicDashboard = lazy(() =>
-  import('./ui/StrategicDashboard').then((m) => ({ default: m.StrategicDashboard })),
-)
 
-// ─── Dock destinations ────────────────────────────────────────────────────────
-type DockTab = 'inbox' | 'economy' | 'factions' | 'people' | 'state' | 'strategy' | 'election'
-
-const DOCK_TABS: { id: DockTab; label: string; Icon: LucideIcon }[] = [
-  { id: 'inbox', label: 'Inbox', Icon: InboxIcon },
-  { id: 'economy', label: 'Economy', Icon: DollarSign },
-  { id: 'factions', label: 'Factions', Icon: Landmark },
-  { id: 'people', label: 'People', Icon: Users },
-  { id: 'state', label: 'State', Icon: BarChart3 },
-  { id: 'strategy', label: 'Strategy', Icon: GanttChartSquare },
-  { id: 'election', label: 'Election', Icon: Vote },
-]
-
-// ─── Status bar ───────────────────────────────────────────────────────────────
-type StatusBarProps = {
+// ─── Situation bar ────────────────────────────────────────────────────────────
+type SituationBarShellProps = {
   termLabel: string
   monthLabel: string
   seasonLabel: string
   week: number
+  currentTerm: number
+  inCampaignMode: boolean
   onTick: () => void
   canTick: boolean
   onResearch: () => void
   onProjects: () => void
   onOpenReference: () => void
-}
-
-function StatusBarStats() {
-  const cashReserve = useGameStore((s) => s.stats.cashReserve)
-  const publicTrust = useGameStore((s) => s.stats.publicTrust)
-  const politicalCapital = useGameStore((s) => s.stats.politicalCapital)
-
-  const cashWarn = cashReserve < 15
-  const trustWarn = publicTrust < 40
-  const pcWarn = politicalCapital < 25
-
-  return (
-    <div
-      className="status-bar-stats"
-      style={{ display: 'flex', gap: 'var(--status-bar-stats-gap, 20px)', alignItems: 'center' }}
-    >
-      <Stat
-        label="Treasury"
-        value={cashReserve}
-        format="currency"
-        warn={cashWarn}
-        danger={cashReserve < 8}
-        title="Weekly revenue minus expenditure. Below 15bn triggers warnings; negative for 3+ weeks = bankruptcy."
-        icon={Wallet}
-      />
-      <Stat
-        label="Trust"
-        value={publicTrust}
-        format="percent"
-        warn={trustWarn}
-        danger={publicTrust < 25}
-        title="Public approval rating. Below 25% risks mass uprising if youth tension is high."
-        icon={Heart}
-      />
-      <Stat
-        label="Pol. Cap"
-        value={politicalCapital}
-        warn={pcWarn}
-        danger={politicalCapital < 10}
-        title="Political capital to spend on bold actions. Earned by wins; spent on hard choices."
-        icon={Zap}
-      />
-    </div>
-  )
-}
-
-function StatusBarActions({
-  onTick,
-  canTick,
-  onResearch,
-  onProjects,
-  onOpenReference,
-}: {
-  onTick: () => void
-  canTick: boolean
-  onResearch: () => void
-  onProjects: () => void
-  onOpenReference: () => void
-}) {
-  return (
-    <div
-      className="status-bar-actions"
-      style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}
-    >
-      <button
-        type="button"
-        onClick={onOpenReference}
-        style={{
-          background: 'none',
-          border: 'none',
-          borderRadius: '2px',
-          width: '24px',
-          height: '24px',
-          fontSize: '14px',
-          fontWeight: 700,
-          fontFamily: "'Archivo Narrow', sans-serif",
-          color: 'var(--text-secondary)',
-          cursor: 'pointer',
-          lineHeight: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          opacity: 0.6,
-        }}
-        title="Quick Reference"
-      >
-        ?
-      </button>
-      <button
-        type="button"
-        onClick={onResearch}
-        style={{
-          background: 'transparent',
-          border: '1px solid var(--accent-solid)',
-          borderRadius: '2px',
-          padding: '4px var(--status-bar-action-pad-x, 10px)',
-          fontSize: '11px',
-          fontFamily: "'Archivo Narrow', sans-serif",
-          color: 'var(--accent-text)',
-          cursor: 'pointer',
-          whiteSpace: 'nowrap',
-        }}
-        title="Commission the Future"
-      >
-        Research
-      </button>
-      <button
-        type="button"
-        onClick={onProjects}
-        style={{
-          background: 'transparent',
-          border: '1px solid var(--accent-solid)',
-          borderRadius: '2px',
-          padding: '4px var(--status-bar-action-pad-x, 10px)',
-          fontSize: '11px',
-          fontFamily: "'Archivo Narrow', sans-serif",
-          color: 'var(--accent-text)',
-          cursor: 'pointer',
-          whiteSpace: 'nowrap',
-        }}
-        title="Build / Govern"
-      >
-        Projects
-      </button>
-      {canTick && (
-        <button
-          type="button"
-          onClick={onTick}
-          data-tour="next-week"
-          style={{
-            background: 'var(--accent-solid)',
-            color: 'var(--accent-on-solid)',
-            border: 'none',
-            borderRadius: '2px',
-            padding: '6px var(--status-bar-next-pad-x, 16px)',
-            fontSize: '12px',
-            fontWeight: 600,
-            fontFamily: "'Archivo Narrow', sans-serif",
-            letterSpacing: '0.03em',
-            cursor: 'pointer',
-            transition: 'background-color 200ms ease',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Next Week
-        </button>
-      )}
-    </div>
-  )
-}
-
-function StatusBar({
-  termLabel,
-  monthLabel,
-  seasonLabel,
-  week,
-  onTick,
-  canTick,
-  onResearch,
-  onProjects,
-  onOpenReference,
-}: StatusBarProps) {
-  return (
-    <header
-      className="themed status-bar"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 'var(--status-bar-gap, 16px)',
-        padding: 'var(--status-bar-padding, 8px 16px)',
-        background: 'var(--surface)',
-        borderBottom: '1px solid var(--border)',
-        boxShadow: 'var(--shadow-sm)',
-        zIndex: 30,
-        flexShrink: 0,
-        transition: 'background-color var(--dur) ease, border-color var(--dur) ease',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-        <Seal size={28} />
-        <div>
-          <div
-            className="font-display"
-            style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)', lineHeight: 1.2 }}
-          >
-            Lagos Governor Sim
-          </div>
-          <div
-            className="label-caps"
-            style={{ marginTop: '1px', cursor: 'default' }}
-            title={`Week ${week}`}
-          >
-            {termLabel} · {monthLabel} ·{' '}
-            <span style={{ color: 'var(--accent-text)' }}>{seasonLabel}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="status-bar-spacer" style={{ flex: 1 }} />
-
-      <StatusBarStats />
-      <StatusBarActions
-        onTick={onTick}
-        canTick={canTick}
-        onResearch={onResearch}
-        onProjects={onProjects}
-        onOpenReference={onOpenReference}
-      />
-    </header>
-  )
 }
 
 // ─── Panel overlay ────────────────────────────────────────────────────────────
-function PanelOverlayHeader({ activeTab, onClose }: { activeTab: DockTab; onClose: () => void }) {
+function PanelOverlayHeader({
+  activeTab,
+  onClose,
+  titleId,
+}: {
+  activeTab: DockTab
+  onClose: () => void
+  titleId: string
+}) {
   const tab = DOCK_TABS.find((t) => t.id === activeTab)
 
   return (
@@ -311,7 +80,8 @@ function PanelOverlayHeader({ activeTab, onClose }: { activeTab: DockTab; onClos
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         {tab ? <tab.Icon size={15} style={{ color: 'var(--accent-solid)' }} /> : null}
-        <span
+        <div
+          id={titleId}
           style={{
             fontSize: '13px',
             fontWeight: 600,
@@ -320,7 +90,7 @@ function PanelOverlayHeader({ activeTab, onClose }: { activeTab: DockTab; onClos
           }}
         >
           {tab?.label}
-        </span>
+        </div>
       </div>
       <button
         type="button"
@@ -334,6 +104,7 @@ function PanelOverlayHeader({ activeTab, onClose }: { activeTab: DockTab; onClos
           lineHeight: 1,
           padding: '0 4px',
         }}
+        aria-label="Close panel"
       >
         ×
       </button>
@@ -341,68 +112,66 @@ function PanelOverlayHeader({ activeTab, onClose }: { activeTab: DockTab; onClos
   )
 }
 
-function PanelOverlayContent({ activeTab }: { activeTab: DockTab }) {
+function PanelOverlayContent({
+  activeTab,
+  onOpenResearch,
+  onOpenProjects,
+}: {
+  activeTab: DockTab
+  onOpenResearch: () => void
+  onOpenProjects: () => void
+}) {
   const content = (() => {
     switch (activeTab) {
-      case 'inbox':
-        return (
-          <div style={{ padding: '12px' }}>
-            <Inbox />
-          </div>
-        )
-      case 'economy':
-        return (
-          <div style={{ padding: '12px' }}>
-            <BudgetPanel />
-          </div>
-        )
-      case 'factions':
-        return (
-          <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <FactionPanel />
-            <PollPanel />
-          </div>
-        )
-      case 'people':
-        return (
-          <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <DeputyPanel />
-            <NPCPanel />
-            <CabinetPanel />
-          </div>
-        )
-      case 'state':
-        return <StateOfTheState />
-      case 'strategy':
-        return (
-          <div style={{ padding: '12px' }}>
-            <Suspense fallback={null}>
-              <LazyStrategicDashboard />
-            </Suspense>
-          </div>
-        )
-      case 'election':
-        return (
-          <div style={{ padding: '12px' }}>
-            <Suspense fallback={null}>
-              <LazyCampaignTracker />
-            </Suspense>
-          </div>
-        )
+      case 'briefing':
+        return <BriefingPanel />
+      case 'treasury':
+        return <TreasuryPanel />
+      case 'power':
+        return <PowerMapPanel />
+      case 'lagos':
+        return <LagosPulsePanel />
+      case 'delivery':
+        return <DeliveryPanel onOpenProjects={onOpenProjects} onOpenResearch={onOpenResearch} />
+      case 'legacy':
+        return <LegacyPanel />
     }
   })()
 
   return <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>{content}</div>
 }
 
-function PanelOverlay({ activeTab, onClose }: { activeTab: DockTab | null; onClose: () => void }) {
+function PanelOverlay({
+  activeTab,
+  onClose,
+  onOpenResearch,
+  onOpenProjects,
+}: {
+  activeTab: DockTab | null
+  onClose: () => void
+  onOpenResearch: () => void
+  onOpenProjects: () => void
+}) {
+  useEffect(() => {
+    if (!activeTab) return
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') onClose()
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [activeTab, onClose])
+
   if (!activeTab) return null
+
+  const titleId = `dock-panel-title-${activeTab}`
 
   return (
     <>
       <button
         type="button"
-        aria-label="Close panel"
+        aria-label="Close panel backdrop"
         onClick={onClose}
         style={{
           position: 'fixed',
@@ -418,6 +187,9 @@ function PanelOverlay({ activeTab, onClose }: { activeTab: DockTab | null; onClo
       />
       <div
         className="themed"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         style={{
           position: 'fixed',
           bottom: 0,
@@ -427,7 +199,7 @@ function PanelOverlay({ activeTab, onClose }: { activeTab: DockTab | null; onClo
           background: 'var(--surface)',
           borderTop: '1px solid var(--border)',
           borderRadius: '6px 6px 0 0',
-          maxHeight: 'min(80vh, 640px)',
+          maxHeight: 'min(82vh, 720px)',
           display: 'flex',
           flexDirection: 'column',
           animation: 'panel-up 280ms cubic-bezier(.16,1,.3,1) forwards',
@@ -452,8 +224,12 @@ function PanelOverlay({ activeTab, onClose }: { activeTab: DockTab | null; onClo
           />
         </div>
 
-        <PanelOverlayHeader activeTab={activeTab} onClose={onClose} />
-        <PanelOverlayContent activeTab={activeTab} />
+        <PanelOverlayHeader activeTab={activeTab} onClose={onClose} titleId={titleId} />
+        <PanelOverlayContent
+          activeTab={activeTab}
+          onOpenProjects={onOpenProjects}
+          onOpenResearch={onOpenResearch}
+        />
       </div>
     </>
   )
@@ -471,10 +247,8 @@ type GameAppOverlaysProps = {
   onCloseProjects: () => void
 }
 
-type GameAppHeaderProps = StatusBarProps & {
-  currentTerm: number
+type GameAppHeaderProps = SituationBarShellProps & {
   isGameOver: boolean
-  inCampaignMode: boolean
 }
 
 type GameSceneProps = {
@@ -483,20 +257,19 @@ type GameSceneProps = {
 }
 
 type GameDockProps = {
-  inCampaignMode: boolean
   activePanel: DockTab | null
-  inboxCount: number
-  factionAlert: boolean
   onTogglePanel: (id: DockTab) => void
 }
 
 type GameAppMainProps = GameSceneProps &
   GameDockProps & {
     onClosePanel: () => void
+    onOpenResearch: () => void
+    onOpenProjects: () => void
   }
 
 type GameAppFrameProps = GameAppHeaderProps &
-  GameAppMainProps & {
+  Omit<GameAppMainProps, 'onOpenResearch' | 'onOpenProjects'> & {
     showReference: boolean
     onCloseReference: () => void
   }
@@ -564,6 +337,7 @@ function GameAppOverlays({
         </Suspense>
       )}
       {inCampaignMode && <ElectionWatermark />}
+      <MomentToast />
     </>
   )
 }
@@ -579,16 +353,17 @@ function GameAppHeader({
   onResearch,
   onProjects,
   onOpenReference,
-  isGameOver,
   inCampaignMode,
 }: GameAppHeaderProps) {
   return (
     <>
-      <StatusBar
+      <SituationBar
         termLabel={termLabel}
         monthLabel={monthLabel}
         seasonLabel={seasonLabel}
         week={week}
+        currentTerm={currentTerm}
+        inCampaignMode={inCampaignMode}
         onTick={onTick}
         canTick={canTick}
         onResearch={onResearch}
@@ -608,26 +383,6 @@ function GameAppHeader({
       </div>
 
       <DiagnosisBanner />
-
-      {inCampaignMode && !isGameOver && (
-        <div
-          style={{
-            textAlign: 'center',
-            padding: '4px 12px',
-            fontSize: '10px',
-            fontFamily: "'Archivo Narrow', sans-serif",
-            fontWeight: 600,
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            background: 'var(--accent-bg-subtle)',
-            color: 'var(--accent-text)',
-            borderBottom: '1px solid var(--border)',
-            flexShrink: 0,
-          }}
-        >
-          Election Campaign — Week {week} · Every decision counts
-        </div>
-      )}
     </>
   )
 }
@@ -671,13 +426,10 @@ function GameScene({ isGameOver, onLegacyNewGame }: GameSceneProps) {
   )
 }
 
-function GameDock({
-  inCampaignMode,
-  activePanel,
-  inboxCount,
-  factionAlert,
-  onTogglePanel,
-}: GameDockProps) {
+function GameDock({ activePanel, onTogglePanel }: GameDockProps) {
+  const state = useGameStore((store) => store)
+  const badges = getDockBadges(state)
+
   return (
     <div
       className="themed"
@@ -696,14 +448,15 @@ function GameDock({
         transition: 'background-color var(--dur) ease, border-color var(--dur) ease',
       }}
     >
-      {DOCK_TABS.filter((t) => t.id !== 'election' || inCampaignMode).map(({ id, label, Icon }) => (
+      {DOCK_TABS.map(({ id, label, Icon }) => (
         <Tab
           key={id}
           icon={<Icon size={18} />}
           label={label}
           active={activePanel === id}
           dataTour={`dock-${id}`}
-          badge={id === 'inbox' ? inboxCount : id === 'factions' ? (factionAlert ? 1 : 0) : 0}
+          badge={badges[id]}
+          ariaLabel={`Open ${label} panel`}
           onClick={() => onTogglePanel(id)}
         />
       ))}
@@ -714,26 +467,22 @@ function GameDock({
 function GameAppMain({
   isGameOver,
   onLegacyNewGame,
-  inCampaignMode,
   activePanel,
-  inboxCount,
-  factionAlert,
   onTogglePanel,
   onClosePanel,
+  onOpenResearch,
+  onOpenProjects,
 }: GameAppMainProps) {
   return (
     <>
       <GameScene isGameOver={isGameOver} onLegacyNewGame={onLegacyNewGame} />
-      {!isGameOver && (
-        <GameDock
-          inCampaignMode={inCampaignMode}
-          activePanel={activePanel}
-          inboxCount={inboxCount}
-          factionAlert={factionAlert}
-          onTogglePanel={onTogglePanel}
-        />
-      )}
-      <PanelOverlay activeTab={activePanel} onClose={onClosePanel} />
+      {!isGameOver && <GameDock activePanel={activePanel} onTogglePanel={onTogglePanel} />}
+      <PanelOverlay
+        activeTab={activePanel}
+        onClose={onClosePanel}
+        onOpenProjects={onOpenProjects}
+        onOpenResearch={onOpenResearch}
+      />
     </>
   )
 }
@@ -769,12 +518,11 @@ function GameAppFrame(props: GameAppFrameProps) {
       <GameAppMain
         isGameOver={props.isGameOver}
         onLegacyNewGame={props.onLegacyNewGame}
-        inCampaignMode={props.inCampaignMode}
         activePanel={props.activePanel}
-        inboxCount={props.inboxCount}
-        factionAlert={props.factionAlert}
         onTogglePanel={props.onTogglePanel}
         onClosePanel={props.onClosePanel}
+        onOpenResearch={props.onResearch}
+        onOpenProjects={props.onProjects}
       />
     </div>
   )
@@ -786,11 +534,8 @@ export default function GameApp() {
   const isGameOver = useGameStore((s) => s.isGameOver)
   const week = useGameStore((s) => s.week)
   const currentTerm = useGameStore((s) => s.currentTerm)
-  const factions = useGameStore((s) => s.factions)
-  const activeGodfatherMessage = useGameStore((s) => s.activeGodfatherMessage)
   const newspaperHeadline = useGameStore((s) => s.newspaperHeadline)
   const inCampaignMode = useGameStore((s) => s.inCampaignMode)
-  const inbox = useGameStore((s) => s.inbox)
 
   const [showResearch, setShowResearch] = useState(false)
   const [showProjects, setShowProjects] = useState(false)
@@ -811,9 +556,6 @@ export default function GameApp() {
   const termLabel = getTermLabel(currentTerm, week)
   const monthLabel = formatGameMonth(week)
   const seasonLabel = getSeasonModifier(week).label
-
-  const inboxCount = inbox.filter((m) => !m.read).length + (activeGodfatherMessage ? 1 : 0)
-  const factionAlert = Object.values(factions).some((v) => v <= 25)
 
   return (
     <>
@@ -845,8 +587,6 @@ export default function GameApp() {
         inCampaignMode={inCampaignMode}
         onLegacyNewGame={handleLegacyNewGame}
         activePanel={activePanel}
-        inboxCount={inboxCount}
-        factionAlert={factionAlert}
         onTogglePanel={handleTogglePanel}
         onClosePanel={() => setActivePanel(null)}
       />

@@ -1,5 +1,5 @@
 import { useGameStore } from '../state/gameStore'
-import type { NewsArticle } from '../state/types'
+import type { NewsArticle, SocialReply } from '../state/types'
 
 const GRADIENT_BY_CATEGORY: Record<string, string> = {
   crisis: 'linear-gradient(160deg, #1a0a00 0%, #3d1a00 40%, #0d0d0d 100%)',
@@ -107,7 +107,56 @@ function ActionSidebar({ views }: { views: number }) {
   )
 }
 
-function ClipCaption({ article, tag }: { article: NewsArticle; tag: string }) {
+function TopComments({ comments }: { comments: SocialReply[] }) {
+  if (comments.length === 0) return null
+  return (
+    <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {comments.slice(0, 3).map((c, i) => {
+        const handle = c.handle ?? `@${c.author.replace(/\s+/g, '')}`
+        return (
+          <div key={`${handle}-${i}`} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+            <div
+              style={{
+                width: 24,
+                height: 24,
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.18)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 11,
+                fontWeight: 700,
+                color: '#fff',
+                flexShrink: 0,
+              }}
+            >
+              {handle.replace('@', '').charAt(0).toUpperCase()}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: 600 }}>
+                {handle}
+              </div>
+              <div style={{ color: '#fff', fontSize: 12, lineHeight: 1.35 }}>{c.text}</div>
+            </div>
+            <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, flexShrink: 0 }}>
+              ♥ {formatViews(c.likes ?? 0)}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function ClipCaption({
+  article,
+  tag,
+  comments,
+}: {
+  article: NewsArticle
+  tag: string
+  comments: SocialReply[]
+}) {
   return (
     <div
       style={{
@@ -137,6 +186,7 @@ function ClipCaption({ article, tag }: { article: NewsArticle; tag: string }) {
         {article.deck.slice(0, 100)}
         {article.deck.length > 100 ? '…' : ''}
       </p>
+      <TopComments comments={comments} />
       <div
         style={{
           marginTop: 12,
@@ -171,12 +221,14 @@ function ClipCard({
   handle,
   tag,
   views,
+  comments,
 }: {
   article: NewsArticle
   gradient: string
   handle: string
   tag: string
   views: number
+  comments: SocialReply[]
 }) {
   return (
     <div
@@ -197,7 +249,7 @@ function ClipCard({
       <ClipTopBar handle={handle} views={views} />
       <PlayButton />
       <ActionSidebar views={views} />
-      <ClipCaption article={article} tag={tag} />
+      <ClipCaption article={article} tag={tag} comments={comments} />
     </div>
   )
 }
@@ -234,6 +286,7 @@ export function ViralClip({ article }: { article: NewsArticle }) {
 
   const views = meta?.views ?? 1_400_000
   const handle = meta?.creatorHandle ?? '@LagosEye'
+  const comments = meta?.videoComments ?? []
 
   const tag = buildClipTag(article.headline)
 
@@ -264,7 +317,14 @@ export function ViralClip({ article }: { article: NewsArticle }) {
           background: 'transparent',
         }}
       />
-      <ClipCard article={article} gradient={gradient} handle={handle} tag={tag} views={views} />
+      <ClipCard
+        article={article}
+        gradient={gradient}
+        handle={handle}
+        tag={tag}
+        views={views}
+        comments={comments}
+      />
       <ContinueButton onClick={clearNewspaperHeadline} />
     </div>
   )

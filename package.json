@@ -1,7 +1,7 @@
 {
   "name": "lagos-governor-sim",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.7.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,6 +14,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/archivo-narrow": "^5.2.8",
+    "@fontsource/playfair-display": "^5.2.8",
     "@tanstack/react-router": "^1.170.16",
     "driver.js": "^1.6.0",
     "lucide-react": "^1.21.0",

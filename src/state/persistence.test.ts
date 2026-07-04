@@ -128,6 +128,20 @@ describe('migrate: version detection and chain', () => {
     expect(result.week).toBe(20)
   })
 
+  it('v6 beta-batch saves are stamped forward to current version', () => {
+    const v6Raw = {
+      version: 6,
+      week: 27,
+      activeEventId: null,
+      eventQueueIds: [],
+      projectStatuses: {},
+      commissionedProjects: [],
+    }
+    const result = migrate(v6Raw)
+    expect(result.version).toBe(SAVE_VERSION)
+    expect(result.week).toBe(27)
+  })
+
   it('future-version save (version > SAVE_VERSION) logs a warning and still returns data', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const futureRaw = { version: SAVE_VERSION + 5, week: 99, activeEventId: null, eventQueueIds: [] }

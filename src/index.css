@@ -43,12 +43,15 @@
 
   /* Semantic colours */
   --error-3: #ffebe9;
+  --error-7: #f0a49c;
   --error-9: #d7322a;
   --error-11: #a01a14;
   --success-3: #e8f6ea;
+  --success-7: #83c793;
   --success-9: #3aa048;
   --success-11: #1e7030;
   --warning-3: #fff6e0;
+  --warning-7: #e2b84f;
   --warning-9: #c08c0c;
   --warning-11: #8c6400;
   --info-3: #e4f2fb;
@@ -359,47 +362,197 @@ body {
 }
 
 /* ── Responsive game chrome ─────────────────────────────────────────────────── */
-@media (max-width: 640px) {
-  .status-bar {
-    --status-bar-gap: 8px;
-    --status-bar-padding: 8px 10px;
-    flex-wrap: wrap;
+.situation-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+  background: color-mix(in srgb, var(--surface) 92%, var(--background));
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  z-index: 30;
+  flex-shrink: 0;
+  transition:
+    background-color var(--dur) ease,
+    border-color var(--dur) ease;
+}
+
+.situation-bar > * {
+  min-width: 0;
+}
+
+.situation-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 210px;
+  flex-shrink: 0;
+}
+
+.situation-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.12;
+  white-space: nowrap;
+}
+
+.situation-meta {
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.situation-phase {
+  border: 1px solid var(--accent-solid);
+  border-radius: 999px;
+  color: var(--accent-text);
+  background: var(--accent-3);
+  padding: 5px 9px;
+  font-family: "Archivo Narrow", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.situation-chip-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.situation-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.situation-secondary-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.situation-primary-action {
+  background: var(--accent-solid);
+  color: var(--accent-on-solid);
+  border: none;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-family: "Archivo Narrow", sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease,
+    background-color var(--dur) ease;
+}
+
+.situation-primary-action:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.situation-primary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@media (max-width: 900px) {
+  .situation-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "brand phase actions"
+      "chips chips chips";
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
   }
 
-  .status-bar-spacer {
-    display: none;
+  .situation-brand {
+    grid-area: brand;
+    min-width: 180px;
+    flex: initial;
   }
 
-  .status-bar-stats {
-    --status-bar-stats-gap: 10px;
-    flex: 1 1 auto;
-    justify-content: flex-end;
-    min-width: 0;
+  .situation-phase {
+    grid-area: phase;
+    justify-self: start;
   }
 
-  .status-bar-actions {
-    order: 3;
-    flex: 1 0 100%;
+  .situation-actions {
+    grid-area: actions;
+    justify-self: end;
+    margin-left: 0;
+  }
+
+  .situation-chip-row {
+    grid-area: chips;
     width: 100%;
-  }
-
-  .status-bar-actions > button {
-    --status-bar-action-pad-x: 8px;
-    --status-bar-next-pad-x: 8px;
-    flex: 1 1 0;
-    min-width: 0;
+    overflow-x: auto;
+    padding-bottom: 2px;
   }
 }
 
-@media (max-width: 380px) {
-  .status-bar-stats {
-    flex-basis: 100%;
-    justify-content: space-between;
-    order: 2;
+@media (max-width: 640px) {
+  .situation-bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "brand brand"
+      "phase actions"
+      "chips chips";
   }
 
-  .status-bar-actions {
-    order: 3;
+  .situation-meta {
+    white-space: normal;
+  }
+
+  .situation-brand-meta-extra {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .situation-brand {
+    min-width: 0;
+  }
+
+  .situation-title {
+    font-size: 12px;
+  }
+
+  .situation-secondary-actions {
+    display: none;
+  }
+
+  .situation-phase {
+    max-width: 42vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .situation-actions {
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .situation-primary-action {
+    width: 100%;
+    padding-inline: 12px;
   }
 }
 

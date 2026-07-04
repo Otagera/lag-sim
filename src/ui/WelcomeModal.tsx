@@ -80,7 +80,7 @@ export function WelcomeModal({ onStart }: { onStart: () => void }) {
             <p className="label-caps">How to play</p>
             <ol className="space-y-2" style={{ fontSize: '13px' }}>
               {[
-                'Click "Next Week" in the top-right to advance time.',
+                'Click "Advance Week" in the top-right to advance time.',
                 'Read the event card and choose how to respond. There are no obviously right answers.',
                 'Some choices have delayed consequences — a decision today fires back in 4, 8, or 12 weeks.',
                 'Survive 208 weeks (4 years) without going bankrupt, triggering an uprising, or getting removed by your party.',

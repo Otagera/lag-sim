@@ -1,6 +1,8 @@
 import { pickKeyMomentsForLegacy, pickVerdictHeadline } from '../../engine/endingNarrator'
 import type { GameOverType, GameState } from '../../state/types'
 import { formatGameDate } from '../../utils/calendar'
+import { formatReleaseStamp } from '../../version'
+import { administrationLabel } from './buildShareCaption'
 
 function grade(value: number, max: number): string {
   const pct = value / max
@@ -61,6 +63,10 @@ export interface ShareCardData {
   hasFashemuEnding: boolean
   endingFlavor: 'crisis' | 'storm' | 'teal' | 'triumph'
   gameVersion: string
+  /** Player-chosen governor surname (empty when unnamed). */
+  governorName?: string
+  /** "The X Administration" — the masthead subline. */
+  administrationLabel?: string
 }
 
 const CRISIS_ENDINGS: GameOverType[] = ['bankruptcy', 'massUprising', 'impeachment']
@@ -116,6 +122,8 @@ export function buildShareCardData(state: GameState): ShareCardData {
     grades,
     hasFashemuEnding,
     endingFlavor,
-    gameVersion: `v${import.meta.env.PACKAGE_VERSION ?? '0.0.0'} \u00b7 Week ${state.week}`,
+    gameVersion: formatReleaseStamp(state.week),
+    governorName: state.governorName,
+    administrationLabel: administrationLabel(state.governorName),
   }
 }

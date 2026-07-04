@@ -1,16 +1,61 @@
 import { type ReactNode, useState } from 'react'
 
+type TabTone = 'neutral' | 'info' | 'warning' | 'danger' | 'success' | 'accent'
+
+type TabBadge =
+  | number
+  | string
+  | {
+      value: number | string
+      tone?: TabTone
+      ariaLabel?: string
+    }
+
 interface TabProps {
   icon?: ReactNode
   label: string
-  badge?: number
+  badge?: TabBadge | null
   active?: boolean
   onClick?: () => void
   dataTour?: string
+  tone?: TabTone
+  ariaLabel?: string
 }
 
-export function Tab({ icon, label, badge, active, onClick, dataTour }: TabProps) {
+const BADGE_COLORS: Record<TabTone, { bg: string; text: string }> = {
+  neutral: { bg: 'var(--border-strong)', text: '#fff' },
+  info: { bg: 'var(--info-9)', text: '#fff' },
+  warning: { bg: 'var(--warning-9)', text: '#1b1b1b' },
+  danger: { bg: 'var(--error-9)', text: '#fff' },
+  success: { bg: 'var(--success-9)', text: '#fff' },
+  accent: { bg: 'var(--accent-solid)', text: 'var(--accent-on-solid)' },
+}
+
+function normalizeBadge(badge: TabProps['badge']) {
+  if (badge === undefined || badge === null || badge === 0 || badge === '') return null
+  if (typeof badge === 'number' || typeof badge === 'string') {
+    return {
+      value: typeof badge === 'number' && badge > 9 ? '9+' : badge,
+      tone: 'danger' as const,
+      ariaLabel: typeof badge === 'number' ? `${badge} notifications` : `${badge} status`,
+    }
+  }
+
+  return {
+    value: typeof badge.value === 'number' && badge.value > 9 ? '9+' : badge.value,
+    tone: badge.tone ?? 'danger',
+    ariaLabel: badge.ariaLabel,
+  }
+}
+
+export function Tab({ icon, label, badge, active, onClick, dataTour, tone, ariaLabel }: TabProps) {
   const [hover, setHover] = useState(false)
+  const normalizedBadge = normalizeBadge(badge)
+  const badgeTone = normalizedBadge?.tone ?? tone ?? 'danger'
+  const badgeColors = BADGE_COLORS[badgeTone]
+  const buttonAriaLabel =
+    ariaLabel ??
+    (normalizedBadge?.ariaLabel ? `${ariaLabel ?? label}, ${normalizedBadge.ariaLabel}` : label)
 
   return (
     <button
@@ -35,6 +80,7 @@ export function Tab({ icon, label, badge, active, onClick, dataTour }: TabProps)
         position: 'relative',
       }}
       aria-current={active ? 'page' : undefined}
+      aria-label={buttonAriaLabel}
       {...(dataTour ? { 'data-tour': dataTour } : {})}
     >
       {icon && <div style={{ fontSize: '18px', lineHeight: 1 }}>{icon}</div>}
@@ -52,11 +98,11 @@ export function Tab({ icon, label, badge, active, onClick, dataTour }: TabProps)
         }}
       >
         <span>{label}</span>
-        {!icon && !!badge && badge > 0 && (
+        {!icon && normalizedBadge && (
           <span
             style={{
-              background: 'var(--error-9)',
-              color: '#fff',
+              background: badgeColors.bg,
+              color: badgeColors.text,
               fontSize: '9px',
               fontWeight: 600,
               fontFamily: "'Archivo Narrow', sans-serif",
@@ -66,19 +112,21 @@ export function Tab({ icon, label, badge, active, onClick, dataTour }: TabProps)
               minWidth: '14px',
               textAlign: 'center',
             }}
+            aria-hidden="true"
+            title={normalizedBadge.ariaLabel}
           >
-            {badge > 9 ? '9+' : badge}
+            {normalizedBadge.value}
           </span>
         )}
       </div>
-      {icon && !!badge && badge > 0 && (
+      {icon && normalizedBadge && (
         <span
           style={{
             position: 'absolute',
             top: '4px',
             right: 'calc(50% - 14px)',
-            background: 'var(--error-9)',
-            color: '#fff',
+            background: badgeColors.bg,
+            color: badgeColors.text,
             fontSize: '9px',
             fontWeight: 600,
             fontFamily: "'Archivo Narrow', sans-serif",
@@ -88,8 +136,10 @@ export function Tab({ icon, label, badge, active, onClick, dataTour }: TabProps)
             minWidth: '14px',
             textAlign: 'center',
           }}
+          aria-hidden="true"
+          title={normalizedBadge.ariaLabel}
         >
-          {badge > 9 ? '9+' : badge}
+          {normalizedBadge.value}
         </span>
       )}
     </button>

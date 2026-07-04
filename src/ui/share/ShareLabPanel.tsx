@@ -1,6 +1,9 @@
 import { useRef, useState } from 'react'
+import { formatReleaseStamp } from '../../version'
+import type { MomentCardData } from './buildMomentCardData'
 import type { ShareCardData } from './buildShareCardData'
-import { downloadOrShare, exportCard } from './exportCard'
+import { exportCard, sharePng } from './exportCard'
+import { MomentCard } from './MomentCard'
 import { ShareCard } from './ShareCard'
 
 const FIXTURES: ShareCardData[] = [
@@ -38,7 +41,7 @@ const FIXTURES: ShareCardData[] = [
     ],
     hasFashemuEnding: true,
     endingFlavor: 'crisis',
-    gameVersion: 'v0.0.0 \u00b7 Week 27',
+    gameVersion: formatReleaseStamp(27),
   },
   {
     exitLabel: 'Removal by Assembly',
@@ -68,7 +71,7 @@ const FIXTURES: ShareCardData[] = [
     ],
     hasFashemuEnding: false,
     endingFlavor: 'teal',
-    gameVersion: 'v0.0.0 \u00b7 Week 88',
+    gameVersion: formatReleaseStamp(88),
   },
   {
     exitLabel: 'Mass Uprising \u2014 Government Overwhelmed',
@@ -104,7 +107,7 @@ const FIXTURES: ShareCardData[] = [
     ],
     hasFashemuEnding: false,
     endingFlavor: 'crisis',
-    gameVersion: 'v0.0.0 \u00b7 Week 52',
+    gameVersion: formatReleaseStamp(52),
   },
   {
     exitLabel: 'Two Terms Complete \u2014 Legacy Sealed',
@@ -134,14 +137,86 @@ const FIXTURES: ShareCardData[] = [
     ],
     hasFashemuEnding: false,
     endingFlavor: 'triumph',
-    gameVersion: 'v0.0.0 \u00b7 Week 416',
+    gameVersion: formatReleaseStamp(416),
+  },
+]
+
+const MOMENT_FIXTURES: MomentCardData[] = [
+  {
+    momentType: 're-election',
+    kicker: 'Re-Election',
+    headline: 'Returned to Office',
+    subhead: 'Re-elected on 58.2% of the vote.',
+    stats: [
+      { label: 'Public Trust', value: '61%' },
+      { label: 'Term', value: 'Second' },
+    ],
+    week: 210,
+    tenure: '15 May, 2031',
+    administrationLabel: 'The Adebayo Administration',
+    governorName: 'Adebayo',
+    flavor: 'triumph',
+    gameVersion: 'Beta · Week 210',
+  },
+  {
+    momentType: 'crisis-survived',
+    kicker: 'Crisis Weathered',
+    headline: 'Riot Contained',
+    subhead: 'The administration held when it could have fallen.',
+    stats: [
+      { label: 'Public Trust', value: '44%' },
+      { label: 'Security', value: '52' },
+    ],
+    week: 39,
+    tenure: '5 March, 2028',
+    administrationLabel: 'The Adebayo Administration',
+    governorName: 'Adebayo',
+    flavor: 'storm',
+    gameVersion: 'Beta · Week 39',
+  },
+  {
+    momentType: 'landmark-delivered',
+    kicker: 'Delivered',
+    headline: 'Lekki–Epe BRT Corridor',
+    subhead: 'Ground broken, concrete poured, a promise kept.',
+    stats: [
+      { label: 'Infrastructure', value: '58' },
+      { label: 'Public Trust', value: '55%' },
+    ],
+    week: 74,
+    tenure: '28 October, 2028',
+    administrationLabel: 'The Adebayo Administration',
+    governorName: 'Adebayo',
+    flavor: 'teal',
+    gameVersion: 'Beta · Week 74',
+  },
+  {
+    momentType: 'term-milestone',
+    kicker: 'Milestone',
+    headline: 'Year 2 Complete',
+    subhead: 'Another year governing the ungovernable.',
+    stats: [
+      { label: 'Public Trust', value: '50%' },
+      { label: 'Infrastructure', value: '47' },
+    ],
+    week: 104,
+    tenure: '20 May, 2029',
+    administrationLabel: 'The Adebayo Administration',
+    governorName: 'Adebayo',
+    flavor: 'teal',
+    gameVersion: 'Beta · Week 104',
   },
 ]
 
 export function ShareLabPanel() {
+  const [cardKind, setCardKind] = useState<'legacy' | 'moment'>('legacy')
   const [selectedFixture, setSelectedFixture] = useState(0)
+  const [selectedMoment, setSelectedMoment] = useState(0)
   const [exporting, setExporting] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  const legacy = FIXTURES[selectedFixture]
+  const moment = MOMENT_FIXTURES[selectedMoment]
 
   async function handleExport() {
     const svgEl = containerRef.current?.querySelector('svg')
@@ -150,7 +225,13 @@ export function ShareLabPanel() {
     try {
       const blob = await exportCard(svgEl)
       if (blob) {
-        await downloadOrShare(blob, `lagos-legacy-week${FIXTURES[selectedFixture].weekCount}.png`)
+        await sharePng(blob, {
+          filename:
+            cardKind === 'legacy'
+              ? `lagos-legacy-week${legacy.weekCount}.png`
+              : `lagos-moment-${moment.momentType}-week${moment.week}.png`,
+          title: 'Lagos Governor Sim',
+        })
       }
     } catch (err) {
       console.error('Export failed:', err)
@@ -178,8 +259,8 @@ export function ShareLabPanel() {
       >
         <span style={{ color: '#999' }}>Share card preview</span>
         <select
-          value={selectedFixture}
-          onChange={(e) => setSelectedFixture(Number(e.target.value))}
+          value={cardKind}
+          onChange={(e) => setCardKind(e.target.value as 'legacy' | 'moment')}
           style={{
             padding: '6px 12px',
             background: '#222',
@@ -189,12 +270,48 @@ export function ShareLabPanel() {
             fontSize: '11px',
           }}
         >
-          {FIXTURES.map((f, i) => (
-            <option key={f.exitLabel} value={i}>
-              {f.exitLabel}
-            </option>
-          ))}
+          <option value="legacy">Legacy card</option>
+          <option value="moment">Moment card</option>
         </select>
+        {cardKind === 'legacy' ? (
+          <select
+            value={selectedFixture}
+            onChange={(e) => setSelectedFixture(Number(e.target.value))}
+            style={{
+              padding: '6px 12px',
+              background: '#222',
+              color: '#e0e0e0',
+              border: '1px solid #444',
+              borderRadius: '4px',
+              fontSize: '11px',
+            }}
+          >
+            {FIXTURES.map((f, i) => (
+              <option key={f.exitLabel} value={i}>
+                {f.exitLabel}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <select
+            value={selectedMoment}
+            onChange={(e) => setSelectedMoment(Number(e.target.value))}
+            style={{
+              padding: '6px 12px',
+              background: '#222',
+              color: '#e0e0e0',
+              border: '1px solid #444',
+              borderRadius: '4px',
+              fontSize: '11px',
+            }}
+          >
+            {MOMENT_FIXTURES.map((m, i) => (
+              <option key={m.momentType} value={i}>
+                {m.momentType}
+              </option>
+            ))}
+          </select>
+        )}
         <button
           type="button"
           onClick={handleExport}
@@ -227,7 +344,7 @@ export function ShareLabPanel() {
         }}
       >
         <div ref={containerRef} style={{ width: '100%', height: 'auto' }}>
-          <ShareCard data={FIXTURES[selectedFixture]} />
+          {cardKind === 'legacy' ? <ShareCard data={legacy} /> : <MomentCard data={moment} />}
         </div>
       </div>
     </div>

@@ -1,14 +1,12 @@
 import type { ChannelMeta, GameState, MediaChannel, NewsArticle } from '../state/types'
-
-function hashInt(s: string): number {
-  let h = 0
-  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0
-  return Math.abs(h)
-}
-
-function pick<T>(arr: T[], seed: string): T {
-  return arr[hashInt(seed) % arr.length]
-}
+import {
+  buildPodcastExchange,
+  buildTweetReplies,
+  buildVideoComments,
+  buildWhatsAppThread,
+  hashInt,
+  pick,
+} from './socialContent'
 
 const CREATOR_HANDLES = [
   '@LagosEye',
@@ -59,6 +57,7 @@ export function selectChannelMeta(article: NewsArticle, state: GameState): Chann
         channel,
         views: Math.round(viewBase / 1000) * 1000,
         creatorHandle: pick(CREATOR_HANDLES, `${seed}h`),
+        videoComments: buildVideoComments(article, state),
       }
     }
     case 'tweet': {
@@ -70,24 +69,27 @@ export function selectChannelMeta(article: NewsArticle, state: GameState): Chann
         hashtag: pick(HASHTAGS[article.category] ?? HASHTAGS.background, `${seed}ht`),
         retweets: Math.round(rtBase / 100) * 100,
         likes: Math.round(likeBase / 100) * 100,
+        tweetReplies: buildTweetReplies(article, state),
       }
     }
     case 'podcast': {
       const minBase = 22 + (hashInt(`${seed}m`) % 38)
+      const hostName = pick(PODCAST_HOSTS, `${seed}ho`)
+      const { coHostName, podcastExchange } = buildPodcastExchange(article, state, hostName)
       return {
         channel,
         showName: pick(PODCAST_SHOWS, `${seed}sh`),
-        hostName: pick(PODCAST_HOSTS, `${seed}ho`),
+        hostName,
         duration: `${minBase}:${String(hashInt(`${seed}s`) % 60).padStart(2, '0')}`,
         keyQuote: buildKeyQuote(article),
+        coHostName,
+        podcastExchange,
       }
     }
     case 'whatsapp': {
-      const fwd = 3 + (hashInt(`${seed}f`) % 47)
       return {
         channel,
-        forwardCount: fwd,
-        isRumor: article.category === 'background',
+        ...buildWhatsAppThread(article, state),
       }
     }
     default:
@@ -95,37 +97,70 @@ export function selectChannelMeta(article: NewsArticle, state: GameState): Chann
   }
 }
 
-function pickChannel(article: NewsArticle, state: GameState): MediaChannel {
-  const { category } = article
-  const trust = state.stats.publicTrust
-  const week = state.week
-  const seed = article.headline.slice(0, 12)
+type WeightedChannel = { channel: MediaChannel; weight: number }
 
-  // Crisis → short video (viral anger/shock spreads fastest on short-form)
-  if (category === 'crisis') return 'shortVideo'
+// Each category has a primary lean plus alternates. Weighted + seeded so the
+// same headline always resolves to the same channel, but channels are no longer
+// locked one-to-one to a category.
+const CHANNEL_WEIGHTS: Record<NewsArticle['category'], WeightedChannel[]> = {
+  crisis: [
+    { channel: 'shortVideo', weight: 5 },
+    { channel: 'tweet', weight: 3 },
+    { channel: 'whatsapp', weight: 2 },
+  ],
+  political: [
+    { channel: 'tweet', weight: 4 },
+    { channel: 'newspaper', weight: 3 },
+    { channel: 'shortVideo', weight: 2 },
+    { channel: 'whatsapp', weight: 1 },
+  ],
+  fiscal: [
+    { channel: 'podcast', weight: 4 },
+    { channel: 'newspaper', weight: 3 },
+    { channel: 'tweet', weight: 2 },
+  ],
+  milestone: [
+    { channel: 'newspaper', weight: 4 },
+    { channel: 'tweet', weight: 2 },
+    { channel: 'shortVideo', weight: 2 },
+  ],
+  background: [
+    { channel: 'whatsapp', weight: 5 },
+    { channel: 'tweet', weight: 2 },
+  ],
+}
 
-  // Political with any credibility gap → tweet thread
-  if (category === 'political' && (trust < 60 || state.stats.corruptionPressure > 40))
-    return 'tweet'
-
-  // Background / rumour → WhatsApp (unverified info travels via forwarded messages)
-  if (category === 'background') return 'whatsapp'
-
-  // Fiscal → podcast (budget analysis belongs to the long-form commentary genre)
-  // Use week > 8 so it can appear from mid-game onward
-  if (category === 'fiscal' && week > 8) return 'podcast'
-
-  // Milestone achievements → newspaper (formal record of achievement)
-  if (category === 'milestone') return 'newspaper'
-
-  // Remaining political stories (high trust / low corruption) → rotate through channels
-  // Use a stable hash so the same article always gets the same channel
-  if (category === 'political') {
-    const channels: MediaChannel[] = ['newspaper', 'tweet', 'newspaper']
-    return pick(channels, `${seed}r`)
+function pickWeighted(entries: WeightedChannel[], seed: string): MediaChannel {
+  const total = entries.reduce((sum, e) => sum + e.weight, 0)
+  if (total <= 0) return 'newspaper'
+  let r = hashInt(seed) % total
+  for (const e of entries) {
+    if (r < e.weight) return e.channel
+    r -= e.weight
   }
+  return entries[entries.length - 1].channel
+}
 
-  return 'newspaper'
+function pickChannel(article: NewsArticle, state: GameState): MediaChannel {
+  const seed = article.headline.slice(0, 12)
+  const base = CHANNEL_WEIGHTS[article.category] ?? CHANNEL_WEIGHTS.background
+  const trust = state.stats.publicTrust
+  const corruption = state.stats.corruptionPressure
+  const credibilityGap = trust < 45 || corruption > 55
+
+  const entries = base
+    .map((e) => {
+      let weight = e.weight
+      // Podcast (long-form) only from mid-game onward.
+      if (e.channel === 'podcast' && state.week <= 8) weight = 0
+      // Low trust / high corruption pushes stories onto tweet & WhatsApp.
+      if ((e.channel === 'tweet' || e.channel === 'whatsapp') && credibilityGap) weight += 2
+      return { channel: e.channel, weight }
+    })
+    .filter((e) => e.weight > 0)
+
+  if (entries.length === 0) return 'newspaper'
+  return pickWeighted(entries, `${seed}chan`)
 }
 
 function buildKeyQuote(article: NewsArticle): string {

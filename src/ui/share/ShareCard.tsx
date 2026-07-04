@@ -1,25 +1,16 @@
 import { BustPortrait } from '../portraits'
-import { LagosSealMark } from '../seals/LagosSealMark'
 import type { ShareCardData } from './buildShareCardData'
+import {
+  CardBackground,
+  CardDefs,
+  CardFooter,
+  CardMasthead,
+  DANFO,
+  FLAVOR_COLORS,
+  type FlavorPalette,
+  STAMP_FALLBACK,
+} from './cardChrome'
 
-const DANFO = '#F5C518'
-
-const FLAVOR_COLORS: Record<string, { bg: string; text: string; accent: string; subdue: string }> =
-  {
-    crisis: { bg: '#1A0808', text: '#EDD6D4', accent: '#D7322A', subdue: '#7A4A40' },
-    storm: { bg: '#0C1720', text: '#C4D6E4', accent: '#5899D2', subdue: '#4A5A68' },
-    teal: { bg: '#0A1A18', text: '#CDE4E0', accent: '#1A9B8E', subdue: '#3A6A64' },
-    triumph: { bg: '#0A1810', text: '#CDE4D4', accent: '#3AA048', subdue: '#3A5A44' },
-  }
-
-const STAMP_FALLBACK: Record<string, string> = {
-  crisis: 'FALLEN',
-  storm: 'SEIZED',
-  teal: 'ENDED',
-  triumph: 'RETURNED',
-}
-
-type FlavorPalette = (typeof FLAVOR_COLORS)[keyof typeof FLAVOR_COLORS]
 type KeyMoment = ShareCardData['keyMoments'][number]
 type ScoreGrade = ShareCardData['grades'][number]
 
@@ -95,30 +86,6 @@ const buildShareCardLayout = (data: ShareCardData): ShareCardLayout => {
   }
 }
 
-const ShareCardDefs = ({ flavor }: { flavor: FlavorPalette }) => (
-  <defs>
-    <filter id="share-grain">
-      <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="4" result="noise" />
-      <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise" />
-      <feComponentTransfer in="grayNoise">
-        <feFuncA type="linear" slope="0.035" />
-      </feComponentTransfer>
-    </filter>
-    <linearGradient id="card-bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stopColor={flavor.bg} />
-      <stop offset="72%" stopColor="#070707" />
-      <stop offset="100%" stopColor="#050505" />
-    </linearGradient>
-  </defs>
-)
-
-const BackgroundLayer = () => (
-  <>
-    <rect width="1080" height="1350" fill="url(#card-bg)" />
-    <rect width="1080" height="1350" fill="url(#share-grain)" />
-  </>
-)
-
 const GhostWeek = ({
   data,
   flavor,
@@ -133,7 +100,7 @@ const GhostWeek = ({
       x="1042"
       y="620"
       textAnchor="end"
-      fontFamily="Georgia, 'Times New Roman', serif"
+      fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
       fontSize={layout.ghostSize}
       fontWeight="700"
       fill="none"
@@ -148,7 +115,7 @@ const GhostWeek = ({
         x="1042"
         y="668"
         textAnchor="end"
-        fontFamily="system-ui, -apple-system, sans-serif"
+        fontFamily="'Archivo Narrow', system-ui, -apple-system, sans-serif"
         fontSize="17"
         letterSpacing="0.3em"
         fill={flavor.accent}
@@ -158,53 +125,6 @@ const GhostWeek = ({
         WEEKS IN OFFICE
       </text>
     )}
-  </>
-)
-
-const Masthead = ({ flavor }: { flavor: FlavorPalette }) => (
-  <>
-    <rect x="0" y="0" width="1080" height="10" fill={DANFO} />
-    <text
-      x="90"
-      y="94"
-      fontFamily="Georgia, 'Times New Roman', serif"
-      fontSize="29"
-      fontWeight="700"
-      fill={flavor.text}
-      letterSpacing="0.07em"
-    >
-      LAGOS GOVERNOR SIM
-    </text>
-    <text
-      x="990"
-      y="92"
-      textAnchor="end"
-      fontFamily="system-ui, -apple-system, sans-serif"
-      fontSize="13"
-      fill={flavor.subdue}
-      letterSpacing="0.16em"
-      fontWeight="700"
-    >
-      OFFICIAL RECORD OF AN ADMINISTRATION
-    </text>
-    <line
-      x1="90"
-      y1="122"
-      x2="990"
-      y2="122"
-      stroke={flavor.subdue}
-      strokeWidth="1.5"
-      opacity="0.6"
-    />
-    <line
-      x1="90"
-      y1="127"
-      x2="990"
-      y2="127"
-      stroke={flavor.subdue}
-      strokeWidth="0.6"
-      opacity="0.4"
-    />
   </>
 )
 
@@ -237,7 +157,7 @@ const HeadlineBlock = ({ flavor, layout }: { flavor: FlavorPalette; layout: Shar
         key={line}
         x="122"
         y={layout.headlineY + i * layout.headlineLineH}
-        fontFamily="Georgia, 'Times New Roman', serif"
+        fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
         fontSize={layout.headlineSize}
         fontWeight="700"
         fill={flavor.text}
@@ -255,7 +175,7 @@ const VerdictDeck = ({ flavor, layout }: { flavor: FlavorPalette; layout: ShareC
         key={line}
         x="122"
         y={layout.verdictY + i * 48}
-        fontFamily="Georgia, 'Times New Roman', serif"
+        fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
         fontSize="36"
         fontStyle="italic"
         fill={flavor.accent}
@@ -292,9 +212,9 @@ const VerdictStamp = ({ flavor, stamp }: { flavor: FlavorPalette; stamp: string 
       x="0"
       y="14"
       textAnchor="middle"
-      fontFamily="system-ui, -apple-system, sans-serif"
+      fontFamily="'Archivo Narrow', system-ui, -apple-system, sans-serif"
       fontSize={stamp.length > 8 ? 42 : 48}
-      fontWeight="800"
+      fontWeight="700"
       letterSpacing="0.18em"
       fill={flavor.accent}
     >
@@ -328,7 +248,7 @@ const TimelineMoment = ({
     <text
       x="134"
       y={y}
-      fontFamily="system-ui, -apple-system, sans-serif"
+      fontFamily="'Archivo Narrow', system-ui, -apple-system, sans-serif"
       fontSize="15"
       fill={DANFO}
       letterSpacing="0.14em"
@@ -339,7 +259,7 @@ const TimelineMoment = ({
     <text
       x={134 + 96 + String(moment.week).length * 10}
       y={y}
-      fontFamily="system-ui, -apple-system, sans-serif"
+      fontFamily="'Archivo Narrow', system-ui, -apple-system, sans-serif"
       fontSize="13"
       fill={flavor.subdue}
       letterSpacing="0.12em"
@@ -350,7 +270,7 @@ const TimelineMoment = ({
     <text
       x="134"
       y={y + 36}
-      fontFamily="Georgia, 'Times New Roman', serif"
+      fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
       fontSize="29"
       fontWeight="600"
       fill={flavor.text}
@@ -374,7 +294,7 @@ const KeyMomentsTimeline = ({
       <text
         x="90"
         y={layout.momentsTitleY}
-        fontFamily="system-ui, -apple-system, sans-serif"
+        fontFamily="'Archivo Narrow', system-ui, -apple-system, sans-serif"
         fontSize="15"
         fill={flavor.subdue}
         letterSpacing="0.2em"
@@ -423,7 +343,7 @@ const FashemuShadow = ({
         x="891"
         y={titleY + 240}
         textAnchor="middle"
-        fontFamily="system-ui, -apple-system, sans-serif"
+        fontFamily="'Archivo Narrow', system-ui, -apple-system, sans-serif"
         fontSize="13"
         fill={flavor.subdue}
         letterSpacing="0.18em"
@@ -477,7 +397,7 @@ const GradeBlock = ({
         x={x + layout.boxW / 2}
         y={layout.boxY + 88}
         textAnchor="middle"
-        fontFamily="Georgia, 'Times New Roman', serif"
+        fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
         fontSize="86"
         fontWeight="700"
         fill={grade.color}
@@ -488,7 +408,7 @@ const GradeBlock = ({
         x={x + layout.boxW / 2}
         y={layout.boxY + 116}
         textAnchor="middle"
-        fontFamily="system-ui, -apple-system, sans-serif"
+        fontFamily="'Archivo Narrow', system-ui, -apple-system, sans-serif"
         fontSize="15"
         fill={flavor.subdue}
         letterSpacing="0.16em"
@@ -531,7 +451,7 @@ const Scorecard = ({
     <text
       x="90"
       y={layout.scoreTitleY}
-      fontFamily="system-ui, -apple-system, sans-serif"
+      fontFamily="'Archivo Narrow', system-ui, -apple-system, sans-serif"
       fontSize="15"
       fill={flavor.subdue}
       letterSpacing="0.2em"
@@ -542,39 +462,6 @@ const Scorecard = ({
     {data.grades.map((grade, index) => (
       <GradeBlock key={grade.key} flavor={flavor} grade={grade} index={index} layout={layout} />
     ))}
-  </>
-)
-
-const FooterBand = ({ data, flavor }: { data: ShareCardData; flavor: FlavorPalette }) => (
-  <>
-    <rect x="0" y="1252" width="1080" height="98" fill={flavor.accent} opacity="0.1" />
-    <rect x="0" y="1252" width="1080" height="3" fill={DANFO} opacity="0.9" />
-    <text
-      x="90"
-      y="1310"
-      fontFamily="system-ui, -apple-system, sans-serif"
-      fontSize="15"
-      fill={flavor.subdue}
-      letterSpacing="0.06em"
-    >
-      {data.gameVersion}
-    </text>
-    <g transform="translate(518 1274)">
-      <LagosSealMark size={54} tone="accent" />
-    </g>
-    <text
-      x="990"
-      y="1310"
-      textAnchor="end"
-      fontFamily="Georgia, 'Times New Roman', serif"
-      fontSize="22"
-      fill={flavor.text}
-      opacity="0.9"
-      letterSpacing="0.14em"
-      fontWeight="700"
-    >
-      LAGOS GOVERNOR SIM
-    </text>
   </>
 )
 
@@ -599,10 +486,13 @@ export function ShareCard({ data }: { data: ShareCardData }) {
       style={{ display: 'block' }}
       aria-label="Lagos Governor Sim Legacy Card"
     >
-      <ShareCardDefs flavor={flavor} />
-      <BackgroundLayer />
+      <CardDefs flavor={flavor} />
+      <CardBackground />
       <GhostWeek data={data} flavor={flavor} layout={layout} />
-      <Masthead flavor={flavor} />
+      <CardMasthead
+        administrationLabel={data.administrationLabel ?? 'Official Record of an Administration'}
+        flavor={flavor}
+      />
       <TenureKicker data={data} flavor={flavor} />
       <HeadlineBlock flavor={flavor} layout={layout} />
       <VerdictDeck flavor={flavor} layout={layout} />
@@ -610,7 +500,20 @@ export function ShareCard({ data }: { data: ShareCardData }) {
       <KeyMomentsTimeline flavor={flavor} layout={layout} />
       <FashemuShadow flavor={flavor} show={data.hasFashemuEnding} titleY={layout.momentsTitleY} />
       <Scorecard data={data} flavor={flavor} layout={layout} />
-      <FooterBand data={data} flavor={flavor} />
+      {data.governorName ? (
+        <text
+          x="90"
+          y="1234"
+          fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
+          fontSize="25"
+          fontStyle="italic"
+          fill={flavor.text}
+          opacity="0.9"
+        >
+          — Gov. {data.governorName}
+        </text>
+      ) : null}
+      <CardFooter versionStamp={data.gameVersion} flavor={flavor} />
     </svg>
   )
 }

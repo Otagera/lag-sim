@@ -110,7 +110,7 @@ export function TimelinePanel() {
       >
         <h3 className="label-caps mb-2">Decision Log</h3>
         <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>
-          No decisions yet. Click "Next Week" to begin.
+          No decisions yet. Click "Advance Week" to begin.
         </p>
       </div>
     )
