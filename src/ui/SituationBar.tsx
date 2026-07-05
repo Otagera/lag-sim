@@ -340,8 +340,8 @@ export function SituationBar({
       </div>
 
       <div className="situation-actions">
+        <ToolButton label="?" title="Quick Reference" onClick={onOpenReference} />
         <div className="situation-secondary-actions">
-          <ToolButton label="?" title="Quick Reference" onClick={onOpenReference} />
           <ToolButton label="Research" title="Commission the Future" onClick={onResearch} />
           <ToolButton label="Projects" title="Build / Govern" onClick={onProjects} />
         </div>
