@@ -340,7 +340,28 @@ export function SituationBar({
       </div>
 
       <div className="situation-actions">
-        <ToolButton label="?" title="Quick Reference" onClick={onOpenReference} />
+        <button
+          type="button"
+          onClick={onOpenReference}
+          title="Quick Reference"
+          aria-label="Quick Reference"
+          style={{
+            background: 'var(--accent-3)',
+            border: '1px solid var(--accent-solid)',
+            borderRadius: 999,
+            color: 'var(--accent-text)',
+            cursor: 'pointer',
+            fontFamily: "'Archivo Narrow', sans-serif",
+            fontSize: 13,
+            fontWeight: 700,
+            padding: '6px 10px',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            lineHeight: 1,
+          }}
+        >
+          ?
+        </button>
         <div className="situation-secondary-actions">
           <ToolButton label="Research" title="Commission the Future" onClick={onResearch} />
           <ToolButton label="Projects" title="Build / Govern" onClick={onProjects} />
