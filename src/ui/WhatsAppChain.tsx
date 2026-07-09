@@ -59,7 +59,9 @@ function NewsBubble({
         <p style={{ color: '#444', fontSize: 12, lineHeight: 1.4, margin: '4px 0 0' }}>
           {messageText}
         </p>
-        <div style={{ textAlign: 'right', marginTop: 3, fontSize: 10, color: '#999' }}>12:39 PM</div>
+        <div style={{ textAlign: 'right', marginTop: 3, fontSize: 10, color: '#999' }}>
+          12:39 PM
+        </div>
       </div>
     </div>
   )
@@ -260,7 +262,6 @@ export function WhatsAppChain({ article }: { article: NewsArticle }) {
   )
 }
 
-
 function BackdropButton({ onClose }: { onClose: () => void }) {
   return (
     <button
@@ -368,4 +369,3 @@ function WhatsAppCTA({ onClose }: { onClose: () => void }) {
     </div>
   )
 }
-

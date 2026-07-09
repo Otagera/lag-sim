@@ -1,145 +1,155 @@
-import type { EventCard } from '../../state/types'
+import type { EventCard } from "../../state/types";
 
 export const politicalEvents: EventCard[] = [
   // --- Fashemu Arc ---
   {
-    id: 'fashemu-warning',
-    title: 'A Message From the Boa',
+    id: "fashemu-warning",
+    title: "A Message From the Boa",
     body: `An intermediary you have never met before visits Government House uninvited. He does not introduce himself. He delivers one sentence: "Chief Fashemu feels the lines of communication have broken down and would like to correct that impression." He hands you an envelope and leaves. Inside: a photograph of your campaign launch in 2026. Nothing else.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     triggerCondition: (state) =>
-      state.fashemuPhase === 'warning' || state.godfatherRefusalCount >= 3,
+      state.fashemuPhase === "warning" || state.godfatherRefusalCount >= 3,
     choices: [
       {
-        id: 'meet-fashemu',
-        label: 'Arrange a Private Meeting',
+        id: "meet-fashemu",
+        label: "Arrange a Private Meeting",
         description:
-          'Sit down with him. Show willingness to reset. Political Capital +5. Buys time, resolves nothing long-term.',
+          "Sit down with him. Show willingness to reset. Political Capital +5. Buys time, resolves nothing long-term.",
         immediate: { politicalCapital: 5 },
         factionImpact: { partyGodfathers: 6 },
       },
       {
-        id: 'ignore-warning',
-        label: 'Ignore It',
+        id: "ignore-warning",
+        label: "Ignore It",
         description:
-          'Send no reply. Trust +3 (no capitulation). The next escalation will be public. Fashemu Phase → Break.',
+          "Send no reply. Trust +3 (no capitulation). The next escalation will be public. Fashemu Phase → Break.",
         immediate: { publicTrust: 3 },
         factionImpact: { partyGodfathers: -8, civilSocietyMedia: 4 },
       },
       {
-        id: 'leak-to-press',
-        label: 'Leak the Visit to the Press',
+        id: "leak-to-press",
+        label: "Leak the Visit to the Press",
         description:
-          'Go public with the intimidation attempt. Civil Society +12, Trust +6. Fashemu goes nuclear. This is the point of no return.',
+          "Go public with the intimidation attempt. Civil Society +12, Trust +6. Fashemu goes nuclear. This is the point of no return.",
         immediate: { publicTrust: 6, politicalCapital: -10 },
-        factionImpact: { civilSocietyMedia: 12, partyGodfathers: -20, federalGovt: -5 },
+        factionImpact: {
+          civilSocietyMedia: 12,
+          partyGodfathers: -20,
+          federalGovt: -5,
+        },
       },
     ],
   },
   {
-    id: 'fashemu-public-break',
-    title: 'The Boa Strikes: Public Confrontation',
+    id: "fashemu-public-break",
+    title: "The Boa Strikes: Public Confrontation",
     body: `Three newspapers run the same story this morning — each citing different "senior government sources." The story: that you have been mismanaging state funds, sidelining party structures, and operating a "one-man government." The coordination is unmistakably Fashemu. This is the public break.`,
-    severity: 'critical',
-    category: 'political',
-    triggerCondition: (state) => state.fashemuPhase === 'break',
+    severity: "critical",
+    category: "political",
+    triggerCondition: (state) => state.fashemuPhase === "break",
     choices: [
       {
-        id: 'negotiate-return',
-        label: 'Open Back-Channel Talks',
+        id: "negotiate-return",
+        label: "Open Back-Channel Talks",
         description:
-          'Quietly signal willingness to re-engage. Trust -4 (looks weak), Godfather relationship stabilises. Fashemuphase → Warning.',
+          "Quietly signal willingness to re-engage. Trust -4 (looks weak), Godfather relationship stabilises. Fashemuphase → Warning.",
         immediate: { publicTrust: -4, politicalCapital: -10 },
         factionImpact: { partyGodfathers: 8 },
       },
       {
-        id: 'fight-back-media',
-        label: 'Fight Back Publicly',
+        id: "fight-back-media",
+        label: "Fight Back Publicly",
         description:
-          'Hold a press conference denying all allegations. Show evidence of policy achievements. Trust +8. The war escalates.',
+          "Hold a press conference denying all allegations. Show evidence of policy achievements. Trust +8. The war escalates.",
         immediate: { publicTrust: 8, politicalCapital: -15 },
         factionImpact: { partyGodfathers: -15, civilSocietyMedia: 10 },
       },
       {
-        id: 'cooperate-efcc',
-        label: 'Contact the EFCC',
+        id: "cooperate-efcc",
+        label: "Contact the EFCC",
         description:
-          'Quietly open a channel to the anti-corruption agency. Nuclear option. Trust +10. Fashemu phase → Reconciled or Dead. This ends the relationship permanently.',
+          "Quietly open a channel to the anti-corruption agency. Nuclear option. Trust +10. Fashemu phase → Reconciled or Dead. This ends the relationship permanently.",
         immediate: { publicTrust: 10, corruptionPressure: -8 },
-        factionImpact: { civilSocietyMedia: 15, partyGodfathers: -25, federalGovt: -8 },
+        factionImpact: {
+          civilSocietyMedia: 15,
+          partyGodfathers: -25,
+          federalGovt: -8,
+        },
       },
     ],
   },
   {
-    id: 'fashemu-efcc-contact',
-    title: 'EFCC Contact: The Fashemu File',
+    id: "fashemu-efcc-contact",
+    title: "EFCC Contact: The Fashemu File",
     body: `A senior EFCC operative makes discreet contact with your Chief of Staff. They have been building a case on Chief Fashemu's network for three years. They need internal cooperation — not a public endorsement, just access to certain government records. In exchange, the file protects your administration from guilt-by-association.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     triggerCondition: (state) =>
       state.week >= 78 &&
       state.week <= 156 &&
-      (state.fashemuPhase === 'break' || state.godfatherRefusalCount >= 3),
+      (state.fashemuPhase === "break" || state.godfatherRefusalCount >= 3),
     weight: 1,
     choices: [
       {
-        id: 'cooperate-efcc-quietly',
-        label: 'Cooperate Quietly',
+        id: "cooperate-efcc-quietly",
+        label: "Cooperate Quietly",
         description:
-          'Share records. Trust +5 long term. Corruption -6. Fashemu will eventually know. Ending Path C.',
+          "Share records. Trust +5 long term. Corruption -6. Fashemu will eventually know. Ending Path C.",
         immediate: { publicTrust: 5, corruptionPressure: -6 },
         factionImpact: { civilSocietyMedia: 6, partyGodfathers: -8 },
       },
       {
-        id: 'warn-fashemu',
-        label: 'Warn Fashemu Instead',
+        id: "warn-fashemu",
+        label: "Warn Fashemu Instead",
         description:
-          'Tell him the EFCC is watching. He owes you. Godfather relationship +15. Corruption Pressure +8. You are now complicit.',
+          "Tell him the EFCC is watching. He owes you. Godfather relationship +15. Corruption Pressure +8. You are now complicit.",
         immediate: { corruptionPressure: 8 },
         factionImpact: { partyGodfathers: 15, civilSocietyMedia: -10 },
       },
       {
-        id: 'stay-neutral-efcc',
-        label: 'Stay Neutral',
+        id: "stay-neutral-efcc",
+        label: "Stay Neutral",
         description:
-          'Decline both cooperation and the warning. Trust +2. The EFCC proceeds without you. Fashemu stays cautious.',
+          "Decline both cooperation and the warning. Trust +2. The EFCC proceeds without you. Fashemu stays cautious.",
         immediate: { publicTrust: 2 },
         factionImpact: {},
       },
     ],
   },
   {
-    id: 'fashemu-death',
-    title: 'Chief Fashemu is Dead',
+    id: "fashemu-death",
+    title: "Chief Fashemu is Dead",
     body: `Chief B.O.A. Fashemu died in the early hours at his Banana Island residence. The official cause: cardiac arrest. He was 74. His network — three lieutenants and a web of contractors, commissioners, and LG allies — is already fracturing. Three men are positioning to inherit what he built. Lagos politics will not be the same.`,
-    severity: 'critical',
-    category: 'political',
+    severity: "critical",
+    category: "political",
     triggerCondition: (state) =>
-      state.week >= 130 && state.fashemuPhase !== 'dead' && Math.random() < 0.015,
+      state.week >= 130 &&
+      state.fashemuPhase !== "dead" &&
+      Math.random() < 0.015,
     weight: 1,
     choices: [
       {
-        id: 'issue-condolences',
-        label: 'Issue State Condolences',
+        id: "issue-condolences",
+        label: "Issue State Condolences",
         description:
-          'Dignified response. Trust +2. His network sees it as a signal that you will deal with them.',
+          "Dignified response. Trust +2. His network sees it as a signal that you will deal with them.",
         immediate: { publicTrust: 2 },
         factionImpact: { partyGodfathers: 5 },
       },
       {
-        id: 'stay-silent',
-        label: 'No Comment for 48 Hours',
+        id: "stay-silent",
+        label: "No Comment for 48 Hours",
         description:
-          'His network is watching. Silence is read as relief. Godfathers -8. Civil Society +5.',
+          "His network is watching. Silence is read as relief. Godfathers -8. Civil Society +5.",
         immediate: {},
         factionImpact: { partyGodfathers: -8, civilSocietyMedia: 5 },
       },
       {
-        id: 'move-on-network',
-        label: 'Quickly Reassert Control of His Allies',
+        id: "move-on-network",
+        label: "Quickly Reassert Control of His Allies",
         description:
-          'Reach out directly to all three lieutenants before they consolidate. Political Capital -20. You absorb his network.',
+          "Reach out directly to all three lieutenants before they consolidate. Political Capital -20. You absorb his network.",
         immediate: { politicalCapital: -20 },
         factionImpact: { partyGodfathers: 15, businessCommunity: 5 },
       },
@@ -148,62 +158,65 @@ export const politicalEvents: EventCard[] = [
 
   // --- Deputy Events ---
   {
-    id: 'deputy-constituency-suggestion',
-    title: 'Deputy Governor: Recommendation',
+    id: "deputy-constituency-suggestion",
+    title: "Deputy Governor: Recommendation",
     body: `Your Deputy Governor has sent a memo recommending a specific response to this week's policy situation — a direction different from what your instincts suggest. The recommendation is reasonable. But so is yours.`,
-    severity: 'low',
-    category: 'political',
+    severity: "low",
+    category: "political",
     isRecurring: true,
     cooldownWeeks: 16,
     triggerCondition: (state) => state.deputy !== null && state.week >= 10,
     choices: [
       {
-        id: 'follow-deputy',
+        id: "follow-deputy",
         label: "Follow Deputy's Recommendation",
-        description: 'Trust the process. Political Capital +3. Deputy resentment stays low.',
+        description:
+          "Trust the process. Political Capital +3. Deputy resentment stays low.",
         immediate: { politicalCapital: 3 },
         factionImpact: {},
       },
       {
-        id: 'override-deputy',
-        label: 'Override — Go Your Own Way',
+        id: "override-deputy",
+        label: "Override — Go Your Own Way",
         description:
-          'Your call. Trust +2. Deputy resentment +10. Repeated overrides will trigger a crisis.',
+          "Your call. Trust +2. Deputy resentment +10. Repeated overrides will trigger a crisis.",
         immediate: { publicTrust: 2 },
         factionImpact: {},
       },
     ],
   },
   {
-    id: 'loyalist-secret-surfaces',
-    title: 'Adeyemi-Shaw: The Secret',
+    id: "loyalist-secret-surfaces",
+    title: "Adeyemi-Shaw: The Secret",
     body: `A journalist has obtained records showing Dr. Korede Adeyemi-Shaw, your Deputy Governor, diverted ₦120m from your 2026 campaign fund to a personal account. He repaid it — but three months later, and only after the election. He is in your office now, pale and shaking. "I can explain," he says. You believe him. That is the problem.`,
-    severity: 'critical',
-    category: 'political',
+    severity: "critical",
+    category: "political",
     triggerCondition: (state) =>
-      state.deputy?.key === 'loyalist' && state.week >= 130 && !state.deputy.revealed,
+      state.deputy?.key === "loyalist" &&
+      state.week >= 130 &&
+      !state.deputy.revealed,
     choices: [
       {
-        id: 'protect-deputy',
-        label: 'Protect Him — Cover It',
+        id: "protect-deputy",
+        label: "Protect Him — Cover It",
         description:
-          'Call the journalist, lean on the publisher. Corruption Pressure +10. The story stays buried for now.',
+          "Call the journalist, lean on the publisher. Corruption Pressure +10. The story stays buried for now.",
         immediate: { corruptionPressure: 10 },
         factionImpact: { civilSocietyMedia: -10, partyGodfathers: 5 },
       },
       {
-        id: 'accept-resignation',
-        label: 'Accept His Resignation',
+        id: "accept-resignation",
+        label: "Accept His Resignation",
         description:
-          'He goes quietly. Trust +5. You lose your most loyal ally. Political Capital -15.',
+          "He goes quietly. Trust +5. You lose your most loyal ally. Political Capital -15.",
         immediate: { publicTrust: 5, politicalCapital: -15 },
         factionImpact: { civilSocietyMedia: 8 },
         clearDeputy: true,
-        followUpEventId: 'deputy-replacement',
+        followUpEventId: "deputy-replacement",
       },
       {
-        id: 'stand-by-deputy',
-        label: 'Stand By Him Publicly',
+        id: "stand-by-deputy",
+        label: "Stand By Him Publicly",
         description:
           'Call it a "resolved personal matter." Trust -8. He stays. The story runs anyway. Corruption +8.',
         immediate: { publicTrust: -8, corruptionPressure: 8 },
@@ -212,37 +225,37 @@ export const politicalEvents: EventCard[] = [
     ],
   },
   {
-    id: 'politician-deputy-ambition',
-    title: 'Obiora: Watching the Primary Calendar',
+    id: "politician-deputy-ambition",
+    title: "Obiora: Watching the Primary Calendar",
     body: `Three intelligence reports and one candid conversation with a mutual friend all say the same thing: Hon. Amaka Obiora, your Deputy Governor, is actively courting party delegates in her home states and building a campaign infrastructure. She has not declared. She does not need to yet. But everyone in Alausa knows.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     triggerCondition: (state) =>
-      state.deputy?.key === 'politician' &&
+      state.deputy?.key === "politician" &&
       (state.deputy?.resentment ?? 0) >= 60 &&
       state.week >= 100,
     choices: [
       {
-        id: 'confront-obiora',
-        label: 'Confront Her Directly',
+        id: "confront-obiora",
+        label: "Confront Her Directly",
         description:
-          'Have the hard conversation. Either she backs down or the relationship ends. LG Chairmen -10 if she leaves.',
+          "Have the hard conversation. Either she backs down or the relationship ends. LG Chairmen -10 if she leaves.",
         immediate: { politicalCapital: 5 },
         factionImpact: { lgChairmen: -10, partyGodfathers: -5 },
       },
       {
-        id: 'strategic-reassignment',
-        label: 'Give Her a Demanding Portfolio',
+        id: "strategic-reassignment",
+        label: "Give Her a Demanding Portfolio",
         description:
           'Keep her busy. Keep her inside. Trust +3 from the public "team unity" optics. Buys 10–15 weeks.',
         immediate: { publicTrust: 3 },
         factionImpact: { lgChairmen: 5 },
       },
       {
-        id: 'accept-ambition',
-        label: 'Acknowledge Her Ambition, Negotiate',
+        id: "accept-ambition",
+        label: "Acknowledge Her Ambition, Negotiate",
         description:
-          'Offer to support her in 2031 if she delivers for the rest of this term. Political Capital -15, relationship stabilises.',
+          "Offer to support her in 2031 if she delivers for the rest of this term. Political Capital -15, relationship stabilises.",
         immediate: { politicalCapital: -15 },
         factionImpact: { lgChairmen: 8, partyGodfathers: 3 },
       },
@@ -251,38 +264,46 @@ export const politicalEvents: EventCard[] = [
 
   // --- Commissioner System ---
   {
-    id: 'commissioner-works-appointment',
-    title: 'Commissioner for Works: Your First Decision',
+    id: "commissioner-works-appointment",
+    title: "Commissioner for Works: Your First Decision",
     body: `Your first major cabinet appointment. Two candidates are on the table. Engr. Sola Adesoji has already been personally recommended by Chief Fashemu — his call came before you even took office. Dr. Ayo Badru is your preferred choice: brilliant, incorruptible, and politically naïve.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     week: 2,
     choices: [
       {
-        id: 'appoint-adesoji',
+        id: "appoint-adesoji",
         label: "Appoint Adesoji (Fashemu's Pick)",
         description:
-          'Godfather satisfied early. Corruption Pressure +5. Procurement leakage increases. You start the term in his debt.',
+          "Godfather satisfied early. Corruption Pressure +5. Procurement leakage increases. You start the term in his debt.",
         immediate: { corruptionPressure: 5 },
-        factionImpact: { partyGodfathers: 10, civilSocietyMedia: -8, businessCommunity: -3 },
-        setFlags: { 'commissioner-works-godfather': true },
+        factionImpact: {
+          partyGodfathers: 10,
+          civilSocietyMedia: -8,
+          businessCommunity: -3,
+        },
+        setFlags: { "commissioner-works-godfather": true },
       },
       {
-        id: 'appoint-badru',
-        label: 'Appoint Badru (Your Pick)',
+        id: "appoint-badru",
+        label: "Appoint Badru (Your Pick)",
         description:
-          'Clean, capable, yours. Godfather -8 from the start. Infrastructure projects run cleaner. This is the line you draw.',
+          "Clean, capable, yours. Godfather -8 from the start. Infrastructure projects run cleaner. This is the line you draw.",
         immediate: { infrastructureScore: 2 },
-        factionImpact: { partyGodfathers: -8, civilSocietyMedia: 8, businessCommunity: 5 },
+        factionImpact: {
+          partyGodfathers: -8,
+          civilSocietyMedia: 8,
+          businessCommunity: 5,
+        },
       },
     ],
   },
   {
-    id: 'commissioner-loyalty-test',
-    title: 'Commissioner Being Courted',
+    id: "commissioner-loyalty-test",
+    title: "Commissioner Being Courted",
     body: `Your Commissioner for Finance has been seen dining privately with a known opposition financier three times in two weeks. Either she is being recruited or she is conducting her own intelligence operation. She has not told you about the meetings.`,
-    severity: 'medium',
-    category: 'political',
+    severity: "medium",
+    category: "political",
     isRecurring: true,
     cooldownWeeks: 20,
     triggerCondition: (state) =>
@@ -290,18 +311,18 @@ export const politicalEvents: EventCard[] = [
       (state.commissioners.finance?.loyalty ?? 100) < 50,
     choices: [
       {
-        id: 'confront-commissioner',
-        label: 'Confront Her',
+        id: "confront-commissioner",
+        label: "Confront Her",
         description:
-          'Ask directly. If she is loyal, she will explain. If not, you will know. Political Capital +3.',
+          "Ask directly. If she is loyal, she will explain. If not, you will know. Political Capital +3.",
         immediate: { politicalCapital: 3 },
         factionImpact: {},
       },
       {
-        id: 'reassign-commissioner',
-        label: 'Reassign Her Portfolio',
+        id: "reassign-commissioner",
+        label: "Reassign Her Portfolio",
         description:
-          'Move her to a less sensitive role. Civil Society -3. Disrupts the Finance agenda short-term. Safer.',
+          "Move her to a less sensitive role. Civil Society -3. Disrupts the Finance agenda short-term. Safer.",
         immediate: { igr: -0.1 },
         factionImpact: { civilSocietyMedia: -3, businessCommunity: -2 },
       },
@@ -310,32 +331,36 @@ export const politicalEvents: EventCard[] = [
 
   // --- LGA Elections ---
   {
-    id: 'lga-election-buildup',
-    title: 'LGA Elections: Campaign Begins',
+    id: "lga-election-buildup",
+    title: "LGA Elections: Campaign Begins",
     body: `The Lagos State Independent Electoral Commission has announced LGA elections in six weeks. Twenty local governments go to the polls. These results will determine your ground machine for Years 3 and 4. How you play it defines the rest of the term.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     week: 72,
     choices: [
       {
-        id: 'lga-party-spend',
-        label: 'Mobilise Party Machine',
+        id: "lga-party-spend",
+        label: "Mobilise Party Machine",
         description:
-          'Heavy spend through the party apparatus. LG Chairmen +10. Political Capital -30. Fashemu involvement implied.',
+          "Heavy spend through the party apparatus. LG Chairmen +10. Political Capital -30. Fashemu involvement implied.",
         immediate: { politicalCapital: -30 },
         factionImpact: { partyGodfathers: 5, lgChairmen: 10 },
       },
       {
-        id: 'lga-independent-mobilise',
-        label: 'Independent Mobilisation',
+        id: "lga-independent-mobilise",
+        label: "Independent Mobilisation",
         description:
-          'Mobilise civic groups and trade associations independent of the godfather network. Civil Society +10, LG Chairmen +5. Political Capital -20.',
+          "Mobilise civic groups and trade associations independent of the godfather network. Civil Society +10, LG Chairmen +5. Political Capital -20.",
         immediate: { politicalCapital: -20 },
-        factionImpact: { civilSocietyMedia: 10, lgChairmen: 5, partyGodfathers: -5 },
+        factionImpact: {
+          civilSocietyMedia: 10,
+          lgChairmen: 5,
+          partyGodfathers: -5,
+        },
       },
       {
-        id: 'lga-let-party-handle',
-        label: 'Let the Party Handle It',
+        id: "lga-let-party-handle",
+        label: "Let the Party Handle It",
         description:
           "Minimal intervention. Fashemu's network runs the show. You owe them after. LG Chairmen +4. Political Capital -10.",
         immediate: { politicalCapital: -10 },
@@ -344,19 +369,19 @@ export const politicalEvents: EventCard[] = [
     ],
   },
   {
-    id: 'lga-election-day',
-    title: 'LGA Election Results',
+    id: "lga-election-day",
+    title: "LGA Election Results",
     body: `The votes have been counted. Lagos State Independent Electoral Commission is announcing results across all 20 local government areas. Your party's performance reflects the four years of political relationship-building — and the damage you may have done along the way.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     week: 86,
     triggerCondition: () => false,
     choices: [
       {
-        id: 'acknowledge-results',
-        label: 'Accept the Results',
+        id: "acknowledge-results",
+        label: "Accept the Results",
         description:
-          'Win or lose, you accept the outcome publicly. Trust +3. The numbers determine your ground game going forward.',
+          "Win or lose, you accept the outcome publicly. Trust +3. The numbers determine your ground game going forward.",
         immediate: { publicTrust: 3 },
         factionImpact: { civilSocietyMedia: 4 },
       },
@@ -364,18 +389,18 @@ export const politicalEvents: EventCard[] = [
   },
 
   {
-    id: 'lasiec-lga-election-pressure',
-    title: 'LASIEC LGA Election — INEC Objects to Process',
+    id: "lasiec-lga-election-pressure",
+    title: "LASIEC LGA Election — INEC Objects to Process",
     body: `The Independent National Electoral Commission has written to the Lagos State Independent Electoral Commission questioning the conduct of three LGA council elections held last month. INEC's letter cites irregularities in the voter register validation process and the disqualification of 26 opposition candidates on procedural grounds that it says contravene the Electoral Act. Twelve of the 20 newly elected LGA chairmen are party loyalists who control the ward structures you need for the governorship primary. If the elections are annulled and re-run, you lose those structures for at least six months. If you back LASIEC and INEC escalates, it becomes a federal story.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     week: 90,
     choices: [
       {
-        id: 'defend-lasiec-results',
-        label: 'Defend LASIEC — Elections Were Legitimate',
+        id: "defend-lasiec-results",
+        label: "Defend LASIEC — Elections Were Legitimate",
         description:
-          'Back the results. Godfathers +10, LG Chairmen +8, Civil Society -12, Federal Relationship -5. Trust -5.',
+          "Back the results. Godfathers +10, LG Chairmen +8, Civil Society -12, Federal Relationship -5. Trust -5.",
         immediate: { publicTrust: -5 },
         factionImpact: {
           partyGodfathers: 10,
@@ -385,19 +410,24 @@ export const politicalEvents: EventCard[] = [
         },
       },
       {
-        id: 'support-independent-review',
-        label: 'Support Independent Review of Three Disputed LGAs',
+        id: "support-independent-review",
+        label: "Support Independent Review of Three Disputed LGAs",
         description:
-          'Back an INEC review. Trust +6, Civil Society +10. Godfathers -8, LG Chairmen -10. Political Capital -15.',
+          "Back an INEC review. Trust +6, Civil Society +10. Godfathers -8, LG Chairmen -10. Political Capital -15.",
         immediate: { publicTrust: 6 },
-        factionImpact: { civilSocietyMedia: 10, partyGodfathers: -8, lgChairmen: -10 },
+        factionImpact: {
+          civilSocietyMedia: 10,
+          partyGodfathers: -8,
+          lgChairmen: -10,
+        },
         politicalCapitalCost: 15,
       },
       {
-        id: 'quiet-negotiation-inec',
-        label: 'Quiet Back-Channel With INEC — Agree to Minor Corrective Measures',
+        id: "quiet-negotiation-inec",
+        label:
+          "Quiet Back-Channel With INEC — Agree to Minor Corrective Measures",
         description:
-          'Limit the fallout privately. Federal Relationship +6, Godfathers +3. Corruption +3. Political Capital -20.',
+          "Limit the fallout privately. Federal Relationship +6, Godfathers +3. Corruption +3. Political Capital -20.",
         immediate: { corruptionPressure: 3 },
         factionImpact: { federalGovt: 6, partyGodfathers: 3 },
         politicalCapitalCost: 20,
@@ -412,129 +442,135 @@ export const politicalEvents: EventCard[] = [
 
   // --- Party Primary ---
   {
-    id: 'primary-fashemu-backed',
-    title: 'Party Primary: Smooth Sailing',
+    id: "primary-fashemu-backed",
+    title: "Party Primary: Smooth Sailing",
     body: `Chief Fashemu — or what remains of his network — has signalled support for your re-nomination. Ward delegates are falling in line. The primary is essentially a formality. But there is a choice in how you win it.`,
-    severity: 'medium',
-    category: 'political',
+    severity: "medium",
+    category: "political",
     week: 170,
     triggerCondition: (state) =>
       state.currentTerm === 1 &&
       !state.primaryScenario &&
       state.week >= 170 &&
       state.godfatherComplianceCount >= 2 &&
-      (state.fashemuPhase === 'active' ||
-        state.fashemuPhase === 'reconciled' ||
-        state.fashemuPhase === 'dormant'),
+      (state.fashemuPhase === "active" ||
+        state.fashemuPhase === "reconciled" ||
+        state.fashemuPhase === "dormant"),
     choices: [
       {
-        id: 'accept-backing',
-        label: 'Accept the Backing Quietly',
+        id: "accept-backing",
+        label: "Accept the Backing Quietly",
         description:
-          'Win smoothly. Civil Society -6 (they see it as a Godfather coronation). Political Capital +20. Ending path: A.',
+          "Win smoothly. Civil Society -6 (they see it as a Godfather coronation). Political Capital +20. Ending path: A.",
         immediate: { politicalCapital: 20 },
         factionImpact: { partyGodfathers: 12, civilSocietyMedia: -6 },
-        setFlags: { 'primary-a': true },
+        setFlags: { "primary-a": true },
       },
       {
-        id: 'primary-reform-running-mate',
-        label: 'Push a Reform Running Mate (Risk Fashemu)',
+        id: "primary-reform-running-mate",
+        label: "Push a Reform Running Mate (Risk Fashemu)",
         description:
-          'Back a reform-minded Deputy for Term 2 against his preference. Trust +8. Fashemu goes to break phase. SMJ activates. Win requires Civil Society ≥ 55 and Business Community ≥ 50.',
+          "Back a reform-minded Deputy for Term 2 against his preference. Trust +8. Fashemu goes to break phase. SMJ activates. Win requires Civil Society ≥ 55 and Business Community ≥ 50.",
         immediate: { publicTrust: 8, politicalCapital: -20 },
         factionImpact: { partyGodfathers: -20, civilSocietyMedia: 12 },
-        setFlags: { 'primary-b': true, 'primary-b-civil-society': true },
+        setFlags: { "primary-b": true, "primary-b-civil-society": true },
       },
     ],
   },
   {
-    id: 'primary-contested',
-    title: 'Party Primary: Contested Race',
+    id: "primary-contested",
+    title: "Party Primary: Contested Race",
     body: `Hon. Seun Majekodunmi or another faction candidate has entered the primary. This will be a real contest. You need the civil society endorsement, business community confidence, and LGA turnout to pull through. Political Capital is everything now.`,
-    severity: 'critical',
-    category: 'political',
+    severity: "critical",
+    category: "political",
     week: 172,
     triggerCondition: (state) =>
       state.currentTerm === 1 &&
       !state.primaryScenario &&
       state.week >= 172 &&
       state.godfatherRefusalCount >= 2 &&
-      (state.fashemuPhase === 'warning' || state.fashemuPhase === 'break'),
+      (state.fashemuPhase === "warning" || state.fashemuPhase === "break"),
     choices: [
       {
-        id: 'primary-grassroots',
-        label: 'Grassroots Delegate Campaign',
+        id: "primary-grassroots",
+        label: "Grassroots Delegate Campaign",
         description:
-          'Political Capital -60. Win through ward-by-ward delegate mobilisation. Requires LGA election result ≥ 60% (12/20 loyal LGAs).',
+          "Political Capital -60. Win through ward-by-ward delegate mobilisation. Requires LGA election result ≥ 60% (12/20 loyal LGAs).",
         immediate: { politicalCapital: -60 },
         factionImpact: { lgChairmen: 10, informalEconomy: 5 },
-        setFlags: { 'primary-b': true, 'primary-b-grassroots': true },
+        setFlags: { "primary-b": true, "primary-b-grassroots": true },
       },
       {
-        id: 'primary-civil-society',
-        label: 'Civil Society Endorsements',
+        id: "primary-civil-society",
+        label: "Civil Society Endorsements",
         description:
-          'Let Civil Society carry your candidacy. Trust +8. Requires civilSocietyMedia ≥ 55 AND businessCommunity ≥ 50.',
+          "Let Civil Society carry your candidacy. Trust +8. Requires civilSocietyMedia ≥ 55 AND businessCommunity ≥ 50.",
         immediate: { publicTrust: 8 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: 5 },
-        setFlags: { 'primary-b': true, 'primary-b-civil-society': true },
+        setFlags: { "primary-b": true, "primary-b-civil-society": true },
       },
     ],
   },
   {
-    id: 'primary-open',
-    title: 'Party Primary: Open Contest',
+    id: "primary-open",
+    title: "Party Primary: Open Contest",
     body: `With Fashemu gone or neutralised, this primary is genuinely open for the first time in Lagos gubernatorial history. Three candidates. No godfather. The delegates will follow whoever makes the strongest case. This is your moment to win on merit.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     week: 170,
     triggerCondition: (state) =>
       state.currentTerm === 1 &&
       !state.primaryScenario &&
       state.week >= 170 &&
-      (state.fashemuPhase === 'dead' || state.godfatherRefusalCount >= 5),
+      (state.fashemuPhase === "dead" || state.godfatherRefusalCount >= 5),
     choices: [
       {
-        id: 'primary-policy-platform',
-        label: 'Lead With Policy',
+        id: "primary-policy-platform",
+        label: "Lead With Policy",
         description:
-          'Present a detailed Term 2 manifesto. Trust +10, Civil Society +10. Clean win.',
+          "Present a detailed Term 2 manifesto. Trust +10, Civil Society +10. Clean win.",
         immediate: { publicTrust: 10, politicalCapital: -20 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: 5 },
-        setFlags: { 'primary-c': true },
+        setFlags: { "primary-c": true },
       },
       {
-        id: 'primary-coalition',
-        label: 'Build a Coalition',
+        id: "primary-coalition",
+        label: "Build a Coalition",
         description:
-          'Bring together business, civil society, and LG Chairmen independently. Political Capital -30. Broadest base.',
+          "Bring together business, civil society, and LG Chairmen independently. Political Capital -30. Broadest base.",
         immediate: { politicalCapital: -30 },
-        factionImpact: { businessCommunity: 8, civilSocietyMedia: 8, lgChairmen: 6 },
-        setFlags: { 'primary-c': true },
+        factionImpact: {
+          businessCommunity: 8,
+          civilSocietyMedia: 8,
+          lgChairmen: 6,
+        },
+        setFlags: { "primary-c": true },
       },
     ],
   },
   {
-    id: 'corruptionScandal',
-    title: 'LASG Contracts Office: ₦2.8bn Ghost Projects Exposed',
-    body: `Premium Times has published documents showing that 17 road contracts awarded through the Ministry of Works over the past 14 months were either fictitious or awarded to shell companies. Total value: ₦2.8bn. One company's registered address is a phone repair shop in Ikeja. An ICPC source tells the paper your Chief of Staff's signature appears on three of the award letters. Your Chief of Staff says he signed what he was told to sign.`,
-    severity: 'high',
-    category: 'political',
+    id: "corruptionScandal",
+    title: "LASG Contracts Office: ₦2.8bn Ghost Projects Exposed",
+    body: `Premium Times has published documents showing that 17 road contracts awarded through the Ministry of Works over the past 14 months were either fictitious or awarded to shell companies.
+          Total value: ₦2.8bn. One company's registered address is a phone repair shop in Ikeja. An ICPC source tells the paper your Chief of Staff's signature appears on three of the award letters.
+          Your Chief of Staff says he signed what he was told to sign.`,
+    severity: "high",
+    category: "political",
     week: 3,
     triggerCondition: (state) => state.factions.civilSocietyMedia > 60,
     choices: [
       {
-        id: 'launchInvestigation',
-        label: 'Refer to ICPC, Suspend Officials',
+        id: "launchInvestigation",
+        label: "Refer to ICPC, Suspend Officials",
         description:
-          'Suspend the Chief of Staff pending investigation and formally invite ICPC. Trust +10, Civil Society +5. Political Capital -15 — party allies will resist.',
+          "Suspend the Chief of Staff pending investigation and formally invite ICPC. Trust +10, Civil Society +5. Political Capital -15 — party allies will resist.",
         immediate: { publicTrust: +10, politicalCapital: -15 },
         factionImpact: { civilSocietyMedia: +5, businessCommunity: -5 },
         politicalCapitalCost: 15,
       },
       {
-        id: 'ignoreAllegations',
-        label: 'Deny, Discredit the Reporting',
+        id: "ignoreAllegations",
+        label: "Deny, Discredit the Reporting",
         description:
           'Issue a statement calling the Premium Times story "politically motivated" and threaten legal action. Buys time but Civil Society will not let it go.',
         immediate: { publicTrust: -5, politicalCapital: +10 },
@@ -544,43 +580,47 @@ export const politicalEvents: EventCard[] = [
     ],
   },
   {
-    id: 'lasg-ghost-workers',
-    title: 'LASG Ghost Workers — Payroll Audit',
+    id: "lasg-ghost-workers",
+    title: "LASG Ghost Workers — Payroll Audit",
     body: `An internal audit has found 3,200 ghost workers on the civil service payroll. Monthly drain: approximately ₦640m. The auditors are loyal to you, so this is not yet public. But it won't stay that way.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     choices: [
       {
-        id: 'immediate-purge',
-        label: 'Immediate Purge',
+        id: "immediate-purge",
+        label: "Immediate Purge",
         description:
-          'Clean house now. Saves ₦640m/mth. Unions and LG Chairmen furious. Trust +5 when it leaks. Union threatens strike in 4 weeks.',
-        immediate: { cashReserve: 0.64, publicTrust: 5, ghostWorkerRate: -0.04 },
+          "Clean house now. Saves ₦640m/mth. Unions and LG Chairmen furious. Trust +5 when it leaks. Union threatens strike in 4 weeks.",
+        immediate: {
+          cashReserve: 0.64,
+          publicTrust: 5,
+          ghostWorkerRate: -0.04,
+        },
         factionImpact: { lgChairmen: -6 },
-        setFlags: { 'ghost-purge-aggressive': true },
+        setFlags: { "ghost-purge-aggressive": true },
         delayed: {
           weekOffset: 4,
           delta: {},
           factionImpact: { lgChairmen: -6 },
           eventText: `The union's secretary-general called it 'a declaration of war on the civil service.' The LG Chairmen caucus — already nursing grievances — has pledged solidarity. The strike vote passed 412 to 3.`,
-          followUpEventId: 'ghost-worker-strike-negotiation',
+          followUpEventId: "ghost-worker-strike-negotiation",
         },
       },
       {
-        id: 'quiet-phased-removal',
-        label: 'Quiet Phased Removal',
+        id: "quiet-phased-removal",
+        label: "Quiet Phased Removal",
         description:
-          'Slower savings, less disruption. Costs Political Capital. Civil Society approves if announced as reform.',
+          "Slower savings, less disruption. Costs Political Capital. Civil Society approves if announced as reform.",
         immediate: {},
         factionImpact: { civilSocietyMedia: 3 },
         politicalCapitalCost: 20,
-        setFlags: { 'ghost-purge-quiet': true },
+        setFlags: { "ghost-purge-quiet": true },
       },
       {
-        id: 'sit-on-it',
-        label: 'Sit on It',
+        id: "sit-on-it",
+        label: "Sit on It",
         description:
-          'Nothing changes. Corruption Pressure +5. When it leaks (wk 10-14), Trust -18, Civil Society -20.',
+          "Nothing changes. Corruption Pressure +5. When it leaks (wk 10-14), Trust -18, Civil Society -20.",
         immediate: { corruptionPressure: 5 },
         factionImpact: {},
         delayed: {
@@ -588,40 +628,40 @@ export const politicalEvents: EventCard[] = [
           delta: { publicTrust: -18 },
           factionImpact: { civilSocietyMedia: -20 },
           eventText: `The audit you told your Chief of Staff to 'handle quietly' has a new home: the front page of The Nation. Someone in your office made a copy before they buried the original. The headline reads '₦2bn Lost to Ghost Payroll — Governor Silent.'`,
-          followUpEventId: 'ghost-worker-damage-control',
+          followUpEventId: "ghost-worker-damage-control",
         },
       },
     ],
   },
   {
-    id: 'federal-character-appointment',
-    title: 'Federal Character Appointment',
+    id: "federal-character-appointment",
+    title: "Federal Character Appointment",
     body: `The Presidency has called. Abuja wants to place their preferred candidate as Commissioner for Works — a position that controls all state road contracts. The candidate is qualified but is not your person.`,
-    severity: 'medium',
-    category: 'political',
+    severity: "medium",
+    category: "political",
     choices: [
       {
-        id: 'accept-candidate',
-        label: 'Accept',
+        id: "accept-candidate",
+        label: "Accept",
         description:
-          'Federal Relationship +10. You look weak locally. Godfather -8 (his candidate loses the slot).',
+          "Federal Relationship +10. You look weak locally. Godfather -8 (his candidate loses the slot).",
         immediate: {},
         factionImpact: { federalGovt: 10, partyGodfathers: -8 },
         politicalCapitalCost: 10,
       },
       {
-        id: 'decline-firmly',
-        label: 'Decline Firmly',
+        id: "decline-firmly",
+        label: "Decline Firmly",
         description:
-          'Federal Relationship -12. Political Capital +8 locally. Next FAAC allocation may be delayed.',
+          "Federal Relationship -12. Political Capital +8 locally. Next FAAC allocation may be delayed.",
         immediate: { politicalCapital: 8 },
         factionImpact: { federalGovt: -12 },
       },
       {
-        id: 'counter-offer',
-        label: 'Counter-Offer',
+        id: "counter-offer",
+        label: "Counter-Offer",
         description:
-          'Spend Political Capital to negotiate a different position. Federal -3, Godfather neutral. You keep Works.',
+          "Spend Political Capital to negotiate a different position. Federal -3, Godfather neutral. You keep Works.",
         immediate: {},
         factionImpact: { federalGovt: -3 },
         politicalCapitalCost: 25,
@@ -629,64 +669,64 @@ export const politicalEvents: EventCard[] = [
     ],
   },
   {
-    id: 'ghost-worker-strike-negotiation',
-    title: 'Ghost Worker Strike — Negotiation Time',
+    id: "ghost-worker-strike-negotiation",
+    title: "Ghost Worker Strike — Negotiation Time",
     body: `The civil service union has made good on its threat. 40,000 workers are on strike across the Alausa Secretariat, LASBCA, LASTMA, and LAWMA. LG Chairmen are backing them openly. The city is partially paralysed. The union's demand is simple: reinstate the sacked ghost workers or negotiate severance terms.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     choices: [
       {
-        id: 'hardline-replacement',
-        label: 'Replace Strikers',
+        id: "hardline-replacement",
+        label: "Replace Strikers",
         description:
-          'Hire replacements through private agencies. Breaks the strike permanently. Security +4, Trust -4, YouthTension +6. Saves ₦640m/mth long-term.',
+          "Hire replacements through private agencies. Breaks the strike permanently. Security +4, Trust -4, YouthTension +6. Saves ₦640m/mth long-term.",
         immediate: { securityIndex: 4, publicTrust: -4, youthTension: 6 },
         factionImpact: { lgChairmen: -10, civilSocietyMedia: -6 },
       },
       {
-        id: 'negotiate-severance',
-        label: 'Negotiate Severance',
+        id: "negotiate-severance",
+        label: "Negotiate Severance",
         description:
-          'Agree to 3 months back pay for the sacked ghost workers. Expenditure +0.8bn one-time, Trust +6, Union pacified.',
+          "Agree to 3 months back pay for the sacked ghost workers. Expenditure +0.8bn one-time, Trust +6, Union pacified.",
         immediate: { expenditure: 0.8, publicTrust: 6, politicalCapital: 5 },
         factionImpact: { lgChairmen: 8 },
       },
       {
-        id: 'mediate-delay',
-        label: 'Mediate, Buy Time',
+        id: "mediate-delay",
+        label: "Mediate, Buy Time",
         description:
-          'Appoint a committee to investigate and report in 6 weeks. Political Capital -10. Strike continues 4 more weeks, Trust -3.',
+          "Appoint a committee to investigate and report in 6 weeks. Political Capital -10. Strike continues 4 more weeks, Trust -3.",
         immediate: { publicTrust: -3, politicalCapital: -10 },
         factionImpact: {},
         delayed: {
           weekOffset: 4,
           delta: { publicTrust: -5 },
           eventText: `The mediation dragged for four weeks. The union walked out on day 23. The committee's report — which no one will publish — uses the phrase 'bad faith' three times in the first paragraph.`,
-          followUpEventId: 'ghost-worker-strike-negotiation',
+          followUpEventId: "ghost-worker-strike-negotiation",
         },
       },
     ],
   },
   {
-    id: 'ghost-worker-damage-control',
-    title: 'Ghost Worker Scandal — Fallout',
+    id: "ghost-worker-damage-control",
+    title: "Ghost Worker Scandal — Fallout",
     body: `The leaked audit report is dominating every news cycle. Civil society groups are calling for an independent inquiry. The opposition is using it in every press conference. Your inner circle is divided on how to respond.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     choices: [
       {
-        id: 'full-transparency',
-        label: 'Full Transparency',
+        id: "full-transparency",
+        label: "Full Transparency",
         description:
-          'Publish the full report, refer for prosecution. PublicTrust +8, PoliticalCapital -15, CivilSociety +10. Some of your own will be arrested.',
+          "Publish the full report, refer for prosecution. PublicTrust +8, PoliticalCapital -15, CivilSociety +10. Some of your own will be arrested.",
         immediate: { publicTrust: 8, politicalCapital: -15 },
         factionImpact: { civilSocietyMedia: 10, partyGodfathers: -8 },
       },
       {
-        id: 'blame-underlings',
-        label: 'Blame Underlings',
+        id: "blame-underlings",
+        label: "Blame Underlings",
         description:
-          'Sacrifice two directors, claim you knew nothing. PoliticalCapital +5, CorruptionPressure +3, CivilSociety -8. The story lives on.',
+          "Sacrifice two directors, claim you knew nothing. PoliticalCapital +5, CorruptionPressure +3, CivilSociety -8. The story lives on.",
         immediate: { politicalCapital: 5, corruptionPressure: 3 },
         factionImpact: { civilSocietyMedia: -8 },
         delayed: {
@@ -697,11 +737,15 @@ export const politicalEvents: EventCard[] = [
         },
       },
       {
-        id: 'reform-commission',
-        label: 'Launch Reform Commission',
+        id: "reform-commission",
+        label: "Launch Reform Commission",
         description:
-          'Announce a sweeping civil service reform commission. PoliticalCapital -20, PublicTrust +6, InfrastructureScore +2. Takes 12 weeks.',
-        immediate: { publicTrust: 6, infrastructureScore: 2, politicalCapital: -20 },
+          "Announce a sweeping civil service reform commission. PoliticalCapital -20, PublicTrust +6, InfrastructureScore +2. Takes 12 weeks.",
+        immediate: {
+          publicTrust: 6,
+          infrastructureScore: 2,
+          politicalCapital: -20,
+        },
         factionImpact: { civilSocietyMedia: 8, lgChairmen: -5 },
         delayed: {
           weekOffset: 12,
@@ -712,91 +756,94 @@ export const politicalEvents: EventCard[] = [
     ],
   },
   {
-    id: 'federal-liaison-opening',
-    title: 'Abuja Dialogue Window',
+    id: "federal-liaison-opening",
+    title: "Abuja Dialogue Window",
     body: `The Minister of Finance has signalled willingness to negotiate state-level FAAC enhancements for Lagos, citing the city's outsized contribution to national GDP. A sustained liaison programme — 12 weeks of bilateral meetings — could lock in improved allocation terms.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     week: 16,
     requiresInitiativeSlot: true,
     triggerCondition: (state) => state.stats.federalRelationship >= -10,
     choices: [
       {
-        id: 'launch-federal-liaison',
-        label: 'Launch Federal Liaison Programme',
-        description: 'Costs 20 political capital. Takes 12 weeks.',
+        id: "launch-federal-liaison",
+        label: "Launch Federal Liaison Programme",
+        description: "Costs 20 political capital. Takes 12 weeks.",
         immediate: { politicalCapital: -20 },
         factionImpact: { federalGovt: 5, civilSocietyMedia: -3 },
         launchInitiative: {
-          id: 'federal-liaison',
-          name: 'Federal Liaison Programme',
+          id: "federal-liaison",
+          name: "Federal Liaison Programme",
           weeksRemaining: 12,
           totalWeeks: 12,
-          completionEventId: 'federal-liaison-result',
+          completionEventId: "federal-liaison-result",
         },
       },
       {
-        id: 'send-junior-delegation',
-        label: 'Send junior delegation',
-        description: 'Modest relationship improvement, no initiative slot used.',
+        id: "send-junior-delegation",
+        label: "Send junior delegation",
+        description:
+          "Modest relationship improvement, no initiative slot used.",
         immediate: { federalRelationship: 5 },
         factionImpact: {},
       },
       {
-        id: 'challenge-allocation-formula',
-        label: 'Publicly challenge allocation formula',
-        description: 'Popular domestically. Damages federal relationship.',
+        id: "challenge-allocation-formula",
+        label: "Publicly challenge allocation formula",
+        description: "Popular domestically. Damages federal relationship.",
         immediate: { publicTrust: 6, federalRelationship: -10 },
         factionImpact: { civilSocietyMedia: 6, federalGovt: -10 },
       },
     ],
   },
   {
-    id: 'federal-liaison-result',
-    title: 'Federal Liaison Programme Concluded',
+    id: "federal-liaison-result",
+    title: "Federal Liaison Programme Concluded",
     body: `Twelve weeks of sustained engagement with Abuja has produced a formal MOU on improved FAAC terms for Lagos. Federal allocation is now protected at full rate.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     triggerCondition: () => false,
     choices: [
       {
-        id: 'confirm-mou',
-        label: 'Confirm the MOU',
-        description: 'Finalise the federal liaison agreement.',
+        id: "confirm-mou",
+        label: "Confirm the MOU",
+        description: "Finalise the federal liaison agreement.",
         immediate: { federalRelationship: 20 },
         factionImpact: {},
       },
     ],
   },
   {
-    id: 'party-summit-offer',
-    title: 'Party Summit Olive Branch',
-    body: 'The APC Lagos Chapter has called a closed-door summit. Your handlers say the godfathers are willing to reset the relationship — but they want concessions. Showing up is itself a signal of willingness to deal.',
-    severity: 'high',
-    category: 'political',
+    id: "party-summit-offer",
+    title: "Party Summit Olive Branch",
+    body: "The APC Lagos Chapter has called a closed-door summit. Your handlers say the godfathers are willing to reset the relationship — but they want concessions. Showing up is itself a signal of willingness to deal.",
+    severity: "high",
+    category: "political",
     isRecurring: true,
     cooldownWeeks: 20,
     triggerCondition: (state) =>
-      state.factions.partyGodfathers < 25 && state.week > 52 && state.impeachmentStage === 0,
+      state.factions.partyGodfathers < 25 &&
+      state.week > 52 &&
+      state.impeachmentStage === 0,
     choices: [
       {
-        id: 'attend-make-concessions',
-        label: 'Attend and Concede Ground',
-        description: 'Godfathers +20, Political Capital -15.',
+        id: "attend-make-concessions",
+        label: "Attend and Concede Ground",
+        description: "Godfathers +20, Political Capital -15.",
         immediate: { politicalCapital: -15 },
         factionImpact: { partyGodfathers: 20 },
       },
       {
-        id: 'attend-hold-line',
-        label: 'Attend but Hold Your Line',
-        description: 'Godfathers +8. Less costly but less effective.',
+        id: "attend-hold-line",
+        label: "Attend but Hold Your Line",
+        description: "Godfathers +8. Less costly but less effective.",
         immediate: { politicalCapital: -5 },
         factionImpact: { partyGodfathers: 8, civilSocietyMedia: 4 },
       },
       {
-        id: 'boycott-summit',
-        label: 'Boycott the Summit',
-        description: 'Godfathers -10. Civil Society +5.',
+        id: "boycott-summit",
+        label: "Boycott the Summit",
+        description: "Godfathers -10. Civil Society +5.",
         immediate: {},
         factionImpact: { partyGodfathers: -10, civilSocietyMedia: 5 },
       },
@@ -806,8 +853,8 @@ export const politicalEvents: EventCard[] = [
   // ── State of the State: annual internal memos ────────────────────────────
 
   {
-    id: 'state-of-state-year1',
-    title: 'Year One Review: Internal Memo',
+    id: "state-of-state-year1",
+    title: "Year One Review: Internal Memo",
     body: `LAGOS STATE GOVERNMENT — RESTRICTED
 FROM: Office of the Chief of Staff
 TO: H.E. The Governor
@@ -821,30 +868,31 @@ Political: The party's National Working Committee has been watching how you mana
 Public confidence tracks your infrastructure decisions from the first quarter more than any other variable. Youth tension is moving with the unemployment numbers — it always does.
 
 This office recommends a frank expenditure review before Year 2 commitments are locked.`,
-    severity: 'medium',
-    category: 'political',
+    severity: "medium",
+    category: "political",
     triggerCondition: (state) => state.week >= 52 && state.week <= 57,
     choices: [
       {
-        id: 'commission-fiscal-review',
-        label: 'Commission Internal Fiscal Review',
+        id: "commission-fiscal-review",
+        label: "Commission Internal Fiscal Review",
         description:
-          'Signal discipline. Political Capital -8. Identify savings or expose problems. Cash Reserve +2.',
+          "Signal discipline. Political Capital -8. Identify savings or expose problems. Cash Reserve +2.",
         immediate: { cashReserve: 2, politicalCapital: -8 },
         factionImpact: { civilSocietyMedia: 4, partyGodfathers: -3 },
       },
       {
-        id: 'acknowledge-internally',
-        label: 'Acknowledge Internally, Stay the Course',
-        description: 'No disruption. Political Capital +2. You know where you stand.',
+        id: "acknowledge-internally",
+        label: "Acknowledge Internally, Stay the Course",
+        description:
+          "No disruption. Political Capital +2. You know where you stand.",
         immediate: { politicalCapital: 2 },
         factionImpact: {},
       },
       {
-        id: 'publish-year-one-scorecard',
-        label: 'Publish the Findings Publicly',
+        id: "publish-year-one-scorecard",
+        label: "Publish the Findings Publicly",
         description:
-          'Radical transparency. Civil Society +10, Godfathers -6. You will be held to what you admit.',
+          "Radical transparency. Civil Society +10, Godfathers -6. You will be held to what you admit.",
         immediate: { publicTrust: 5, politicalCapital: -5 },
         factionImpact: { civilSocietyMedia: 10, partyGodfathers: -6 },
       },
@@ -852,8 +900,8 @@ This office recommends a frank expenditure review before Year 2 commitments are 
   },
 
   {
-    id: 'state-of-state-year2',
-    title: 'Mid-Term Review: Internal Memo',
+    id: "state-of-state-year2",
+    title: "Mid-Term Review: Internal Memo",
     body: `LAGOS STATE GOVERNMENT — RESTRICTED
 FROM: Office of the Chief of Staff
 TO: H.E. The Governor
@@ -867,30 +915,35 @@ The LGA election result defined your relationship with the House for the next tw
 Historical note: Every Lagos governor who lost re-election made their decisive mistake between Weeks 104 and 156. The next year is not where victories are won — it is where they are thrown away.
 
 This office recommends protecting structural gains and being selective about new commitments before the campaign window.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     triggerCondition: (state) => state.week >= 104 && state.week <= 109,
     choices: [
       {
-        id: 'cabinet-reshuffle',
-        label: 'Reshuffle the Cabinet',
-        description: 'Reset relationships. Political Capital -10. New energy, new liabilities.',
+        id: "cabinet-reshuffle",
+        label: "Reshuffle the Cabinet",
+        description:
+          "Reset relationships. Political Capital -10. New energy, new liabilities.",
         immediate: { politicalCapital: -10 },
-        factionImpact: { partyGodfathers: -5, civilSocietyMedia: 5, lgChairmen: 3 },
+        factionImpact: {
+          partyGodfathers: -5,
+          civilSocietyMedia: 5,
+          lgChairmen: 3,
+        },
       },
       {
-        id: 'double-down-direction',
-        label: 'Stay the Course',
+        id: "double-down-direction",
+        label: "Stay the Course",
         description:
-          'Political Capital +5. Stability signals confidence. Markets and civil servants respond to consistency.',
+          "Political Capital +5. Stability signals confidence. Markets and civil servants respond to consistency.",
         immediate: { politicalCapital: 5, publicTrust: 3 },
         factionImpact: { businessCommunity: 5 },
       },
       {
-        id: 'declare-midterm-reform',
-        label: 'Declare a Mid-Term Reform Agenda',
+        id: "declare-midterm-reform",
+        label: "Declare a Mid-Term Reform Agenda",
         description:
-          'Trust +5, Civil Society +6, Political Capital -8. The party will want to know what changed.',
+          "Trust +5, Civil Society +6, Political Capital -8. The party will want to know what changed.",
         immediate: { publicTrust: 5, politicalCapital: -8 },
         factionImpact: { civilSocietyMedia: 6, partyGodfathers: -4 },
       },
@@ -898,8 +951,8 @@ This office recommends protecting structural gains and being selective about new
   },
 
   {
-    id: 'state-of-state-year3',
-    title: 'Year Three Review: Eyes Only',
+    id: "state-of-state-year3",
+    title: "Year Three Review: Eyes Only",
     body: `LAGOS STATE GOVERNMENT — FOR YOUR EYES ONLY
 FROM: Office of the Chief of Staff
 TO: H.E. The Governor
@@ -913,65 +966,70 @@ Financial: The state's fiscal position over the next 52 weeks is the single most
 Legacy: What you have built since Week 1 is now visible to anyone who examines it. The question is no longer what you are going to do. It is what you have already done.
 
 Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
-    severity: 'high',
-    category: 'political',
+    severity: "high",
+    category: "political",
     triggerCondition: (state) => state.week >= 156 && state.week <= 161,
     choices: [
       {
-        id: 'pivot-quick-wins',
-        label: 'Pivot to Visible Quick Wins',
+        id: "pivot-quick-wins",
+        label: "Pivot to Visible Quick Wins",
         description:
-          'Trust +6, Political Capital -5, Infrastructure -2. Election-year instinct: visible impact over structural gain.',
-        immediate: { publicTrust: 6, politicalCapital: -5, infrastructureScore: -2 },
+          "Trust +6, Political Capital -5, Infrastructure -2. Election-year instinct: visible impact over structural gain.",
+        immediate: {
+          publicTrust: 6,
+          politicalCapital: -5,
+          infrastructureScore: -2,
+        },
         factionImpact: { lgChairmen: 5, businessCommunity: -3 },
       },
       {
-        id: 'stay-governance-course',
-        label: 'Stay the Course',
-        description: 'Political Capital +5. Resist governing for headlines. Structural gains hold.',
+        id: "stay-governance-course",
+        label: "Stay the Course",
+        description:
+          "Political Capital +5. Resist governing for headlines. Structural gains hold.",
         immediate: { politicalCapital: 5 },
         factionImpact: { businessCommunity: 4, civilSocietyMedia: 3 },
       },
       {
-        id: 'early-campaign-positioning',
-        label: 'Begin Early Campaign Positioning',
+        id: "early-campaign-positioning",
+        label: "Begin Early Campaign Positioning",
         description:
-          'Trust +3, Godfathers +5, Civil Society -4. Start warming up the party machine now.',
+          "Trust +3, Godfathers +5, Civil Society -4. Start warming up the party machine now.",
         immediate: { publicTrust: 3, politicalCapital: -3 },
         factionImpact: { partyGodfathers: 5, civilSocietyMedia: -4 },
       },
     ],
   },
   {
-    id: 'assembly-public-accounts-hearing',
-    title: 'House of Assembly PAC Summons Three Commissioners',
+    id: "assembly-public-accounts-hearing",
+    title: "House of Assembly PAC Summons Three Commissioners",
     body: `The House of Assembly Public Accounts Committee has issued formal summons to the Commissioners for Works, Finance, and Environment over ₦1.8bn in unretired advances from the 2024 capital budget. The PAC Chairman has called for a public hearing, saying internal memo channels have "failed the public interest for the last time." Civil society groups are supporting the summons in a joint press statement. Your Chief of Staff says it is an opposition-backed fishing expedition timed to coincide with the primary season — and reminds you that in 2019 the Assembly used a budget confrontation with the previous governor to threaten impeachment proceedings.`,
-    severity: 'medium',
-    category: 'political',
+    severity: "medium",
+    category: "political",
     week: 20,
     choices: [
       {
-        id: 'support-public-hearing',
-        label: 'Support the Public Hearing, Send Full Records',
+        id: "support-public-hearing",
+        label: "Support the Public Hearing, Send Full Records",
         description:
-          'Commissioners attend with unredacted documentation. Trust +8, Civil Society +10, Business +3. Political Capital -10.',
+          "Commissioners attend with unredacted documentation. Trust +8, Civil Society +10, Business +3. Political Capital -10.",
         immediate: { publicTrust: 8 },
         factionImpact: { civilSocietyMedia: 10, businessCommunity: 3 },
         politicalCapitalCost: 10,
       },
       {
-        id: 'attend-redacted-records',
-        label: 'Attend With Redacted Records',
+        id: "attend-redacted-records",
+        label: "Attend With Redacted Records",
         description:
-          'Claim executive confidentiality on some documents. Trust -4, Civil Society -8, Corruption Pressure +5.',
+          "Claim executive confidentiality on some documents. Trust -4, Civil Society -8, Corruption Pressure +5.",
         immediate: { publicTrust: -4, corruptionPressure: 5 },
         factionImpact: { civilSocietyMedia: -8 },
       },
       {
-        id: 'challenge-summons-court',
-        label: 'Challenge Summons in Court',
+        id: "challenge-summons-court",
+        label: "Challenge Summons in Court",
         description:
-          'File for judicial review of the PAC summons. Trust -8, Civil Society -12, Corruption Pressure +8. Political Capital -20.',
+          "File for judicial review of the PAC summons. Trust -8, Civil Society -12, Corruption Pressure +8. Political Capital -20.",
         immediate: { publicTrust: -8, corruptionPressure: 8 },
         factionImpact: { civilSocietyMedia: -12 },
         politicalCapitalCost: 20,
@@ -979,35 +1037,37 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
     ],
   },
   {
-    id: 'lga-chair-defection',
-    title: 'Alimosho LGA Chairman Endorses Opposition Ticket',
+    id: "lga-chair-defection",
+    title: "Alimosho LGA Chairman Endorses Opposition Ticket",
     body: `The Alimosho LGA chairman — the longest-serving council chair in Lagos State, with 17 ward executives behind him — has signed a public statement endorsing the opposition-backed governorship ticket. He cited "consistent failure to deliver capital projects to Alimosho and Ejigbo." Alimosho is the most populous LGA in Lagos State, with the largest single ward structure in your coalition. The party NEC is calling for his suspension. Your chief strategist says the suspension makes it worse. His ward executives control the machinery that delivers your margins.`,
-    severity: 'high',
-    category: 'political',
-    triggerCondition: (state) => state.week >= 30 && state.stats.politicalCapital < 50,
+    severity: "high",
+    category: "political",
+    triggerCondition: (state) =>
+      state.week >= 30 && state.stats.politicalCapital < 50,
     choices: [
       {
-        id: 'engage-direct-accelerate-projects',
-        label: 'Engage Directly — Accelerate Alimosho Capital Projects',
+        id: "engage-direct-accelerate-projects",
+        label: "Engage Directly — Accelerate Alimosho Capital Projects",
         description:
-          'Direct ₦1bn capital project spend to Alimosho within 30 days. Cash -1, Trust +4, Alimosho +10. Godfathers nervous.',
+          "Direct ₦1bn capital project spend to Alimosho within 30 days. Cash -1, Trust +4, Alimosho +10. Godfathers nervous.",
         immediate: { cashReserve: -1, publicTrust: 4 },
         factionImpact: { partyGodfathers: -5 },
         constituencyImpact: { alimosho: 10 },
       },
       {
-        id: 'support-nec-suspension',
-        label: 'Support NEC Suspension Proceedings',
+        id: "support-nec-suspension",
+        label: "Support NEC Suspension Proceedings",
         description:
-          'Back the party machinery. Godfathers +8, Trust -6, Alimosho -12, Civil Society -5.',
+          "Back the party machinery. Godfathers +8, Trust -6, Alimosho -12, Civil Society -5.",
         immediate: { publicTrust: -6 },
         factionImpact: { partyGodfathers: 8, civilSocietyMedia: -5 },
         constituencyImpact: { alimosho: -12 },
       },
       {
-        id: 'ignore-defection',
-        label: 'Ignore the Defection Publicly',
-        description: 'No response. Trust -4, Alimosho constituency drifts. Avoids escalation.',
+        id: "ignore-defection",
+        label: "Ignore the Defection Publicly",
+        description:
+          "No response. Trust -4, Alimosho constituency drifts. Avoids escalation.",
         immediate: { publicTrust: -4 },
         factionImpact: {},
         constituencyImpact: { alimosho: -8 },
@@ -1015,52 +1075,57 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
     ],
   },
   {
-    id: 'presidential-visit-request',
-    title: 'The Presidency Wants to Commission a Half-Finished Lagos Road',
+    id: "presidential-visit-request",
+    title: "The Presidency Wants to Commission a Half-Finished Lagos Road",
     body: `The Presidency has sent word through the Minister of Works: the President will visit Lagos next month to commission the Agbado–Oja Road dualisation. The project is 68% complete. The eastern stretch between Oja Oba and the Ogun State boundary is unfinished, pot-holed, and in some sections untar­macked. A commissioning ceremony on an incomplete road would generate images. If journalists walk the site, the optics will be worse than a delayed ceremony. If you decline the presidential visit, the relationship cost is real.`,
-    severity: 'medium',
-    category: 'political',
+    severity: "medium",
+    category: "political",
     week: 40,
     choices: [
       {
-        id: 'accept-present-as-complete',
+        id: "accept-present-as-complete",
         label: 'Accept — Present Project as "Substantially Complete"',
-        description: 'Federal Relationship +10, Trust -8, Corruption Pressure +5, Godfathers +5.',
+        description:
+          "Federal Relationship +10, Trust -8, Corruption Pressure +5, Godfathers +5.",
         immediate: { publicTrust: -8, corruptionPressure: 5 },
         factionImpact: { federalGovt: 10, partyGodfathers: 5 },
       },
       {
-        id: 'politely-decline-extension',
-        label: 'Politely Decline — Request 6-Week Extension',
+        id: "politely-decline-extension",
+        label: "Politely Decline — Request 6-Week Extension",
         description:
-          'Ask the Presidency to wait until the road is done. Federal Relationship -5, Trust +6. Political Capital -10.',
+          "Ask the Presidency to wait until the road is done. Federal Relationship -5, Trust +6. Political Capital -10.",
         immediate: { publicTrust: 6 },
         factionImpact: { federalGovt: -5, civilSocietyMedia: 4 },
         politicalCapitalCost: 10,
       },
       {
-        id: 'accelerate-complete-first',
-        label: 'Accelerate Works — Complete Before Visit',
+        id: "accelerate-complete-first",
+        label: "Accelerate Works — Complete Before Visit",
         description:
-          'Emergency contractor schedule, complete in 5 weeks. Cash -1.5, Infrastructure +6, Trust +5, Federal Relationship +8.',
-        immediate: { cashReserve: -1.5, infrastructureScore: 6, publicTrust: 5 },
+          "Emergency contractor schedule, complete in 5 weeks. Cash -1.5, Infrastructure +6, Trust +5, Federal Relationship +8.",
+        immediate: {
+          cashReserve: -1.5,
+          infrastructureScore: 6,
+          publicTrust: 5,
+        },
         factionImpact: { federalGovt: 8, businessCommunity: 4 },
       },
     ],
   },
   {
-    id: 'assembly-budget-standoff',
-    title: 'House of Assembly Refuses to Pass the Budget',
+    id: "assembly-budget-standoff",
+    title: "House of Assembly Refuses to Pass the Budget",
     body: `The Speaker has announced that the House of Assembly will not consider the 2025 Appropriation Bill until the Executive provides a full account of ₦12.4bn in supplementary spending approved by executive instrument last quarter. The deadline for the budget to take effect is 11 days away. Without a passed budget, the state cannot release capital funds or execute contracts. Seventeen of 40 Assembly members are co-signatories to the Speaker's letter. Your legal team says you can deploy the 2024 budget on a month-by-month rollover — but only for 90 days, and it makes you look weak. The Speaker's office has briefed journalists that if the governor does not respond within 72 hours, they will consider a motion of no confidence.`,
-    severity: 'critical',
-    category: 'political',
+    severity: "critical",
+    category: "political",
     week: 40,
     choices: [
       {
-        id: 'release-supplementary-records',
-        label: 'Release Full Supplementary Spending Records',
+        id: "release-supplementary-records",
+        label: "Release Full Supplementary Spending Records",
         description:
-          'Full transparency. Trust +6, Civil Society +12, Godfathers -6. Corruption -5. Political Capital -10.',
+          "Full transparency. Trust +6, Civil Society +12, Godfathers -6. Corruption -5. Political Capital -10.",
         immediate: { publicTrust: 6, corruptionPressure: -5 },
         factionImpact: { civilSocietyMedia: 12, partyGodfathers: -6 },
         politicalCapitalCost: 10,
@@ -1071,9 +1136,10 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
         },
       },
       {
-        id: 'negotiate-with-speaker',
-        label: 'Send COS to Negotiate With Speaker Privately',
-        description: 'Back-channel deal. Godfathers +5. Corruption +3. Political Capital -20.',
+        id: "negotiate-with-speaker",
+        label: "Send COS to Negotiate With Speaker Privately",
+        description:
+          "Back-channel deal. Godfathers +5. Corruption +3. Political Capital -20.",
         immediate: {},
         factionImpact: { partyGodfathers: 5 },
         politicalCapitalCost: 20,
@@ -1084,13 +1150,17 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
         },
       },
       {
-        id: 'rollover-budget-hold',
-        label: 'Deploy 2024 Rollover — Call Their Bluff',
+        id: "rollover-budget-hold",
+        label: "Deploy 2024 Rollover — Call Their Bluff",
         description:
-          'Bypass the Assembly on rollover authority. Trust -5, Civil Society -8, Godfathers -8, LG Chairmen -6.',
+          "Bypass the Assembly on rollover authority. Trust -5, Civil Society -8, Godfathers -8, LG Chairmen -6.",
         immediate: { publicTrust: -5 },
-        factionImpact: { civilSocietyMedia: -8, partyGodfathers: -8, lgChairmen: -6 },
+        factionImpact: {
+          civilSocietyMedia: -8,
+          partyGodfathers: -8,
+          lgChairmen: -6,
+        },
       },
     ],
   },
-]
+];

@@ -229,13 +229,7 @@ function KeyQuote({ quote }: { quote: string }) {
   )
 }
 
-function TranscriptExchange({
-  exchange,
-  hostName,
-}: {
-  exchange: PodcastLine[]
-  hostName: string
-}) {
+function TranscriptExchange({ exchange, hostName }: { exchange: PodcastLine[]; hostName: string }) {
   if (exchange.length === 0) return null
   return (
     <div style={{ margin: '0 20px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -249,10 +243,13 @@ function TranscriptExchange({
       >
         TRANSCRIPT
       </div>
-      {exchange.map((line, i) => {
+      {exchange.map((line) => {
         const isHost = line.speaker === hostName
         return (
-          <div key={`${line.speaker}-${i}`} style={{ display: 'flex', gap: 8 }}>
+          <div
+            key={`${line.speaker}-${line.text.slice(0, 20)}`}
+            style={{ display: 'flex', gap: 8 }}
+          >
             <div
               style={{
                 width: 26,

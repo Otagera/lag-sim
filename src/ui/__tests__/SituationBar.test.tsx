@@ -42,7 +42,7 @@ describe('SituationBar', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Research' }))
     fireEvent.click(screen.getByRole('button', { name: 'Projects' }))
-    fireEvent.click(screen.getByRole('button', { name: '?' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Quick Reference' }))
     fireEvent.click(screen.getByRole('button', { name: 'Advance Week' }))
 
     expect(props.onResearch).toHaveBeenCalledTimes(1)

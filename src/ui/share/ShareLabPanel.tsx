@@ -6,6 +6,42 @@ import { exportCard, sharePng } from './exportCard'
 import { MomentCard } from './MomentCard'
 import { ShareCard } from './ShareCard'
 
+const SELECT_STYLE = {
+  padding: '6px 12px',
+  background: '#222',
+  color: '#e0e0e0',
+  border: '1px solid #444',
+  borderRadius: '4px',
+  fontSize: '11px',
+}
+const CTRL_BAR_STYLE = {
+  display: 'flex',
+  gap: '12px',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  marginBottom: '16px',
+  fontFamily: "'Archivo Narrow', sans-serif",
+  fontSize: '11px',
+}
+const EXPORT_BTN_BASE = {
+  padding: '8px 16px',
+  border: '1px solid #1A9B8E',
+  color: '#fff',
+  borderRadius: '4px',
+  fontSize: '11px',
+  fontWeight: 600,
+}
+const PREVIEW_STYLE = {
+  width: '540px',
+  maxWidth: '100%',
+  margin: '0 auto',
+  borderRadius: '6px',
+  overflow: 'hidden',
+  border: '1px solid #333',
+  lineHeight: '0',
+}
+const TAB_STYLE = { padding: '20px 24px', maxWidth: '1000px', margin: '0 auto', width: '100%' }
+
 const FIXTURES: ShareCardData[] = [
   {
     exitLabel: 'State Insolvency \u2014 Term Cut Short',
@@ -241,34 +277,14 @@ export function ShareLabPanel() {
   }
 
   return (
-    <div
-      className="sl-tab-section"
-      style={{ padding: '20px 24px', maxWidth: '1000px', margin: '0 auto', width: '100%' }}
-    >
+    <div className="sl-tab-section" style={TAB_STYLE}>
       {/* Controls */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '12px',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          marginBottom: '16px',
-          fontFamily: "'Archivo Narrow', sans-serif",
-          fontSize: '11px',
-        }}
-      >
+      <div style={CTRL_BAR_STYLE}>
         <span style={{ color: '#999' }}>Share card preview</span>
         <select
           value={cardKind}
           onChange={(e) => setCardKind(e.target.value as 'legacy' | 'moment')}
-          style={{
-            padding: '6px 12px',
-            background: '#222',
-            color: '#e0e0e0',
-            border: '1px solid #444',
-            borderRadius: '4px',
-            fontSize: '11px',
-          }}
+          style={SELECT_STYLE}
         >
           <option value="legacy">Legacy card</option>
           <option value="moment">Moment card</option>
@@ -277,14 +293,7 @@ export function ShareLabPanel() {
           <select
             value={selectedFixture}
             onChange={(e) => setSelectedFixture(Number(e.target.value))}
-            style={{
-              padding: '6px 12px',
-              background: '#222',
-              color: '#e0e0e0',
-              border: '1px solid #444',
-              borderRadius: '4px',
-              fontSize: '11px',
-            }}
+            style={SELECT_STYLE}
           >
             {FIXTURES.map((f, i) => (
               <option key={f.exitLabel} value={i}>
@@ -296,14 +305,7 @@ export function ShareLabPanel() {
           <select
             value={selectedMoment}
             onChange={(e) => setSelectedMoment(Number(e.target.value))}
-            style={{
-              padding: '6px 12px',
-              background: '#222',
-              color: '#e0e0e0',
-              border: '1px solid #444',
-              borderRadius: '4px',
-              fontSize: '11px',
-            }}
+            style={SELECT_STYLE}
           >
             {MOMENT_FIXTURES.map((m, i) => (
               <option key={m.momentType} value={i}>
@@ -317,32 +319,16 @@ export function ShareLabPanel() {
           onClick={handleExport}
           disabled={exporting}
           style={{
-            padding: '8px 16px',
-            border: '1px solid #1A9B8E',
+            ...EXPORT_BTN_BASE,
             background: exporting ? '#1a3a34' : '#1A9B8E',
-            color: '#fff',
-            borderRadius: '4px',
             cursor: exporting ? 'not-allowed' : 'pointer',
-            fontSize: '11px',
-            fontWeight: 600,
           }}
         >
           {exporting ? 'Exporting...' : 'Export PNG'}
         </button>
       </div>
 
-      {/* Card preview at display scale */}
-      <div
-        style={{
-          width: '540px',
-          maxWidth: '100%',
-          margin: '0 auto',
-          borderRadius: '6px',
-          overflow: 'hidden',
-          border: '1px solid #333',
-          lineHeight: '0',
-        }}
-      >
+      <div style={PREVIEW_STYLE}>
         <div ref={containerRef} style={{ width: '100%', height: 'auto' }}>
           {cardKind === 'legacy' ? <ShareCard data={legacy} /> : <MomentCard data={moment} />}
         </div>

@@ -11,6 +11,17 @@ const LazyStrategicDashboard = lazy(() =>
   import('../../StrategicDashboard').then((module) => ({ default: module.StrategicDashboard })),
 )
 
+const CARD_GRID = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+  gap: '12px',
+}
+const SNAPSHOT_GRID = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+  gap: '10px',
+}
+
 function LegacyCard({ label, value, detail }: { label: string; value: string; detail: string }) {
   return (
     <div
@@ -103,13 +114,7 @@ export function LegacyPanel() {
         },
       ]}
     >
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '12px',
-        }}
-      >
+      <div style={CARD_GRID}>
         <LegacyCard
           label="Election path"
           value={`${voteShare.toFixed(0)}%`}
@@ -163,13 +168,7 @@ export function LegacyPanel() {
         collapsible
         defaultCollapsed
       >
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: '10px',
-          }}
-        >
+        <div style={SNAPSHOT_GRID}>
           <SnapshotMetric
             label="Public trust"
             value={`${state.stats.publicTrust.toFixed(0)}%`}

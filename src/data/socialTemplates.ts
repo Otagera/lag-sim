@@ -83,7 +83,10 @@ export const COMMENT_TEMPLATES: Record<Archetype, Partial<Record<SocialTone, str
       'Everybody must see this. {stat} {dir} to {value}. Share!',
       'Forward to your reps. {delta} cannot slide under the table',
     ],
-    neutral: ['Boosting this so more people see the {stat} numbers 🔁', 'Everyone should know {stat} is {value} now'],
+    neutral: [
+      'Boosting this so more people see the {stat} numbers 🔁',
+      'Everyone should know {stat} is {value} now',
+    ],
   },
   personal: {
     negative: [
@@ -114,7 +117,10 @@ export const COMMENT_TEMPLATES: Record<Archetype, Partial<Record<SocialTone, str
       'The blogs will spin {value} but the full picture is different',
       'They\u2019re only reporting {stat} to make {lga} look bad. Typical',
     ],
-    neutral: ['Wait for the full report before judging {stat}', 'Both sides should calm down about this {value} figure'],
+    neutral: [
+      'Wait for the full report before judging {stat}',
+      'Both sides should calm down about this {value} figure',
+    ],
   },
   cynic: {
     negative: [
@@ -127,7 +133,10 @@ export const COMMENT_TEMPLATES: Record<Archetype, Partial<Record<SocialTone, str
       'Enjoy the {value} while it lasts. Give it two weeks',
       '{delta}? Election is coming, that\u2019s all this is',
     ],
-    rumor: ['Whether na {value} or not, e no concern them if we live or die', 'This {cat} gist will trend and then die like the rest'],
+    rumor: [
+      'Whether na {value} or not, e no concern them if we live or die',
+      'This {cat} gist will trend and then die like the rest',
+    ],
     neutral: [
       'Another {stat} update nobody asked for. {value}, so what?',
       'They release {stat} = {value} to distract us from the real issues',

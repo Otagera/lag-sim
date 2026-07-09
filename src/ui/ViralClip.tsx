@@ -111,10 +111,13 @@ function TopComments({ comments }: { comments: SocialReply[] }) {
   if (comments.length === 0) return null
   return (
     <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-      {comments.slice(0, 3).map((c, i) => {
+      {comments.slice(0, 3).map((c) => {
         const handle = c.handle ?? `@${c.author.replace(/\s+/g, '')}`
         return (
-          <div key={`${handle}-${i}`} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+          <div
+            key={`${c.author}-${c.text.slice(0, 20)}`}
+            style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}
+          >
             <div
               style={{
                 width: 24,

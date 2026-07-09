@@ -243,15 +243,15 @@ function RepliesThread({ replies }: { replies: SocialReply[] }) {
     <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
       {replies.map((reply, i) => {
         const displayHandle = reply.handle ?? `@${reply.author.replace(/\s+/g, '')}`
+        const isLast = i === replies.length - 1
         return (
           <div
-            key={`${displayHandle}-${i}`}
+            key={`${reply.author}-${reply.text.slice(0, 20)}`}
             style={{
               display: 'flex',
               gap: 10,
               padding: '10px 0',
-              borderBottom:
-                i === replies.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.05)',
+              borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.05)',
             }}
           >
             <div
@@ -279,7 +279,9 @@ function RepliesThread({ replies }: { replies: SocialReply[] }) {
               <p style={{ color: '#e7e9ea', fontSize: 14, lineHeight: 1.45, margin: '2px 0 4px' }}>
                 {reply.text}
               </p>
-              <div style={{ display: 'flex', gap: 16, color: 'rgba(231,233,234,0.4)', fontSize: 12 }}>
+              <div
+                style={{ display: 'flex', gap: 16, color: 'rgba(231,233,234,0.4)', fontSize: 12 }}
+              >
                 <span>♥ {formatCount(reply.likes ?? 0)}</span>
                 <span>↻ {formatCount(Math.round((reply.likes ?? 0) * 0.2))}</span>
               </div>

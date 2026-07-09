@@ -5,8 +5,101 @@ import { GoalTracker } from '../../GoalTracker'
 import { CommandPanel } from '../CommandPanel'
 import { CommandSection } from '../CommandSection'
 
+const CARD_GRID = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+  gap: '16px',
+}
 const PROJECTS_BY_ID = new Map(PROJECTS.map((project) => [project.id, project]))
 const RESEARCH_BY_ID = new Map(RESEARCH_TREE.map((node) => [node.id, node]))
+
+function Empty({ text }: { text: string }) {
+  return <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)' }}>{text}</p>
+}
+
+function ProjectPipeline({
+  activeCapital,
+  projectsInFlight,
+  onOpenProjects,
+}: {
+  activeCapital: {
+    id: string
+    name: string
+    effectiveProgress: number
+    weeksRemaining: number
+    status: string
+  }[]
+  projectsInFlight: { id: string; title: string; completionWeek: number }[]
+  onOpenProjects: () => void
+}) {
+  return (
+    <CommandSection
+      title="Project pipeline"
+      description="Capital works already underway and the next commissioning surface."
+      aside={
+        <button type="button" onClick={onOpenProjects} style={actionButtonStyle()}>
+          Open projects
+        </button>
+      }
+    >
+      <div style={{ display: 'grid', gap: '8px' }}>
+        {activeCapital.length === 0 && projectsInFlight.length === 0 ? (
+          <Empty text="No capital project is currently active or commissioned." />
+        ) : null}
+        {activeCapital.slice(0, 4).map((project) => (
+          <ListCard
+            key={project.id}
+            title={project.name}
+            subtitle={`${project.effectiveProgress.toFixed(0)}% complete · ${project.weeksRemaining} weeks remaining.`}
+            meta={project.status}
+          />
+        ))}
+        {projectsInFlight.slice(0, 3).map((project) => (
+          <ListCard
+            key={project.id}
+            title={project.title}
+            subtitle={`Commissioned for week ${project.completionWeek}.`}
+            meta="Queued"
+          />
+        ))}
+      </div>
+    </CommandSection>
+  )
+}
+
+function ResearchPipeline({
+  researchInFlight,
+  onOpenResearch,
+}: {
+  researchInFlight: { nodeId: string; title: string; completionWeek: number }[]
+  onOpenResearch: () => void
+}) {
+  return (
+    <CommandSection
+      title="Research pipeline"
+      description="Commissioned work that should unlock future policy or project options."
+      aside={
+        <button type="button" onClick={onOpenResearch} style={actionButtonStyle()}>
+          Open research
+        </button>
+      }
+    >
+      <div style={{ display: 'grid', gap: '8px' }}>
+        {researchInFlight.length === 0 ? (
+          <Empty text="No research commission is currently running." />
+        ) : null}
+        {researchInFlight.slice(0, 5).map((node) => (
+          <ListCard
+            key={node.nodeId}
+            title={node.title}
+            subtitle={`Expected by week ${node.completionWeek}.`}
+            meta="Commissioned"
+          />
+        ))}
+      </div>
+    </CommandSection>
+  )
+}
 
 function actionButtonStyle() {
   return {
@@ -66,35 +159,31 @@ export function DeliveryPanel({
   }))
   const pendingImpacts = pendingDelayed.filter((event) => event.firesOnWeek <= week + 3).length
 
+  const statusItems = [
+    {
+      label: 'Capital works',
+      value: activeCapital.length,
+      tone: activeCapital.length > 0 ? 'info' : 'neutral',
+    },
+    {
+      label: 'Stalled',
+      value: stalledCapital.length,
+      tone: stalledCapital.length > 0 ? 'danger' : 'neutral',
+    },
+    {
+      label: 'Research in flight',
+      value: researchInFlight.length,
+      tone: researchInFlight.length > 0 ? 'info' : 'neutral',
+    },
+  ] as const
+
   return (
     <CommandPanel
       question="What are we delivering?"
       summary="Track the term goal, work in flight, and the research or projects that need a decision next."
-      statusItems={[
-        {
-          label: 'Capital works',
-          value: activeCapital.length,
-          tone: activeCapital.length > 0 ? 'info' : 'neutral',
-        },
-        {
-          label: 'Stalled',
-          value: stalledCapital.length,
-          tone: stalledCapital.length > 0 ? 'danger' : 'neutral',
-        },
-        {
-          label: 'Research in flight',
-          value: researchInFlight.length,
-          tone: researchInFlight.length > 0 ? 'info' : 'neutral',
-        },
-      ]}
+      statusItems={statusItems}
     >
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '16px',
-        }}
-      >
+      <div style={CARD_GRID}>
         <CommandSection
           title="Term goal"
           description="How current delivery ladders up to your legacy promise."
@@ -130,72 +219,13 @@ export function DeliveryPanel({
         </CommandSection>
       </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '16px',
-        }}
-      >
-        <CommandSection
-          title="Project pipeline"
-          description="Capital works already underway and the next commissioning surface."
-          aside={
-            <button type="button" onClick={onOpenProjects} style={actionButtonStyle()}>
-              Open projects
-            </button>
-          }
-        >
-          <div style={{ display: 'grid', gap: '8px' }}>
-            {activeCapital.length === 0 && projectsInFlight.length === 0 ? (
-              <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)' }}>
-                No capital project is currently active or commissioned.
-              </p>
-            ) : null}
-            {activeCapital.slice(0, 4).map((project) => (
-              <ListCard
-                key={project.id}
-                title={project.name}
-                subtitle={`${project.effectiveProgress.toFixed(0)}% complete · ${project.weeksRemaining} weeks remaining.`}
-                meta={project.status}
-              />
-            ))}
-            {projectsInFlight.slice(0, 3).map((project) => (
-              <ListCard
-                key={project.id}
-                title={project.title}
-                subtitle={`Commissioned for week ${project.completionWeek}.`}
-                meta="Queued"
-              />
-            ))}
-          </div>
-        </CommandSection>
-
-        <CommandSection
-          title="Research pipeline"
-          description="Commissioned work that should unlock future policy or project options."
-          aside={
-            <button type="button" onClick={onOpenResearch} style={actionButtonStyle()}>
-              Open research
-            </button>
-          }
-        >
-          <div style={{ display: 'grid', gap: '8px' }}>
-            {researchInFlight.length === 0 ? (
-              <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)' }}>
-                No research commission is currently running.
-              </p>
-            ) : null}
-            {researchInFlight.slice(0, 5).map((node) => (
-              <ListCard
-                key={node.nodeId}
-                title={node.title}
-                subtitle={`Expected by week ${node.completionWeek}.`}
-                meta="Commissioned"
-              />
-            ))}
-          </div>
-        </CommandSection>
+      <div style={CARD_GRID}>
+        <ProjectPipeline
+          activeCapital={activeCapital}
+          projectsInFlight={projectsInFlight}
+          onOpenProjects={onOpenProjects}
+        />
+        <ResearchPipeline researchInFlight={researchInFlight} onOpenResearch={onOpenResearch} />
       </div>
     </CommandPanel>
   )

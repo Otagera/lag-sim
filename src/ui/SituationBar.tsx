@@ -84,21 +84,10 @@ function tonePriority(tone: SituationTone) {
   return 0
 }
 
-function buildSituationChips({
-  inCampaignMode,
-  stats,
-  consecutiveDeficitWeeks,
-  emergencySuspensionWeeks,
-  litigationActive,
-  litigationTimer,
-}: {
-  inCampaignMode: boolean
-  stats: ReturnType<typeof useGameStore.getState>['stats']
-  consecutiveDeficitWeeks: number
-  emergencySuspensionWeeks: number
-  litigationActive: boolean
-  litigationTimer: number
-}) {
+function buildCoreChips(
+  stats: ReturnType<typeof useGameStore.getState>['stats'],
+  consecutiveDeficitWeeks: number,
+) {
   const cashTone: SituationTone =
     stats.cashReserve < 0 || consecutiveDeficitWeeks >= 2
       ? 'danger'
@@ -106,7 +95,7 @@ function buildSituationChips({
         ? 'warning'
         : 'neutral'
 
-  const core: SituationChip[] = [
+  return [
     {
       label: 'Cash',
       value: formatCash(stats.cashReserve),
@@ -132,84 +121,117 @@ function buildSituationChips({
       tourId: 'pc-chip',
     },
   ]
+}
 
+function buildChipAlerts(
+  stats: ReturnType<typeof useGameStore.getState>['stats'],
+  emergencySuspensionWeeks: number,
+  litigationActive: boolean,
+  litigationTimer: number,
+  inCampaignMode: boolean,
+): SituationChip[] {
   const alerts: SituationChip[] = []
 
-  if (emergencySuspensionWeeks > 0) {
+  if (emergencySuspensionWeeks > 0)
     alerts.push({
       label: 'Suspended',
       value: `${emergencySuspensionWeeks}w`,
-      tone: 'danger',
+      tone: 'danger' as const,
       title: 'Emergency suspension is active.',
       priority: 30,
     })
-  }
-
-  if (litigationActive) {
+  if (litigationActive)
     alerts.push({
       label: 'Court clock',
       value: `${litigationTimer}w`,
-      tone: 'warning',
+      tone: 'warning' as const,
       title: 'Judicial litigation arc is active.',
       priority: 24,
     })
-  }
-
-  if (inCampaignMode) {
+  if (inCampaignMode)
     alerts.push({
       label: "Election '27",
       value: 'Live',
-      tone: 'accent',
+      tone: 'accent' as const,
       title: 'Campaign mode is active.',
       priority: 22,
     })
+
+  {
+    const t = scoreTone(stats.securityIndex, 50, 35)
+    if (t !== 'neutral')
+      alerts.push({
+        label: 'Security',
+        value: formatScore(stats.securityIndex),
+        tone: t,
+        title: 'Security risk is elevated.',
+        priority: 20 + tonePriority(t),
+      })
   }
 
-  const securityTone = scoreTone(stats.securityIndex, 50, 35)
-  if (securityTone !== 'neutral') {
-    alerts.push({
-      label: 'Security',
-      value: formatScore(stats.securityIndex),
-      tone: securityTone,
-      title: 'Security risk is elevated.',
-      priority: 20 + tonePriority(securityTone),
-    })
+  {
+    const t = scoreTone(stats.federalRelationship + 50, 30, 15)
+    if (t !== 'neutral')
+      alerts.push({
+        label: 'Federal',
+        value: formatScore(stats.federalRelationship),
+        tone: t,
+        title: 'Relationship with Abuja is under strain.',
+        priority: 19 + tonePriority(t),
+      })
   }
 
-  const federalTone = scoreTone(stats.federalRelationship + 50, 30, 15)
-  if (federalTone !== 'neutral') {
-    alerts.push({
-      label: 'Federal',
-      value: formatScore(stats.federalRelationship),
-      tone: federalTone,
-      title: 'Relationship with Abuja is under strain.',
-      priority: 19 + tonePriority(federalTone),
-    })
+  {
+    const t = pressureTone(stats.corruptionPressure, 60, 70)
+    if (t !== 'neutral')
+      alerts.push({
+        label: 'Corruption',
+        value: formatScore(stats.corruptionPressure),
+        tone: t,
+        title: 'Corruption pressure is high.',
+        priority: 18 + tonePriority(t),
+      })
   }
 
-  const corruptionTone = pressureTone(stats.corruptionPressure, 60, 70)
-  if (corruptionTone !== 'neutral') {
-    alerts.push({
-      label: 'Corruption',
-      value: formatScore(stats.corruptionPressure),
-      tone: corruptionTone,
-      title: 'Corruption pressure is high.',
-      priority: 18 + tonePriority(corruptionTone),
-    })
-  }
-
-  const youthTone = pressureTone(stats.youthTension, 65, 80)
-  if (youthTone !== 'neutral') {
-    alerts.push({
-      label: 'Youth',
-      value: formatScore(stats.youthTension),
-      tone: youthTone,
-      title: 'Youth tension is high.',
-      priority: 17 + tonePriority(youthTone),
-    })
+  {
+    const t = pressureTone(stats.youthTension, 65, 80)
+    if (t !== 'neutral')
+      alerts.push({
+        label: 'Youth',
+        value: formatScore(stats.youthTension),
+        tone: t,
+        title: 'Youth tension is high.',
+        priority: 17 + tonePriority(t),
+      })
   }
 
   alerts.sort((a, b) => b.priority - a.priority)
+  return alerts
+}
+
+function buildSituationChips({
+  inCampaignMode,
+  stats,
+  consecutiveDeficitWeeks,
+  emergencySuspensionWeeks,
+  litigationActive,
+  litigationTimer,
+}: {
+  inCampaignMode: boolean
+  stats: ReturnType<typeof useGameStore.getState>['stats']
+  consecutiveDeficitWeeks: number
+  emergencySuspensionWeeks: number
+  litigationActive: boolean
+  litigationTimer: number
+}) {
+  const core = buildCoreChips(stats, consecutiveDeficitWeeks)
+  const alerts = buildChipAlerts(
+    stats,
+    emergencySuspensionWeeks,
+    litigationActive,
+    litigationTimer,
+    inCampaignMode,
+  )
   return [...core, ...alerts.slice(0, 2)]
 }
 

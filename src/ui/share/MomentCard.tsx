@@ -11,6 +11,41 @@ import {
 const SERIF = "'Playfair Display', Georgia, 'Times New Roman', serif"
 const SANS = "'Archivo Narrow', system-ui, -apple-system, sans-serif"
 
+function GhostWeek({ week, accent }: { week: number; accent: string }) {
+  return (
+    <text
+      x="1042"
+      y="700"
+      textAnchor="end"
+      fontFamily={SERIF}
+      fontSize={String(week).length >= 3 ? 360 : 470}
+      fontWeight="700"
+      fill="none"
+      stroke={accent}
+      strokeWidth="2"
+      opacity="0.12"
+    >
+      {week}
+    </text>
+  )
+}
+
+function Kicker({ tenure, kicker, accent }: { tenure: string; kicker: string; accent: string }) {
+  return (
+    <text
+      x="90"
+      y="230"
+      fontFamily={SANS}
+      fontSize="21"
+      fill={accent}
+      letterSpacing="0.24em"
+      fontWeight="700"
+    >
+      {tenure.toUpperCase()} · {kicker.toUpperCase()}
+    </text>
+  )
+}
+
 function wrapHeadline(text: string, maxChars: number): string[] {
   if (text.length <= maxChars) return [text]
   const words = text.split(' ')
@@ -47,36 +82,11 @@ export function MomentCard({ data }: { data: MomentCardData }) {
       <CardDefs flavor={flavor} />
       <CardBackground />
 
-      {/* Ghost week numeral, echoing the legacy card */}
-      <text
-        x="1042"
-        y="700"
-        textAnchor="end"
-        fontFamily={SERIF}
-        fontSize={String(data.week).length >= 3 ? 360 : 470}
-        fontWeight="700"
-        fill="none"
-        stroke={flavor.accent}
-        strokeWidth="2"
-        opacity="0.12"
-      >
-        {data.week}
-      </text>
+      <GhostWeek week={data.week} accent={flavor.accent} />
 
       <CardMasthead administrationLabel={data.administrationLabel} flavor={flavor} />
 
-      {/* Kicker */}
-      <text
-        x="90"
-        y="230"
-        fontFamily={SANS}
-        fontSize="21"
-        fill={flavor.accent}
-        letterSpacing="0.24em"
-        fontWeight="700"
-      >
-        {data.tenure.toUpperCase()} · {data.kicker.toUpperCase()}
-      </text>
+      <Kicker tenure={data.tenure} kicker={data.kicker} accent={flavor.accent} />
 
       {/* Headline */}
       <rect
@@ -113,46 +123,35 @@ export function MomentCard({ data }: { data: MomentCardData }) {
         {data.subhead.length > 52 ? `${data.subhead.slice(0, 51)}…` : data.subhead}
       </text>
 
-      {/* Stat strip */}
-      {data.stats.slice(0, 2).map((stat, i) => {
-        const x = 90 + i * 452
-        return (
-          <g key={stat.label} transform={`translate(${x} 1024)`}>
-            <rect x="0" y="0" width="420" height="150" fill={flavor.accent} opacity="0.08" rx="4" />
-            <rect
-              x="0"
-              y="0"
-              width="420"
-              height="150"
-              fill="none"
-              stroke={flavor.accent}
-              strokeWidth="2.5"
-              rx="4"
-            />
-            <text
-              x="28"
-              y="66"
-              fontFamily={SANS}
-              fontSize="16"
-              fill={flavor.subdue}
-              letterSpacing="0.16em"
-              fontWeight="700"
-            >
-              {stat.label.toUpperCase()}
-            </text>
-            <text
-              x="28"
-              y="128"
-              fontFamily={SERIF}
-              fontSize="64"
-              fontWeight="700"
-              fill={flavor.text}
-            >
-              {stat.value}
-            </text>
-          </g>
-        )
-      })}
+      {data.stats.slice(0, 2).map((stat, i) => (
+        <g key={stat.label} transform={`translate(${90 + i * 452} 1024)`}>
+          <rect x="0" y="0" width="420" height="150" fill={flavor.accent} opacity="0.08" rx="4" />
+          <rect
+            x="0"
+            y="0"
+            width="420"
+            height="150"
+            fill="none"
+            stroke={flavor.accent}
+            strokeWidth="2.5"
+            rx="4"
+          />
+          <text
+            x="28"
+            y="66"
+            fontFamily={SANS}
+            fontSize="16"
+            fill={flavor.subdue}
+            letterSpacing="0.16em"
+            fontWeight="700"
+          >
+            {stat.label.toUpperCase()}
+          </text>
+          <text x="28" y="128" fontFamily={SERIF} fontSize="64" fontWeight="700" fill={flavor.text}>
+            {stat.value}
+          </text>
+        </g>
+      ))}
 
       {data.governorName ? (
         <text

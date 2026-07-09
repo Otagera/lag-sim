@@ -25,6 +25,68 @@ const STEPS = [
 ]
 
 const FALLBACK_DEPUTIES: DeputyKey[] = ['technocrat', 'politician', 'loyalist']
+const STEP_ANIM = { animation: 'onboarding-step-enter 320ms ease-out' }
+
+function NavButtons({
+  stepIndex,
+  onPrev,
+  onNext,
+  canAdvance,
+  isLast,
+}: {
+  stepIndex: number
+  onPrev: () => void
+  onNext: () => void
+  canAdvance: boolean
+  isLast: boolean
+}) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '8px',
+        margin: '24px 0',
+        fontFamily: "'Archivo Narrow', sans-serif",
+        fontSize: '12px',
+      }}
+    >
+      <button
+        type="button"
+        onClick={onPrev}
+        disabled={stepIndex === 0}
+        style={{
+          padding: '7px 16px',
+          border: '1px solid var(--border)',
+          background: 'var(--surface)',
+          color: 'var(--text-secondary)',
+          cursor: stepIndex === 0 ? 'default' : 'pointer',
+          opacity: stepIndex === 0 ? 0.4 : 1,
+        }}
+      >
+        ← Back
+      </button>
+      {!isLast && (
+        <button
+          type="button"
+          onClick={onNext}
+          disabled={!canAdvance}
+          style={{
+            padding: '7px 16px',
+            border: '1px solid var(--accent-solid)',
+            background: canAdvance ? 'var(--accent-solid)' : 'var(--surface)',
+            color: canAdvance ? 'var(--accent-on-solid)' : 'var(--text-secondary)',
+            cursor: canAdvance ? 'pointer' : 'not-allowed',
+            opacity: canAdvance ? 1 : 0.5,
+            fontWeight: 600,
+          }}
+        >
+          Next →
+        </button>
+      )}
+    </div>
+  )
+}
 
 function StepHeading({ kicker, title, blurb }: { kicker: string; title: string; blurb: string }) {
   return (
@@ -397,55 +459,15 @@ export function NewGameFlow() {
           onStepClick={(i) => i <= stepIndex && setStepIndex(i)}
         />
 
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '8px',
-            margin: '24px 0',
-            fontFamily: "'Archivo Narrow', sans-serif",
-            fontSize: '12px',
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setStepIndex((i) => Math.max(0, i - 1))}
-            disabled={stepIndex === 0}
-            style={{
-              padding: '7px 16px',
-              border: '1px solid var(--border)',
-              background: 'var(--surface)',
-              color: 'var(--text-secondary)',
-              cursor: stepIndex === 0 ? 'default' : 'pointer',
-              opacity: stepIndex === 0 ? 0.4 : 1,
-            }}
-          >
-            ← Back
-          </button>
-          {!isLast && (
-            <button
-              type="button"
-              onClick={() => canAdvance && setStepIndex((i) => Math.min(STEPS.length - 1, i + 1))}
-              disabled={!canAdvance}
-              style={{
-                padding: '7px 16px',
-                border: '1px solid var(--accent-solid)',
-                background: canAdvance ? 'var(--accent-solid)' : 'var(--surface)',
-                color: canAdvance ? 'var(--accent-on-solid)' : 'var(--text-secondary)',
-                cursor: canAdvance ? 'pointer' : 'not-allowed',
-                opacity: canAdvance ? 1 : 0.5,
-                fontWeight: 600,
-              }}
-            >
-              Next →
-            </button>
-          )}
-        </div>
+        <NavButtons
+          stepIndex={stepIndex}
+          onPrev={() => setStepIndex((i) => Math.max(0, i - 1))}
+          onNext={() => canAdvance && setStepIndex((i) => Math.min(STEPS.length - 1, i + 1))}
+          canAdvance={canAdvance}
+          isLast={isLast}
+        />
 
-        <div
-          key={stepIndex}
-          style={reduced ? undefined : { animation: 'onboarding-step-enter 320ms ease-out' }}
-        >
+        <div key={stepIndex} style={reduced ? undefined : STEP_ANIM}>
           {stepIndex === 0 && <WelcomeMock />}
           {stepIndex === 1 && (
             <ArchetypeStep
