@@ -50,48 +50,47 @@ function pickRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-/** Call tick() directly via zustand store (bypasses UI) */
+/**
+ * Call tick() via cached zustand store (manual play only — before Vite HMR fires).
+ */
 async function tickStore(page) {
   return page.evaluate(async () => {
-    const mod = await import('/src/state/gameStore.ts');
-    const s = mod.useGameStore.getState();
+    const s = globalThis.__store.useGameStore.getState();
     if (s.isGameOver) return { ticked: false, week: s.week, gameOver: true };
     s.tick();
-    const after = mod.useGameStore.getState();
+    const after = globalThis.__store.useGameStore.getState();
     return {
       ticked: true,
       week: after.week,
       gameOver: after.isGameOver,
       activeEventId: after.activeEvent?.id ?? null,
+      activeEventTitle: after.activeEvent?.title ?? null,
+      politicalCapital: after.stats?.politicalCapital,
+      publicTrust: after.stats?.publicTrust,
+      cashReserve: after.stats?.cashReserve,
     };
   });
 }
 
-/** Read full store state */
-async function readStore(page) {
+/** Resolve active event via store */
+async function resolveEventViaStore(page, choiceId) {
+  return page.evaluate(async (cid) => {
+    globalThis.__store.useGameStore.getState().resolveEvent(cid);
+  }, choiceId);
+}
+
+/** Dismiss consequence beats via store */
+async function dismissBeats(page) {
   return page.evaluate(async () => {
-    const mod = await import('/src/state/gameStore.ts');
-    const s = mod.useGameStore.getState();
-    return {
-      week: s.week,
-      activeEventId: s.activeEvent?.id ?? null,
-      activeEventTitle: s.activeEvent?.title ?? null,
-      isGameOver: s.isGameOver,
-      consequenceBeatsCount: s.consequenceBeats?.length ?? 0,
-      eventsResolvedThisWeek: s.eventsResolvedThisWeek,
-      cashReserve: s.stats?.cashReserve,
-      publicTrust: s.stats?.publicTrust,
-      politicalCapital: s.stats?.politicalCapital,
-      corruptionPressure: s.stats?.corruptionPressure,
-      partyGodfathers: s.factions?.partyGodfathers,
-      youthTension: s.stats?.youthTension,
-      federalRelationship: s.stats?.federalRelationship,
-      inCampaignMode: s.inCampaignMode,
-      reElected: s.reElected,
-      electionResult: s.electionResult,
-    };
+    const beats = globalThis.__store.useGameStore.getState().consequenceBeats;
+    if (beats.length > 0) {
+      globalThis.__store.useGameStore.getState().dismissConsequenceBeat();
+    }
+    return beats.length;
   });
 }
+
+
 
 /** Click via dispatchEvent (works for buttons inside React portals / event card area) */
 async function clickText(page, textSubstring, { timeout = 3000 } = {}) {
@@ -133,7 +132,6 @@ async function main() {
   const page = await context.newPage();
 
   const consoleErrors = [];
-  const stateSnapshots = [];
   page.on('console', msg => {
     if (msg.type() === 'error') { consoleErrors.push(msg.text()); log(`[ERR] ${msg.text().slice(0, 120)}`); }
   });
@@ -168,67 +166,57 @@ async function main() {
   await page.locator('button:has-text("Begin Governing")').first().click(); await page.waitForTimeout(2000);
 
   log(`Game started. Week: 1`);
+
+  // Eagerly import the store module ONCE and cache on globalThis.
+  await page.evaluate(async () => {
+    if (!globalThis.__store) {
+      globalThis.__store = await import('/src/state/gameStore.ts');
+    }
+  });
+  log(`Store module cached globally (eager import)`);
+
   await snap(page, '07-game-started');
 
   // ── MANUAL PLAY — 8 turns with UI panels mid-way ──────────────
-  // Helper to resolve whatever event is sitting on screen
+  // Helper to resolve whatever event is sitting on screen.
+  // Uses the zustand store directly (resolveEvent / dismissConsequenceBeat)
+  // instead of DOM click dispatchEvent, which is unreliable for React synthetic events.
   async function resolveActiveEvent(week) {
-    // Verify store still has an active event (panel h2s don't count)
     const storeInfo = await page.evaluate(async () => {
-      const mod = await import('/src/state/gameStore.ts');
-      const s = mod.useGameStore.getState();
-      return { hasEvent: !!s.activeEvent, title: s.activeEvent?.title, id: s.activeEvent?.id };
+      const s = globalThis.__store.useGameStore.getState();
+      return { hasEvent: !!s.activeEvent, title: s.activeEvent?.title, choices: s.activeEvent?.choices ?? [] };
     });
     if (!storeInfo.hasEvent) return;
 
-    // Find event card h2 (font-display class distinguishes it from panel h2s)
-    const titleEl = await page.locator('h2.font-display').first().textContent().catch(() => '');
-    const title = titleEl || storeInfo.title || '?';
+    const title = storeInfo.title || '?';
     eventLog.push({ week, title: title.trim() });
     log(`  Event: "${title.trim()}"`);
 
-    // Find choice buttons inside the event card container
-    const btns = await page.evaluate(() => {
-      const h2 = document.querySelector('h2.font-display');
-      if (!h2) return [];
-      const area = h2.closest('div')?.parentElement;
-      if (!area) return [];
-      const skip = ['Continue', 'Advance Week', 'Game Over'];
-      return Array.from(area.querySelectorAll('button'))
-        .filter(b => b.textContent?.trim() && !skip.includes(b.textContent?.trim()))
-        .slice(0, 4)
-        .map(b => b.textContent?.trim().slice(0, 60));
-    });
-    if (btns.length > 0) {
-      const chosen = pickRandom(btns);
-      log(`  Choice: "${chosen}"`);
-      await clickText(page, chosen.slice(0, 30));
-      await page.waitForTimeout(800);
+    // Resolve via store: pick a random choice and call resolveEvent
+    if (storeInfo.choices.length > 0) {
+      const choice = pickRandom(storeInfo.choices);
+      log(`  Choice: "${choice.label?.slice(0, 60)}" (cost: ${choice.politicalCapitalCost || 0} PC)`);
+      await resolveEventViaStore(page, choice.id);
+      await page.waitForTimeout(600);
     }
-    for (let s = 0; s < 5; s++) {
-      const found = await clickText(page, 'Continue', { timeout: 600 });
-      if (!found) break;
-      await page.waitForTimeout(300);
+
+    // Dismiss consequence beats via store
+    for (let s = 0; s < 10; s++) {
+      const remaining = await dismissBeats(page);
+      if (remaining === 0) break;
+      await page.waitForTimeout(150);
     }
   }
 
   log('\n--- MANUAL PLAY (8 turns via store.tick()) ---');
   for (let turn = 0; turn < 8 && !gameOver; turn++) {
-    const pre = await readStore(page);
-    if (pre.isGameOver) { gameOver = true; break; }
-
-    // Resolve any sitting event before ticking (may happen after game over screen)
-    if (pre.activeEventId) await resolveActiveEvent(pre.week);
-
     // Tick
     await page.waitForTimeout(200);
     const result = await tickStore(page);
     if (!result.ticked) { gameOver = true; log('  ** GAME OVER (tick failed) **'); break; }
 
-    // Log PC snapshot
-    const cur = await readStore(page);
-    pcHistory.push({ week: cur.week, pc: cur.politicalCapital, trust: cur.publicTrust });
-    log(`Turn ${turn + 1}, Week ${result.week}, PC=${cur.politicalCapital?.toFixed(1)}${result.gameOver ? ' GAME OVER' : ''}`);
+    pcHistory.push({ week: result.week, pc: result.politicalCapital, trust: result.publicTrust });
+    log(`Turn ${turn + 1}, Week ${result.week}, PC=${result.politicalCapital?.toFixed(1)}${result.gameOver ? ' GAME OVER' : ''}`);
 
     // Resolve drawn event
     if (result.activeEventId) {
@@ -270,6 +258,80 @@ async function main() {
     }
   }
 
+  // ── DOM HELPERS (used by both FF capture and post-FF play) ──
+
+  /** Read week from DOM header text */
+  async function readDOMWeek() {
+    const text = await page.evaluate(() => document.querySelector('header')?.textContent || '');
+    const m = text.match(/Week\s+(\d+)/i);
+    return m ? parseInt(m[1], 10) : -1;
+  }
+
+  /** Read PC from the PC chip (data-tour="pc-chip") */
+  async function readDOMPC() {
+    return page.evaluate(() => {
+      const chip = document.querySelector('[data-tour="pc-chip"]');
+      if (!chip) return NaN;
+      const spans = chip.querySelectorAll('span');
+      const valueSpan = spans[spans.length - 1];
+      const val = parseFloat(valueSpan?.textContent || '');
+      return isNaN(val) ? NaN : val;
+    });
+  }
+
+  /** Click Advance Week button */
+  async function clickAdvanceWeek() {
+    const clicked = await page.evaluate(() => {
+      const btn = document.querySelector('button[data-tour="next-week"]');
+      if (!btn || btn.disabled) return 'disabled';
+      btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      return 'clicked';
+    });
+    return clicked === 'clicked';
+  }
+
+  /** Resolve active event via UI: click a random choice button */
+  async function resolveEventViaUI() {
+    await page.waitForTimeout(800);
+    const choices = await page.evaluate(() => {
+      const eventArea = document.querySelector('[class*="event-"]') || document.body;
+      return Array.from(eventArea.querySelectorAll('button'))
+        .filter(b => b.textContent && b.textContent.trim().length > 2)
+        .map(b => ({ text: b.textContent?.trim()?.slice(0, 80) || '', disabled: !!b.disabled }));
+    });
+    const choiceBtns = choices.filter(c =>
+      !c.text.startsWith('?') && !c.text.includes('Research') && !c.text.includes('Projects')
+      && !c.text.includes('Advance Week') && !c.text.includes('Game Over')
+      && !c.text.includes('Click anywhere') && !c.text.includes('Decision Made')
+    );
+    if (choiceBtns.length === 0) return false;
+    const picked = pickRandom(choiceBtns);
+    return clickText(page, picked.text.slice(0, 30));
+  }
+
+  /** Wait for all consequence beats to auto-dismiss (max 10s total) */
+  async function waitForDismiss() {
+    for (let i = 0; i < 20; i++) {
+      const hasBeat = await page.evaluate(() => {
+        return document.body.textContent?.includes('Click anywhere or wait to dismiss') || false;
+      });
+      if (!hasBeat) return true;
+      await clickText(page, 'Click anywhere or wait to dismiss', { timeout: 300 }).catch(() => {});
+      await page.waitForTimeout(200);
+    }
+    return false;
+  }
+
+  /** Check if game over screen is showing via advance-week button */
+  async function isGameOverFromDOM() {
+    const hasDisabledBtn = await page.evaluate(() => {
+      const btn = document.querySelector('button[data-tour="next-week"]');
+      return btn ? btn.disabled : true;
+    });
+    const hasGameOverText = await page.evaluate(() => document.body.textContent?.includes('Game Over') || false);
+    return hasDisabledBtn && hasGameOverText;
+  }
+
   // ── FAST-FORWARD via DEV panel ──────────────────────────────
   log('\n--- FAST FORWARD ---');
   const devBtn = page.locator('button:has-text("DEV")').first();
@@ -291,76 +353,91 @@ async function main() {
 
       const ffWeek = await page.evaluate(() => document.querySelector('header')?.textContent || '');
       const ffWeekNum = parseInt(ffWeek.match(/Week\s+(\d+)/i)?.[1] || '-1');
+      const ffPC = await readDOMPC();
       log(`  After FF: week=${ffWeekNum}`);
       if (ffWeekNum === -1) gameOver = true;
-      const ffStore = await readStore(page);
-      pcHistory.push({ week: ffStore.week, pc: ffStore.politicalCapital, trust: ffStore.publicTrust, note: 'after-ff' });
-      log(`  PC=${ffStore.politicalCapital?.toFixed(1)}, Trust=${ffStore.publicTrust?.toFixed(1)}`);
+      pcHistory.push({ week: ffWeekNum, pc: ffPC, trust: NaN });
+      log(`  PC=${isNaN(ffPC) ? '?' : ffPC.toFixed(1)}`);
       await snap(page, 'after-fastforward');
     }
   }
 
   // ── PLAY AFTER FAST-FORWARD ─────────────────────────────────
-  // Use store.tick() directly since the Situational Bar button may be
-  // re-rendered inconsistently after the dev panel fast-forward.
-  log('\n--- POST-FF PLAY (20 turns via store.tick()) ---');
+  // Use UI clicks for post-FF play (store access triggers Vite HMR which resets state).
 
-  for (let turn = 0; turn < 20 && !gameOver; turn++) {
-    const pre = await readStore(page);
-    if (pre.isGameOver) { gameOver = true; log('  ** GAME OVER (pre) **'); break; }
-    log(`  Pre-tick: week=${pre.week}, active="${pre.activeEventTitle || 'none'}", PC=${pre.politicalCapital?.toFixed(1)}`);
+  const ffWeekNum = await readDOMWeek();
+  log(`  POST-FF START: week=${ffWeekNum}, gameOver=${gameOver}`);
 
-    // Resolve any sitting event before tick
-    if (pre.activeEventTitle) {
-      await page.waitForTimeout(500);
-      await resolveActiveEvent(pre.week);
-    }
+  if (!gameOver && ffWeekNum > 0) {
+    log('\n--- POST-FF PLAY (UI-driven, up to 20 turns) ---');
+    for (let turn = 0; turn < 20; turn++) {
+      // Advance week
+      if (!(await clickAdvanceWeek())) {
+        log(`  ** GAME OVER ** (advance week disabled)`);
+        // Wait for LegacyScreen to render
+        await page.waitForTimeout(2000);
+        // Check for "Begin Second Term" (re-election win)
+        const won = await clickText(page, 'Begin Second Term', { timeout: 2000 }).catch(() => false);
+        if (won) {
+          log('  Re-elected! Beginning second term...');
+          await page.waitForTimeout(1000);
+          continue; // Try advancing again
+        }
+        // Check for plain "Continue" on game-over screen
+        await clickText(page, 'Continue', { timeout: 1500 }).catch(() => {});
+        break; // Game is truly over
+      }
+      await page.waitForTimeout(800);
 
-    // Tick via store
-    await page.waitForTimeout(300);
-    const result = await tickStore(page);
-    if (!result.ticked) { gameOver = true; log('  ** GAME OVER **'); break; }
+      // Resolve event card if present
+      await resolveEventViaUI().catch(() => {});
+      await page.waitForTimeout(300);
 
-    const cur = await readStore(page);
-    pcHistory.push({ week: cur.week, pc: cur.politicalCapital, trust: cur.publicTrust });
-    log(`  Tick → week=${result.week}, gameOver=${result.gameOver}, active="${result.activeEventId || 'none'}", PC=${cur.politicalCapital?.toFixed(1)}`);
+      // Wait for consequence beats to auto-dismiss
+      await waitForDismiss().catch(() => {});
 
-    // Resolve any drawn event
-    if (result.activeEventId) {
-      await page.waitForTimeout(1000);
-      await resolveActiveEvent(result.week);
-      log(`  Resolved`);
+      // Read week + PC from DOM
+      const currentWeek = await readDOMWeek();
+      const currentPC = await readDOMPC();
+      pcHistory.push({ week: currentWeek, pc: currentPC, trust: NaN });
+      log(`  Post-FF ${turn + 1}, week=${currentWeek}, PC=${isNaN(currentPC) ? '?' : currentPC.toFixed(1)}`);
     }
   }
 
   // ── FINAL CAPTURE ─────────────────────────────────────────────
   log('\n--- FINAL STATE ---');
-  let finalStore = await readStore(page);
 
-  // If game over, read the ending narrative from store
-  if (finalStore.isGameOver) {
-    log('Game over detected. Capturing legacy...');
-    const narrative = await page.evaluate(async () => {
-      const mod = await import('/src/state/gameStore.ts');
-      const s = mod.useGameStore.getState();
-      return { narrative: s.endingNarrative, gameOverType: s.gameOverType, gameOverReason: s.gameOverReason };
-    });
-    log(`Game over type: ${narrative.gameOverType}`);
-    log(`Game over reason: ${narrative.gameOverReason}`);
-    log(`Ending narrative: ${narrative.narrative?.slice(0, 200)}`);
-    // Try to click away any game-over screen to see legacy
-    await clickText(page, 'Continue', { timeout: 2000 }).catch(() => {});
-    await page.waitForTimeout(1000);
-    await snap(page, 'game-over-screen');
-  }
-
-  const headerPreview = s(await page.locator('header').first().textContent().catch(() => ''));
+  // Capture final state from DOM (avoids Vite HMR store reset)
   const bodyText = await page.locator('body').textContent().catch(() => '');
   const hasLegacy = bodyText?.includes('Legacy of') || bodyText?.includes('Valedictory') || false;
-  log(`Header: ${headerPreview.slice(0, 120)}`);
+
+  const goTypeMatch = bodyText?.match(/(bankruptcy|federal|uprising|impeachment|primary|term)/i);
+  const goType = goTypeMatch ? goTypeMatch[1] : 'unknown';
+
+  let endingNarrative = '';
+  if (hasLegacy) {
+    const narrativeEl = await page.evaluate(() => {
+      const el = document.querySelector('[class*="legacy"]') || document.querySelector('main');
+      return el?.textContent?.slice(0, 300) || '';
+    });
+    endingNarrative = narrativeEl.slice(0, 200);
+  }
+
+  const finalHeader = s(await page.locator('header').first().textContent().catch(() => ''));
+  const finalWeekMatch = finalHeader.match(/Week\s+(\d+)/i);
+  const finalWeek = finalWeekMatch ? parseInt(finalWeekMatch[1], 10) : '?';
+  const finalPCMatch = bodyText.match(/PC\s*([\d.]+)/) || bodyText.match(/Political\s*Capital[:\s]+([\d.]+)/i);
+  const finalPC = finalPCMatch ? finalPCMatch[1] : 'N/A';
+
+  log(`Game over type: ${goType}`);
   log(`Legacy screen visible: ${hasLegacy}`);
+  log(`Final week: ${finalWeek}, PC: ${finalPC}`);
+  if (endingNarrative) log(`Narrative: ${endingNarrative}`);
+
+  await clickText(page, 'Continue', { timeout: 2000 }).catch(() => {});
+  await page.waitForTimeout(1000);
+  await snap(page, 'game-over-screen');
   await snap(page, 'final');
-  log(JSON.stringify(finalStore, null, 2));
 
   // Write outputs
   writeLogs();
@@ -378,13 +455,12 @@ async function main() {
   const pcAt50 = pcHistory.find(r => r.week >= 50)?.pc ?? '?';
   const pcAt100 = pcHistory.find(r => r.week >= 100)?.pc ?? '?';
   const pcFinal = pcHistory[pcHistory.length - 1]?.pc ?? '?';
-  const pcMin = Math.min(...pcHistory.map(r => r.pc).filter(v => v !== null && v !== undefined));
+  const pcMin = Math.min(...pcHistory.map(r => r.pc).filter(v => v !== null && v !== undefined && !isNaN(v)));
   const pcMinWeek = pcHistory.find(r => r.pc === pcMin)?.week ?? '?';
-  const finalPC = typeof finalStore.politicalCapital === 'number' ? finalStore.politicalCapital.toFixed(1) : 'N/A';
 
   let md = `# PLAYTHROUGH AUDIT — Lagos Governor Sim\n\n`;
   md += `**Generated:** ${new Date().toISOString()}\n`;
-  md += `**Final week:** ${finalStore.week}\n`;
+  md += `**Final week:** ${finalWeek}\n`;
   md += `**Game over reached:** ${gameOver}\n`;
   md += `**Events resolved:** ${eventLog.length}\n`;
   md += `**Unique events:** ${Object.keys(tally).length}\n`;
@@ -426,7 +502,7 @@ async function main() {
   md += `- **Godfather events:** Labeled "Chief Fashemu".\n`;
   md += `- **Campaign mode:** Visible after week 187.\n`;
   md += `- **Dev panel fast-forward:** Works correctly for bulk play.\n`;
-  md += `- **Header preview:** ${headerPreview.slice(0, 100)}\n\n`;
+  md += `- **Header preview:** ${finalHeader.slice(0, 100)}\n\n`;
 
   md += `## 4. Election / Term\n\n`;
   md += `- Campaign watermark renders as fixed overlay.\n`;
@@ -440,30 +516,16 @@ async function main() {
   md += `\n`;
 
   md += `## 6. End State\n\n`;
-  md += `- **Week:** ${finalStore.week}\n`;
-  md += `- **Game over:** ${finalStore.isGameOver}\n`;
+  md += `- **Week:** ${finalWeek}\n`;
+  md += `- **Game over:** ${gameOver || hasLegacy}\n`;
   md += `- **Legacy screen:** ${hasLegacy}\n`;
-  md += `- **Campaign mode:** ${finalStore.inCampaignMode}\n`;
-  md += `- **Re-elected:** ${finalStore.reElected}\n`;
-  md += `- **Election result:** ${finalStore.electionResult || 'N/A'}\n`;
-  md += `- **Cash reserve:** ₦${typeof finalStore.cashReserve === 'number' ? finalStore.cashReserve.toLocaleString(undefined, {maximumFractionDigits: 1}) : 'N/A'}bn\n`;
-  md += `- **Public trust:** ${typeof finalStore.publicTrust === 'number' ? finalStore.publicTrust.toFixed(1) : 'N/A'}\n`;
   md += `- **Political capital:** ${finalPC}\n`;
-  md += `- **Corruption pressure:** ${typeof finalStore.corruptionPressure === 'number' ? finalStore.corruptionPressure.toFixed(1) : 'N/A'}\n`;
-  md += `- **Youth tension:** ${typeof finalStore.youthTension === 'number' ? finalStore.youthTension.toFixed(1) : 'N/A'}\n`;
-  md += `- **Federal relationship:** ${typeof finalStore.federalRelationship === 'number' ? finalStore.federalRelationship.toFixed(1) : 'N/A'}\n`;
-  md += `- **Party godfathers:** ${typeof finalStore.partyGodfathers === 'number' ? finalStore.partyGodfathers.toFixed(1) : 'N/A'}\n`;
+  md += `- **Game over type:** ${goType}\n`;
   md += `- **Events:** ${eventLog.length} total, ${Object.keys(tally).length} unique\n\n`;
 
   md += `### Game Over Details\n\n`;
-  const gameOverInfo = await page.evaluate(async () => {
-    const mod = await import('/src/state/gameStore.ts');
-    const s = mod.useGameStore.getState();
-    return { type: s.gameOverType, reason: s.gameOverReason, narrative: s.endingNarrative };
-  }).catch(() => ({ type: 'unknown', reason: 'unknown', narrative: '' }));
-  md += `- **Type:** ${gameOverInfo.type}\n`;
-  md += `- **Reason:** ${(gameOverInfo.reason || '').replace(/`/g, "'")}\n`;
-  md += `- **Narrative:** ${(gameOverInfo.narrative || '').replace(/`/g, "'").slice(0, 300)}\n\n`;
+  md += `- **Type:** ${goType}\n`;
+  md += `- **Narrative:** ${endingNarrative.replace(/`/g, "'").slice(0, 300)}\n\n`;
 
   md += `## PC History (Raw)\n\n`;
   md += `| Week | PC | Trust |\n|---|---|---|\n`;
