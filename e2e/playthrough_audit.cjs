@@ -233,6 +233,26 @@ async function main() {
           await page.waitForTimeout(400);
           log(`  Dock "${label}" opened`);
           await snap(page, `dock-${label.toLowerCase()}`);
+
+          // When Treasury is open, try a prestige action
+          if (label === 'Treasury') {
+            const pcBefore = await readDOMPC();
+            log(`  PC before prestige action: ${pcBefore}`);
+            const clicked = await clickText(page, 'Media Blitz', { timeout: 2000 });
+            if (clicked) {
+              log('  Prestige action "Media Blitz" clicked');
+              await page.waitForTimeout(300);
+              // Click confirm dialog
+              await clickText(page, 'Confirm', { timeout: 2000 });
+              await page.waitForTimeout(500);
+              await snap(page, 'prestige-action-done');
+              const pcAfter = await readDOMPC();
+              log(`  PC after prestige action: ${pcAfter}`);
+            } else {
+              log('  Prestige action "Media Blitz" not clickable (maybe cooldown/cash)');
+            }
+          }
+
           await page.keyboard.press('Escape'); await page.waitForTimeout(200);
         } else log(`  Dock "${label}" NOT FOUND`);
       }

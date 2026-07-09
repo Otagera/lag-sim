@@ -72,7 +72,7 @@ const SECTIONS = [
       {
         condition: 'Political Capital',
         threshold: '0–200. Below 25 = warning. Spent on bold actions.',
-        recovery: 'Earned by delivering wins and keeping faction support.',
+        recovery: 'Earned by delivering wins, completing projects (+3–5 PC), or prestige actions in Treasury → Raise Your Profile.',
       },
       {
         condition: 'Infrastructure Score',

@@ -167,6 +167,7 @@ export const STARTING_STATE: GameState = {
   consequenceBeats: [],
   // Phase C
   economyCooldowns: {},
+  prestigeCooldowns: {},
   // Phase D
   inbox: [],
   // Phase E

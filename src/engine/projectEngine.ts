@@ -60,7 +60,8 @@ export function processProjects(state: GameState): GameState {
 
   const completedProjects = updatedProjects.filter((p) => p.status === 'completed')
   for (const project of completedProjects) {
-    next = applyDelta(next, { infrastructureScore: 5, igr: 0.3 })
+    const pcReward = project.totalCost > 20 ? 5 : project.totalCost > 10 ? 4 : 3
+    next = applyDelta(next, { infrastructureScore: 5, igr: 0.3, politicalCapital: pcReward })
     next = applyConstituencyImpact(next, { [project.location]: 8 })
   }
 

@@ -57,15 +57,15 @@ function dirArrow(isGood: boolean): string {
 function buildImpactPills(choice: Choice): ImpactPill[] {
   const pills: ImpactPill[] = []
 
+  // Merge politicalCapitalCost into the immediate delta so PC renders as ONE
+  // net pill instead of two separate/contradictory entries.
+  const mergedImmediate = { ...choice.immediate }
   if (choice.politicalCapitalCost && choice.politicalCapitalCost > 0) {
-    pills.push({
-      text: `${dirArrow(false)} -${choice.politicalCapitalCost} Pol. Cap`,
-      isGood: false,
-      icon: STAT_ICONS.politicalCapital?.icon,
-    })
+    mergedImmediate.politicalCapital =
+      (mergedImmediate.politicalCapital || 0) - choice.politicalCapitalCost
   }
 
-  for (const [key, value] of Object.entries(choice.immediate)) {
+  for (const [key, value] of Object.entries(mergedImmediate)) {
     if (!value || !STAT_WHITELIST.has(key)) continue
     const isGood = INVERT_STATS.has(key) ? value < 0 : value > 0
     const absVal = Math.abs(value)
@@ -97,15 +97,14 @@ function buildImpactPills(choice: Choice): ImpactPill[] {
 function buildPillsFromBeat(beat: ConsequenceBeat): ImpactPill[] {
   const pills: ImpactPill[] = []
 
+  // Same merge as buildImpactPills — net PC from beat, not double-rendered.
+  const mergedImmediate = { ...beat.immediate }
   if (beat.politicalCapitalCost && beat.politicalCapitalCost > 0) {
-    pills.push({
-      text: `${dirArrow(false)} -${beat.politicalCapitalCost} Pol. Cap`,
-      isGood: false,
-      icon: STAT_ICONS.politicalCapital?.icon,
-    })
+    mergedImmediate.politicalCapital =
+      (mergedImmediate.politicalCapital || 0) - beat.politicalCapitalCost
   }
 
-  for (const [key, value] of Object.entries(beat.immediate)) {
+  for (const [key, value] of Object.entries(mergedImmediate)) {
     if (!value || !STAT_WHITELIST.has(key)) continue
     const isGood = INVERT_STATS.has(key) ? value < 0 : value > 0
     const absVal = Math.abs(value)

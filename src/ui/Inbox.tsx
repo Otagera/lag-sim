@@ -143,7 +143,10 @@ function MessageDetail({ msg, onBack }: { msg: InboxMessage; onBack: () => void 
           <div>
             <button
               type="button"
-              onClick={onBack}
+              onClick={() => {
+                useGameStore.getState().activateQueuedEvent(msg.linkedEventId!)
+                onBack()
+              }}
               className="w-full px-3 py-1.5 text-[11px] font-semibold transition-colors text-center"
               style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-on-solid)' }}
             >

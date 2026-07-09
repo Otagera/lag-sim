@@ -1,5 +1,6 @@
 import { create, type StoreApi } from 'zustand'
 import { DEPUTY_PROFILES } from '../data/deputies'
+import { PRESTIGE_ACTIONS } from '../data/prestigeActions'
 import { STARTING_STATE } from '../data/startingState'
 import { takeLoan as takeLoanAction } from '../engine/debtEngine'
 import { evaluateSkipNews } from '../engine/evaluateNews'
@@ -60,6 +61,8 @@ export interface GameStore extends GameState {
   beginSecondTerm: () => void
   commissionResearchNode: (nodeId: string) => void
   commissionProject: (projectId: string) => void
+  activateQueuedEvent: (eventId: string) => void
+  launchPrestigeAction: (id: string) => void
 }
 
 type StoreSet = StoreApi<GameStore>['setState']
@@ -97,6 +100,8 @@ type MetaActions = Pick<
   | 'dismissMoment'
   | 'commissionResearchNode'
   | 'commissionProject'
+  | 'activateQueuedEvent'
+  | 'launchPrestigeAction'
 >
 
 const resolveGodfatherAsk = (set: StoreSet, get: StoreGet, accepted: boolean) => {
@@ -306,6 +311,66 @@ const createMetaActions = (set: StoreSet, get: StoreGet): MetaActions => ({
     const status = state.projectStatuses[projectId]
     if (status === 'commissioned' || status === 'completed') return
     set(commissionProjectAction(projectId, state))
+  },
+  activateQueuedEvent: (eventId) =>
+    set((s) => {
+      const idx = s.eventQueue.findIndex((e) => e.id === eventId)
+      if (idx === -1) return {}
+      const event = s.eventQueue[idx]
+      return {
+        activeEvent: event,
+        eventQueue: [...s.eventQueue.slice(0, idx), ...s.eventQueue.slice(idx + 1)],
+      }
+    }),
+  launchPrestigeAction: (id) => {
+    const s = get()
+    const def = PRESTIGE_ACTIONS[id]
+    if (!def) return
+
+    if (def.type === 'timed') {
+      if (s.activeInitiative) return
+      if (s.stats.cashReserve < def.cashCost) return
+
+      let next = applyDelta(s, { cashReserve: -def.cashCost })
+      if (def.statDelta && Object.keys(def.statDelta).length > 0) {
+        next = applyDelta(next, def.statDelta)
+      }
+      if (def.factionImpact && Object.keys(def.factionImpact).length > 0) {
+        next = { ...next, factions: applyFactionDelta(next.factions, def.factionImpact) }
+      }
+
+      set({
+        ...next,
+        activeInitiative: {
+          id: def.id,
+          name: def.name,
+          weeksRemaining: def.weeksToComplete!,
+          totalWeeks: def.weeksToComplete!,
+          completionEventId: '',
+          pcReward: def.pcReward,
+        },
+      })
+    } else if (def.type === 'instant') {
+      const cooldownKey = `prestige-${def.id}`
+      if ((s.prestigeCooldowns[cooldownKey] ?? 0) > s.week) return
+      if (s.stats.cashReserve < def.cashCost) return
+
+      let next = applyDelta(s, { cashReserve: -def.cashCost, politicalCapital: def.pcReward })
+      if (def.statDelta && Object.keys(def.statDelta).length > 0) {
+        next = applyDelta(next, def.statDelta)
+      }
+      if (def.factionImpact && Object.keys(def.factionImpact).length > 0) {
+        next = { ...next, factions: applyFactionDelta(next.factions, def.factionImpact) }
+      }
+
+      set({
+        ...next,
+        prestigeCooldowns: {
+          ...next.prestigeCooldowns,
+          [cooldownKey]: s.week + (def.cooldownWeeks ?? 0),
+        },
+      })
+    }
   },
 })
 

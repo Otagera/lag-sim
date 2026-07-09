@@ -18,6 +18,13 @@ describe('EconomyPanel', () => {
     expect(screen.getByText('Spending Cuts')).toBeInTheDocument()
   })
 
+  it('renders Raise Your Profile section with prestige actions', () => {
+    render(<EconomyPanel />)
+    expect(screen.getByText('Raise Your Profile')).toBeInTheDocument()
+    expect(screen.getByText('Media Blitz')).toBeInTheDocument()
+    expect(screen.getByText('Chair Governors\' Forum')).toBeInTheDocument()
+  })
+
   it('renders financing section', () => {
     render(<EconomyPanel />)
     expect(screen.getByText('Financing')).toBeInTheDocument()

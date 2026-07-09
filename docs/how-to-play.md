@@ -10,21 +10,24 @@ change balance, update the cited file and this doc together.
 
 ---
 
-## 1. Political Capital (PC) is the master resource — and it does not regenerate
+## 1. Political Capital (PC) is the master resource
 
-PC gates almost every *proactive* move you can make. The single most important thing to
-understand: **there is no weekly PC income.** (`statEngine.ts` — bounds `0–200`, no tick regen.)
+PC gates almost every *proactive* move you can make. Across the whole deck there are
+**67** choices that grant PC versus **169** that spend it — the economy is deliberately
+PC-scarce, but no longer an absorbing trap.
 
-You earn PC **only** from event choices and a few scripted milestones. Across the whole
-deck there are **67** choices that grant PC versus **169** that spend it — the economy is
-deliberately PC-scarce.
-
-### Where PC comes from (earn)
+### How PC regenerates
+- **Passive regen: +0.8 PC / week** — a slow baseline so zero is never permanent. With
+  patience you climb back, but it takes ~12 weeks to afford even a single commissioner.
+- **Prestige actions** (Treasury panel → "Raise Your Profile") — deliberate PC-earning
+  moves: summits (+15–20), constituency tours (+8), media blitzes (+5). Timed actions
+  share the initiative slot with revenue levers (choose: raise revenue or raise profile).
+- **Project completion** — finishing a capital project grants +3–5 PC scaled to its cost.
+  The ribbon-cutting ceremony *is* the prestige gain.
 - **Assertive / reformist event choices** — the "strong" option on a card. Examples: the
   Budget Address (+8), refusing a Chief Fashemu ask (often +8), crisis-response choices
   (+10 / +15 / +20).
 - **Scripted milestones** — e.g. legal reinstatement after an emergency period (+30).
-- That's it. Delivering projects, completing research, and finishing goals do **not** grant PC.
 
 ### Where PC goes (spend) — the proactive levers (`gameStore.ts`)
 | Action | PC cost | Also costs | Effect |
@@ -37,10 +40,11 @@ deliberately PC-scarce.
 
 Plus **169** event choices carry a PC cost inline.
 
-**The core loop:** you must *farm* PC from event choices — pick the assertive/reformist
-options, refuse godfathers (usually PC-positive) — and **bank** it before you can afford
-commissioners or structural fixes. If you spend to zero, you lose access to the very tools
-that dig you out.
+**The core loop:** balance passive regen against your burn rate. Prestige actions and
+project completions give you deliberate ways to earn PC — but they cost cash and (for
+summits) compete with revenue initiatives for the same slot. If you spend to zero, the
++0.8/wk regen pulls you back, but it's slow: supplement it with tours, blitzes, and
+project completions to accelerate.
 
 ---
 
@@ -74,10 +78,9 @@ from event choices first, while the overheads clock (§3) is already running.
   the overhead tax); protect your cash lead; use `reduceOverheads` the moment you can afford it.
 - **Don't:** accept godfather asks to "buy" short-term relief — it permanently inflates your
   overheads and you can't afford the cure.
-- **Open balance question:** 0 PC + no passive regen + every fix costing PC is a very narrow
-  needle. The week-32 insolvency playtest suggests this may be *too* tight. Candidate fixes
-  (not yet made): a small passive PC trickle, a cheaper emergency overhead-cut when cash is
-  negative, or surfacing the permanent cost of Fashemu "Accept."
+- **Tip:** use prestige actions (Treasury → Raise Your Profile) to accelerate PC recovery
+  once you have the cash. A Media Blitz (+5 PC, ₦1bn) is your cheapest early option.
+  Project completions also grant PC — so building roads is doubly valuable.
 
 ### Loyalist — the easy mode
 180 PC and 90 godfathers means you can appoint, cut, and raise levers at will from day one.
@@ -143,14 +146,20 @@ squeezing more income.
 3. **Bank PC before spending it.** Take assertive/reformist choices; refuse most Fashemu asks.
 4. **Keep federal relationship above −15** to protect the FAAC lump.
 5. **Keep corruption off 75** to avoid the grant freeze.
-6. Archetype-specific: Technocrat → bootstrap PC first; Loyalist → spend freely, fix trust;
-   Outsider → convert popularity to IGR, guard your thin cash.
+6. **Use prestige actions when cash allows** — a Media Blitz (+5 PC, ₦1bn, 4wk cooldown) is
+   cheap insurance against PC starvation. Summits give bigger chunks but cost more and
+   block your revenue initiative slot.
+7. Archetype-specific: Technocrat → bootstrap PC first via events + cheap prestige actions;
+   Loyalist → spend freely, fix trust; Outsider → convert popularity to IGR, guard thin cash.
 
 ---
 
 ## Sources (keep in sync when balancing)
 - Archetype start values: `src/data/archetypes.ts`, `src/data/startingState.ts`
 - PC bounds & sinks: `src/engine/statEngine.ts`, `src/state/gameStore.ts`
+- PC passive regen (+0.8/wk): `src/engine/gameLoop.ts` (`tickDecayAndNews`)
+- Prestige actions: `src/data/prestigeActions.ts`, `src/state/gameStore.ts` (`launchPrestigeAction`)
+- Project completion PC reward: `src/engine/projectEngine.ts`
 - Overheads: `src/engine/expenditureEngine.ts`
 - Revenue & FAAC cliff: `src/engine/revenueEngine.ts`
 - Sim-AI tuning (separate concern): `docs/winning-strategy.md`

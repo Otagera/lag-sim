@@ -528,6 +528,7 @@ export type InitiativeState = {
   weeksRemaining: number
   totalWeeks: number
   completionEventId: string
+  pcReward?: number
 }
 
 export type GameState = {
@@ -619,6 +620,8 @@ export type GameState = {
   consequenceBeats: ConsequenceBeat[]
   // Phase C — economy action cooldowns (action key → week available)
   economyCooldowns: Record<string, number>
+  // Prestige action cooldowns (action id → week available)
+  prestigeCooldowns: Record<string, number>
   // Phase D — unified inbox
   inbox: InboxMessage[]
   // Phase E — research tree

@@ -66,4 +66,16 @@ export const ALL_HINTS: HintDef[] = [
     align: 'center',
     trigger: (prev, next) => next.stats.debtStock > 40 && prev.stats.debtStock <= 40,
   },
+  {
+    id: 'pc-prestige-hint',
+    title: 'Political Capital Low',
+    text: 'Political capital is running low. Open the Treasury panel and look for "Raise Your Profile" — summits, tours, and media blitzes can rebuild your standing.',
+    element: '[data-tour="pc-chip"]',
+    side: 'bottom',
+    align: 'center',
+    trigger: (prev, next) =>
+      next.stats.politicalCapital < 20 &&
+      prev.stats.politicalCapital >= 20 &&
+      Object.keys(next.prestigeCooldowns).length === 0,
+  },
 ]

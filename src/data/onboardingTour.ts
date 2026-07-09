@@ -46,7 +46,7 @@ export const ONBOARDING_TOUR_STEPS: DriveStep[] = [
     popover: {
       title: 'Political Capital',
       description:
-        'Influence to spend on bold actions — launching initiatives, appointing commissioners, cutting deals. Earn it by delivering on promises.',
+        'Influence to spend on bold actions — launching initiatives, appointing commissioners, cutting deals. If it runs low, rebuild it via prestige actions in the Treasury panel: summits, tours, and ceremonies.',
       side: 'bottom',
       align: 'center',
     },

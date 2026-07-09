@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { useState } from 'react'
+import { PRESTIGE_ACTIONS } from '../data/prestigeActions'
 import { useGameStore } from '../state/gameStore'
 import type {
   ExpenditureBreakdown,
@@ -600,6 +601,69 @@ function PoliticalCapitalSection({
   )
 }
 
+function PrestigeActionsSection({
+  week,
+  cashReserve,
+  prestigeCooldowns,
+  activeInitiative,
+  confirming,
+  initiateConfirm,
+  cancelConfirm,
+  launchPrestigeAction,
+}: {
+  week: number
+  cashReserve: number
+  prestigeCooldowns: GameState['prestigeCooldowns']
+  activeInitiative: GameState['activeInitiative']
+  confirming: ConfirmKey
+  initiateConfirm: (key: string) => void
+  cancelConfirm: () => void
+  launchPrestigeAction: (id: string) => void
+}) {
+  const timedBlocked = activeInitiative !== null
+
+  return (
+    <PanelSection title="Raise Your Profile">
+      {Object.values(PRESTIGE_ACTIONS).map((def) => {
+        const key = `prestige-${def.id}`
+        const onCooldown = (prestigeCooldowns[key] ?? 0) > week
+        const slotBlocked = def.type === 'timed' && timedBlocked
+        const cashOk = cashReserve >= def.cashCost
+        const disabledReason = slotBlocked
+          ? 'initiative slot full'
+          : onCooldown
+            ? `cooldown ${Math.max(0, prestigeCooldowns[key] - week)}w`
+            : !cashOk
+              ? 'insufficient cash'
+              : undefined
+
+        return (
+          <ActionRow
+            key={def.id}
+            label={def.name}
+            description={`${def.payoff}${def.cashCost > 0 ? ` · ₦${def.cashCost}bn` : ''}`}
+            pcCost={0}
+            cooldownWeeks={prestigeCooldowns[key] ?? 0}
+            onCooldown={onCooldown}
+            disabledReason={disabledReason}
+            onStart={() => initiateConfirm(def.id)}
+            confirming={confirming === def.id}
+            onConfirm={() => {
+              launchPrestigeAction(def.id)
+              cancelConfirm()
+            }}
+            onCancel={cancelConfirm}
+          >
+            <p className="text-[9px] mb-1 leading-tight" style={{ color: 'var(--text-secondary)' }}>
+              {def.description}
+            </p>
+          </ActionRow>
+        )
+      })}
+    </PanelSection>
+  )
+}
+
 function LoanAmountSelector({
   amounts,
   loanAmount,
@@ -830,7 +894,9 @@ function useEconomyPanelState() {
   const resolvedEvents = useGameStore((s) => s.resolvedEvents)
   const stats = useGameStore((s) => s.stats)
 
-  return { exp, rev, pc, week, cooldowns, activeInitiative, resolvedEvents, stats }
+  const prestigeCooldowns = useGameStore((s) => s.prestigeCooldowns)
+
+  return { exp, rev, pc, week, cooldowns, activeInitiative, resolvedEvents, stats, prestigeCooldowns }
 }
 
 function useEconomyPanelActions() {
@@ -840,6 +906,7 @@ function useEconomyPanelActions() {
   const launchInitiative = useGameStore((s) => s.economyLaunchInitiative)
   const takeLoan = useGameStore((s) => s.economyTakeLoan)
   const courtGodfathers = useGameStore((s) => s.courtGodfathers)
+  const launchPrestigeAction = useGameStore((s) => s.launchPrestigeAction)
 
   return {
     cutSubventions,
@@ -848,6 +915,7 @@ function useEconomyPanelActions() {
     launchInitiative,
     takeLoan,
     courtGodfathers,
+    launchPrestigeAction,
   }
 }
 
@@ -877,9 +945,9 @@ function useEconomyPanelConfirmation() {
 // ── Main component ──────────────────────────────────────────
 
 export function EconomyPanel() {
-  const { exp, rev, pc, week, cooldowns, activeInitiative, resolvedEvents, stats } =
+  const { exp, rev, pc, week, cooldowns, activeInitiative, resolvedEvents, stats, prestigeCooldowns } =
     useEconomyPanelState()
-  const { cutSubventions, reduceOverheads, raiseLuc, launchInitiative, takeLoan, courtGodfathers } =
+  const { cutSubventions, reduceOverheads, raiseLuc, launchInitiative, takeLoan, courtGodfathers, launchPrestigeAction } =
     useEconomyPanelActions()
   const { confirming, loanAmount, setLoanAmount, initiateConfirm, cancelConfirm } =
     useEconomyPanelConfirmation()
@@ -923,6 +991,17 @@ export function EconomyPanel() {
           cutSubventions={cutSubventions}
           reduceOverheads={reduceOverheads}
           raiseLuc={raiseLuc}
+        />
+        <div className="h-1.5" />
+        <PrestigeActionsSection
+          week={week}
+          cashReserve={stats.cashReserve}
+          prestigeCooldowns={prestigeCooldowns}
+          activeInitiative={activeInitiative}
+          confirming={confirming}
+          initiateConfirm={initiateConfirm}
+          cancelConfirm={cancelConfirm}
+          launchPrestigeAction={launchPrestigeAction}
         />
         <div className="h-1.5" />
         <PoliticalCapitalSection

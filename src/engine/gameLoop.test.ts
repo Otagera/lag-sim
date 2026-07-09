@@ -235,6 +235,65 @@ describe('tickInitiative', () => {
     expect(result.eventQueue).toHaveLength(1)
     expect(result.eventQueue[0].id).toBe('paye-enforcement-result')
   })
+
+  it('applies pcReward when initiative completes and no completionEventId', () => {
+    const state = {
+      ...clone(STARTING_STATE),
+      stats: { ...clone(STARTING_STATE).stats, politicalCapital: 50 },
+      activeInitiative: {
+        id: 'prestige-test',
+        name: 'Test Prestige Action',
+        weeksRemaining: 1,
+        totalWeeks: 4,
+        completionEventId: '',
+        pcReward: 15,
+      },
+    }
+    const result = tick(state)
+    expect(result.activeInitiative).toBeNull()
+    // tick adds +0.8 passive PC regen; starting 50 + 15 reward = 65 + 0.8 regen
+    expect(result.stats.politicalCapital).toBeCloseTo(65.8, 1)
+    // No event should be queued (no completionEventId)
+    expect(result.eventQueue).toHaveLength(0)
+  })
+
+  it('applies pcReward alongside completion event when both present', () => {
+    const state = {
+      ...clone(STARTING_STATE),
+      stats: { ...clone(STARTING_STATE).stats, politicalCapital: 40 },
+      activeInitiative: {
+        id: 'prestige-with-event',
+        name: 'Prestige With Completion',
+        weeksRemaining: 1,
+        totalWeeks: 6,
+        completionEventId: 'paye-enforcement-result',
+        pcReward: 10,
+      },
+    }
+    const result = tick(state)
+    expect(result.activeInitiative).toBeNull()
+    // 40 + 10 reward + 0.8 regen
+    expect(result.stats.politicalCapital).toBeCloseTo(50.8, 1)
+    expect(result.eventQueue.some((e) => e.id === 'paye-enforcement-result')).toBe(true)
+  })
+
+  it('does not apply pcReward when pcReward is 0 or undefined', () => {
+    const state = {
+      ...clone(STARTING_STATE),
+      stats: { ...clone(STARTING_STATE).stats, politicalCapital: 60 },
+      activeInitiative: {
+        id: 'no-pc-reward',
+        name: 'No Reward',
+        weeksRemaining: 1,
+        totalWeeks: 8,
+        completionEventId: '',
+      },
+    }
+    const result = tick(state)
+    expect(result.activeInitiative).toBeNull()
+    // No pcReward, just the +0.8 passive regen
+    expect(result.stats.politicalCapital).toBeCloseTo(60.8, 1)
+  })
 })
 
 describe('primaryScenario derivation from stateFlags', () => {

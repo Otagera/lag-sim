@@ -13,7 +13,7 @@ function deriveDiagnosis(s: ReturnType<typeof useGameStore.getState>): string | 
   if (s.stats.publicTrust < 30)
     return `Public trust has collapsed to ${Math.round(s.stats.publicTrust)}%. Citizens have lost faith in this government.`
   if (s.stats.politicalCapital < 15)
-    return `Political capital critically low (${Math.round(s.stats.politicalCapital)}). Political capital rebuilds slowly over time. Defying the godfathers restores standing. Avoid overspending on costly choices.`
+    return `Political capital critically low (${Math.round(s.stats.politicalCapital)}). Raise your profile in the Treasury panel — constituency tours, media blitzes, and summits all build standing.`
   if (s.stats.corruptionPressure > 75)
     return 'Corruption is rampant across MDAs. Media exposure and EFCC scrutiny are imminent.'
   if (s.stats.cashReserve < 15)
@@ -21,7 +21,7 @@ function deriveDiagnosis(s: ReturnType<typeof useGameStore.getState>): string | 
   if (s.stats.publicTrust < 40)
     return `Trust eroding: ${Math.round(s.stats.publicTrust)}%. Streets are growing restless.`
   if (s.stats.politicalCapital < 25)
-    return `Low political capital (${Math.round(s.stats.politicalCapital)}). Political capital rebuilds slowly through steady governance. Refusing godfather demands restores your standing.`
+    return `Low political capital (${Math.round(s.stats.politicalCapital)}). Consider a prestige action — Chair the Governors' Forum or host an Investment Summit to rebuild your standing. Available in the Treasury panel.`
   if (Object.values(s.factions).some((v) => v <= 15))
     return 'A key faction has turned hostile. Coalition stability is at risk.'
   return null

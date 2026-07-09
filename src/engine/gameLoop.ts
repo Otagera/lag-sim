@@ -35,6 +35,7 @@ import {
   generateDeputyMessage,
   generateGodfatherPhaseMessage,
   generateNPCActivationMessage,
+  generateNPCEscalationMessage,
   pruneInbox,
 } from './inboxEngine'
 import { detectMoment } from './momentDetector'
@@ -639,6 +640,10 @@ function checkNPCEscalation(state: GameState): GameState {
         [slot]: { ...next.activeNPCs[slot], pressure: 0 },
       },
     }
+
+    // Push an inbox notification so the player sees the escalation
+    const msg = generateNPCEscalationMessage(next, slot, npc, event.id)
+    if (msg) next = { ...next, inbox: [...next.inbox, msg] }
   }
 
   return next
@@ -703,17 +708,21 @@ function tickInitiative(state: GameState): GameState {
   if (!initiative) return state
   const weeksRemaining = initiative.weeksRemaining - 1
   if (weeksRemaining <= 0) {
-    const completionEvent = ALL_EVENTS.find((e) => e.id === initiative.completionEventId)
-    if (!completionEvent) return { ...state, activeInitiative: null }
-    // Guard: don't re-enqueue a completion event that already resolved
-    const alreadyResolved = state.resolvedEvents.includes(completionEvent.id)
-    const alreadyQueued = state.eventQueue.some((e) => e.id === completionEvent.id)
-    if (alreadyResolved || alreadyQueued) return { ...state, activeInitiative: null }
-    return {
-      ...state,
-      activeInitiative: null,
-      eventQueue: [...state.eventQueue, completionEvent],
+    let next: GameState = { ...state, activeInitiative: null }
+
+    // Apply PC reward if present (prestige actions)
+    if (initiative.pcReward && initiative.pcReward > 0) {
+      next = applyDelta(next, { politicalCapital: initiative.pcReward })
     }
+
+    if (!initiative.completionEventId) return next
+
+    const completionEvent = ALL_EVENTS.find((e) => e.id === initiative.completionEventId)
+    if (!completionEvent) return next
+    const alreadyResolved = next.resolvedEvents.includes(completionEvent.id)
+    const alreadyQueued = next.eventQueue.some((e) => e.id === completionEvent.id)
+    if (alreadyResolved || alreadyQueued) return next
+    return { ...next, eventQueue: [...next.eventQueue, completionEvent] }
   }
   return { ...state, activeInitiative: { ...initiative, weeksRemaining } }
 }

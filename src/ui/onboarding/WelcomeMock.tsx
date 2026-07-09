@@ -6,6 +6,7 @@ const HOW_TO_PLAY = [
   'Every week brings a decision — read it, weigh the trade-off, choose.',
   'Choices move your stats immediately and some ripple into consequences weeks later.',
   'Factions remember. Godfathers, business, civil society — keep enough of them onside.',
+  'Political Capital is your influence to spend on bold actions — rebuild it via summits, tours, and ceremonies in the Treasury panel.',
   'Survive to election day, or lose the office first: bankruptcy, riot, or removal.',
 ]
 

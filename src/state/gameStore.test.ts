@@ -102,6 +102,68 @@ describe('gameStore', () => {
     expect(state.factions.partyGodfathers).toBe(70) // 65 + 5
   })
 
+  it('launchPrestigeAction: instant action applies PC and sets cooldown', () => {
+    useGameStore.getState().launchPrestigeAction('media-blitz')
+    const state = useGameStore.getState()
+    expect(state.stats.politicalCapital).toBe(105) // 100 + 5
+    expect(state.stats.cashReserve).toBe(44) // 45 - 1
+    expect(state.prestigeCooldowns['prestige-media-blitz']).toBe(5) // week 1 + 4wk cooldown
+    expect(state.activeInitiative).toBeNull()
+  })
+
+  it('launchPrestigeAction: timed action starts initiative and deducts cash', () => {
+    useGameStore.getState().launchPrestigeAction('diaspora-roadshow')
+    const state = useGameStore.getState()
+    expect(state.activeInitiative).not.toBeNull()
+    expect(state.activeInitiative!.id).toBe('diaspora-roadshow')
+    expect(state.activeInitiative!.pcReward).toBe(12)
+    expect(state.activeInitiative!.completionEventId).toBe('')
+    expect(state.activeInitiative!.weeksRemaining).toBe(4)
+    expect(state.stats.cashReserve).toBe(40) // 45 - 5
+    expect(state.stats.politicalCapital).toBe(100) // unchanged by launch
+    expect(state.factions.partyGodfathers).toBe(68) // 65 + 3
+  })
+
+  it('launchPrestigeAction: does not start timed action when initiative slot busy', () => {
+    useGameStore.setState({
+      activeInitiative: {
+        id: 'existing',
+        name: 'Existing Initiative',
+        weeksRemaining: 5,
+        totalWeeks: 5,
+        completionEventId: 'existing-completion',
+      },
+    })
+    useGameStore.getState().launchPrestigeAction('chair-governors-forum')
+    const state = useGameStore.getState()
+    expect(state.activeInitiative!.id).toBe('existing') // unchanged
+    expect(state.stats.politicalCapital).toBe(100) // unchanged
+  })
+
+  it('launchPrestigeAction: does nothing for unknown id', () => {
+    useGameStore.getState().launchPrestigeAction('non-existent')
+    const state = useGameStore.getState()
+    expect(state.stats.politicalCapital).toBe(100)
+    expect(state.stats.cashReserve).toBe(45)
+  })
+
+  it('launchPrestigeAction: does not launch if insufficient cash', () => {
+    useGameStore.setState({ stats: { ...useGameStore.getState().stats, cashReserve: 1 } })
+    useGameStore.getState().launchPrestigeAction('host-investment-summit')
+    const state = useGameStore.getState()
+    expect(state.stats.cashReserve).toBe(1) // unchanged
+    expect(state.activeInitiative).toBeNull()
+  })
+
+  it('launchPrestigeAction: does not launch instant action on cooldown', () => {
+    useGameStore.getState().launchPrestigeAction('media-blitz')
+    // Try again immediately
+    useGameStore.getState().launchPrestigeAction('media-blitz')
+    const state = useGameStore.getState()
+    // PC should only be +5 once
+    expect(state.stats.politicalCapital).toBe(105)
+  })
+
   it('refuseGodfather increments refusal count', () => {
     const message: GodfatherMessage = {
       id: 'store-test-refuse',
