@@ -10,7 +10,7 @@
 | Party Removal | `partyGodfathers < 10` AND week > 52 | 3-stage removal arc must complete (resolution → committee → floor vote) |
 | Primary Defeat | Scenario B primary lost (requirements not met by week 176) | `primary-contest-loss` event → game over |
 | Term End (loss) | week > 208 AND vote share ≤ 50% | → LegacyScreen |
-| Term End (win) | week > 208 AND vote share > 50% | → second term begins (week 209–416) |
+| Term End (win) | week > 208 AND vote share > 50% | → `termEndWin` **pause** on LegacyScreen; "Begin Second Term" resumes into weeks 209–416 |
 | Second Term End | week > 416 AND `currentTerm === 2` | → final LegacyScreen |
 
 ## Recovery Paths
@@ -73,9 +73,18 @@ Set on `state.gameOverType` at game-over time. `state.endingNarrative` is pre-co
 
 ### Term 1 → Term 2 (week 208)
 - `checkGameOver` in gameLoop checks `week > 208`
-- If `currentTerm === 1` and election won: `currentTerm = 2`, week resets continue to 416
-- If `currentTerm === 1` and election lost: game over → LegacyScreen
-- If `currentTerm === 2`: game over → final LegacyScreen
+- If `currentTerm === 1` and election won: `currentTerm` is set to 2 **but the game is flagged over** with `gameOverType: 'termEndWin'` (see below) — play then continues to week 416
+- If `currentTerm === 1` and election lost: game over → LegacyScreen (`termEndLoss`)
+- If `currentTerm === 2`: game over → final LegacyScreen (`secondTermEnd`)
+
+### `termEndWin` is a deliberate pause, not a terminal game over
+A re-election win is modelled as a game over (`isGameOver: true`, `gameOverType: 'termEndWin'`, `currentTerm: 2`) **on purpose** — it forces the UI to stop so the player sees the LegacyScreen celebration, the re-election share moment, and an explicit **"Begin Second Term"** button. Only clicking that button (store action `beginSecondTerm`) clears the game-over flags and resumes play in term 2.
+
+- The pure state transition lives in `beginSecondTermState(state)` in `gameLoop.ts` (clears `isGameOver`/`gameOverType`/`gameOverReason`/`endingNarrative`, resets `electionResult`/`reElected`; `currentTerm` is already 2). Both `beginSecondTerm` (which additionally offers the share moment) and the simulation reuse this helper — do not duplicate the field resets.
+- Because `reElected` is reset to `false` when the second term begins, **`currentTerm === 2` is the durable "won re-election" signal** for any code inspecting a final/late state (the benchmark and its tests rely on this, not on `reElected`).
+
+### Simulation crossing the term boundary
+`simulateWeeks` stops on `isGameOver` like the real game, so by default it halts on the `termEndWin` pause at week 208 — this is what keeps `fastForward` (DevPanel skip) landing on the celebration instead of silently skipping it. To simulate a full two terms, pass `{ continueAcrossTerms: true }`: the sim then auto-applies `beginSecondTermState` on `termEndWin` (standing in for the player clicking "Begin Second Term") and runs on to the week-416 `secondTermEnd`. The two-term benchmark (`scripts/benchmark.ts`) opts in; interactive `fastForward` does not.
 
 ### Election Formula Triggers
 - Term 1: week 208

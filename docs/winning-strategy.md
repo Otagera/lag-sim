@@ -1,6 +1,11 @@
 # Winning Strategy: Simulation AI Tuning
 
-The `'winning'` simulation strategy (`src/engine/simulateEngine.ts`) uses `WINNING_STRATEGY` — a single config object at the top of the file with all thresholds and weights. This strategy wins ≥ 60% of runs across 15 seeds (3 archetypes × 5 seeds; current best: 10/15 = 67%). Baseline with new events gated off: 12/15 = 80%.
+The `'winning'` simulation strategy (`src/engine/simulateEngine.ts`) uses `WINNING_STRATEGY` — a single config object at the top of the file with all thresholds and weights.
+
+`scripts/benchmark.ts` runs a **full two-term** simulation (416 weeks) per (archetype × seed) pair across 15 seeds (3 archetypes × 5 seeds) and gates on the **two-term completion** rate ≥ 60% — i.e. runs that reach the week-416 `secondTermEnd` ending, not just term-1 re-election. Current: 11/15 = 73% complete both terms.
+
+- Completion is measured via `gameOverType === 'secondTermEnd'`; re-election is measured via `currentTerm === 2` (not `reElected`, which is reset to `false` once the second term begins — see `docs/game-over.md`).
+- The benchmark passes `{ continueAcrossTerms: true }` to `simulateWeeks` so the run auto-advances through the week-208 `termEndWin` pause instead of stopping on it. Without that flag (the default, used by interactive `fastForward`), the sim stops on the re-election celebration exactly like the real game.
 
 ## Scope (post Phases A–D)
 

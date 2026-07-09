@@ -1,13 +1,17 @@
 import type { EventCard, GameState } from '../state/types'
 import { mulberry32 } from '../utils/prng'
 import { drawNextEvent, resolveEvent } from './eventEngine'
-import { tick } from './gameLoop'
+import { beginSecondTermState, tick } from './gameLoop'
 
 export type SimulateStrategy = 'first' | 'random' | 'weighted' | 'winning'
 
 export interface SimulateOptions {
   strategy?: SimulateStrategy
   seed?: number
+  // Auto-advance through the week-208 re-election handover (termEndWin) instead of
+  // stopping on it. Off by default so fastForward still lands on the celebration
+  // screen exactly like the interactive game; the two-term benchmark opts in.
+  continueAcrossTerms?: boolean
 }
 
 export interface SimulateResult {
@@ -22,7 +26,7 @@ export interface SimulateResult {
  *
  * Tune these values when game balance changes (new events, stat bounds,
  * revenue/expenditure formulas). Run `npx tsx scripts/benchmark.ts` to
- * verify the win rate stays ≥ 80%.
+ * verify the two-term completion rate stays ≥ 60%.
  */
 export const WINNING_STRATEGY = {
   overrideMinScore: 4,
@@ -326,6 +330,12 @@ export function simulateWeeks(
     for (; i < n; i++) {
       if (s.isGameOver) break
       s = tick(s)
+      // Auto-"Begin Second Term": when opted in, the sim stands in for the player
+      // clicking through the re-election celebration so the run continues to the
+      // week-416 ending. Otherwise it stops on termEndWin just like the real game.
+      if (options.continueAcrossTerms && s.isGameOver && s.gameOverType === 'termEndWin') {
+        s = beginSecondTermState(s)
+      }
       s = autoResolveWeek(s, strategy, rng)
     }
     return { state: s, weeksSimulated: i, stoppedEarly: i < n, seed }

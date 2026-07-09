@@ -868,6 +868,21 @@ function endGame(state: GameState, gameOverType: GameOverType, gameOverReason: s
   return { ...state, isGameOver: true, gameOverType, gameOverReason, endingNarrative: narrative }
 }
 
+// Clears the term-1 re-election game-over so play continues into term 2.
+// currentTerm is already 2 (set upstream by checkFirstTermEnd). This is the pure
+// core shared by the store's beginSecondTerm action and the simulation harness.
+export function beginSecondTermState(state: GameState): GameState {
+  return {
+    ...state,
+    isGameOver: false,
+    gameOverType: undefined,
+    gameOverReason: undefined,
+    endingNarrative: undefined,
+    electionResult: null,
+    reElected: false,
+  }
+}
+
 function checkBankruptcy(state: GameState): GameState {
   let next = state
   if (next.stats.cashReserve < 0) {

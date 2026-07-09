@@ -6,7 +6,7 @@ import { evaluateSkipNews } from '../engine/evaluateNews'
 import { resolveEvent as resolveEventAction } from '../engine/eventEngine'
 import { calculateWeeklyExpenditure } from '../engine/expenditureEngine'
 import { applyFactionDelta } from '../engine/factionEngine'
-import { tick as gameLoopTick } from '../engine/gameLoop'
+import { beginSecondTermState, tick as gameLoopTick } from '../engine/gameLoop'
 import { resolveGodfather } from '../engine/godfatherEngine'
 import { generateCommissionerMessage } from '../engine/inboxEngine'
 import { commissionProject as commissionProjectAction } from '../engine/projectsEngine'
@@ -255,25 +255,16 @@ const createMetaActions = (set: StoreSet, get: StoreGet): MetaActions => ({
       // vote share before electionResult is cleared). It's a game-over at the
       // moment of victory, so it can't be caught by the tick-based detector.
       const offerReElection = !s.sharedMoments.includes('re-election') && !s.pendingMoment
-      return {
-        ...s,
-        isGameOver: false,
-        gameOverType: undefined,
-        gameOverReason: undefined,
-        endingNarrative: undefined,
-        electionResult: null,
-        reElected: false,
-        pendingMoment: offerReElection
-          ? {
-              type: 're-election',
-              key: 're-election',
-              label:
-                s.electionResult != null
-                  ? `${s.electionResult.toFixed(1)}% of the vote`
-                  : undefined,
-            }
-          : s.pendingMoment,
-      }
+      // Capture the vote-share label before beginSecondTermState clears electionResult.
+      const pendingMoment = offerReElection
+        ? {
+            type: 're-election' as const,
+            key: 're-election',
+            label:
+              s.electionResult != null ? `${s.electionResult.toFixed(1)}% of the vote` : undefined,
+          }
+        : s.pendingMoment
+      return { ...beginSecondTermState(s), pendingMoment }
     }),
   clearNewspaperHeadline: () => set({ newspaperHeadline: undefined }),
   inboxMarkRead: (id) =>

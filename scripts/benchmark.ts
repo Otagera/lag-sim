@@ -54,15 +54,16 @@ interface BenchmarkResult {
 }
 
 function classifyOutcome(s: GameState): string {
-  if (!s.reElected && s.currentTerm === 1) {
+  // currentTerm is the durable "reached term 2" signal: it's set to 2 at
+  // re-election and never cleared (the transition resets reElected, not currentTerm).
+  if (s.currentTerm === 1) {
     if (s.isGameOver) return s.gameOverReason ?? 'T1_LOST'
     return 'T1_LOST_ELECTION'
   }
-  if (s.reElected && s.currentTerm === 2) {
+  if (s.currentTerm === 2) {
     if (!s.isGameOver) return 'T2_IN_PROGRESS'
-    const r = s.gameOverReason ?? ''
-    if (r.includes('second term has ended') || r.includes('term has ended')) return 'T2_COMPLETE'
-    return r
+    if (s.gameOverType === 'secondTermEnd') return 'T2_COMPLETE'
+    return s.gameOverReason ?? 'GAME_OVER'
   }
   if (s.isGameOver) return s.gameOverReason ?? 'GAME_OVER'
   return 'UNKNOWN'
@@ -82,17 +83,17 @@ function runBenchmark(): BenchmarkResult[] {
         simWeeksSkipped: 0,
       }
 
-      const r = simulateWeeks(base as GameState, TOTAL_WEEKS, { strategy: 'winning', seed })
+      const r = simulateWeeks(base as GameState, TOTAL_WEEKS, {
+        strategy: 'winning',
+        seed,
+        continueAcrossTerms: true,
+      })
       const s = r.state
 
-      const reElected = s.reElected === true
-      const term2Won =
-        reElected &&
-        s.isGameOver &&
-        !!(
-          s.gameOverReason?.includes('second term has ended') ||
-          s.gameOverReason?.includes('term has ended')
-        )
+      // Reaching term 2 ⟺ won the re-election (currentTerm survives the transition,
+      // whereas reElected is reset to false once the second term begins).
+      const reElected = s.currentTerm === 2
+      const term2Won = s.isGameOver && s.gameOverType === 'secondTermEnd'
 
       // Approximate cash at term1 end: only meaningful if they made it to term2
       const cashT1 = reElected

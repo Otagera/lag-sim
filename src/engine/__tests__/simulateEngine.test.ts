@@ -134,6 +134,29 @@ describe('simulateWeeks — long run sanity', () => {
     expect(result.state.isGameOver).toBe(true)
   })
 
+  it('continueAcrossTerms carries a winning run past the week-208 handover to the week-416 ending', () => {
+    // With the opt-in flag the sim auto-"Begin Second Term"s instead of halting on
+    // the termEndWin game-over, so a winning run reaches the second-term ending.
+    const result = simulateWeeks(clone(STARTING_STATE), 416, {
+      strategy: 'winning',
+      seed: 42,
+      continueAcrossTerms: true,
+    })
+    expect(result.state.currentTerm).toBe(2)
+    expect(result.state.isGameOver).toBe(true)
+    expect(result.state.gameOverType).toBe('secondTermEnd')
+    expect(result.state.week).toBeGreaterThanOrEqual(416)
+  })
+
+  it('without continueAcrossTerms a winning run still stops on the week-208 re-election handover', () => {
+    // Preserves the interactive game / fastForward behavior: land on the celebration.
+    const result = simulateWeeks(clone(STARTING_STATE), 416, { strategy: 'winning', seed: 42 })
+    expect(result.state.currentTerm).toBe(2)
+    expect(result.state.isGameOver).toBe(true)
+    expect(result.state.gameOverType).toBe('termEndWin')
+    expect(result.stoppedEarly).toBe(true)
+  })
+
   it('stats stay within expected bounds after full term', () => {
     const result = simulateWeeks(clone(STARTING_STATE), 208, { strategy: 'first', seed: 100 })
     if (!result.state.isGameOver) {
@@ -189,9 +212,11 @@ describe('simulateWeeks — winning strategy benchmark', () => {
           simWeeksSkipped: 0,
         }
         const r = simulateWeeks(base as GameState, 208, { strategy: 'winning', seed })
-        const won = r.state.reElected === true
+        // currentTerm === 2 is the durable "won re-election" signal: reElected is
+        // reset to false once the sim auto-advances through the week-208 handover.
+        const won = r.state.currentTerm === 2
         if (won) wins++
-        results.push(`${arch} seed=${seed} reElected=${r.state.reElected} cash=${r.state.stats.cashReserve.toFixed(1)} week=${r.state.week} isGameOver=${r.state.isGameOver} ${won ? 'WIN' : 'LOSE'}`)
+        results.push(`${arch} seed=${seed} currentTerm=${r.state.currentTerm} cash=${r.state.stats.cashReserve.toFixed(1)} week=${r.state.week} isGameOver=${r.state.isGameOver} ${won ? 'WIN' : 'LOSE'}`)
       }
     }
 
