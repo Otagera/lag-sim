@@ -212,8 +212,8 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'mobilise-grassroots',
         label: 'Mobilise Party Grassroots',
-        description: 'Spend PC to activate ward delegates. PC -35. You win the primary.',
-        immediate: { politicalCapital: -35 },
+        description: 'Spend PC to activate ward delegates. PC -20. You win the primary.',
+        immediate: { politicalCapital: -20 },
         factionImpact: { lgChairmen: 8, partyGodfathers: 5, informalEconomy: 5 },
         npcImpact: { insider: -10 },
       },

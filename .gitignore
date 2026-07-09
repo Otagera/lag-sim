@@ -9,6 +9,9 @@ events.json
 /saves
 /references
 
+# e2e audit output
+e2e/audit-output/
+
 # design-sync
 .ds-sync/
 ds-bundle/

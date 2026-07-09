@@ -419,7 +419,9 @@ function tickDecayAndNews(state: GameState, prevState: GameState): GameState {
   // Infrastructure decay: base -0.5/week, +0.005 per point above 70 (high-infra states need more maintenance)
   const infraDecay = 0.5 + Math.max(0, next.stats.infrastructureScore - 70) * 0.005
   // Youth tension: passive +0.4/week — the city always generates new pressure
-  next = applyDelta(next, { infrastructureScore: -infraDecay, youthTension: 0.4 })
+  // Political capital: passive +0.8/week — mirrors corruption's automatic growth,
+  // ensuring zero is not an absorbing state. A patient player rebuilds.
+  next = applyDelta(next, { infrastructureScore: -infraDecay, youthTension: 0.4, politicalCapital: 0.8 })
 
   // OTA-32: food+flood decay re-enabled now that accessible counterplay ships alongside it
   // (agricultureEvents food counter-tools, infrastructure flood counter-tools, + climate/agri

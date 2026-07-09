@@ -546,8 +546,8 @@ export const characterEvents: EventCard[] = [
         id: 'grassroots-mobilisation',
         label: 'Mobilise Party Grassroots',
         description:
-          'Spend Political Capital to activate ward delegates. -35 PC. Your base votes you through.',
-        immediate: { politicalCapital: -35 },
+          'Spend Political Capital to activate ward delegates. -20 PC. Your base votes you through.',
+        immediate: { politicalCapital: -20 },
         factionImpact: { informalEconomy: 5, lgChairmen: 8, partyGodfathers: 5 },
         npcImpact: { insider: -10 },
       },

@@ -6,6 +6,7 @@
 npm run dev          # dev server
 npx vitest run       # all tests green
 npm run build        # TypeScript + Vite build
+npm run test:e2e     # Playwright e2e audit (starts server separately)
 ```
 
 **Node ≥ 22.12.0 required.** Vite pinned to v6 (not v8) due to Coolify/nixpacks constraint.

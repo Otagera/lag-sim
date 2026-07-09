@@ -56,7 +56,7 @@ export const WINNING_STRATEGY = {
     youthTension: { threshold: 55, weight: 15 },
     publicTrust: { threshold: 35, weight: 12 },
     expenditure: { cashThreshold: 50, normalWeight: 2, crisisWeight: 8 },
-    politicalCapital: { threshold: 25, weekGate: 209, weight: 15 },
+    politicalCapital: { threshold: 25, weekGate: 209, weight: 5 },
     igrLoss: { weekGate: 209, weight: 8 },
   },
 
@@ -104,7 +104,7 @@ function scoreContinuousEffects(choice: SimChoice): number {
 function scorePoliticalCapitalCost(choice: SimChoice, state: GameState): number {
   // Penalize political capital cost — choices that burn PC are costly
   const pcCost = choice.politicalCapitalCost ?? 0
-  const lowCapitalPenalty = state.stats.politicalCapital < 30 ? pcCost * 1.5 : 0
+  const lowCapitalPenalty = state.stats.politicalCapital < 30 ? pcCost * 1.0 : 0
   return -(pcCost * 0.8 + lowCapitalPenalty)
 }
 

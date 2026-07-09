@@ -495,8 +495,8 @@ export const politicalEvents: EventCard[] = [
         id: "primary-grassroots",
         label: "Grassroots Delegate Campaign",
         description:
-          "Political Capital -60. Win through ward-by-ward delegate mobilisation. Requires LGA election result ≥ 60% (12/20 loyal LGAs).",
-        immediate: { politicalCapital: -60 },
+          "Political Capital -30. Win through ward-by-ward delegate mobilisation. Requires LGA election result ≥ 60% (12/20 loyal LGAs).",
+        immediate: { politicalCapital: -30 },
         factionImpact: { lgChairmen: 10, informalEconomy: 5 },
         setFlags: { "primary-b": true, "primary-b-grassroots": true },
       },

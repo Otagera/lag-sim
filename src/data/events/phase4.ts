@@ -698,8 +698,8 @@ export const phase4Events: EventCard[] = [
         id: 'quiet-political-settlement',
         label: 'Quiet Political Settlement Through Abuja Channel',
         description:
-          'PC -35. Cash -2. Corruption -3 but the precedent is set — they can ask again.',
-        immediate: { politicalCapital: -35, cashReserve: -2, corruptionPressure: -3 },
+          'PC -20. Cash -2. Corruption -3 but the precedent is set — they can ask again.',
+        immediate: { politicalCapital: -20, cashReserve: -2, corruptionPressure: -3 },
         factionImpact: { partyGodfathers: 8, civilSocietyMedia: -5 },
         corruptionTrigger: true,
         setFlags: { 'efcc-investigated': true },
@@ -768,8 +768,8 @@ export const phase4Events: EventCard[] = [
         id: 'ruling-ordered-rerun',
         label: 'Ruling: Election voided — bye-election ordered',
         description:
-          'The court orders a supplementary election in the contested LGAs. Trust -10. PC -40. Off-cycle election arc begins.',
-        immediate: { publicTrust: -10, politicalCapital: -40 },
+          'The court orders a supplementary election in the contested LGAs. Trust -10. PC -25. Off-cycle election arc begins.',
+        immediate: { publicTrust: -10, politicalCapital: -25 },
         factionImpact: { civilSocietyMedia: -8, partyGodfathers: -10 },
         setFlags: { 'litigation-lost': true, 'petition-filed': false },
         setLitigationTimer: 0,
