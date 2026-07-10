@@ -3,10 +3,11 @@
 > Read this before touching code. See `README.md` for gameplay docs. Full reference in `docs/`.
 
 ```bash
-npm run dev          # dev server
-npx vitest run       # all tests green
-npm run build        # TypeScript + Vite build
-npm run test:e2e     # Playwright e2e audit (starts server separately)
+npm run dev          # dev server (proxied from root to client/)
+npm run test         # all tests green (proxied from root to client/)
+npm run build        # TypeScript + Vite build (proxied from root to client/)
+npm run test:e2e     # Playwright e2e audit (proxied from root to client/)
+# Alternatively, cd client/ and use npm/npx directly there
 ```
 
 **Node ≥ 22.12.0 required.** Vite pinned to v6 (not v8) due to Coolify/nixpacks constraint.
@@ -67,7 +68,7 @@ Every engine function is `(state: GameState, ...) => GameState`. No mutation. Al
 
 ## State Fields — docs/state-reference.md | game-over.md
 
-Core fields in `src/state/types.ts` (378 lines). Starting defaults in `src/data/startingState.ts`. All new fields get defaults there and are auto-merged by `{ ...STARTING_STATE, ...rest }` in persistence.ts.
+Core fields in `client/src/state/types.ts` (378 lines). Starting defaults in `client/src/data/startingState.ts`. All new fields get defaults there and are auto-merged by `{ ...STARTING_STATE, ...rest }` in persistence.ts.
 
 **Game over:** Bankruptcy (3 wks < 0 cash) · Federal takeover (fedRel < -40 AND infra < 25 AND not suspended) · Mass uprising (trust < 15 AND youthTension > 85) · Party removal (godfathers < 10, wk > 52, arc completes) · Primary defeat (wk 176, scenario B) · Term end (wk 208/416, vote ≤ 50%).
 
@@ -83,7 +84,7 @@ Core fields in `src/state/types.ts` (378 lines). Starting defaults in `src/data/
 6. Jurisdiction: LAHA (state assembly), not Federal Senate
 7. ~160 cards across 18 files
 
-**Initiatives:** Entry in `src/data/initiatives.ts`; `launchInitiative` on a Choice; `tickInitiative` enqueues completion; completion events: `triggerCondition: () => false`.
+**Initiatives:** Entry in `client/src/data/initiatives.ts`; `launchInitiative` on a Choice; `tickInitiative` enqueues completion; completion events: `triggerCondition: () => false`.
 
 ---
 
@@ -115,7 +116,7 @@ Core fields in `src/state/types.ts` (378 lines). Starting defaults in `src/data/
 
 ---
 
-## Election Season (MVP) — Implemented, src/ui/
+## Election Season (MVP) — Implemented, client/src/ui/
 
 | Work Item | Files |
 |---|---|

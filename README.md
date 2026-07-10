@@ -5,20 +5,22 @@
 A browser-based governance simulation set in Lagos, Nigeria. You are Governor for a 4-year term (208 weeks). The game is **decision-driven** — think Frostpunk, not SimCity. No map, no tiles, no real-time simulation. You make choices from event cards, watch stats cascade weeks later, and deal with the political economy of a state that has its own immune system.
 
 **Tech:** TypeScript · React · Zustand · Tailwind CSS · Vite · Vitest  
-**Runs:** Entirely client-side. No backend.
+**Backend (Phase 0+):** Rust · Axum · SeaORM · Postgres  
+**Runs:** Client-side game with optional backend for analytics & saves.
 
 ---
 
 ## Getting Started
 
 ```bash
-npm install
+npm install          # install from client/ (root proxies to client/)
 npm run dev          # dev server at localhost:5173
 npm run build        # production build
-npx vitest run       # full test suite (601 tests)
+npm run test         # full test suite (601 tests)
+# Also accepts: cd client && <command>
 ```
 
-**Node requirement:** ≥ 22.12.0. The project uses Vite 6 (not 8) due to Node compatibility constraints on Coolify's nixpacks (see build notes in AGENTS.md).
+**Node requirement:** ≥ 22.12.0. The project uses Vite 6 (not 8) due to Node compatibility constraints on Coolify's nixpacks. **Rust:** ≥ 1.85 for the server component (see `server/`).
 
 ---
 
@@ -378,7 +380,7 @@ Four year-anchored events create a narrative spine through the middle of the gam
 ## What Is Not Built (and Should Not Be)
 
 - No map or tiles
-- No multiplayer / backend
+- No multiplayer
 - No audio
 - No authentication
 - No save-to-server (localStorage only)

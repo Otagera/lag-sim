@@ -6,11 +6,14 @@ coverage
 *.log
 .DS_Store
 events.json
-/saves
-/references
+saves
+references
+
+# Rust server
+server/target
 
 # e2e audit output
-e2e/audit-output/
+**/e2e/audit-output/
 
 # design-sync
 .ds-sync/
