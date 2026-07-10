@@ -10,6 +10,12 @@ npm run test:e2e     # Playwright e2e audit (proxied from root to client/)
 # Alternatively, cd client/ and use npm/npx directly there
 ```
 
+**Server (backend stack):**
+```bash
+docker compose up    # builds + runs Postgres + Rust server on :3000
+cd server && cargo run  # or just the server binary directly
+```
+
 **Node ≥ 22.12.0 required.** Vite pinned to v6 (not v8) due to Coolify/nixpacks constraint.
 
 ---

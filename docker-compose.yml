@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: lag_sim
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lag_sim_dev}
+      POSTGRES_DB: lag_sim
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lag_sim"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: ./server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://lag_sim:${POSTGRES_PASSWORD:-lag_sim_dev}@db:5432/lag_sim
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      PORT: "3000"
+      RUST_LOG: info
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
