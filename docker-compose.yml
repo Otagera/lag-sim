@@ -30,5 +30,20 @@ services:
       db:
         condition: service_healthy
 
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client/src:/app/src
+      - ./client/public:/app/public
+      - ./shared:/app/../shared
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    depends_on:
+      - server
+
 volumes:
   postgres_data:

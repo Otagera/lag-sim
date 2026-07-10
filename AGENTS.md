@@ -44,14 +44,12 @@ The server image is **pre-built on GitHub runners**. Coolify never compiles Rust
 
 After the monorepo restructure:
 
-| Service | Change |
+| Change | Detail |
 |---|---|
-| Client (existing) | Base Directory: `/` → `/client` (keep nixpacks build) |
-| Production env | Set `SERVER_IMAGE=ghcr.io/<your-org>/lag-sim-server:latest` |
-| Server (new) | Deploy type: Docker Compose → `docker-compose.prod.yml` |
-| | Or: Deploy type: single Docker container → pull `SERVER_IMAGE` |
-
-For `docker-compose.prod.yml`, set env vars in Coolify: `SERVER_IMAGE`, `POSTGRES_PASSWORD`, `CORS_ORIGIN`.
+| Deploy type | Docker Compose → `docker-compose.prod.yml` (single stack — Postgres + server + client) |
+| Client | No longer a separate nixpacks service. Built from `client/Dockerfile` during Coolify deploy (fast — seconds). |
+| Server | Pulls pre-built ghcr image (slow Rust compile happens on GH runners). |
+| Env vars | `SERVER_IMAGE`, `POSTGRES_PASSWORD`, `CORS_ORIGIN` — set in Coolify compose service. |
 
 ---
 
