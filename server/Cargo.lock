@@ -1138,6 +1138,7 @@ name = "lag-sim-server"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "chrono",
  "migration",
  "sea-orm",
  "serde",

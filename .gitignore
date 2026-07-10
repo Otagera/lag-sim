@@ -6,7 +6,7 @@ coverage
 *.log
 .DS_Store
 events.json
-saves
+/saves
 references
 deploy.log
 

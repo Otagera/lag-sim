@@ -7,10 +7,11 @@ const SAVE_KEY = 'lagos-governor-sim-save'
 const HINTS_KEY = 'lagos-governor-sim-seen-hints'
 const TOUR_KEY = 'lagos-governor-sim-tour-done'
 
-type SerializableState = Omit<GameState, 'activeEvent' | 'eventQueue'> & {
+export type SerializableState = Omit<GameState, 'activeEvent' | 'eventQueue'> & {
   version: number
   activeEventId: string | null
   eventQueueIds: string[]
+  savedAt?: string
 }
 
 type RawSaveData = Record<string, unknown>
@@ -19,17 +20,18 @@ function lookupEvent(id: string): EventCard | undefined {
   return ALL_EVENTS.find((e) => e.id === id)
 }
 
-function toSerializable(state: GameState): SerializableState {
+export function toSerializable(state: GameState): SerializableState {
   const { activeEvent, eventQueue, ...rest } = state
   return {
     ...rest,
     version: SAVE_VERSION,
     activeEventId: activeEvent?.id ?? null,
     eventQueueIds: eventQueue.map((e) => e.id),
+    savedAt: new Date().toISOString(),
   }
 }
 
-function fromSerializable(data: SerializableState): GameState {
+export function fromSerializable(data: SerializableState): GameState {
   const { activeEventId, eventQueueIds, ...rest } = data
 
   const activeEvent = activeEventId ? (lookupEvent(activeEventId) ?? null) : null

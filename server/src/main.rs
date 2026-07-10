@@ -1,5 +1,6 @@
 mod analytics;
 mod db;
+mod saves;
 mod types;
 
 use axum::{Json, Router, routing::get};
@@ -54,6 +55,7 @@ async fn main() {
             })
         }))
         .merge(analytics::router())
+        .merge(saves::router())
         .layer(cors)
         .with_state(state);
 

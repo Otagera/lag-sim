@@ -28,6 +28,24 @@ export interface AnalyticsIngestResponse {
 	ok: boolean;
 }
 
+export interface CloudSaveEntry {
+	device_id: string;
+	save_data: Record<string, unknown>;
+	version: number;
+	updated_at: string;
+}
+
+export interface CloudSavePayload {
+	device_id: string;
+	save_data: Record<string, unknown>;
+	version: number;
+}
+
+export interface CloudSaveResponse {
+	ok: boolean;
+	updated_at: string;
+}
+
 export interface HealthResponse {
 	status: string;
 	db: string;

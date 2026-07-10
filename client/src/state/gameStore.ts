@@ -1,5 +1,7 @@
 import { create, type StoreApi } from 'zustand'
+import { getDeviceId } from '../analytics/telemetry'
 import { instrumentNewGame, instrumentStateChange, instrumentChoiceResolved } from '../analytics/instrumentation'
+import { uploadSave, fetchCloudSave } from '../cloud/api'
 import { DEPUTY_PROFILES } from '../data/deputies'
 import { PRESTIGE_ACTIONS } from '../data/prestigeActions'
 import { STARTING_STATE } from '../data/startingState'
@@ -16,7 +18,7 @@ import { commissionNode } from '../engine/researchEngine'
 import { calculateWeeklyRevenue } from '../engine/revenueEngine'
 import { type SimulateOptions, type SimulateResult, simulateWeeks } from '../engine/simulateEngine'
 import { applyDelta } from '../engine/statEngine'
-import { loadSeenHints, saveGame, saveSeenHints } from './persistence'
+import { fromSerializable, loadSeenHints, saveGame, saveSeenHints, toSerializable, type SerializableState } from './persistence'
 import type {
   CommissionerRole,
   CommissionerState,
@@ -395,6 +397,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 }))
 
 let saveTimeout: ReturnType<typeof setTimeout> | null = null
+let cloudSaveTimeout: ReturnType<typeof setTimeout> | null = null
 
 function scheduleSave() {
   if (saveTimeout) clearTimeout(saveTimeout)
@@ -402,11 +405,32 @@ function scheduleSave() {
     const state = useGameStore.getState()
     saveGame(state)
   }, 500)
+
+  if (cloudSaveTimeout) clearTimeout(cloudSaveTimeout)
+  cloudSaveTimeout = setTimeout(() => {
+    const state = useGameStore.getState()
+    const serialized = toSerializable(state) as unknown as Record<string, unknown>
+    uploadSave(getDeviceId(), serialized, serialized.version as number)
+  }, 5000)
 }
 
 useGameStore.subscribe(() => {
   scheduleSave()
 })
+
+// On startup: if no local save but cloud has one, restore from cloud
+;(async function tryRestoreFromCloud() {
+  const initial = useGameStore.getState()
+  if (initial.week > 1) return
+  const deviceId = getDeviceId()
+  const cloudEntry = await fetchCloudSave(deviceId)
+  if (!cloudEntry) return
+  const cloudData = cloudEntry.save_data as Record<string, unknown>
+  if (typeof cloudData.week === 'number' && cloudData.week > 1) {
+    const restored = fromSerializable(cloudData as unknown as SerializableState)
+    useGameStore.setState({ ...restored })
+  }
+})()
 
 // Detect new game: when week resets to 1 after having been > 1
 let analyticsPreviousWeek = useGameStore.getState().week

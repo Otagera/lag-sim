@@ -2,6 +2,7 @@ pub use sea_orm_migration::prelude::*;
 
 mod m20250101_000001_create_health_check;
 mod m20250710_000001_create_analytics_events;
+mod m20250710_000002_create_cloud_saves;
 
 pub struct Migrator;
 
@@ -11,6 +12,7 @@ impl MigratorTrait for Migrator {
         vec![
             Box::new(m20250101_000001_create_health_check::Migration),
             Box::new(m20250710_000001_create_analytics_events::Migration),
+            Box::new(m20250710_000002_create_cloud_saves::Migration),
         ]
     }
 }
