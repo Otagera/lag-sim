@@ -11,7 +11,7 @@
     "test:coverage": "npm --prefix client run test:coverage",
     "test:e2e": "npm --prefix client run test:e2e",
     "preview": "npm --prefix client run preview",
-    "generate-types": "typeshare --lang=typescript --output=shared/types.ts server/src/types.rs"
+    "generate-types": "typeshare --lang=typescript --output-file=shared/types.ts server/src/types.rs"
   },
   "engines": {
     "node": ">=22.12.0"

@@ -1,3 +1,4 @@
+use migration::MigratorTrait;
 use sea_orm::{Database, DatabaseConnection};
 
 pub async fn init_db(database_url: &str) -> Result<DatabaseConnection, sea_orm::DbErr> {
