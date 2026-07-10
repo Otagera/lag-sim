@@ -10,13 +10,57 @@ npm run test:e2e     # Playwright e2e audit (proxied from root to client/)
 # Alternatively, cd client/ and use npm/npx directly there
 ```
 
-**Server (backend stack):**
-```bash
-docker compose up    # builds + runs Postgres + Rust server on :3000
-cd server && cargo run  # or just the server binary directly
+**Node ≥ 22.12.0 required.** Vite pinned to v6 (not v8) due to Coolify/nixpacks constraint.
+
+---
+
+## Deploy Pipeline
+
+```
+git push → GH Actions (paths-filter: only if server/** changed)
+  → build + push to ghcr.io/$OWNER/lag-sim-server:latest
+  → curl Coolify webhook (Bearer token)
+  → Coolify pulls pre-built image → restart container
 ```
 
-**Node ≥ 22.12.0 required.** Vite pinned to v6 (not v8) due to Coolify/nixpacks constraint.
+The server image is **pre-built on GitHub runners**. Coolify never compiles Rust.
+
+**Secrets required (GH repo → Settings → Secrets and variables → Actions):**
+
+| Secret | Value |
+|---|---|
+| `COOLIFY_WEBHOOK_URL` | Coolify app → Webhooks tab → Deploy Webhook |
+| `COOLIFY_TOKEN` | Coolify → Profile → API Tokens (scope: deploy) |
+
+`GITHUB_TOKEN` is automatic — no secret needed for pushing to GHCR.
+
+**After first deploy:** make `lag-sim-server` package public at `github.com/settings/packages` so Coolify can pull without auth.
+
+**Forced rebuild:** `workflow_dispatch` input `force_all: true` from GH Actions UI.
+
+---
+
+## Coolify Reconfiguration
+
+After the monorepo restructure:
+
+| Service | Change |
+|---|---|
+| Client (existing) | Base Directory: `/` → `/client` (keep nixpacks build) |
+| Production env | Set `SERVER_IMAGE=ghcr.io/<your-org>/lag-sim-server:latest` |
+| Server (new) | Deploy type: Docker Compose → `docker-compose.prod.yml` |
+| | Or: Deploy type: single Docker container → pull `SERVER_IMAGE` |
+
+For `docker-compose.prod.yml`, set env vars in Coolify: `SERVER_IMAGE`, `POSTGRES_PASSWORD`, `CORS_ORIGIN`.
+
+---
+
+## Local Dev
+
+```bash
+docker compose up    # builds + runs Postgres + server on :3000
+cd server && cargo run  # or the binary directly
+```
 
 ---
 
