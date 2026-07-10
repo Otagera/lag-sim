@@ -15,5 +15,6 @@ tower-http = { version = "0.6", features = ["cors"] }
 sea-orm = { version = "1", features = ["sqlx-postgres", "runtime-tokio", "macros"] }
 migration = { path = "migration" }
 typeshare = "1"
+uuid = { version = "1", features = ["v4"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

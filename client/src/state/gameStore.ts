@@ -1,4 +1,5 @@
 import { create, type StoreApi } from 'zustand'
+import { instrumentNewGame, instrumentStateChange, instrumentChoiceResolved } from '../analytics/instrumentation'
 import { DEPUTY_PROFILES } from '../data/deputies'
 import { PRESTIGE_ACTIONS } from '../data/prestigeActions'
 import { STARTING_STATE } from '../data/startingState'
@@ -112,13 +113,21 @@ const resolveGodfatherAsk = (set: StoreSet, get: StoreGet, accepted: boolean) =>
 }
 
 const createCoreActions = (set: StoreSet, get: StoreGet): CoreActions => ({
-  tick: () => set(gameLoopTick(get())),
+  tick: () => {
+    const prev = get()
+    const next = gameLoopTick(prev)
+    set(next)
+    instrumentStateChange(next)
+  },
   acceptGodfather: () => resolveGodfatherAsk(set, get, true),
   refuseGodfather: () => resolveGodfatherAsk(set, get, false),
   resolveEvent: (choiceId) => {
     const state = get()
     if (!state.activeEvent) return
-    set(resolveEventAction(state, state.activeEvent, choiceId))
+    const eventId = state.activeEvent.id
+    const next = resolveEventAction(state, state.activeEvent, choiceId)
+    set(next)
+    instrumentChoiceResolved(next, choiceId, eventId)
   },
   setMode: (mode) => set({ mode }),
   setDeputy: (key) => {
@@ -397,4 +406,13 @@ function scheduleSave() {
 
 useGameStore.subscribe(() => {
   scheduleSave()
+})
+
+// Detect new game: when week resets to 1 after having been > 1
+let analyticsPreviousWeek = useGameStore.getState().week
+useGameStore.subscribe((state) => {
+  if (state.week === 1 && analyticsPreviousWeek > 1) {
+    instrumentNewGame(state)
+  }
+  analyticsPreviousWeek = state.week
 })

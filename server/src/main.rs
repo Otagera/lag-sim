@@ -1,10 +1,19 @@
+mod analytics;
 mod db;
 mod types;
 
 use axum::{Json, Router, routing::get};
 use std::net::SocketAddr;
+use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::filter::EnvFilter;
+
+#[derive(Clone)]
+pub struct AppStateInner {
+    pub db: sea_orm::DatabaseConnection,
+}
+
+pub type AppState = Arc<AppStateInner>;
 
 #[tokio::main]
 async fn main() {
@@ -19,13 +28,18 @@ async fn main() {
         .parse::<u16>()
         .expect("PORT must be a number");
 
-    let db_health = match db::init_db(&database_url).await {
-        Ok(_) => "connected".to_string(),
+    let db = match db::init_db(&database_url).await {
+        Ok(db) => {
+            tracing::info!("database connected");
+            db
+        }
         Err(e) => {
             tracing::warn!("database connection failed: {e}");
-            "error".to_string()
+            std::process::exit(1);
         }
     };
+
+    let state: AppState = Arc::new(AppStateInner { db });
 
     let cors = CorsLayer::new()
         .allow_origin(Any)
@@ -36,10 +50,12 @@ async fn main() {
         .route("/health", get(|| async move {
             Json(types::HealthResponse {
                 status: "ok".to_string(),
-                db: db_health,
+                db: "connected".to_string(),
             })
         }))
-        .layer(cors);
+        .merge(analytics::router())
+        .layer(cors)
+        .with_state(state);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     tracing::info!("listening on {addr}");
