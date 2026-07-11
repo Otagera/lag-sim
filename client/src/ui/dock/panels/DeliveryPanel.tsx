@@ -163,19 +163,19 @@ export function DeliveryPanel({
     {
       label: 'Capital works',
       value: activeCapital.length,
-      tone: activeCapital.length > 0 ? 'info' : 'neutral',
+      tone: activeCapital.length > 0 ? 'info' as const : 'neutral' as const,
     },
     {
       label: 'Stalled',
       value: stalledCapital.length,
-      tone: stalledCapital.length > 0 ? 'danger' : 'neutral',
+      tone: stalledCapital.length > 0 ? 'danger' as const : 'neutral' as const,
     },
     {
       label: 'Research in flight',
       value: researchInFlight.length,
-      tone: researchInFlight.length > 0 ? 'info' : 'neutral',
+      tone: researchInFlight.length > 0 ? 'info' as const : 'neutral' as const,
     },
-  ] as const
+  ]
 
   return (
     <CommandPanel

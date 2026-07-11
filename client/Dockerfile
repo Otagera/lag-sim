@@ -1,4 +1,6 @@
 FROM node:23-alpine AS builder
+ARG VITE_ANALYTICS_URL
+ARG VITE_SERVER_URL
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci

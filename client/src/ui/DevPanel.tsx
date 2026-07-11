@@ -1,3 +1,4 @@
+import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { getGoal } from '../data/goals'
 import type { SimulateResult, SimulateStrategy } from '../engine/simulateEngine'
@@ -339,6 +340,7 @@ function ResultPanel({ result }: { result: DevSimResult | null }) {
 }
 
 export function DevPanel() {
+  const navigate = useNavigate()
   const state = useGameStore((s) => s)
   const fastForward = useGameStore((s) => s.fastForward)
 
@@ -389,6 +391,16 @@ export function DevPanel() {
       >
         <DevHeader onClose={() => setOpen(false)} />
         <div className="p-3 space-y-2">
+          <nav className="flex gap-1 mb-2">
+            <button
+              type="button"
+              onClick={() => { navigate({ to: '/dev' }); setOpen(false) }}
+              className="flex-1 px-2 py-1 text-[10px] font-medium border"
+              style={{ borderColor: 'var(--border)', color: 'var(--text)', backgroundColor: 'var(--surface)' }}
+            >
+              Dashboard &rarr;
+            </button>
+          </nav>
           <DevControls
             disabled={disabled}
             running={running}

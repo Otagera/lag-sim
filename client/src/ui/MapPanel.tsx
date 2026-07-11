@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CONSTITUENCIES } from '../data/constituencies'
 import { useGameStore } from '../state/gameStore'
 import type { MapLens } from '../state/mapSelectors'
-import type { ConstituencyKey } from '../state/types'
+import type { CapitalProject, ConstituencyKey } from '../state/types'
 import { DistrictCanvas } from './DistrictCanvas'
 import {
   buildFillExpression,
@@ -54,7 +54,8 @@ function addMapSources(map: maplibregl.Map) {
 }
 
 function addMapLayers(map: maplibregl.Map) {
-  const { constituencyApproval, infraScore, securityIndex, youthTension } = useGameStore.getState()
+  const { constituencyApproval, stats } = useGameStore.getState()
+  const { infrastructureScore: infraScore, securityIndex, youthTension } = stats
   map.addLayer({
     id: 'lga-fill',
     type: 'fill',
@@ -202,7 +203,7 @@ function DistrictView({
   returnToOverview,
 }: {
   selected: ConstituencyKey
-  capitalProjects: CapitalProjectLike[]
+  capitalProjects: CapitalProject[]
   constituencyApproval: Record<string, number>
   infraScore: number
   youthTension: number
@@ -311,15 +312,7 @@ function DistrictView({
   )
 }
 
-interface CapitalProjectLike {
-  id: string
-  name: string
-  location: ConstituencyKey
-  status: string
-  weeksRemaining: number
-  effectiveProgress: number
-  weeklyDraw: number
-}
+
 
 function LGATooltip({
   hoveredLGA,
@@ -398,7 +391,7 @@ function DistrictDossier({
   infraScore: number
   securityIndex: number
   youthTension: number
-  capitalProjects: CapitalProjectLike[]
+  capitalProjects: CapitalProject[]
   setSelected: (k: ConstituencyKey | null) => void
   selected: ConstituencyKey
 }) {
@@ -661,7 +654,7 @@ function MapViewport({
   mapMode: 'overview' | 'district' | 'night'
   layer: MapLayer | null
   selected: ConstituencyKey | null
-  capitalProjects: CapitalProjectLike[]
+  capitalProjects: CapitalProject[]
   constituencyApproval: Record<string, number>
   infraScore: number
   youthTension: number
@@ -738,7 +731,7 @@ function useReactiveMap(
   securityIndex: number,
   youthTension: number,
   selected: ConstituencyKey | null,
-  capitalProjects: CapitalProjectLike[],
+  capitalProjects: CapitalProject[],
 ) {
   useEffect(() => {
     if (!mapReady || !mapRef.current) return
@@ -853,7 +846,7 @@ export function MapPanel() {
           youthTension={youthTension}
           capitalProjects={capitalProjects}
           setSelected={setSelected}
-          selected={selected}
+          selected={selected as ConstituencyKey}
         />
       )}
     </div>

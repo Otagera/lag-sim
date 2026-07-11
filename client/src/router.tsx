@@ -17,6 +17,7 @@ import { NewGameFlow } from './ui/onboarding/NewGameFlow'
 import { WelcomeScreen } from './ui/WelcomeScreen'
 
 const LazyStyleLab = lazy(() => import('./ui/StyleLab').then((m) => ({ default: m.StyleLab })))
+const LazyAdminDashboard = lazy(() => import('./ui/admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard })))
 
 // ─── Root layout ─────────────────────────────────────────────────────────────
 const rootRoute = createRootRoute({
@@ -113,8 +114,26 @@ const styleLabRoute = createRoute({
   component: LazyStyleLab,
 })
 
+// ─── /dev → admin dashboard ──────────────────────────────────────────────────
+function DevGuard() {
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (!import.meta.env.DEV) {
+      navigate({ to: '/', replace: true })
+    }
+  }, [navigate])
+  if (!import.meta.env.DEV) return null
+  return <LazyAdminDashboard />
+}
+
+const devRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/dev',
+  component: DevGuard,
+})
+
 // ─── Router ──────────────────────────────────────────────────────────────────
-const routeTree = rootRoute.addChildren([indexRoute, newGameRoute, gameRoute, styleLabRoute])
+const routeTree = rootRoute.addChildren([indexRoute, newGameRoute, gameRoute, styleLabRoute, devRoute])
 
 export const router = createRouter({ routeTree })
 

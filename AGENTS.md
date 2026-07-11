@@ -3,11 +3,11 @@
 > Read this before touching code. See `README.md` for gameplay docs. Full reference in `docs/`.
 
 ```bash
-npm run dev          # dev server (proxied from root to client/)
+npm run dev          # starts BOTH Vite dev server (client/:5173) + Rust server (server/:3000) via concurrently
 npm run test         # all tests green (proxied from root to client/)
 npm run build        # TypeScript + Vite build (proxied from root to client/)
 npm run test:e2e     # Playwright e2e audit (proxied from root to client/)
-# Alternatively, cd client/ and use npm/npx directly there
+# Alternatively, cd client/ or server/ and use npm/cargo directly there
 ```
 
 **Node ≥ 22.12.0 required.** Vite pinned to v6 (not v8) due to Coolify/nixpacks constraint.
@@ -49,7 +49,19 @@ After the monorepo restructure:
 | Deploy type | Docker Compose → `docker-compose.prod.yml` (single stack — Postgres + server + client) |
 | Client | No longer a separate nixpacks service. Built from `client/Dockerfile` during Coolify deploy (fast — seconds). |
 | Server | Pulls pre-built ghcr image (slow Rust compile happens on GH runners). |
-| Env vars | `SERVER_IMAGE`, `POSTGRES_PASSWORD`, `CORS_ORIGIN` — set in Coolify compose service. |
+| Env vars | `SERVER_IMAGE`, `POSTGRES_PASSWORD`, `CORS_ORIGIN`, `VITE_ANALYTICS_URL` — set in Coolify compose service. |
+
+### Environment Variable Reference
+
+| Variable | Set in | Required | Purpose |
+|---|---|---|---|
+| `COOLIFY_WEBHOOK_URL` | GH repo secrets | yes | Triggers Coolify deploy after server image build |
+| `COOLIFY_TOKEN` | GH repo secrets | yes | Bearer token for Coolify webhook |
+| `SERVER_IMAGE` | Coolify env | yes | Full ghcr tag, e.g. `ghcr.io/your-org/lag-sim-server:latest` |
+| `POSTGRES_PASSWORD` | Coolify env | yes | DB password (used by both `db` and `server`) |
+| `CORS_ORIGIN` | Coolify env | yes | Client origin for CORS, e.g. `https://lag-sim.example.com` |
+| `VITE_ANALYTICS_URL` | Coolify env | no | Defaults to `/api/v1/analytics/event` (nginx proxies `/api/` to server) |
+| `VITE_SERVER_URL` | Coolify env | no | Optional server base URL override; defaults to empty (relative to origin) |
 
 ---
 

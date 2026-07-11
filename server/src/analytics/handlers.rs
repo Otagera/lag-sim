@@ -1,4 +1,4 @@
-use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
+use axum::{Json, extract::State, response::IntoResponse};
 use serde::Deserialize;
 
 use super::queries;
@@ -11,19 +11,16 @@ pub struct LeaderboardParams {
 
 pub async fn ingest_event(
     State(state): State<AppState>,
-    Json(payload): Json<super::types::AnalyticsEventPayload>,
+    Json(payloads): Json<Vec<super::types::AnalyticsEventPayload>>,
 ) -> impl IntoResponse {
-    match queries::insert_event(&state.db, payload).await {
-        Ok(()) => Json(super::types::AnalyticsIngestResponse { ok: true }).into_response(),
-        Err(e) => {
+    let mut ok = true;
+    for payload in payloads {
+        if let Err(e) = queries::insert_event(&state.db, payload).await {
             tracing::error!("failed to ingest event: {e}");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(super::types::AnalyticsIngestResponse { ok: false }),
-            )
-                .into_response()
+            ok = false;
         }
     }
+    Json(super::types::AnalyticsIngestResponse { ok })
 }
 
 pub async fn get_aggregates(

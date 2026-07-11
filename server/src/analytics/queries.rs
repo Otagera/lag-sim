@@ -11,7 +11,7 @@ struct CountResult {
 pub async fn count_sessions(db: &DatabaseConnection) -> Result<i64, DbErr> {
     let result = CountResult::find_by_statement(Statement::from_string(
         DatabaseBackend::Postgres,
-        "SELECT COUNT(DISTINCT session_id) AS count FROM analytics_events WHERE event_type = 'session_start'",
+        "SELECT COUNT(DISTINCT session_id) AS count FROM analytics_event WHERE event_type = 'session_start'",
     ))
     .one(db)
     .await?
@@ -27,7 +27,7 @@ struct AvgResult {
 pub async fn average_week(db: &DatabaseConnection) -> Result<f64, DbErr> {
     let result = AvgResult::find_by_statement(Statement::from_string(
         DatabaseBackend::Postgres,
-        "SELECT AVG(week) AS avg FROM analytics_events WHERE event_type = 'game_over'",
+        "SELECT AVG(week)::float8 AS avg FROM analytics_event WHERE event_type = 'game_over'",
     ))
     .one(db)
     .await?
@@ -46,7 +46,7 @@ pub async fn death_cause_distribution(db: &DatabaseConnection) -> Result<Vec<(St
         DatabaseBackend::Postgres,
         r#"
         SELECT event_data->>'game_over_type' AS game_over_type, COUNT(*) AS count
-        FROM analytics_events
+        FROM analytics_event
         WHERE event_type = 'game_over'
         GROUP BY game_over_type
         ORDER BY count DESC
@@ -69,7 +69,7 @@ pub async fn archetype_distribution(db: &DatabaseConnection) -> Result<Vec<(Stri
         DatabaseBackend::Postgres,
         r#"
         SELECT archetype, COUNT(DISTINCT session_id) AS count
-        FROM analytics_events
+        FROM analytics_event
         WHERE event_type = 'session_start'
         GROUP BY archetype
         ORDER BY count DESC
@@ -92,7 +92,7 @@ pub async fn goal_distribution(db: &DatabaseConnection) -> Result<Vec<(String, i
         DatabaseBackend::Postgres,
         r#"
         SELECT event_data->>'goal_id' AS goal_id, COUNT(*) AS count
-        FROM analytics_events
+        FROM analytics_event
         WHERE event_type = 'session_start'
         GROUP BY goal_id
         ORDER BY count DESC
@@ -129,7 +129,7 @@ pub async fn leaderboard(
             archetype,
             event_data->>'game_over_type' AS game_over_type,
             COALESCE((event_data->>'reached_second_term')::boolean, false) AS reached_second_term
-        FROM analytics_events
+        FROM analytics_event
         WHERE event_type = 'game_over'
         ORDER BY week DESC
         LIMIT $1

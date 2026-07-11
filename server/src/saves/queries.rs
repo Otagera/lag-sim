@@ -9,7 +9,7 @@ pub async fn upsert_save(
     let stmt = Statement::from_sql_and_values(
         DatabaseBackend::Postgres,
         r#"
-        INSERT INTO cloud_saves (device_id, save_data, version, updated_at)
+        INSERT INTO cloud_save (device_id, save_data, version, updated_at)
         VALUES ($1, $2, $3, NOW())
         ON CONFLICT (device_id)
         DO UPDATE SET save_data = $2, version = $3, updated_at = NOW()
@@ -28,13 +28,27 @@ struct SaveRow {
     updated_at: chrono::DateTime<chrono::Utc>,
 }
 
+pub async fn delete_save(
+    db: &DatabaseConnection,
+    device_id: &str,
+) -> Result<bool, DbErr> {
+    let result = db
+        .execute(Statement::from_sql_and_values(
+            DatabaseBackend::Postgres,
+            "DELETE FROM cloud_save WHERE device_id = $1",
+            [device_id.into()],
+        ))
+        .await?;
+    Ok(result.rows_affected() > 0)
+}
+
 pub async fn load_save(
     db: &DatabaseConnection,
     device_id: &str,
 ) -> Result<Option<super::types::CloudSaveEntry>, DbErr> {
     let row = SaveRow::find_by_statement(Statement::from_sql_and_values(
         DatabaseBackend::Postgres,
-        "SELECT device_id, save_data, version, updated_at FROM cloud_saves WHERE device_id = $1",
+        "SELECT device_id, save_data, version, updated_at FROM cloud_save WHERE device_id = $1",
         [device_id.into()],
     ))
     .one(db)

@@ -15,10 +15,10 @@ const SELECT_STYLE = {
   fontSize: '11px',
 }
 const CTRL_BAR_STYLE = {
-  display: 'flex',
+  display: 'flex' as const,
   gap: '12px',
-  flexWrap: 'wrap',
-  alignItems: 'center',
+  flexWrap: 'wrap' as const,
+  alignItems: 'center' as const,
   marginBottom: '16px',
   fontFamily: "'Archivo Narrow', sans-serif",
   fontSize: '11px',

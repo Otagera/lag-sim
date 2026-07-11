@@ -1,7 +1,7 @@
 use sea_orm::entity::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
-#[sea_orm(table_name = "cloud_saves")]
+#[sea_orm(table_name = "cloud_save")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub device_id: String,

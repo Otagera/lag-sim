@@ -3,6 +3,20 @@ use axum::{Json, extract::{Path, State}, http::StatusCode, response::IntoRespons
 use super::queries;
 use crate::AppState;
 
+pub async fn delete_game(
+    State(state): State<AppState>,
+    Path(device_id): Path<String>,
+) -> impl IntoResponse {
+    match queries::delete_save(&state.db, &device_id).await {
+        Ok(true) => StatusCode::NO_CONTENT.into_response(),
+        Ok(false) => StatusCode::NOT_FOUND.into_response(),
+        Err(e) => {
+            tracing::error!("failed to delete save: {e}");
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
+    }
+}
+
 pub async fn save_game(
     State(state): State<AppState>,
     Json(payload): Json<super::types::CloudSavePayload>,

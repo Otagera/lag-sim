@@ -1,5 +1,6 @@
+import { ANALYTICS_URL } from '../config'
+
 const DEVICE_ID_KEY = 'lag-sim-device-id'
-const ANALYTICS_URL = import.meta.env.VITE_ANALYTICS_URL ?? 'http://localhost:3000/api/analytics/ingest'
 
 const BATCH_FLUSH_INTERVAL = 30_000
 const BATCH_MAX_SIZE = 10

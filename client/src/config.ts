@@ -14,4 +14,7 @@ export const SHARE_HASHTAGS = ['#LagosGovernorSim', '#GovernLagos']
  * The telemetry module defaults to localhost:3000 in dev.
  */
 export const ANALYTICS_URL =
-  import.meta.env.VITE_ANALYTICS_URL ?? 'http://localhost:3000/api/analytics/ingest'
+  import.meta.env.VITE_ANALYTICS_URL ?? '/api/v1/analytics/event'
+
+export const SERVER_BASE_URL =
+  import.meta.env.VITE_SERVER_URL ?? ''
