@@ -89,5 +89,10 @@ jobs:
     steps:
       - name: Trigger Coolify redeploy
         run: |
-          curl -fsSL -X GET "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
-            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+          code=$(curl -sS -o resp.txt -w '%{http_code}' \
+            "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
+            -H "Accept: application/json")
+          echo "Coolify responded HTTP $code"
+          head -c 2000 resp.txt; echo
+          [ "$code" -lt 400 ]
