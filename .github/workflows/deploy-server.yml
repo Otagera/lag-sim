@@ -5,7 +5,9 @@ on:
     branches: [main]
     paths:
       - 'server/**'
+      - 'client/**'
       - 'docker-compose.yml'
+      - 'docker-compose.prod.yml'
       - '.github/workflows/deploy-server.yml'
   workflow_dispatch:
     inputs:
@@ -22,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       server: ${{ steps.filter.outputs.server }}
+      stack: ${{ steps.filter.outputs.stack }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,6 +38,9 @@ jobs:
               - 'server/**'
               - 'docker-compose.yml'
               - '.github/workflows/deploy-server.yml'
+            stack:
+              - 'client/**'
+              - 'docker-compose.prod.yml'
 
   build-server:
     needs: changes
@@ -70,10 +76,15 @@ jobs:
           cache-to: type=gha,scope=server,mode=max
 
   deploy:
-    needs: [build-server]
+    # Server changes: deploy after the image is pushed.
+    # Client/prod-compose-only changes: build-server is skipped, deploy anyway
+    # (Coolify rebuilds the client and reuses the existing server image).
+    needs: [changes, build-server]
     if: |
-      always() && !failure() && !cancelled() &&
-      needs.build-server.result == 'success'
+      always() && !failure() && !cancelled() && (
+        needs.build-server.result == 'success' ||
+        (needs.build-server.result == 'skipped' && needs.changes.outputs.stack == 'true')
+      )
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Coolify redeploy
