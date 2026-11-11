@@ -5,7 +5,7 @@
  * rides along in every share caption. It is intentionally a placeholder until
  * the game has a real deployed home — replace the value below with the live URL.
  */
-export const PLAY_URL = 'https://lagos-governor-sim.example'
+export const PLAY_URL = 'https://excellency.otagera.xyz'
 
 export const SHARE_HASHTAGS = ['#LagosGovernorSim', '#GovernLagos']
 
