@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-
+import { APP_NAME } from '../config'
 import { useGameStore } from '../state/gameStore'
 import { electionYear } from '../utils/calendar'
 import { Seal } from './components/Seal'
@@ -348,7 +348,7 @@ export function SituationBar({
       <div className="situation-brand">
         <Seal size={30} />
         <div style={{ minWidth: 0 }}>
-          <div className="font-display situation-title">Lagos Governor Sim</div>
+          <div className="font-display situation-title">{APP_NAME}</div>
           <div className="situation-meta" title={`Week ${week}`}>
             <strong>Week {week}</strong>
             <span> · {monthLabel}</span>

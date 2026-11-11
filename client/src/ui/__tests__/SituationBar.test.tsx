@@ -34,7 +34,7 @@ describe('SituationBar', () => {
     const props = renderBar()
 
     expect(screen.getByRole('banner')).toBeInTheDocument()
-    expect(screen.getByText('Lagos Governor Sim')).toBeInTheDocument()
+    expect(screen.getByText('Excellency')).toBeInTheDocument()
     expect(screen.getByText('Week 1')).toBeInTheDocument()
     expect(screen.getByText('Cash')).toBeInTheDocument()
     expect(screen.getByText('Trust')).toBeInTheDocument()

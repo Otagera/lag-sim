@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 import { BarChart3, Landmark, Network, Zap } from 'lucide-react'
+import { APP_NAME } from '../config'
 import { Button, Surface } from './components'
 import { LagosSkyline } from './LagosSkyline'
 
@@ -57,7 +58,7 @@ export function WelcomeScreen({ onNewGame, onContinue, canContinue }: Props) {
             className="font-display font-semibold mt-2"
             style={{ fontSize: '30px', color: 'var(--text)' }}
           >
-            Lagos Governor Sim
+            {APP_NAME}
           </h1>
           <p
             className="mt-3 max-w-md mx-auto leading-relaxed"

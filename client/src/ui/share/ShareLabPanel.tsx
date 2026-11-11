@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { APP_NAME } from '../../config'
 import { formatReleaseStamp } from '../../version'
 import type { MomentCardData } from './buildMomentCardData'
 import type { ShareCardData } from './buildShareCardData'
@@ -266,7 +267,7 @@ export function ShareLabPanel() {
             cardKind === 'legacy'
               ? `lagos-legacy-week${legacy.weekCount}.png`
               : `lagos-moment-${moment.momentType}-week${moment.week}.png`,
-          title: 'Lagos Governor Sim',
+          title: APP_NAME,
         })
       }
     } catch (err) {

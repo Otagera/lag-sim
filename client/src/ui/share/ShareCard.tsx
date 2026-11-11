@@ -1,3 +1,4 @@
+import { APP_NAME } from '../../config'
 import { BustPortrait } from '../portraits'
 import type { ShareCardData } from './buildShareCardData'
 import {
@@ -484,7 +485,7 @@ export function ShareCard({ data }: { data: ShareCardData }) {
       width="100%"
       height="100%"
       style={{ display: 'block' }}
-      aria-label="Lagos Governor Sim Legacy Card"
+      aria-label={`${APP_NAME} Legacy Card`}
     >
       <CardDefs flavor={flavor} />
       <CardBackground />

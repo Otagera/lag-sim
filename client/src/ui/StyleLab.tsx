@@ -1180,7 +1180,7 @@ function ChromeTitle({ gameState }: { gameState: GameState }) {
           transition: 'color 600ms ease',
         }}
       >
-        Lagos Governor Sim
+        Excellency
       </div>
       <div
         style={{

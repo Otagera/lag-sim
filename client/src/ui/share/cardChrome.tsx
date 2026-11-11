@@ -1,3 +1,4 @@
+import { APP_NAME } from '../../config'
 import { LagosSealMark } from '../seals/LagosSealMark'
 
 /** Danfo-yellow — the constant brand accent across every flavor. */
@@ -48,7 +49,7 @@ export const CardBackground = () => (
 )
 
 /**
- * Newspaper masthead: Danfo-yellow bar, "LAGOS GOVERNOR SIM" nameplate, a
+ * Newspaper masthead: Danfo-yellow bar, "EXCELLENCY" nameplate, a
  * right-aligned subline (the administration label), and a double rule.
  */
 export const CardMasthead = ({
@@ -69,7 +70,7 @@ export const CardMasthead = ({
       fill={flavor.text}
       letterSpacing="0.07em"
     >
-      LAGOS GOVERNOR SIM
+      {APP_NAME.toUpperCase()}
     </text>
     <text
       x="990"
@@ -139,7 +140,7 @@ export const CardFooter = ({
       letterSpacing="0.14em"
       fontWeight="700"
     >
-      LAGOS GOVERNOR SIM
+      {APP_NAME.toUpperCase()}
     </text>
   </>
 )

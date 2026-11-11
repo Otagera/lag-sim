@@ -23,6 +23,7 @@ import PlayfairItalic from '@fontsource/playfair-display/files/playfair-display-
 import PlayfairRegular from '@fontsource/playfair-display/files/playfair-display-latin-400-normal.woff2?url'
 import PlayfairSemi from '@fontsource/playfair-display/files/playfair-display-latin-600-normal.woff2?url'
 import PlayfairBold from '@fontsource/playfair-display/files/playfair-display-latin-700-normal.woff2?url'
+import { APP_NAME } from '../../config'
 
 type FaceSpec = {
   family: 'Playfair Display' | 'Archivo Narrow'
@@ -142,7 +143,7 @@ export async function sharePng(blob: Blob, opts: SharePayload): Promise<ShareRes
   const file = new File([blob], opts.filename, { type: 'image/png' })
 
   if (navigator.canShare?.({ files: [file] })) {
-    const shareData: ShareData = { files: [file], title: opts.title ?? 'Lagos Governor Sim' }
+    const shareData: ShareData = { files: [file], title: opts.title ?? APP_NAME }
     if (opts.text) shareData.text = opts.text
     if (opts.url) shareData.url = opts.url
     try {

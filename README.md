@@ -1,6 +1,6 @@
-# Lagos Governor Sim
+# Excellency
 
-> Everyone thinks Lagos is easy to fix. This game lets them try.
+> Govern a Nigerian State. Everyone thinks Lagos is easy to fix. This game lets them try. (Formerly "Lagos Governor Sim"; Lagos is the first scenario.)
 
 A browser-based governance simulation set in Lagos, Nigeria. You are Governor for a 4-year term (208 weeks). The game is **decision-driven** — think Frostpunk, not SimCity. No map, no tiles, no real-time simulation. You make choices from event cards, watch stats cascade weeks later, and deal with the political economy of a state that has its own immune system.
 

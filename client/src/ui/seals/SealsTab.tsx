@@ -288,7 +288,7 @@ function ForegroundChips({
     >
       <div style={chipStyle}>
         <LagosSealMark size={28} />
-        <span style={{ fontSize: '12px', fontWeight: 700 }}>Lagos Governor Sim</span>
+        <span style={{ fontSize: '12px', fontWeight: 700 }}>Excellency</span>
       </div>
       {electionActive && (
         <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>

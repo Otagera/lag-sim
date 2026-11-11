@@ -1,4 +1,4 @@
-# AGENTS.md — Lagos Governor Sim
+# AGENTS.md — Excellency (formerly Lagos Governor Sim)
 
 > Read this before touching code. See `README.md` for gameplay docs. Full reference in `docs/`.
 

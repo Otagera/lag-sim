@@ -1,6 +1,6 @@
 import type { StyleSpecification } from 'maplibre-gl'
 
-// Custom illustrated style for Lagos Governor Sim.
+// Custom illustrated style for the Lagos scenario map.
 // Uses OpenFreeMap vector tiles (free, no API key).
 // Color palette mirrors the warm illustrated Lagos reference images:
 //   land = ochre sand, water = vivid teal, roads = bright yellow, buildings = terracotta.

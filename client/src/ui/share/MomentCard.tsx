@@ -1,3 +1,4 @@
+import { APP_NAME } from '../../config'
 import type { MomentCardData } from './buildMomentCardData'
 import {
   CardBackground,
@@ -77,7 +78,7 @@ export function MomentCard({ data }: { data: MomentCardData }) {
       width="100%"
       height="100%"
       style={{ display: 'block' }}
-      aria-label="Lagos Governor Sim Moment Card"
+      aria-label={`${APP_NAME} Moment Card`}
     >
       <CardDefs flavor={flavor} />
       <CardBackground />

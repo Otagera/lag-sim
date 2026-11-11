@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 import { BarChart3, Landmark, Network, Zap } from 'lucide-react'
+import { APP_NAME } from '../config'
 import { Button } from './components'
 
 const INTRO_KEY = 'lagos-intro-seen'
@@ -62,7 +63,7 @@ export function WelcomeModal({ onStart }: { onStart: () => void }) {
             className="font-display font-semibold mt-1"
             style={{ fontSize: '26px', color: 'var(--text)' }}
           >
-            Lagos Governor Sim
+            {APP_NAME}
           </h1>
         </div>
         <div className="p-6 space-y-5">
