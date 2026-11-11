@@ -306,7 +306,7 @@ const DEPUTY_LABELS: Record<DeputyKey, string> = {
   technocrat: 'Deputy Gov. Tunde Balogun-Coker',
   politician: 'Deputy Gov. Amaka Obiora',
   loyalist: 'Deputy Gov. Korede Adeyemi-Shaw',
-  reformer: 'Deputy Gov. Kanyinsola Fashola-Eze',
+  reformer: 'Deputy Gov. Kanyinsola Fasina-Eze',
   traditionalist: 'Deputy Gov. Adewole Fasanya',
   economist: 'Deputy Gov. Chioma Nwosu-Adegbite',
   'security-chief': 'Deputy Gov. Kamoru Adesina',

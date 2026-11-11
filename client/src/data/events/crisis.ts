@@ -168,7 +168,7 @@ export const crisisEvents: EventCard[] = [
         id: 'build-new-estate',
         label: 'Build New Housing Estate',
         description:
-          'Construct a proper estate with roads, power, and water. InfrastructureScore +8, CashReserve -8, Trust +10, PublicTrust +5. Godfathers furious (they wanted the land).',
+          'Construct a proper estate with roads, power, and water. Infrastructure +8, Cash -8, Trust +5. Mainland and Ikorodu approve. Godfathers furious (they wanted the land).',
         immediate: { cashReserve: -8, infrastructureScore: 8, publicTrust: 5 },
         factionImpact: { partyGodfathers: -12, civilSocietyMedia: 15 },
         constituencyImpact: { lagosMainland: 20, ikorodu: 10 },
@@ -229,8 +229,8 @@ export const crisisEvents: EventCard[] = [
         id: 'joint-nema-federal',
         label: 'Accept NEMA / Federal Joint Response',
         description:
-          'Federal Relationship +8, Trust +4, Corruption Pressure -3. Response coordinated. Delayed.',
-        immediate: { publicTrust: 4 },
+          'Federal Relationship +8, Trust +4, Corruption Pressure -3. Coordinated response pays off in four weeks.',
+        immediate: { publicTrust: 4, corruptionPressure: -3 },
         factionImpact: { federalGovt: 8, civilSocietyMedia: 6 },
         delayed: {
           weekOffset: 4,

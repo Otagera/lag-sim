@@ -28,8 +28,8 @@ describe('TimelinePanel', () => {
     expect(screen.getByText('First Event')).toBeInTheDocument()
     expect(screen.getByText('Second Event')).toBeInTheDocument()
     expect(screen.getByText('Godfather Move')).toBeInTheDocument()
-    // Week 3 is now shown as a date: May 29 2027 + 2 weeks = June 12, 2027
-    expect(screen.getByText('June 12, 2027')).toBeInTheDocument()
+    // Week 3 is now shown as a date: May 29 2023 + 2 weeks = June 12, 2023
+    expect(screen.getByText('June 12, 2023')).toBeInTheDocument()
   })
 
   it('shows entry descriptions', () => {

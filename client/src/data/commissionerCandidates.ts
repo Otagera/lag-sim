@@ -90,7 +90,7 @@ export const COMMISSIONER_CANDIDATES: Record<CommissionerRole, CandidateProfile[
   ],
   information: [
     {
-      name: 'Mr. Tunde Fashola-Briggs',
+      name: 'Mr. Tunde Ogunsola-Briggs',
       background: 'Ex-NTA Lagos correspondent, 18 years in broadcast media',
       competence: 70,
       loyalty: 72,

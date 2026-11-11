@@ -35,7 +35,7 @@ export function WelcomeMock() {
 
       <div style={{ textAlign: 'center' }}>
         <p className="label-caps" style={{ color: 'var(--accent-text)', marginBottom: '4px' }}>
-          Lagos, Nigeria — 2027
+          Lagos, Nigeria — 2023
         </p>
         <h1
           className="font-display font-semibold"

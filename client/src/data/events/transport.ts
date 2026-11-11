@@ -4,7 +4,7 @@ export const transportEvents: EventCard[] = [
   {
     id: 'trafficCongestion',
     title: 'Apapa–Oshodi Expressway: 18-Hour Gridlock',
-    body: `Apapa–Oshodi Expressway has been immovable for 18 hours. Container trucks from the port backed up beyond the Oshodi Interchange, blocking feeder roads into Mushin and Isolo. BRT buses are stranded. A hospital ambulance recorded a 4-hour wait to cover 3km. The Nigerian Ports Authority says it's a state road problem. Dangote's logistics arm issued a statement threatening to reroute freight through Tin Can Island permanently. The business loss is estimated at ₦900m per day of gridlock.`,
+    body: `Apapa–Oshodi Expressway has been immovable for 18 hours. Container trucks from the port backed up beyond the Oshodi Interchange, blocking feeder roads into Mushin and Isolo. BRT buses are stranded. A hospital ambulance recorded a 4-hour wait to cover 3km. The Nigerian Ports Authority says it's a state road problem. The largest cement conglomerate's logistics arm issued a statement threatening to reroute freight through Tin Can Island permanently. The business loss is estimated at ₦900m per day of gridlock.`,
     severity: 'high',
     category: 'transport',
     week: 4,
@@ -115,7 +115,7 @@ export const transportEvents: EventCard[] = [
         label: 'Extend Phase-Out Deadline by 12 Months',
         description:
           'Allow yellow buses to operate while BRT fleet clears customs. Informal Economy +8, Infrastructure -3, Trust -4.',
-        immediate: { publicTrust: -4 },
+        immediate: { publicTrust: -4, infrastructureScore: -3 },
         factionImpact: { informalEconomy: 8, businessCommunity: -3 },
       },
       {

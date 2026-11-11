@@ -59,7 +59,7 @@ export const socialEvents: EventCard[] = [
         id: 'let-it-happen',
         label: 'Let It Happen',
         description:
-          'Maintain distance. Youth Tension -5. 20% risk of escalation: if it turns violent, Security -15, Trust -20.',
+          'Maintain distance. Youth Tension -5. You leave the day to the organisers and the police, and the city notices you were not there.',
         immediate: { youthTension: -5 },
         factionImpact: {},
       },
@@ -111,7 +111,7 @@ export const socialEvents: EventCard[] = [
   {
     id: 'flooding-isale-eko-displacement',
     title: 'Isale Eko Floods — 1,200 Families Displaced',
-    body: `The June rains have submerged Ereko Street, Oke-Arin, and Ebute Ero in Isale Eko for the third consecutive year. LASEMA estimates 1,200 families displaced, some for the second time. Tafawa Balewa Square is functioning as an overflow camp. The drainage channel that should have cleared the water is the same one that was blocked by an unauthorised structure LASBCA approved in 2023. The Red Cross is asking for a state emergency declaration.`,
+    body: `The June rains have submerged Ereko Street, Oke-Arin, and Ebute Ero in Isale Eko for the third consecutive year. LASEMA estimates 1,200 families displaced, some for the second time. Tafawa Balewa Square is functioning as an overflow camp. The drainage channel that should have cleared the water is the same one that was blocked by an unauthorised structure LASBCA approved before you took office. The Red Cross is asking for a state emergency declaration.`,
     severity: 'critical',
     category: 'social',
     season: 'wet',
@@ -313,8 +313,8 @@ export const socialEvents: EventCard[] = [
         id: 'settle-full-lasu-arrears',
         label: 'Settle Full ₦2.4bn — End Shutdown Immediately',
         description:
-          'Full payment, strike ends within days. Cash -1.5, Trust +8, Civil Society +10. Youth Tension eases.',
-        immediate: { cashReserve: -1.5, publicTrust: 8 },
+          'Full payment, strike ends within days. Cash -2.4, Trust +8, Civil Society +10. Youth Tension eases.',
+        immediate: { cashReserve: -2.4, publicTrust: 8 },
         factionImpact: { civilSocietyMedia: 10 },
         delayed: {
           weekOffset: 2,

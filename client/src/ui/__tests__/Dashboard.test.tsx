@@ -15,7 +15,7 @@ describe('Dashboard', () => {
 
   it('renders date in calendar format', () => {
     render(<Dashboard />)
-    expect(screen.getByText('May 29, 2027')).toBeInTheDocument()
+    expect(screen.getByText('May 29, 2023')).toBeInTheDocument()
   })
 
   it('renders cash reserve', () => {
@@ -36,8 +36,8 @@ describe('Dashboard', () => {
   it('shows correct date for week 53', () => {
     useGameStore.setState({ week: 53 })
     render(<Dashboard />)
-    // Week 53 = May 29 2027 + 52*7 = 364 days = May 27, 2028
-    expect(screen.getByText('May 27, 2028')).toBeInTheDocument()
+    // Week 53 = May 29 2023 + 52*7 = 364 days = May 27, 2024
+    expect(screen.getByText('May 27, 2024')).toBeInTheDocument()
   })
 
   it('shows additional stats in detailed mode', () => {

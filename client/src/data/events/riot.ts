@@ -202,7 +202,7 @@ export const riotEvents: EventCard[] = [
         label: 'Compensate Family, Internal Review Only',
         description:
           'Pay ₦20m to the family, discipline officer internally. Markets reopen slower. Trust -6, Corruption Pressure +5.',
-        immediate: { youthTension: -8, publicTrust: -6, cashReserve: -0.02 },
+        immediate: { youthTension: -8, publicTrust: -6, cashReserve: -0.02, corruptionPressure: 5 },
         factionImpact: { civilSocietyMedia: -10 },
       },
       {

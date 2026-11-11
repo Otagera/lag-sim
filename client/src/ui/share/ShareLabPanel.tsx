@@ -46,7 +46,7 @@ const FIXTURES: ShareCardData[] = [
   {
     exitLabel: 'State Insolvency \u2014 Term Cut Short',
     verdictHeadline: 'The Governor Who Ran Out of Road',
-    tenure: 'WEEK 27 \u2014 JULY 2027',
+    tenure: 'WEEK 27 \u2014 NOVEMBER 2023',
     weekCount: 27,
     decisionCount: 34,
     keyMoments: [
@@ -188,7 +188,7 @@ const MOMENT_FIXTURES: MomentCardData[] = [
       { label: 'Term', value: 'Second' },
     ],
     week: 210,
-    tenure: '15 May, 2031',
+    tenure: '15 May, 2027',
     administrationLabel: 'The Adebayo Administration',
     governorName: 'Adebayo',
     flavor: 'triumph',

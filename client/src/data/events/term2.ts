@@ -837,7 +837,7 @@ Your Commissioner for Works is recommending immediate closure. Your traffic mana
         id: 'emergency-fleet-procurement',
         label: 'Emergency Fleet Procurement — Articulated Buses from China',
         description:
-          'Fast-track procurement of 200 new CNG articulated buses. Cash -12. 8-week delivery. Infrastructure +8. Creates a visible second-term legacy delivery.',
+          'Fast-track procurement of 200 new CNG articulated buses. Cash -12. Infrastructure +3 now, +8 and Trust +6 on delivery in 8 weeks. Creates a visible second-term legacy delivery.',
         immediate: { cashReserve: -12.0, infrastructureScore: 3 },
         factionImpact: { businessCommunity: 8, civilSocietyMedia: 5 },
         delayed: {
@@ -1299,7 +1299,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         id: 'infrastructure-legacy-address',
         label: '"We Built" — The Infrastructure Legacy Narrative',
         description:
-          'Lead with roads, bridges, hospitals, and schools. Business community energized. Trust +6 if InfrastructureScore > 65, -3 if below. Partygodfathers approve.',
+          'Lead with roads, bridges, hospitals, and schools. Business community energized. Trust +4, Political Capital +10. Party godfathers approve.',
         immediate: { publicTrust: 4, politicalCapital: 10 },
         factionImpact: { businessCommunity: 8, partyGodfathers: 5 },
         setFlags: { 'valedictory-infrastructure': true },
@@ -1715,7 +1715,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         id: 'back-opposition-technocrat',
         label: "Secretly Back the APC Opposition's Technocrat",
         description:
-          'Extraordinary move: provide back-channel support to a credible opposition technocrat who represents your reform agenda. Explosive if discovered. Trust +8 if kept secret. Political suicide if exposed.',
+          'Extraordinary move: provide back-channel support to a credible opposition technocrat who represents your reform agenda. Political Capital -25, Godfathers -30. It will define how history reads your second term.',
         immediate: { politicalCapital: -25, corruptionPressure: 6 },
         factionImpact: { partyGodfathers: -30, civilSocietyMedia: 8 },
         setFlags: { 'backed-opposition-candidate': true },
@@ -2137,7 +2137,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         id: 'pay-red-line-certificates',
         label: 'Clear the ₦9.3bn Certificate Debt — Finish the Line',
         description:
-          'Pay in full. Contractor remobilizes in 2 weeks. Red Line opens to Agege in 10 weeks. Infrastructure +15. Legacy delivered. Cash -9.3.',
+          'Pay in full. Contractor remobilizes in 2 weeks. Cash -9.3. Infrastructure +5 now; when the Red Line opens to Agege in 10 weeks, Infrastructure +15 and Trust +10.',
         immediate: { cashReserve: -9.3, infrastructureScore: 5 },
         factionImpact: { businessCommunity: 12, civilSocietyMedia: 10, lgChairmen: 8 },
         delayed: {
@@ -2234,7 +2234,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         id: 'complete-ikeja-flyover',
         label: 'Complete the Flyover — ₦4bn Final Phase',
         description:
-          'Release the final payment and recommission the contractor. Cash -4. Infrastructure +10. The project becomes a second-term legacy delivery.',
+          'Release the final payment and recommission the contractor. Cash -4. Infrastructure +5 now, +10 and Trust +6 on completion in 12 weeks. The project becomes a second-term legacy delivery.',
         immediate: { cashReserve: -4.0, infrastructureScore: 5 },
         factionImpact: { businessCommunity: 8, lgChairmen: 6 },
         constituencyImpact: { alimosho: 8, oshodiIsolo: 5 },
@@ -2283,6 +2283,12 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
           'Double down on enforcement. Youth Tension +15. Trust -8 in periphery. Long-term infrastructure +4 as alternative transport fills the gap.',
         immediate: { youthTension: 15, publicTrust: -8, cashReserve: -1.5 },
         factionImpact: { informalEconomy: -20, businessCommunity: 5, civilSocietyMedia: -5 },
+        delayed: {
+          weekOffset: 12,
+          delta: { infrastructureScore: 4 },
+          eventText:
+            'With the highways cleared of okadas, BRT feeder routes and tricycle cooperatives have filled the gap. Commute times on the enforced corridors are measurably down.',
+        },
         constituencyImpact: { ikorodu: -15, alimosho: -10, lagosMainland: -12 },
       },
       {
@@ -2462,7 +2468,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         id: 'haulage-levy-suspension',
         label: 'Suspend State Haulage Levies for 60 Days',
         description:
-          'Remove state levies on goods vehicles entering Lagos for 60 days. Cash -1 (lost levy revenue). Prices ease in 10 days. Business community approves.',
+          'Remove state levies on goods vehicles entering Lagos for 60 days. IGR -1 (lost levy revenue). Prices ease in 10 days. Business community approves.',
         immediate: { igr: -1.0, publicTrust: 5, youthTension: -3 },
         factionImpact: { businessCommunity: 10, informalEconomy: 8, lgChairmen: -3 },
       },
@@ -2794,7 +2800,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
         id: 'blue-line-ppp-close',
         label: 'Concession the Final Phase to a Private Rail Operator',
         description:
-          'Award a 25-year concession to a private operator who funds the ₦15bn completion. No cash cost to state. Cash -0 but IGR from concession fee +1. Delivery in 12 weeks.',
+          'Award a 25-year concession to a private operator who funds the ₦15bn completion. No cash cost to the state; IGR +1 from the concession fee. Opens in 12 weeks: Infrastructure +18, Trust +10.',
         immediate: { igr: 1.0 },
         factionImpact: { businessCommunity: 12, civilSocietyMedia: 5 },
         delayed: {

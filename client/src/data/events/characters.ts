@@ -507,7 +507,7 @@ export const characterEvents: EventCard[] = [
         id: 'deny-memo',
         label: 'Deny Authenticity',
         description:
-          "Call it fabricated. Trust -6. If it's verified, Trust -18 and Political Capital -20.",
+          "Call it fabricated. Trust -6. The insider who leaked it now knows you will lie about them.",
         immediate: { publicTrust: -6 },
         factionImpact: { civilSocietyMedia: -8 },
         npcImpact: { insider: -5 },
@@ -660,8 +660,8 @@ export const characterEvents: EventCard[] = [
   // Fires when reformer deputy has seen 3+ godfather compliance events
   {
     id: 'deputy-consequence-reformer',
-    title: "Deputy Fashola-Eze's Ultimatum",
-    body: `Dr. Kanyinsola Fashola-Eze has called a press conference. She will announce in 72 hours whether she remains Deputy Governor. Her statement cites "incompatible governance values." Three godfather concessions in a term is her line. You cannot stop the press conference — only decide what comes next.`,
+    title: "Deputy Fasina-Eze's Ultimatum",
+    body: `Dr. Kanyinsola Fasina-Eze has called a press conference. She will announce in 72 hours whether she remains Deputy Governor. Her statement cites "incompatible governance values." Three godfather concessions in a term is her line. You cannot stop the press conference — only decide what comes next.`,
     severity: 'critical',
     category: 'political',
     triggerCondition: (state) =>

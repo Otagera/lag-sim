@@ -563,7 +563,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
       {
         id: 'policy-concession',
         label: 'Offer Port Tax Relief',
-        description: 'IGR -5 (ongoing). {NPC} stays and expands. Business Community +5.',
+        description: 'IGR -0.5 (ongoing). {NPC} stays and expands. Business Community +5.',
         immediate: { igr: -0.5 },
         factionImpact: { businessCommunity: 5 },
         npcImpact: { 'business-mogul': 15 },

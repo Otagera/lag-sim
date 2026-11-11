@@ -33,7 +33,7 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
     },
     namePools: [
       'Barr. Rotimi Adesanya',
-      'Barr. Yetunde Fashola-Briggs',
+      'Barr. Yetunde Fadipe-Briggs',
       'Barr. Kanyinsola Adegoke',
       'Barr. Olumide Badejo',
       'Barr. Tunde Afolabi',
@@ -85,7 +85,7 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
     },
     namePools: [
       'Hon. Seun Majekodunmi',
-      'Hon. Akinwunmi Adeleke',
+      'Hon. Akinwunmi Adeoti',
       'Hon. Olayinka Adeleye',
       'Hon. Femi Adesanya',
       'Hon. Lekan Okonkwor',
@@ -134,7 +134,7 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
       return {}
     },
     namePools: [
-      'Sen. Kehinde Fashola',
+      'Sen. Kehinde Fasanmi',
       'Sen. Tunde Oloruntoba',
       'Sen. Olumide Adegboye',
       'Sen. Oluwakemi Adeyemi',
@@ -186,9 +186,9 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
     namePools: [
       'High Chief Adewale Balogun',
       'High Chief Oluwafemi Akinwunmi',
-      'High Chief Babatunde Ambode',
+      'High Chief Babatunde Odunsi',
       'High Chief Gbenga Okafor',
-      'High Chief Yetunde Tinubu-Adeyemi',
+      'High Chief Yetunde Oyekan-Adeyemi',
       'High Chief Chukwuka Eze',
       'High Chief Dooember Iortim',
       'High Chief Shehu Dantata',
@@ -210,12 +210,12 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
     },
     namePools: [
       'Otunba Adewale Ogundimu',
-      'Chief Tunde Fashola-Coker',
+      'Chief Tunde Fakoya-Coker',
       'Chief Lekan Akindele',
       'Chief Olumide Adesanya',
       'Alhaji Babajide Adeyemi',
       'Dr. Amaka Nwosu',
-      'Alhaji Musa Dangote',
+      'Alhaji Musa Kurfi',
       'Dr. Preye Effiong',
     ],
   },

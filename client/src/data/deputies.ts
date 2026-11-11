@@ -59,8 +59,8 @@ export const DEPUTY_PROFILES: Record<DeputyKey, DeputyProfile> = {
   },
   reformer: {
     key: 'reformer',
-    name: 'Dr. Kanyinsola Fashola-Eze',
-    shortName: 'Fashola-Eze',
+    name: 'Dr. Kanyinsola Fasina-Eze',
+    shortName: 'Fasina-Eze',
     title: 'Anti-Corruption Campaigner',
     description:
       'Former Transparency International Lagos lead. Her endorsement was your biggest asset on the campaign trail. She will not cover for you.',

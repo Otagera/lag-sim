@@ -5,12 +5,12 @@ import { getSeasonModifier } from '../seasonEngine'
 import { resolveEvent, drawNextEvent, ALL_EVENTS } from '../eventEngine'
 import { tick } from '../gameLoop'
 
-// Calendar anchor: game starts 2027-05-29
-// Week 5  → 2027-06-26 (June, wet, federal election year)
-// Week 20 → 2027-10-10 (October, dry, federal election year)
-// Week 28 → 2027-12-05 (December, dry, federal election year + budget crunch)
-// Week 53 → 2028-05-25 (May, dry, NOT election year, NOT budget crunch)
-// Week 160 → ~2030-07 (wet, federal election year ≥ 157)
+// Calendar anchor: game starts 2023-05-29
+// Week 5  → 2023-06-26 (June, wet, federal election year)
+// Week 20 → 2023-10-10 (October, dry, federal election year)
+// Week 28 → 2023-12-05 (December, dry, federal election year + budget crunch)
+// Week 53 → 2024-05-25 (May, dry, NOT election year, NOT budget crunch)
+// Week 160 → ~2026-07 (wet, federal election year ≥ 157)
 
 function clone(s: GameState): GameState {
   return JSON.parse(JSON.stringify(s))

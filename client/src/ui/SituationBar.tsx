@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react'
 
 import { useGameStore } from '../state/gameStore'
+import { electionYear } from '../utils/calendar'
 import { Seal } from './components/Seal'
 
 type SituationTone = 'neutral' | 'success' | 'warning' | 'danger' | 'accent'
@@ -129,6 +130,7 @@ function buildChipAlerts(
   litigationActive: boolean,
   litigationTimer: number,
   inCampaignMode: boolean,
+  currentTerm: number,
 ): SituationChip[] {
   const alerts: SituationChip[] = []
 
@@ -150,7 +152,7 @@ function buildChipAlerts(
     })
   if (inCampaignMode)
     alerts.push({
-      label: "Election '27",
+      label: `Election '${String(electionYear(currentTerm)).slice(2)}`,
       value: 'Live',
       tone: 'accent' as const,
       title: 'Campaign mode is active.',
@@ -216,6 +218,7 @@ function buildSituationChips({
   emergencySuspensionWeeks,
   litigationActive,
   litigationTimer,
+  currentTerm,
 }: {
   inCampaignMode: boolean
   stats: ReturnType<typeof useGameStore.getState>['stats']
@@ -223,6 +226,7 @@ function buildSituationChips({
   emergencySuspensionWeeks: number
   litigationActive: boolean
   litigationTimer: number
+  currentTerm: number
 }) {
   const core = buildCoreChips(stats, consecutiveDeficitWeeks)
   const alerts = buildChipAlerts(
@@ -231,6 +235,7 @@ function buildSituationChips({
     litigationActive,
     litigationTimer,
     inCampaignMode,
+    currentTerm,
   )
   return [...core, ...alerts.slice(0, 2)]
 }
@@ -323,6 +328,7 @@ export function SituationBar({
     emergencySuspensionWeeks,
     litigationActive,
     litigationTimer,
+    currentTerm,
   })
 
   // The pill shows one concise tag; seasonLabel can be a long `·`-joined

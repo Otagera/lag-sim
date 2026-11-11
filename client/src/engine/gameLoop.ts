@@ -700,6 +700,21 @@ function resolveLGAElection(state: GameState): GameState {
     }
   }
 
+  // Surface the result to the player as a card (queue-only event)
+  const resultCard = ALL_EVENTS.find((e) => e.id === 'lga-election-day')
+  if (resultCard && !next.eventQueue.some((q) => q.id === resultCard.id)) {
+    next = {
+      ...next,
+      eventQueue: [
+        ...next.eventQueue,
+        {
+          ...resultCard,
+          body: `${resultCard.body}\n\nParty-aligned chairmen took ${loyalLGAs} of 20 councils.`,
+        },
+      ],
+    }
+  }
+
   return next
 }
 

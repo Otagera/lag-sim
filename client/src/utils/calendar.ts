@@ -1,4 +1,4 @@
-const START_DATE = new Date('2027-05-29')
+const START_DATE = new Date('2023-05-29')
 
 export function weekToDate(week: number): Date {
   const date = new Date(START_DATE)
@@ -47,7 +47,7 @@ export function isDettyDecember(week: number): boolean {
 }
 
 // Eyo Festival: traditionally May, approximated as last week of May or first week of term
-// Since START_DATE = 2027-05-29, weeks 1-2 are in the Eyo window
+// Since START_DATE = 2023-05-29, weeks 1-2 are in the Eyo window
 export function isEyoFestival(week: number): boolean {
   const date = weekToDate(week)
   const month = date.getMonth() + 1
@@ -56,7 +56,7 @@ export function isEyoFestival(week: number): boolean {
 }
 
 export function electionYear(currentTerm: number): number {
-  const START_YEAR = 2027
+  const START_YEAR = 2023
   return START_YEAR + currentTerm * 4
 }
 

@@ -5,7 +5,7 @@ export const politicalEvents: EventCard[] = [
   {
     id: "fashemu-warning",
     title: "A Message From the Boa",
-    body: `An intermediary you have never met before visits Government House uninvited. He does not introduce himself. He delivers one sentence: "Chief Fashemu feels the lines of communication have broken down and would like to correct that impression." He hands you an envelope and leaves. Inside: a photograph of your campaign launch in 2026. Nothing else.`,
+    body: `An intermediary you have never met before visits Government House uninvited. He does not introduce himself. He delivers one sentence: "Chief Fashemu feels the lines of communication have broken down and would like to correct that impression." He hands you an envelope and leaves. Inside: a photograph of your campaign launch in 2022. Nothing else.`,
     severity: "high",
     category: "political",
     triggerCondition: (state) =>
@@ -188,7 +188,7 @@ export const politicalEvents: EventCard[] = [
   {
     id: "loyalist-secret-surfaces",
     title: "Adeyemi-Shaw: The Secret",
-    body: `A journalist has obtained records showing Dr. Korede Adeyemi-Shaw, your Deputy Governor, diverted ₦120m from your 2026 campaign fund to a personal account. He repaid it — but three months later, and only after the election. He is in your office now, pale and shaking. "I can explain," he says. You believe him. That is the problem.`,
+    body: `A journalist has obtained records showing Dr. Korede Adeyemi-Shaw, your Deputy Governor, diverted ₦120m from your 2023 campaign fund to a personal account. He repaid it — but three months later, and only after the election. He is in your office now, pale and shaking. "I can explain," he says. You believe him. That is the problem.`,
     severity: "critical",
     category: "political",
     triggerCondition: (state) =>
@@ -371,7 +371,7 @@ export const politicalEvents: EventCard[] = [
   {
     id: "lga-election-day",
     title: "LGA Election Results",
-    body: `The votes have been counted. Lagos State Independent Electoral Commission is announcing results across all 20 local government areas. Your party's performance reflects the four years of political relationship-building — and the damage you may have done along the way.`,
+    body: `The votes have been counted. Lagos State Independent Electoral Commission is announcing results across all 20 local government areas. Your party's performance reflects every relationship you have built with the chairmen since you took office — and the damage you may have done along the way.`,
     severity: "high",
     category: "political",
     week: 86,
@@ -1003,7 +1003,7 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
   {
     id: "assembly-public-accounts-hearing",
     title: "House of Assembly PAC Summons Three Commissioners",
-    body: `The House of Assembly Public Accounts Committee has issued formal summons to the Commissioners for Works, Finance, and Environment over ₦1.8bn in unretired advances from the 2024 capital budget. The PAC Chairman has called for a public hearing, saying internal memo channels have "failed the public interest for the last time." Civil society groups are supporting the summons in a joint press statement. Your Chief of Staff says it is an opposition-backed fishing expedition timed to coincide with the primary season — and reminds you that in 2019 the Assembly used a budget confrontation with the previous governor to threaten impeachment proceedings.`,
+    body: `The House of Assembly Public Accounts Committee has issued formal summons to the Commissioners for Works, Finance, and Environment over ₦1.8bn in unretired advances from last year's capital budget. The PAC Chairman has called for a public hearing, saying internal memo channels have "failed the public interest for the last time." Civil society groups are supporting the summons in a joint press statement. Your Chief of Staff says it is an opposition-backed fishing expedition timed to coincide with the primary season — and reminds you that in 2019 the Assembly used a budget confrontation with the previous governor to threaten impeachment proceedings.`,
     severity: "medium",
     category: "political",
     week: 20,
@@ -1116,7 +1116,7 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
   {
     id: "assembly-budget-standoff",
     title: "House of Assembly Refuses to Pass the Budget",
-    body: `The Speaker has announced that the House of Assembly will not consider the 2025 Appropriation Bill until the Executive provides a full account of ₦12.4bn in supplementary spending approved by executive instrument last quarter. The deadline for the budget to take effect is 11 days away. Without a passed budget, the state cannot release capital funds or execute contracts. Seventeen of 40 Assembly members are co-signatories to the Speaker's letter. Your legal team says you can deploy the 2024 budget on a month-by-month rollover — but only for 90 days, and it makes you look weak. The Speaker's office has briefed journalists that if the governor does not respond within 72 hours, they will consider a motion of no confidence.`,
+    body: `The Speaker has announced that the House of Assembly will not consider this year's Appropriation Bill until the Executive provides a full account of ₦12.4bn in supplementary spending approved by executive instrument last quarter. The deadline for the budget to take effect is 11 days away. Without a passed budget, the state cannot release capital funds or execute contracts. Seventeen of 40 Assembly members are co-signatories to the Speaker's letter. Your legal team says you can run last year's budget on a month-by-month rollover — but only for 90 days, and it makes you look weak. The Speaker's office has briefed journalists that if the governor does not respond within 72 hours, they will consider a motion of no confidence.`,
     severity: "critical",
     category: "political",
     week: 40,
@@ -1132,7 +1132,7 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
         delayed: {
           weekOffset: 3,
           delta: { publicTrust: 4 },
-          eventText: `The Assembly has passed the 2025 Appropriation Bill following the Executive's release of supplementary spending records. The PAC has noted two line items for further audit. The Speaker called the response "a mature act of executive accountability."`,
+          eventText: `The Assembly has passed the Appropriation Bill following the Executive's release of supplementary spending records. The PAC has noted two line items for further audit. The Speaker called the response "a mature act of executive accountability."`,
         },
       },
       {
@@ -1151,7 +1151,7 @@ Campaign mode begins at Week 195. There are 39 weeks between now and then.`,
       },
       {
         id: "rollover-budget-hold",
-        label: "Deploy 2024 Rollover — Call Their Bluff",
+        label: "Deploy the Budget Rollover — Call Their Bluff",
         description:
           "Bypass the Assembly on rollover authority. Trust -5, Civil Society -8, Godfathers -8, LG Chairmen -6.",
         immediate: { publicTrust: -5 },

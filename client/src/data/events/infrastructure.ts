@@ -220,7 +220,7 @@ export const infrastructureEvents: EventCard[] = [
         id: 'launch-ajegunle-waterfront',
         label: 'Ajegunle Waterfront Regeneration',
         description:
-          'Seawall, drainage, and market canopy. Ajeromi/Ifelodun trust +12, Youth Tension -5. ₦9bn, 16 weeks.',
+          'Seawall, drainage, and market canopy. Ajeromi/Ifelodun trust +12, Youth Tension -3. ₦9bn, 16 weeks.',
         immediate: { youthTension: -3 },
         factionImpact: { informalEconomy: 8, civilSocietyMedia: 6 },
         constituencyImpact: { ajeromiIfelodun: 12 },
@@ -237,7 +237,7 @@ export const infrastructureEvents: EventCard[] = [
         id: 'launch-ikorodu-market',
         label: 'Ikorodu Market Infrastructure',
         description:
-          'Covered market stalls, cold storage, access roads. IGR +0.4bn/wk on completion. ₦6bn, 12 weeks.',
+          'Covered market stalls, cold storage, access roads. IGR +0.3bn/wk and Infrastructure +5 on completion. ₦6bn, 12 weeks.',
         immediate: { infrastructureScore: 2 },
         factionImpact: { businessCommunity: 6, informalEconomy: 4 },
         constituencyImpact: { ikorodu: 10 },

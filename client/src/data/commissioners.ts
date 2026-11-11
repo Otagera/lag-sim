@@ -63,7 +63,7 @@ export const COMMISSIONER_CANDIDATES: Record<CommissionerRole, CommissionerCandi
   transport: [
     {
       role: 'transport',
-      name: 'Engr. Lola Fashola',
+      name: 'Engr. Lola Adesanmi',
       competence: 80,
       loyalty: 60,
       isGodfatherChoice: false,

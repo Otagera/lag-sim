@@ -17,7 +17,7 @@ You have two hours before your first full cabinet briefing. The dossier will def
         id: 'read-everything',
         label: 'Read the Full Report',
         description:
-          'Work through it yourself. Political Capital -8. You will know exactly what you inherited — no surprises later.',
+          'Work through it yourself. Political Capital -8. You will know exactly what you inherited.',
         immediate: { politicalCapital: -8, publicTrust: 4 },
         factionImpact: { civilSocietyMedia: 3 },
       },
