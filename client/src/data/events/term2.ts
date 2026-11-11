@@ -1,4 +1,5 @@
 import type { EventCard } from '../../state/types'
+import { PARTIES } from '../parties'
 
 // Second term events — weeks 209–416 (currentTerm === 2).
 // Covers the political economy of a lame-duck executive: succession wars,
@@ -495,7 +496,7 @@ He controls the party secretariat and has three of your commissioners openly cam
   {
     id: 'term2-opposition-super-coalition',
     title: 'The Unity Ticket — Opposition Forms Coalition Government Platform',
-    body: `The opposition has done what you always feared: the Labour Party, PDP, NNPP, and three minor parties have signed a formal Memorandum of Understanding forming a "Lagos Unity Coalition." They have selected a joint governorship candidate — a retired technocrat with a clean record and a Harvard MBA — and are running on your legacy's failures. Your campaign team projects a 12-point deficit in Alimosho and a 9-point gap in Agege.`,
+    body: `The opposition has done what you always feared: the ${PARTIES.youthMovement.name}, the ${PARTIES.nationalOpposition.name}, the ${PARTIES.populist.name}, and three minor parties have signed a formal Memorandum of Understanding forming a "Lagos Unity Coalition." They have selected a joint governorship candidate — a retired technocrat with a clean record and a Harvard MBA — and are running on your legacy's failures. Your campaign team projects a 12-point deficit in Alimosho and a 9-point gap in Agege.`,
     severity: 'high',
     category: 'political',
     week: 233,
@@ -519,8 +520,7 @@ He controls the party secretariat and has three of your commissioners openly cam
         delayed: {
           weekOffset: 8,
           delta: { politicalCapital: 15 },
-          eventText:
-            "The Labour Party faction of the coalition has publicly accused the PDP wing of attempting to subvert their shared manifesto — your political team's research planted the seed.",
+          eventText: `The ${PARTIES.youthMovement.shortName} faction of the coalition has publicly accused the ${PARTIES.nationalOpposition.shortName} wing of attempting to subvert their shared manifesto — your political team's research planted the seed.`,
         },
       },
       {
@@ -1713,7 +1713,7 @@ Your inner cabinet is silent. Your phone rings: it is your former DG Finance. He
       },
       {
         id: 'back-opposition-technocrat',
-        label: "Secretly Back the APC Opposition's Technocrat",
+        label: `Secretly Back the ${PARTIES.nationalOpposition.shortName} Technocrat`,
         description:
           'Extraordinary move: provide back-channel support to a credible opposition technocrat who represents your reform agenda. Political Capital -25, Godfathers -30. It will define how history reads your second term.',
         immediate: { politicalCapital: -25, corruptionPressure: 6 },

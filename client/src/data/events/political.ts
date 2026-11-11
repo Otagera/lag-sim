@@ -1,4 +1,5 @@
 import type { EventCard } from "../../state/types";
+import { PARTIES } from "../parties";
 
 export const politicalEvents: EventCard[] = [
   // --- Fashemu Arc ---
@@ -816,7 +817,7 @@ export const politicalEvents: EventCard[] = [
   {
     id: "party-summit-offer",
     title: "Party Summit Olive Branch",
-    body: "The APC Lagos Chapter has called a closed-door summit. Your handlers say the godfathers are willing to reset the relationship — but they want concessions. Showing up is itself a signal of willingness to deal.",
+    body: `The ${PARTIES.ruling.name} Lagos chapter has called a closed-door summit. Your handlers say the godfathers are willing to reset the relationship — but they want concessions. Showing up is itself a signal of willingness to deal.`,
     severity: "high",
     category: "political",
     isRecurring: true,

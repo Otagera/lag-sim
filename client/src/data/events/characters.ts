@@ -1,5 +1,6 @@
 import type { EventCard, GameState } from '../../state/types'
 import { findNPCSlot } from '../npcs'
+import { PARTIES } from '../parties'
 
 function journalistSlot(state: GameState) {
   return findNPCSlot(state, 'journalist')
@@ -307,7 +308,7 @@ export const characterEvents: EventCard[] = [
           weekOffset: 6,
           delta: { publicTrust: 4 },
           factionImpact: { civilSocietyMedia: 4 },
-          eventText: `The coalition fractured on live television. The Labour Party faction accused the PDP wing of 'hijacking the protest agenda.' Your political team's planted social media campaign amplified every crack until the alliance was unrecognisable.`,
+          eventText: `The coalition fractured on live television. The ${PARTIES.youthMovement.shortName} faction accused the ${PARTIES.nationalOpposition.shortName} wing of 'hijacking the protest agenda.' Your political team's planted social media campaign amplified every crack until the alliance was unrecognisable.`,
         },
       },
       {
@@ -507,7 +508,7 @@ export const characterEvents: EventCard[] = [
         id: 'deny-memo',
         label: 'Deny Authenticity',
         description:
-          "Call it fabricated. Trust -6. The insider who leaked it now knows you will lie about them.",
+          'Call it fabricated. Trust -6. The insider who leaked it now knows you will lie about them.',
         immediate: { publicTrust: -6 },
         factionImpact: { civilSocietyMedia: -8 },
         npcImpact: { insider: -5 },

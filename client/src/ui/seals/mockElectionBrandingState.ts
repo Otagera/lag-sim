@@ -1,3 +1,5 @@
+import { PARTIES } from '../../data/parties'
+
 export type Situation = 'calm' | 'crisis' | 'storm'
 
 export type PartySymbol = 'sunrise' | 'compass' | 'wave'
@@ -10,15 +12,9 @@ export interface MockParty {
   symbol: PartySymbol
 }
 
-// Wholly invented — no name, initials, color, or symbol overlaps with any
-// real Nigerian party (APC's broom, PDP's umbrella, Labour Party's torch).
+// Wholly invented parties — canonical definitions live in data/parties.ts.
 export const MOCK_PARTIES: MockParty[] = [
-  {
-    id: 'pda',
-    name: 'Progressive Dawn Alliance',
-    initials: 'PDA',
-    color: '#3AA048',
-    symbol: 'sunrise',
-  },
-  { id: 'ucf', name: 'United Coastal Front', initials: 'UCF', color: '#F5C518', symbol: 'wave' },
-]
+  PARTIES.ruling,
+  PARTIES.nationalOpposition,
+  PARTIES.youthMovement,
+].map(({ id, name, initials, color, symbol }) => ({ id, name, initials, color, symbol }))
