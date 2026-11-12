@@ -2,10 +2,19 @@ import { useState } from 'react'
 import { NPC_ARCHETYPES } from '../data/npcs'
 import { PROMISES, type PromiseDefinition } from '../data/promises'
 import { REASONS, type ReasonDefinition, renderReasonLine } from '../data/reasons'
+import { COALITION_BONUS } from '../engine/actorEngine'
 import { type OpinionTier, TIER_LABEL, tierOf, topReasons } from '../engine/opinionEngine'
 import { reputationOf } from '../engine/promiseEngine'
 import { useGameStore } from '../state/gameStore'
-import type { ActorMoveRecord, NPCKey, OpinionEntry, PromiseRecord } from '../state/types'
+import type {
+  ActorExit,
+  ActorMoveRecord,
+  CoalitionState,
+  NPCKey,
+  NPCState,
+  OpinionEntry,
+  PromiseRecord,
+} from '../state/types'
 import { useShowNumbers } from './settings/showNumbers'
 
 /**
@@ -429,6 +438,50 @@ function PromisesSection({
   )
 }
 
+function CoalitionBanner({
+  coalition,
+  actors,
+  showNumbers,
+}: {
+  coalition: CoalitionState
+  actors: NPCState[]
+  showNumbers: boolean
+}) {
+  const members = actors.filter((a) => coalition.members.includes(a.archetypeKey))
+  const who = members.map((m) => m.name).join(' and ')
+  return (
+    <div
+      className="p-2 border mb-2 text-[11px]"
+      style={{
+        borderColor: 'var(--error-9)',
+        borderLeftWidth: 3,
+        backgroundColor: 'var(--background)',
+        color: 'var(--text)',
+      }}
+    >
+      {showNumbers ? (
+        <>
+          <strong>Coalition</strong> · {members.map((m) => m.archetypeKey).join(' + ')} · since wk{' '}
+          {coalition.formedWeek} · {reasonLabel(coalition.grievance)} · +
+          {COALITION_BONUS.toFixed(2)} to their hostile moves
+        </>
+      ) : (
+        <>
+          <strong style={{ color: 'var(--error-11)' }}>{who}</strong> are working together against
+          you. They share one complaint: {reasonLabel(coalition.grievance).toLowerCase()}.
+        </>
+      )}
+    </div>
+  )
+}
+
+const EXIT_WORD: Record<ActorExit, string> = {
+  died: 'died',
+  retired: 'retired',
+  jailed: 'was jailed',
+  appointed: 'left for Abuja',
+}
+
 export function NPCPanel() {
   const activeNPCs = useGameStore((s) => s.activeNPCs)
   const week = useGameStore((s) => s.week)
@@ -436,6 +489,7 @@ export function NPCPanel() {
   const fashemuRelationship = useGameStore((s) => s.fashemuRelationship)
   const fashemuLedger = useGameStore((s) => s.fashemuLedger)
   const promises = useGameStore((s) => s.promises)
+  const coalition = useGameStore((s) => s.coalition)
   const [showNumbers, setShowNumbers] = useShowNumbers()
 
   const fashemuVisible = fashemuPhase !== 'dormant' && fashemuPhase !== 'dead'
@@ -459,6 +513,13 @@ export function NPCPanel() {
           Show the numbers
         </label>
       </div>
+      {coalition && (
+        <CoalitionBanner
+          coalition={coalition}
+          actors={NPC_SLOTS.map((k) => activeNPCs[k])}
+          showNumbers={showNumbers}
+        />
+      )}
       <PromisesSection promises={promises} week={week} showNumbers={showNumbers} />
       <div className="space-y-2">
         {fashemuVisible && (
@@ -481,7 +542,11 @@ export function NPCPanel() {
             <ActorCard
               key={slot}
               name={npc.name}
-              roleLabel={def?.shortRole ?? npc.archetypeKey}
+              roleLabel={
+                npc.predecessor
+                  ? `${def?.shortRole ?? npc.archetypeKey} · replaced ${npc.predecessor.name}, who ${EXIT_WORD[npc.predecessor.exit]}`
+                  : (def?.shortRole ?? npc.archetypeKey)
+              }
               motive={def?.goal}
               active={npc.isActive}
               relationship={npc.relationship}

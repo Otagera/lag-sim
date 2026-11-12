@@ -9,7 +9,7 @@ import type { GameState, NPCArchetypeKey } from '../state/types'
  * remembered permanently — and every other actor hears about it.
  */
 export type PromiseDefinition = {
-  actor: NPCArchetypeKey
+  actor: NPCArchetypeKey | 'fashemu'
   /** What you gave your word to, as the governor would say it */
   terms: string
   dueInWeeks: number
@@ -61,6 +61,13 @@ export const PROMISES = {
     dueInWeeks: 39,
     kept: () => true,
     test: 'Broken if you publicly defy Abuja',
+  },
+  'fashemu-loyalty': {
+    actor: 'fashemu',
+    terms: 'Keep faith with the party machine',
+    dueInWeeks: 26,
+    kept: () => true,
+    test: 'Broken if you refuse one of his asks',
   },
 } satisfies Record<string, PromiseDefinition>
 

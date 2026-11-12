@@ -1,6 +1,8 @@
 # Political Actors — Design
 
-> Status: **phases 1–2 and 3a implemented** (Nov 2026); 3b (coalitions, death/succession, Fashemu) pending. Decisions in §11.
+> Status: **all phases implemented** (Nov 2026). Decisions in §11.
+>
+> **As built (3b):** `engine/castEngine.ts`. *Coalitions:* when ≥2 cold actors (at least one hostile) share a grievance you caused (not a standing `act-*` reason), they form a coalition (`state.coalition`): members' hostile card moves get +0.2 and the "they have allies now" factor, and when one strikes the others' pressure jumps +15. It splits when fewer than two members are still cold, none is hostile, or after 52 weeks. *Succession:* after 26 weeks on the scene an actor has a 0.1%/week seeded chance of leaving — died / retired / jailed / appointed (weighted by tier). The successor inherits 50% of grudges and 25% of goodwill (as `inherited-*` entries), the standing reason at half strength, and an entry for how the predecessor left; open promises pass to the office. *Fashemu:* his scripted arc is unchanged; complying with one of his asks opens a `fashemu-loyalty` promise that refusing a later ask breaks (no gossip — party business).
 >
 > **As built (3a):** promises in `data/promises.ts` + `engine/promiseEngine.ts` — choices carry `makePromise` / `breakPromise`; due promises are judged weekly (kept +12 slow, broken −25 permanent, other actors −8 "heard"). `reputationOf()` labels your word (Unproven / Reliable / Doubted / Unreliable) and shifts actors' deal-offer appeal (+0.08 per kept, −0.15 per broken, clamped −0.3..+0.2). Intel (hybrid): when an actor's best card move is within 0.15 of its bar and security ≥ 50, the Chief of Staff sends an unnamed whisper; with the **State Intelligence Unit** research node (security domain, after Forensics Lab) the window widens to 0.3 and the briefing names the actor. One hint per week; 10-week cooldown per move.
 >

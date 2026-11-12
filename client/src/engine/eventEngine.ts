@@ -346,6 +346,7 @@ function applyGodfatherBookkeeping(next: GameState, event: EventCard, choiceId: 
         fashemuAskIndex: updated.fashemuAskIndex + 1,
       }
       updated = addFashemuOpinion(updated, 'did-what-he-asked', 15, event.title)
+      updated = makePromise(updated, 'fashemu-loyalty')
     }
     return updated
   }
@@ -357,6 +358,7 @@ function applyGodfatherBookkeeping(next: GameState, event: EventCard, choiceId: 
       fashemuAskIndex: updated.fashemuAskIndex + 1,
     }
     updated = addFashemuOpinion(updated, 'refused-him', -20, event.title)
+    updated = breakPromise(updated, 'fashemu-loyalty')
   }
   return applyGodfatherEscalation(updated, updated.godfatherRefusalCount)
 }

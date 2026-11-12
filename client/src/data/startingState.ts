@@ -100,6 +100,7 @@ export const STARTING_STATE: GameState = {
   fashemuRelationship: 50,
   fashemuLedger: [],
   promises: [],
+  coalition: null,
   fashemuPhase: 'dormant',
   fashemuAskIndex: 0,
   fashemuEndingPath: null,

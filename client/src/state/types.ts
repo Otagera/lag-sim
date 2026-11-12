@@ -297,13 +297,25 @@ export type NPCState = {
   moveUses?: Record<string, number>
   /** moveId → week an intelligence hint about it was last sent */
   hintedMoves?: Record<string, number>
+  /** Set when this actor replaced someone who left the scene */
+  predecessor?: { name: string; exit: ActorExit; week: number }
+}
+
+export type ActorExit = 'died' | 'retired' | 'jailed' | 'appointed'
+
+/** Hostile actors with a shared grievance working together. */
+export type CoalitionState = {
+  members: NPCArchetypeKey[]
+  formedWeek: number
+  /** Reason key most members hold against the governor */
+  grievance: string
 }
 
 /** A promise the governor made to an actor. */
 export type PromiseRecord = {
   id: string
   defId: string // key into PROMISES
-  actor: NPCArchetypeKey
+  actor: NPCArchetypeKey | 'fashemu'
   actorName: string
   madeWeek: number
   dueWeek: number
@@ -633,6 +645,8 @@ export type GameState = {
   fashemuLedger: OpinionEntry[]
   /** Promises made to political actors and how they turned out */
   promises: PromiseRecord[]
+  /** Actors currently working together against the governor */
+  coalition: CoalitionState | null
   fashemuPhase: FashemuPhase
   fashemuAskIndex: number
   fashemuEndingPath: FashemuEndingPath | null

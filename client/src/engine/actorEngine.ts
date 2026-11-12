@@ -5,6 +5,7 @@ import type {
   EventCard,
   GameState,
   InboxMessage,
+  NPCArchetypeKey,
   NPCKey,
   NPCState,
   OpinionEntry,
@@ -46,6 +47,30 @@ export function actThreshold(patience: number): number {
 /** Letters are cheap: they clear a lower bar than cards. */
 export const LETTER_DISCOUNT = 0.2
 
+// ── Coalitions (formed/split in castEngine) ──
+
+/** Added to coalition members' hostile moves — they move together. */
+export const COALITION_BONUS = 0.2
+/** When one member strikes, the others' pressure jumps by this much. */
+export const COALITION_PRESSURE_ECHO = 15
+const COALITION_FACTOR = 'they have allies now'
+
+export function inCoalition(state: GameState, actor: NPCArchetypeKey): boolean {
+  return !!state.coalition?.members.includes(actor)
+}
+
+/** When a coalition member plays a card, the other members get ready to follow. */
+export function echoCoalitionMove(state: GameState, mover: NPCArchetypeKey): GameState {
+  if (!inCoalition(state, mover)) return state
+  const npcs = { ...state.activeNPCs }
+  for (const slot of NPC_SLOTS) {
+    const n = npcs[slot]
+    if (n.archetypeKey === mover || !inCoalition(state, n.archetypeKey)) continue
+    npcs[slot] = { ...n, pressure: Math.min(100, n.pressure + COALITION_PRESSURE_ECHO) }
+  }
+  return { ...state, activeNPCs: npcs }
+}
+
 /** Friendly card moves (deals, offers, endorsements) */
 export function isOffer(move: ActorMove): boolean {
   return move.channel === 'card' && move.tiers.includes('cordial')
@@ -62,6 +87,46 @@ function cardAvailable(state: GameState, eventId: string, cards: Map<string, Eve
   return true
 }
 
+type ScoringContext = {
+  state: GameState
+  npc: NPCState
+  tier: OpinionTier
+  cards: Map<string, EventCard>
+  offerBonus: number
+  allied: boolean
+}
+
+function isEligible(ctx: ScoringContext, move: ActorMove): boolean {
+  if (!move.tiers.includes(ctx.tier)) return false
+  if ((ctx.npc.moveCooldowns?.[move.id] ?? 0) > ctx.state.week) return false
+  if (move.channel === 'card' && !cardAvailable(ctx.state, move.eventId, ctx.cards)) return false
+  return true
+}
+
+function scoreOne(ctx: ScoringContext, move: ActorMove, noise: number): ScoredMove {
+  const { state, npc, tier } = ctx
+  const personality = ACTOR_PERSONALITY[npc.archetypeKey]
+  const because = move.factors.filter((f) => f.test(state)).map((f) => f.label)
+  const factorCount = because.length
+  const coalitionMove = ctx.allied && move.channel === 'card' && move.tiers.includes('hostile')
+  if (coalitionMove) because.push(COALITION_FACTOR)
+  // Proud actors press harder when they feel wronged
+  const grudge = tier === 'hostile' ? 0.2 * personality.pride : tier === 'wary' ? -0.1 : 0
+  const repeat =
+    REPEAT_PENALTY * (move.channel === 'inbox' ? 0.3 : 1) * (npc.moveUses?.[move.id] ?? 0)
+  const score =
+    move.base +
+    FACTOR_WEIGHT * factorCount +
+    PRESSURE_WEIGHT * (npc.pressure / 100) +
+    grudge -
+    move.risk * (1 - personality.boldness) -
+    repeat +
+    (isOffer(move) ? ctx.offerBonus : 0) +
+    (coalitionMove ? COALITION_BONUS : 0) +
+    noise
+  return { move, score, because }
+}
+
 /** Score every in-character move for one actor, best first. Pure. */
 export function scoreMoves(
   state: GameState,
@@ -69,34 +134,20 @@ export function scoreMoves(
   slot: NPCKey,
   cards: Map<string, EventCard>,
 ): ScoredMove[] {
-  const personality = ACTOR_PERSONALITY[npc.archetypeKey]
-  const tier: OpinionTier = tierOf(npc.relationship)
+  const ctx: ScoringContext = {
+    state,
+    npc,
+    tier: tierOf(npc.relationship),
+    cards,
+    // Deal offers depend on whether the governor's word is worth anything
+    offerBonus: reputationOf(state).offerModifier,
+    allied: inCoalition(state, npc.archetypeKey),
+  }
   const rng = mulberry32(hashSeed(state.runSeed ?? 0, `actor-${state.week}-${slot}`))
-  const cooldowns = npc.moveCooldowns ?? {}
-  const uses = npc.moveUses ?? {}
-  // Deal offers depend on whether the governor's word is worth anything
-  const offerBonus = reputationOf(state).offerModifier
-
   const scored: ScoredMove[] = []
   for (const move of MOVES_BY_ACTOR[npc.archetypeKey] ?? []) {
-    const noise = (rng() - 0.5) * NOISE
-    if (!move.tiers.includes(tier)) continue
-    if ((cooldowns[move.id] ?? 0) > state.week) continue
-    if (move.channel === 'card' && !cardAvailable(state, move.eventId, cards)) continue
-
-    const because = move.factors.filter((f) => f.test(state)).map((f) => f.label)
-    // Proud actors press harder when they feel wronged
-    const grudge = tier === 'hostile' ? 0.2 * personality.pride : tier === 'wary' ? -0.1 : 0
-    const score =
-      move.base +
-      FACTOR_WEIGHT * because.length +
-      PRESSURE_WEIGHT * (npc.pressure / 100) +
-      grudge -
-      move.risk * (1 - personality.boldness) -
-      REPEAT_PENALTY * (move.channel === 'inbox' ? 0.3 : 1) * (uses[move.id] ?? 0) +
-      (isOffer(move) ? offerBonus : 0) +
-      noise
-    scored.push({ move, score, because })
+    const noise = (rng() - 0.5) * NOISE // drawn for every move so results stay stable
+    if (isEligible(ctx, move)) scored.push(scoreOne(ctx, move, noise))
   }
   return scored.sort((a, b) => b.score - a.score)
 }
@@ -328,6 +379,7 @@ export function runActorMoves(state: GameState, deck: EventCard[]): GameState {
       if (!card) continue
       next = { ...next, eventQueue: [...next.eventQueue, personaliseCard(card, updatedNpc, move)] }
       cardPlayed = true
+      next = echoCoalitionMove(next, npc.archetypeKey)
     } else {
       next = { ...next, inbox: [...next.inbox, inboxFrom(next, updatedNpc, move)] }
     }

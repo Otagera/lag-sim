@@ -1,6 +1,6 @@
 import { PROMISES, type PromiseDefinition } from '../data/promises'
 import type { GameState, InboxMessage, NPCKey, PromiseRecord } from '../state/types'
-import { applyActorImpact } from './opinionEngine'
+import { addFashemuOpinion, applyActorImpact } from './opinionEngine'
 
 /**
  * Promises and reputation (docs/political-actors.md §6).
@@ -17,7 +17,14 @@ function def(defId: string): PromiseDefinition | undefined {
   return (PROMISES as Record<string, PromiseDefinition>)[defId]
 }
 
+const FASHEMU_NAME = 'Chief Fashemu'
+
+function fashemuPresent(state: GameState): boolean {
+  return state.fashemuPhase !== 'dormant' && state.fashemuPhase !== 'dead'
+}
+
 function slotFor(state: GameState, actor: PromiseDefinition['actor']): NPCKey | undefined {
+  if (actor === 'fashemu') return undefined
   return NPC_SLOTS.find(
     (k) => state.activeNPCs[k].isActive && state.activeNPCs[k].archetypeKey === actor,
   )
@@ -28,13 +35,14 @@ export function makePromise(state: GameState, defId: string): GameState {
   const d = def(defId)
   if (!d) return state
   const slot = slotFor(state, d.actor)
-  if (!slot) return state
+  const present = d.actor === 'fashemu' ? fashemuPresent(state) : !!slot
+  if (!present) return state
   if (state.promises.some((p) => p.defId === defId && p.status === 'open')) return state
   const record: PromiseRecord = {
     id: `${defId}-${state.week}`,
     defId,
     actor: d.actor,
-    actorName: state.activeNPCs[slot].name,
+    actorName: slot ? state.activeNPCs[slot].name : FASHEMU_NAME,
     madeWeek: state.week,
     dueWeek: state.week + d.dueInWeeks,
     status: 'open',
@@ -49,7 +57,14 @@ function promiseLetter(state: GameState, p: PromiseRecord, kept: boolean): Inbox
   letterCounter++
   return {
     id: `promise-${p.id}-${kept ? 'kept' : 'broken'}-${letterCounter}`,
-    from: p.actor === 'youth-organiser' ? 'dayo' : p.actor === 'journalist' ? 'neo' : 'smj',
+    from:
+      p.actor === 'fashemu'
+        ? 'fashemu'
+        : p.actor === 'youth-organiser'
+          ? 'dayo'
+          : p.actor === 'journalist'
+            ? 'neo'
+            : 'smj',
     fromLabel: p.actorName,
     week: state.week,
     subject: kept ? 'You kept your word' : 'You gave your word',
@@ -72,17 +87,16 @@ function resolvePromise(state: GameState, promiseId: string, kept: boolean): Gam
       x.id === promiseId ? { ...x, status: kept ? 'kept' : 'broken', resolvedWeek: state.week } : x,
     ),
   }
-  next = applyActorImpact(
-    next,
-    [
-      {
-        actor: p.actor,
-        reason: kept ? 'kept-your-word' : 'broke-your-word',
-        value: kept ? KEPT_GOODWILL : BROKEN_GRIEVANCE,
-      },
-    ],
-    source,
-  )
+  const reason = kept ? 'kept-your-word' : 'broke-your-word'
+  const value = kept ? KEPT_GOODWILL : BROKEN_GRIEVANCE
+  if (p.actor === 'fashemu') {
+    // Party business stays inside the party: no gossip to the other actors
+    next = addFashemuOpinion(next, reason, value, source)
+    if (fashemuPresent(next))
+      next = { ...next, inbox: [...next.inbox, promiseLetter(next, p, kept)] }
+    return next
+  }
+  next = applyActorImpact(next, [{ actor: p.actor, reason, value }], source)
   if (!kept) {
     // Everyone else on the scene hears about it
     const others = NPC_SLOTS.map((k) => next.activeNPCs[k]).filter(

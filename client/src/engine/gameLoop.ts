@@ -16,6 +16,7 @@ import type {
 } from '../state/types'
 import { isDettyDecember, isEyoFestival, isHarmattan, isSallahPeriod } from '../utils/calendar'
 import { actorIntroMessage, runActorMoves } from './actorEngine'
+import { rollSuccession, updateCoalition } from './castEngine'
 import { selectChannelMeta } from './channelEngine'
 import { emergencyBridgeLoan } from './debtEngine'
 import { calculateHiddenDrag } from './dragEngine'
@@ -332,6 +333,9 @@ function tickNPCsAndInitiatives(state: GameState): GameState {
   next = applyNPCGoalEffects(next)
   // Actors choose their moment (replaces the old pressure ≥ 40 escalation)
   next = runActorMoves(next, NPC_DECK_EVENTS)
+  // The cast shifts: coalitions form or split, actors may leave and be replaced
+  next = updateCoalition(next)
+  next = rollSuccession(next)
 
   // Initiative tick
   next = tickInitiative(next)

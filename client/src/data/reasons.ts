@@ -216,6 +216,40 @@ export const REASONS = {
     decay: 'slow',
   },
 
+  // ── Succession ──────────────────────────────────────────────────────────
+  'predecessor-jailed': {
+    label: 'Their predecessor went to jail on your watch',
+    line: '{name} took over from someone who is now in prison, and blames your government for it.',
+    decay: 'slow',
+  },
+  'predecessor-appointed': {
+    label: 'Their predecessor did well out of you',
+    line: '{name} replaced someone you helped to a bigger job. It is a good start.',
+    decay: 'slow',
+  },
+  'predecessor-died': {
+    label: 'Their predecessor died in office',
+    line: '{name} buried their predecessor and inherited the files. They are reading them carefully.',
+    decay: 'fast',
+  },
+  'inherited-grudge': {
+    label: 'Inherited grudges from their predecessor',
+    line: '{name} inherited a list of grievances against you along with the office.',
+    decay: 'slow',
+  },
+  'inherited-goodwill': {
+    label: 'Inherited some goodwill from their predecessor',
+    line: '{name} was told you could be worked with.',
+    decay: 'slow',
+  },
+
+  // ── Coalitions ──────────────────────────────────────────────────────────
+  'joined-a-coalition': {
+    label: 'They have allies against you now',
+    line: '{name} is no longer acting alone.',
+    decay: 'fast',
+  },
+
   // ── Godfather ───────────────────────────────────────────────────────────
   'did-what-he-asked': {
     label: 'You did what he asked',
