@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { NPC_ARCHETYPES } from '../data/npcs'
+import { PROMISES, type PromiseDefinition } from '../data/promises'
 import { REASONS, type ReasonDefinition, renderReasonLine } from '../data/reasons'
 import { type OpinionTier, TIER_LABEL, tierOf, topReasons } from '../engine/opinionEngine'
+import { reputationOf } from '../engine/promiseEngine'
 import { useGameStore } from '../state/gameStore'
-import type { ActorMoveRecord, NPCKey, OpinionEntry } from '../state/types'
+import type { ActorMoveRecord, NPCKey, OpinionEntry, PromiseRecord } from '../state/types'
 import { useShowNumbers } from './settings/showNumbers'
 
 /**
@@ -344,12 +346,96 @@ function ActorCard({
   )
 }
 
+const REPUTATION_COLOR = {
+  Unproven: 'var(--text-secondary)',
+  Reliable: 'var(--success-11)',
+  Doubted: 'var(--warning-11)',
+  Unreliable: 'var(--error-11)',
+} as const
+
+function promiseTerms(p: PromiseRecord): PromiseDefinition | undefined {
+  return (PROMISES as Record<string, PromiseDefinition>)[p.defId]
+}
+
+/** Your word: reputation plus the promises behind it. */
+function PromisesSection({
+  promises,
+  week,
+  showNumbers,
+}: {
+  promises: PromiseRecord[]
+  week: number
+  showNumbers: boolean
+}) {
+  const rep = reputationOf({ promises } as Parameters<typeof reputationOf>[0])
+  const recent = [...promises].sort((a, b) => b.madeWeek - a.madeWeek).slice(0, 5)
+  return (
+    <div
+      className="p-2 border mb-2"
+      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}
+    >
+      <p className="text-[11px]" style={{ color: 'var(--text)' }}>
+        Your word: <strong style={{ color: REPUTATION_COLOR[rep.label] }}>{rep.label}</strong>
+        {showNumbers ? (
+          <span className="tabular-nums" style={{ color: 'var(--text-secondary)' }}>
+            {' '}
+            · kept {rep.kept} · broken {rep.broken} · deal offers{' '}
+            {rep.offerModifier >= 0 ? '+' : ''}
+            {rep.offerModifier.toFixed(2)}
+          </span>
+        ) : (
+          <span style={{ color: 'var(--text-secondary)' }}>
+            {rep.kept + rep.broken === 0
+              ? ' — you have not given anyone your word yet.'
+              : ` — kept ${rep.kept}, broken ${rep.broken}. People talk.`}
+          </span>
+        )}
+      </p>
+      {recent.length > 0 && (
+        <ul className="mt-1 space-y-1 text-[10px]" style={{ color: 'var(--text)' }}>
+          {recent.map((p) => {
+            const d = promiseTerms(p)
+            const status =
+              p.status === 'open'
+                ? `due ${p.dueWeek - week <= 0 ? 'now' : `in ${p.dueWeek - week} weeks`}`
+                : `${p.status} (wk ${p.resolvedWeek})`
+            const color =
+              p.status === 'kept'
+                ? 'var(--success-11)'
+                : p.status === 'broken'
+                  ? 'var(--error-11)'
+                  : 'var(--text-secondary)'
+            return (
+              <li key={p.id}>
+                {showNumbers ? (
+                  <>
+                    {d?.terms} → {p.actorName} · <span style={{ color }}>{status}</span>
+                    {p.status === 'open' && d && (
+                      <span style={{ color: 'var(--text-secondary)' }}> · {d.test}</span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    You promised {p.actorName}: “{d?.terms}.”{' '}
+                    <span style={{ color }}>{status}.</span>
+                  </>
+                )}
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 export function NPCPanel() {
   const activeNPCs = useGameStore((s) => s.activeNPCs)
   const week = useGameStore((s) => s.week)
   const fashemuPhase = useGameStore((s) => s.fashemuPhase)
   const fashemuRelationship = useGameStore((s) => s.fashemuRelationship)
   const fashemuLedger = useGameStore((s) => s.fashemuLedger)
+  const promises = useGameStore((s) => s.promises)
   const [showNumbers, setShowNumbers] = useShowNumbers()
 
   const fashemuVisible = fashemuPhase !== 'dormant' && fashemuPhase !== 'dead'
@@ -373,6 +459,7 @@ export function NPCPanel() {
           Show the numbers
         </label>
       </div>
+      <PromisesSection promises={promises} week={week} showNumbers={showNumbers} />
       <div className="space-y-2">
         {fashemuVisible && (
           <ActorCard

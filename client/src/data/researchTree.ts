@@ -15,6 +15,18 @@ export const RESEARCH_TREE: ResearchNode[] = [
     stepEffect: { securityIndex: 3 },
   },
   {
+    id: 'state-intelligence-unit',
+    domain: 'security',
+    title: 'State Intelligence Unit',
+    pitch:
+      'A small analysis cell reporting directly to the Governor: informants in the unions, the palace, the press and the party. You will hear who is moving against you, and roughly when, before they move.',
+    framing: 'localImplementation',
+    cost: 10,
+    weeksToComplete: 8,
+    prerequisites: [{ type: 'node', nodeId: 'forensics-lab', label: 'Forensics Lab' }],
+    stepEffect: { securityIndex: 1 },
+  },
+  {
     id: 'digital-forensics',
     domain: 'security',
     title: 'Digital Forensics',

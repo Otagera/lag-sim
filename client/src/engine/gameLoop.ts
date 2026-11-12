@@ -41,6 +41,7 @@ import { detectMoment } from './momentDetector'
 import { decayActorLedgers, seedActivation } from './opinionEngine'
 import { processProjects } from './projectEngine'
 import { tickProjects } from './projectsEngine'
+import { tickPromises } from './promiseEngine'
 import { pickFramingVariant, selectPublicationForArticle } from './publicationEngine'
 import { tickResearchNodes } from './researchEngine'
 import { calculateWeeklyRevenue } from './revenueEngine'
@@ -318,6 +319,7 @@ function tickNPCsAndInitiatives(state: GameState): GameState {
 
   // Opinion ledgers fade, then activate NPCs, tick pressure, apply goal effects, check escalation
   next = decayActorLedgers(next)
+  next = tickPromises(next)
   next = activateNPCs(next)
   // Generate inbox messages for newly activated NPCs
   for (const slot of NPC_SLOTS) {

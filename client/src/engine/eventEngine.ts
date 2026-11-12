@@ -34,6 +34,7 @@ import { applyFactionDelta } from './factionEngine'
 import { applyEscalation as applyGodfatherEscalation } from './godfatherEngine'
 import { addFashemuOpinion, applyActorImpact } from './opinionEngine'
 import { createProject } from './projectEngine'
+import { breakPromise, makePromise } from './promiseEngine'
 import { getSeasonModifier } from './seasonEngine'
 import { getSecondaryFactionImpact } from './secondaryFactionHooks'
 import { applyDelta } from './statEngine'
@@ -239,7 +240,10 @@ function applyChoiceStateChanges(
   if (choice.setDeputy)
     next = { ...next, deputy: { key: choice.setDeputy, resentment: 0, revealed: false } }
   if (choice.launchInitiative) next = { ...next, activeInitiative: choice.launchInitiative }
-  return applyActorImpact(applyProjectAndLegalChanges(next, choice), choice.actorImpact, source)
+  next = applyActorImpact(applyProjectAndLegalChanges(next, choice), choice.actorImpact, source)
+  if (choice.breakPromise) next = breakPromise(next, choice.breakPromise)
+  if (choice.makePromise) next = makePromise(next, choice.makePromise)
+  return next
 }
 
 function applyProjectAndLegalChanges(state: GameState, choice: EventChoice): GameState {

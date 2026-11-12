@@ -115,7 +115,12 @@ export type ActorMove = {
   risk: number
   cooldownWeeks: number
 } & (
-  | { channel: 'card'; eventId: string }
+  | {
+      channel: 'card'
+      eventId: string
+      /** Vague intelligence hint sent when the actor is close to making this move */
+      whisper?: string
+    }
   | {
       channel: 'inbox'
       subject: string
@@ -173,6 +178,7 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'journalist',
     channel: 'card',
     eventId: 'npc-journalist-procurement-expose',
+    whisper: 'Someone in the press has been requesting procurement files from three ministries.',
     tiers: COLD,
     base: 0.45,
     factors: [F.corruption, F.lowTrust, F.electionNear],
@@ -184,6 +190,8 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'journalist',
     channel: 'card',
     eventId: 'npc-journalist-truce-offer',
+    whisper:
+      'A journalist has been asking mutual friends whether your office takes back-channel calls.',
     tiers: OPEN,
     base: 0.4,
     factors: [F.highTrust],
@@ -213,6 +221,8 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'youth-organiser',
     channel: 'card',
     eventId: 'npc-youth-rally-ojota',
+    whisper:
+      'Youth groups are booking buses and printing placards. Something is planned for Ojota.',
     tiers: COLD,
     base: 0.45,
     factors: [F.restless, F.lowTrust, F.brokeTreasury],
@@ -224,6 +234,7 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'youth-organiser',
     channel: 'card',
     eventId: 'npc-youth-electoral-traction',
+    whisper: 'Voter registration centres report an unusual surge of young first-time registrants.',
     tiers: COLD,
     base: 0.3,
     factors: [F.electionNear, F.lowTrust],
@@ -251,6 +262,8 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'insider',
     channel: 'card',
     eventId: 'npc-insider-sabotage',
+    whisper:
+      'Approvals for one of our flagship projects are moving suspiciously slowly inside the civil service.',
     tiers: COLD,
     base: 0.3,
     factors: [F.lowPC, F.weakGodfathers],
@@ -262,6 +275,7 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'insider',
     channel: 'card',
     eventId: 'npc-insider-primary-threat',
+    whisper: 'Party delegates report being sounded out about an alternative candidate.',
     tiers: HOSTILE,
     base: 0.3,
     factors: [F.electionNear, F.weakGodfathers, F.lowTrust],
@@ -289,6 +303,7 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'union-leader',
     channel: 'card',
     eventId: 'npc-union-strike-warning',
+    whisper: 'Union branches have called emergency meetings for the weekend.',
     tiers: COLD,
     base: 0.45,
     factors: [F.brokeTreasury, F.lowTrust, F.electionNear],
@@ -300,6 +315,8 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'union-leader',
     channel: 'card',
     eventId: 'npc-union-ally-opportunity',
+    whisper:
+      'A union official has hinted that the leadership is open to a longer-term arrangement.',
     tiers: OPEN,
     base: 0.35,
     factors: [F.flushTreasury],
@@ -329,6 +346,7 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'opposition-senator',
     channel: 'card',
     eventId: 'npc-senator-abuja-hearing',
+    whisper: 'A Senate committee clerk has been requesting the state’s recent financial returns.',
     tiers: COLD,
     base: 0.4,
     factors: [F.lowTrust, F.corruption, F.abujaCold],
@@ -340,6 +358,7 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'opposition-senator',
     channel: 'card',
     eventId: 'npc-senator-coalition-threat',
+    whisper: 'Opposition senators have been meeting late at a hotel in Maitama.',
     tiers: HOSTILE,
     base: 0.3,
     factors: [F.electionNear, F.abujaCold, F.lowPC],
@@ -369,6 +388,8 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'diaspora-activist',
     channel: 'card',
     eventId: 'npc-diaspora-international-report',
+    whisper:
+      'Researchers working with a foreign NGO have been interviewing residents of demolished communities.',
     tiers: COLD,
     base: 0.4,
     factors: [F.restless, F.lowTrust],
@@ -380,6 +401,7 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'diaspora-activist',
     channel: 'card',
     eventId: 'npc-diaspora-investment-bridge',
+    whisper: 'A group of diaspora investors has been asking about the state’s investment climate.',
     tiers: OPEN,
     base: 0.35,
     factors: [F.highTrust, F.businessUneasy],
@@ -408,6 +430,8 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'oba-liaison',
     channel: 'card',
     eventId: 'npc-oba-land-dispute',
+    whisper:
+      'Palace chiefs have been visiting one of our construction sites with surveyors of their own.',
     tiers: COLD,
     base: 0.4,
     factors: [F.failingInfra, F.lowTrust],
@@ -419,6 +443,7 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'oba-liaison',
     channel: 'card',
     eventId: 'npc-oba-endorsement-offer',
+    whisper: 'The palace has been asking which candidates have shown it respect this term.',
     tiers: OPEN,
     base: 0.35,
     factors: [F.electionNear, F.highTrust],
@@ -445,6 +470,8 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'business-mogul',
     channel: 'card',
     eventId: 'npc-mogul-capital-flight-warning',
+    whisper:
+      'A major employer has quietly commissioned a study of relocating to a neighbouring state.',
     tiers: COLD,
     base: 0.4,
     factors: [F.businessUneasy, F.failingInfra, F.brokeTreasury],
@@ -456,6 +483,7 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'business-mogul',
     channel: 'card',
     eventId: 'npc-mogul-partnership-offer',
+    whisper: 'A conglomerate’s planners have been studying our road and port corridors.',
     tiers: OPEN,
     base: 0.35,
     factors: [F.highTrust, F.failingInfra],
@@ -484,6 +512,8 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'federal-liaison',
     channel: 'card',
     eventId: 'npc-federal-allocation-delay',
+    whisper:
+      'The Accountant-General’s office has started querying our figures for this month’s allocation.',
     tiers: COLD,
     base: 0.4,
     factors: [F.abujaCold, F.brokeTreasury, F.lowPC],
@@ -495,6 +525,7 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'federal-liaison',
     channel: 'card',
     eventId: 'npc-federal-project-offer',
+    whisper: 'A federal ministry has sent surveyors to a coastal corridor in the state.',
     tiers: OPEN,
     base: 0.35,
     factors: [F.failingInfra, F.highTrust],
@@ -506,6 +537,8 @@ export const ACTOR_MOVES: ActorMove[] = [
     actor: 'federal-liaison',
     channel: 'card',
     eventId: 'npc-federal-loyalty-demand',
+    whisper:
+      'The President’s campaign team has been asking about stadium availability in the state.',
     tiers: COLD,
     base: 0.3,
     factors: [F.electionNear, F.flushTreasury],

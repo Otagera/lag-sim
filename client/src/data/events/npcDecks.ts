@@ -66,10 +66,11 @@ export const NPC_DECK_EVENTS: EventCard[] = [
         id: 'accept-board',
         label: 'Establish the Board',
         description:
-          'Agree and announce the monitoring board. Corruption -4, {NPC} relationship +25. Godfathers unhappy.',
+          'Agree and announce the monitoring board. Corruption -4, {NPC} relationship +25. Godfathers unhappy. You give your word: the board stays independent.',
         immediate: { corruptionPressure: -4 },
         factionImpact: { civilSocietyMedia: 12, partyGodfathers: -8 },
         actorImpact: [{ actor: 'journalist', reason: 'struck-a-deal', value: 25 }],
+        makePromise: 'journalist-monitoring-board',
       },
       {
         id: 'decline-truce',
@@ -300,10 +301,11 @@ export const NPC_DECK_EVENTS: EventCard[] = [
         id: 'accept-deal',
         label: 'Accept the Deal',
         description:
-          'Agree to wage uplift. {NPC} relationship +30. Civil Service Reform +3. Political Capital +10.',
+          'Agree to wage uplift. {NPC} relationship +30. Civil Service Reform +3. Political Capital +10. You give your word: the uplift is paid on time.',
         immediate: { politicalCapital: 10 },
         factionImpact: { informalEconomy: 6, lgChairmen: 4 },
         actorImpact: [{ actor: 'union-leader', reason: 'struck-a-deal', value: 30 }],
+        makePromise: 'union-wage-uplift',
         delayed: {
           weekOffset: 4,
           delta: { cashReserve: -4 },
@@ -455,10 +457,11 @@ export const NPC_DECK_EVENTS: EventCard[] = [
         id: 'accept-consortium',
         label: 'Accept the Consortium',
         description:
-          'Cash Reserve +₦15bn. {NPC} relationship +30. Godfathers see this as a threat to their contract influence.',
+          'Cash Reserve +₦15bn. {NPC} relationship +30. Godfathers see this as a threat to their contract influence. You give your word: every naira is published.',
         immediate: { cashReserve: 15, infrastructureScore: 3 },
         factionImpact: { partyGodfathers: -8, civilSocietyMedia: 10, businessCommunity: 5 },
         actorImpact: [{ actor: 'diaspora-activist', reason: 'struck-a-deal', value: 30 }],
+        makePromise: 'diaspora-transparency',
       },
       {
         id: 'decline-consortium',
@@ -505,10 +508,11 @@ export const NPC_DECK_EVENTS: EventCard[] = [
         id: 'proceed-anyway',
         label: 'Proceed with Project',
         description:
-          'Government asserts eminent domain. {NPC} condemns publicly. LG Chairmen -10, Trust -5.',
+          'Government asserts eminent domain. {NPC} condemns publicly. LG Chairmen -10, Trust -5. Breaks any promise to consult the palace.',
         immediate: { publicTrust: -5 },
         factionImpact: { lgChairmen: -10, informalEconomy: -6 },
         actorImpact: [{ actor: 'oba-liaison', reason: 'overrode-their-claim', value: -20 }],
+        breakPromise: 'oba-consult-palace',
       },
     ],
   },
@@ -526,10 +530,11 @@ export const NPC_DECK_EVENTS: EventCard[] = [
         id: 'accept-endorsement',
         label: 'Accept the Deal',
         description:
-          'Board seat granted. LG Chairmen +10, Informal Economy +5. {NPC} relationship +25.',
+          'Board seat granted. LG Chairmen +10, Informal Economy +5. {NPC} relationship +25. You give your word: the palace is consulted before any land is touched.',
         immediate: {},
         factionImpact: { lgChairmen: 10, informalEconomy: 5 },
         actorImpact: [{ actor: 'oba-liaison', reason: 'struck-a-deal', value: 25 }],
+        makePromise: 'oba-consult-palace',
       },
       {
         id: 'decline-endorsement',
@@ -600,10 +605,11 @@ export const NPC_DECK_EVENTS: EventCard[] = [
         id: 'accept-ppp',
         label: 'Accept the PPP',
         description:
-          'Infrastructure +8, Cash +10 (government share). {NPC} relationship +25. Godfathers see contract lock-out as threatening.',
+          'Infrastructure +8, Cash +10 (government share). {NPC} relationship +25. Godfathers see contract lock-out as threatening. You give your word: the corridor stays on schedule.',
         immediate: { infrastructureScore: 8, cashReserve: 10 },
         factionImpact: { businessCommunity: 10, partyGodfathers: -6 },
         actorImpact: [{ actor: 'business-mogul', reason: 'struck-a-deal', value: 25 }],
+        makePromise: 'mogul-ppp-delivery',
       },
       {
         id: 'counter-ppp',
@@ -641,19 +647,21 @@ export const NPC_DECK_EVENTS: EventCard[] = [
         id: 'fly-to-abuja',
         label: 'Fly to Abuja and Smooth It Over',
         description:
-          'A long dinner, a softer tone in your next speech. Political Capital -15. The money moves within the week. Civil society calls it kneeling.',
+          'A long dinner, a softer tone in your next speech. Political Capital -15. The money moves within the week. Civil society calls it kneeling. You give your word: no more public attacks on the Villa.',
         immediate: { politicalCapital: -15 },
         factionImpact: { federalGovt: 8, civilSocietyMedia: -6 },
         actorImpact: [{ actor: 'federal-liaison', reason: 'lined-up-behind-abuja', value: 14 }],
+        makePromise: 'federal-stay-on-message',
       },
       {
         id: 'go-public-allocation',
         label: 'Go Public: "Abuja Is Starving Lagos"',
         description:
-          'Name the delay on live television. Trust +5. Federal Government -10. The transfer arrives a month late.',
+          'Name the delay on live television. Trust +5. Federal Government -10. The transfer arrives a month late. Breaks any promise to stay on message with the Villa.',
         immediate: { publicTrust: 5, cashReserve: -4 },
         factionImpact: { federalGovt: -10, informalEconomy: 4 },
         actorImpact: [{ actor: 'federal-liaison', reason: 'defied-abuja', value: -16 }],
+        breakPromise: 'federal-stay-on-message',
         delayed: {
           weekOffset: 4,
           delta: { cashReserve: 4 },
@@ -730,19 +738,21 @@ export const NPC_DECK_EVENTS: EventCard[] = [
         id: 'deliver-the-rally',
         label: 'Deliver the Rally and the Money',
         description:
-          'Cash -5. Federal Government +12, Godfathers +6. Civil society notes where the money came from.',
+          'Cash -5. Federal Government +12, Godfathers +6. Civil society notes where the money came from. You give your word: the state stays on message.',
         immediate: { cashReserve: -5, corruptionPressure: 3 },
         factionImpact: { federalGovt: 12, partyGodfathers: 6, civilSocietyMedia: -8 },
         actorImpact: [{ actor: 'federal-liaison', reason: 'lined-up-behind-abuja', value: 18 }],
+        makePromise: 'federal-stay-on-message',
       },
       {
         id: 'refuse-loyalty-demand',
         label: 'Refuse: "The State Is Not a Campaign Office"',
         description:
-          'Trust +6, Civil Society +8. Federal Government -12. Expect allocations to slow.',
+          'Trust +6, Civil Society +8. Federal Government -12. Expect allocations to slow. Breaks any promise to stay on message with the Villa.',
         immediate: { publicTrust: 6 },
         factionImpact: { civilSocietyMedia: 8, federalGovt: -12 },
         actorImpact: [{ actor: 'federal-liaison', reason: 'defied-abuja', value: -20 }],
+        breakPromise: 'federal-stay-on-message',
         delayed: {
           weekOffset: 3,
           delta: { cashReserve: -2, federalRelationship: -4 },

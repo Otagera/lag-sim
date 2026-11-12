@@ -199,6 +199,23 @@ export const REASONS = {
     decay: 'slow',
   },
 
+  // ── Promises ────────────────────────────────────────────────────────────
+  'kept-your-word': {
+    label: 'You kept your word',
+    line: '{name} gave you a promise’s worth of trust, and you honoured it.',
+    decay: 'slow',
+  },
+  'broke-your-word': {
+    label: 'You broke your word',
+    line: '{name} will not forget that you gave your word and broke it.',
+    decay: 'permanent',
+  },
+  'heard-you-broke-your-word': {
+    label: 'They heard you broke your word to someone else',
+    line: '{name} heard what happened to the last person who trusted your word.',
+    decay: 'slow',
+  },
+
   // ── Godfather ───────────────────────────────────────────────────────────
   'did-what-he-asked': {
     label: 'You did what he asked',

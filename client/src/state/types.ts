@@ -166,6 +166,10 @@ export type Choice = {
   setFlags?: Record<string, boolean>
   /** Opinion changes for political actors, each with a reason (data/reasons.ts) */
   actorImpact?: ActorImpact[]
+  /** Give your word to an actor (key into PROMISES, data/promises.ts) */
+  makePromise?: string
+  /** Choosing this breaks an open promise of this kind */
+  breakPromise?: string
   secondaryFactionImpact?: Partial<SecondaryFactionState>
   resentmentDelta?: number
   clearDeputy?: boolean // sets state.deputy = null (resignation/removal)
@@ -291,6 +295,20 @@ export type NPCState = {
   moveCooldowns?: Record<string, number>
   /** moveId → times used; repeated tactics lose appeal */
   moveUses?: Record<string, number>
+  /** moveId → week an intelligence hint about it was last sent */
+  hintedMoves?: Record<string, number>
+}
+
+/** A promise the governor made to an actor. */
+export type PromiseRecord = {
+  id: string
+  defId: string // key into PROMISES
+  actor: NPCArchetypeKey
+  actorName: string
+  madeWeek: number
+  dueWeek: number
+  status: 'open' | 'kept' | 'broken'
+  resolvedWeek?: number
 }
 
 export type ActorMoveRecord = {
@@ -613,6 +631,8 @@ export type GameState = {
   /** Derived: 50 + sum of fashemuLedger, clamped 0..100. Never set directly. */
   fashemuRelationship: number
   fashemuLedger: OpinionEntry[]
+  /** Promises made to political actors and how they turned out */
+  promises: PromiseRecord[]
   fashemuPhase: FashemuPhase
   fashemuAskIndex: number
   fashemuEndingPath: FashemuEndingPath | null

@@ -11,6 +11,7 @@ import type {
 } from '../state/types'
 import { hashSeed, mulberry32 } from '../utils/prng'
 import { type OpinionTier, tierOf } from './opinionEngine'
+import { reputationOf } from './promiseEngine'
 
 /**
  * Actor move selection — replaces "pressure ≥ 40 → draw a deck card".
@@ -45,6 +46,11 @@ export function actThreshold(patience: number): number {
 /** Letters are cheap: they clear a lower bar than cards. */
 export const LETTER_DISCOUNT = 0.2
 
+/** Friendly card moves (deals, offers, endorsements) */
+export function isOffer(move: ActorMove): boolean {
+  return move.channel === 'card' && move.tiers.includes('cordial')
+}
+
 export type ScoredMove = { move: ActorMove; score: number; because: string[] }
 
 function cardAvailable(state: GameState, eventId: string, cards: Map<string, EventCard>): boolean {
@@ -68,6 +74,8 @@ export function scoreMoves(
   const rng = mulberry32(hashSeed(state.runSeed ?? 0, `actor-${state.week}-${slot}`))
   const cooldowns = npc.moveCooldowns ?? {}
   const uses = npc.moveUses ?? {}
+  // Deal offers depend on whether the governor's word is worth anything
+  const offerBonus = reputationOf(state).offerModifier
 
   const scored: ScoredMove[] = []
   for (const move of MOVES_BY_ACTOR[npc.archetypeKey] ?? []) {
@@ -86,6 +94,7 @@ export function scoreMoves(
       grudge -
       move.risk * (1 - personality.boldness) -
       REPEAT_PENALTY * (move.channel === 'inbox' ? 0.3 : 1) * (uses[move.id] ?? 0) +
+      (isOffer(move) ? offerBonus : 0) +
       noise
     scored.push({ move, score, because })
   }
@@ -198,6 +207,73 @@ function cardTitle(cards: Map<string, EventCard>, move: ActorMove, npc: NPCState
   return fill(cards.get(move.eventId)?.title ?? move.id, npc, '')
 }
 
+// ── Intelligence: advance warning (docs/political-actors.md §4.4, hybrid) ──
+
+export const INTEL_UNIT_NODE = 'state-intelligence-unit'
+/** Security needed for any whisper without the intelligence unit */
+export const WHISPER_SECURITY = 50
+/** How close to its bar an actor must be before a hint fires */
+const HINT_WINDOW = { whisper: 0.15, unit: 0.3 }
+const HINT_COOLDOWN_WEEKS = 10
+
+type HintCandidate = {
+  slot: NPCKey
+  npc: NPCState
+  move: ActorMove & { channel: 'card' }
+  gap: number
+}
+
+function hasIntelUnit(state: GameState): boolean {
+  return state.researchNodeStatuses?.[INTEL_UNIT_NODE] === 'completed'
+}
+
+function hintMessage(state: GameState, c: HintCandidate, named: boolean): InboxMessage {
+  inboxCounter++
+  const whisper =
+    c.move.whisper ??
+    'Our sources report unusual movement among people who are not friends of this government.'
+  const body = named
+    ? `${whisper} The Intelligence Unit is confident ${c.npc.name} is behind it. Expect a move within weeks.`
+    : `${whisper} Our sources cannot yet say who is behind it.`
+  return {
+    id: `intel-${state.week}-${c.move.id}-${inboxCounter}`,
+    from: 'chief-of-staff',
+    fromLabel: named ? 'State Intelligence Unit' : 'Chief of Staff',
+    week: state.week,
+    subject: named ? 'Intelligence briefing' : 'Security whisper',
+    body,
+    tone: 'urgent',
+    read: false,
+  }
+}
+
+/** Send at most one hint a week, about whichever actor is closest to striking. */
+function sendHint(state: GameState, candidates: HintCandidate[]): GameState {
+  const unit = hasIntelUnit(state)
+  if (!unit && state.stats.securityIndex < WHISPER_SECURITY) return state
+  const window = unit ? HINT_WINDOW.unit : HINT_WINDOW.whisper
+  const eligible = candidates
+    .filter((c) => c.gap <= window)
+    .filter(
+      (c) => (c.npc.hintedMoves?.[c.move.id] ?? -Infinity) + HINT_COOLDOWN_WEEKS <= state.week,
+    )
+    .sort((a, b) => a.gap - b.gap)
+  const pick = eligible[0]
+  if (!pick) return state
+  const npc = state.activeNPCs[pick.slot]
+  return {
+    ...state,
+    inbox: [...state.inbox, hintMessage(state, pick, unit)],
+    activeNPCs: {
+      ...state.activeNPCs,
+      [pick.slot]: {
+        ...npc,
+        hintedMoves: { ...(npc.hintedMoves ?? {}), [pick.move.id]: state.week },
+      },
+    },
+  }
+}
+
 // ── Weekly step ────────────────────────────────────────────────────────────
 
 /**
@@ -208,6 +284,7 @@ export function runActorMoves(state: GameState, deck: EventCard[]): GameState {
   const cards = new Map(deck.map((c) => [c.id, c]))
   let next = state
   let cardPlayed = next.eventQueue.some((q) => q.npcArchetype)
+  const hintCandidates: HintCandidate[] = []
 
   for (const slot of NPC_SLOTS) {
     const npc = next.activeNPCs[slot]
@@ -221,6 +298,10 @@ export function runActorMoves(state: GameState, deck: EventCard[]): GameState {
     const best = scored.find(
       (s) => !(cardPlayed && s.move.channel === 'card') && s.score >= bar(s.move),
     )
+    // Closest card move still below its bar — a candidate for an advance warning
+    const nearCard = scored.find((s) => s.move.channel === 'card' && s.score < threshold)
+    if (nearCard && nearCard.move.channel === 'card' && best?.move.channel !== 'card')
+      hintCandidates.push({ slot, npc, move: nearCard.move, gap: threshold - nearCard.score })
     if (!best) continue
 
     const { move } = best
@@ -251,5 +332,5 @@ export function runActorMoves(state: GameState, deck: EventCard[]): GameState {
       next = { ...next, inbox: [...next.inbox, inboxFrom(next, updatedNpc, move)] }
     }
   }
-  return next
+  return sendHint(next, hintCandidates)
 }

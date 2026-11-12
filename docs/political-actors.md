@@ -1,6 +1,8 @@
 # Political Actors — Design
 
-> Status: **phases 1–2 implemented** (Nov 2026); phase 3 pending. Decisions in §11.
+> Status: **phases 1–2 and 3a implemented** (Nov 2026); 3b (coalitions, death/succession, Fashemu) pending. Decisions in §11.
+>
+> **As built (3a):** promises in `data/promises.ts` + `engine/promiseEngine.ts` — choices carry `makePromise` / `breakPromise`; due promises are judged weekly (kept +12 slow, broken −25 permanent, other actors −8 "heard"). `reputationOf()` labels your word (Unproven / Reliable / Doubted / Unreliable) and shifts actors' deal-offer appeal (+0.08 per kept, −0.15 per broken, clamped −0.3..+0.2). Intel (hybrid): when an actor's best card move is within 0.15 of its bar and security ≥ 50, the Chief of Staff sends an unnamed whisper; with the **State Intelligence Unit** research node (security domain, after Forensics Lab) the window widens to 0.3 and the briefing names the actor. One hint per week; 10-week cooldown per move.
 >
 > **As built (phase 2):** `data/actors.ts` (personalities, situational factors, move library, intros) and `engine/actorEngine.ts` (`scoreMoves`, `runActorMoves`). Utility = base + 0.22 × active factors + 0.5 × pressure/100 + grudge (hostile: 0.2 × pride; wary: −0.1) − risk × (1 − boldness) − 0.15 × prior uses (×0.3 for letters) ± 0.05 seeded noise. Cards clear 0.55 + 0.35 × patience; letters clear 0.2 less. One actor card per week; 3-week minimum between an actor's moves. Each move records `lastMove.because` (the factors that held) for the "why now" line. Fashemu's asks still run on the godfather script (port planned with promises in phase 3). Replaces the NPC "pressure ≥ 40 → draw a card" loop with actors that have goals, memory and timing. Inspired by what makes Civilization's leaders feel real — not their intelligence, but their **motives, memory and visible reasons**.
 
