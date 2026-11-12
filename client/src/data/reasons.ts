@@ -183,6 +183,22 @@ export const REASONS = {
     decay: 'slow',
   },
 
+  'lined-up-behind-abuja': {
+    label: 'You lined up behind Abuja',
+    line: '{name} reported to the Villa that you can be counted on.',
+    decay: 'slow',
+  },
+  'defied-abuja': {
+    label: 'You defied Abuja',
+    line: '{name} had to explain to the Villa why the state said no.',
+    decay: 'slow',
+  },
+  'act-centre-wants-control': {
+    label: 'The centre wants the state in line',
+    line: '{name} was sent to make sure the state remembers where allocations come from.',
+    decay: 'slow',
+  },
+
   // ── Godfather ───────────────────────────────────────────────────────────
   'did-what-he-asked': {
     label: 'You did what he asked',
@@ -200,14 +216,15 @@ export type ReasonKey = keyof typeof REASONS
 
 /** Why an actor first turned up — and how strongly they start against you. */
 export const ACTIVATION_REASON: Record<NPCArchetypeKey, { reason: ReasonKey; value: number }> = {
-  journalist: { reason: 'act-smells-corruption', value: -35 },
-  'youth-organiser': { reason: 'act-youth-anger', value: -35 },
-  insider: { reason: 'act-wants-your-seat', value: -35 },
-  'union-leader': { reason: 'act-unpaid-workers', value: -35 },
-  'opposition-senator': { reason: 'act-partisan-rival', value: -35 },
-  'diaspora-activist': { reason: 'act-rights-record', value: -30 },
-  'oba-liaison': { reason: 'act-palace-unconsulted', value: -30 },
-  'business-mogul': { reason: 'act-bad-for-business', value: -30 },
+  journalist: { reason: 'act-smells-corruption', value: -40 },
+  'youth-organiser': { reason: 'act-youth-anger', value: -40 },
+  insider: { reason: 'act-wants-your-seat', value: -40 },
+  'union-leader': { reason: 'act-unpaid-workers', value: -40 },
+  'opposition-senator': { reason: 'act-partisan-rival', value: -40 },
+  'diaspora-activist': { reason: 'act-rights-record', value: -40 },
+  'oba-liaison': { reason: 'act-palace-unconsulted', value: -40 },
+  'business-mogul': { reason: 'act-bad-for-business', value: -40 },
+  'federal-liaison': { reason: 'act-centre-wants-control', value: -40 },
 }
 
 export function renderReasonLine(reason: string, name: string, source?: string): string {

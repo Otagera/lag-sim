@@ -9,7 +9,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-journalist-procurement-expose',
     title: '{NPC}: Procurement Exposé',
-    body: `{NPC} has published an explosive piece documenting irregular contract awards over the past quarter. Three multilateral lenders have requested clarification before releasing tranches. The story has been shared 200,000 times since midnight.`,
+    body: `{NPC} has published an explosive piece documenting irregular contract awards over the past quarter. Three multilateral lenders have requested clarification before releasing tranches. The story has been shared 200,000 times since midnight.\n\n{REASON}`,
     severity: 'high',
     category: 'political',
     isRecurring: true,
@@ -55,7 +55,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-journalist-truce-offer',
     title: '{NPC}: Back-Channel Truce',
-    body: `{NPC} sends a private message through a mutual contact. She is willing to go quiet on the investigation if you agree to establish an independent procurement monitoring board with civil society seats. A genuine olive branch — or a tactical pause.`,
+    body: `{NPC} sends a private message through a mutual contact. She is willing to go quiet on the investigation if you agree to establish an independent procurement monitoring board with civil society seats. A genuine olive branch — or a tactical pause.\n\n{REASON}`,
     severity: 'medium',
     category: 'political',
     isRecurring: false,
@@ -87,7 +87,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-youth-rally-ojota',
     title: '{NPC}: Mass Rally at Ojota',
-    body: `{NPC} has announced a "State of Emergency" rally at the Ojota interchange. Expected turnout: 8,000–25,000. The demands: budget transparency, youth employment, and accountability for police brutality. Lagos Twitter is already mobilised.`,
+    body: `{NPC} has announced a "State of Emergency" rally at the Ojota interchange. Expected turnout: 8,000–25,000. The demands: budget transparency, youth employment, and accountability for police brutality. Lagos Twitter is already mobilised.\n\n{REASON}`,
     severity: 'medium',
     category: 'political',
     isRecurring: true,
@@ -126,7 +126,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-youth-electoral-traction',
     title: '{NPC}: Real Electoral Threat',
-    body: `A poll shows {NPC} at 19% in a hypothetical election — above the nuisance threshold and climbing fast. Youth voter registrations in Alimosho, Mushin, and Agege have tripled. This is no longer just protest.`,
+    body: `A poll shows {NPC} at 19% in a hypothetical election — above the nuisance threshold and climbing fast. Youth voter registrations in Alimosho, Mushin, and Agege have tripled. This is no longer just protest.\n\n{REASON}`,
     severity: 'critical',
     category: 'political',
     isRecurring: false,
@@ -166,7 +166,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-insider-sabotage',
     title: '{NPC}: Project Stall',
-    body: `The Lekki road expansion has mysteriously stalled. An investigation traces it to a missing approval form — last seen when {NPC}'s aide visited the relevant ministry. The obstruction is deliberate and deniable.`,
+    body: `The Lekki road expansion has mysteriously stalled. An investigation traces it to a missing approval form — last seen when {NPC}'s aide visited the relevant ministry. The obstruction is deliberate and deniable.\n\n{REASON}`,
     severity: 'medium',
     category: 'political',
     isRecurring: true,
@@ -202,7 +202,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-insider-primary-threat',
     title: '{NPC}: Primary Challenge Declared',
-    body: `{NPC} has registered to contest the governorship primary against you. Running on "party discipline and consultation." With fractured godfather support, he is a credible vessel for disgruntled machine politicians.`,
+    body: `{NPC} has registered to contest the governorship primary against you. Running on "party discipline and consultation." With fractured godfather support, he is a credible vessel for disgruntled machine politicians.\n\n{REASON}`,
     severity: 'critical',
     category: 'political',
     isRecurring: false,
@@ -240,7 +240,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-union-strike-warning',
     title: '{NPC}: Strike Warning',
-    body: `{NPC} has issued a 72-hour ultimatum: settle outstanding contractor arrears or infrastructure workers walk off. Three ongoing road projects and the Lekki Blue Line extension are at risk.`,
+    body: `{NPC} has issued a 72-hour ultimatum: settle outstanding contractor arrears or infrastructure workers walk off. Three ongoing road projects and the Lekki Blue Line extension are at risk.\n\n{REASON}`,
     severity: 'high',
     category: 'political',
     isRecurring: true,
@@ -289,7 +289,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-union-ally-opportunity',
     title: '{NPC}: Offer of Cooperation',
-    body: `{NPC} requests a private meeting. He wants better wages tied into the next capital budget. In exchange: cooperation on civil service reform, no strike action for 26 weeks, and his network mobilised for your LGA election campaign.`,
+    body: `{NPC} requests a private meeting. He wants better wages tied into the next capital budget. In exchange: cooperation on civil service reform, no strike action for 26 weeks, and his network mobilised for your LGA election campaign.\n\n{REASON}`,
     severity: 'medium',
     category: 'political',
     isRecurring: false,
@@ -325,7 +325,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-senator-abuja-hearing',
     title: '{NPC}: Senate Hearing on Lagos',
-    body: `{NPC} has convened a public hearing on "fiscal transparency in Lagos State." The Attorney-General has been summoned to Abuja. Federal allocation release for this month is contingent on outcome.`,
+    body: `{NPC} has convened a public hearing on "fiscal transparency in Lagos State." The Attorney-General has been summoned to Abuja. Federal allocation release for this month is contingent on outcome.\n\n{REASON}`,
     severity: 'high',
     category: 'political',
     isRecurring: true,
@@ -365,7 +365,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-senator-coalition-threat',
     title: '{NPC}: Opposition Bloc Forms',
-    body: `{NPC} has convened seven other senators to form a "Lagos Accountability Bloc" and is tabling a motion to suspend federal transfers pending audit. You have 48 hours to respond before it reaches the floor.`,
+    body: `{NPC} has convened seven other senators to form a "Lagos Accountability Bloc" and is tabling a motion to suspend federal transfers pending audit. You have 48 hours to respond before it reaches the floor.\n\n{REASON}`,
     severity: 'critical',
     category: 'political',
     isRecurring: false,
@@ -411,7 +411,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-diaspora-international-report',
     title: '{NPC}: International Human Rights Report',
-    body: `{NPC} has collaborated with a London-based NGO to publish a governance report grading Lagos State. The UK Foreign Office has cited it in a briefing. Three of your foreign direct investment leads have requested meetings to discuss the findings.`,
+    body: `{NPC} has collaborated with a London-based NGO to publish a governance report grading Lagos State. The UK Foreign Office has cited it in a briefing. Three of your foreign direct investment leads have requested meetings to discuss the findings.\n\n{REASON}`,
     severity: 'medium',
     category: 'political',
     isRecurring: true,
@@ -435,14 +435,16 @@ export const NPC_DECK_EVENTS: EventCard[] = [
           'Release counter-data. Civil Society -8. FDI leads re-engage. {NPC} relationship -12.',
         immediate: {},
         factionImpact: { civilSocietyMedia: -8, businessCommunity: 3 },
-        actorImpact: [{ actor: 'diaspora-activist', reason: 'disputed-their-findings', value: -12 }],
+        actorImpact: [
+          { actor: 'diaspora-activist', reason: 'disputed-their-findings', value: -12 },
+        ],
       },
     ],
   },
   {
     id: 'npc-diaspora-investment-bridge',
     title: '{NPC}: Diaspora Investment Offer',
-    body: `{NPC} contacts you with an unexpected offer: she can broker a diaspora investment consortium that would inject ₦15bn into Lagos infrastructure — in exchange for an independent monitoring committee she co-chairs. Genuine, but politically complicated.`,
+    body: `{NPC} contacts you with an unexpected offer: she can broker a diaspora investment consortium that would inject ₦15bn into Lagos infrastructure — in exchange for an independent monitoring committee she co-chairs. Genuine, but politically complicated.\n\n{REASON}`,
     severity: 'medium',
     category: 'political',
     isRecurring: false,
@@ -473,7 +475,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-oba-land-dispute',
     title: '{NPC}: Traditional Land Rights Dispute',
-    body: `{NPC} presents a formal complaint on behalf of the council of traditional rulers: a government housing project in Badagry has encroached on communal land. He requests a meeting within the week. Handling this badly creates problems in every ward he touches.`,
+    body: `{NPC} presents a formal complaint on behalf of the council of traditional rulers: a government housing project in Badagry has encroached on communal land. He requests a meeting within the week. Handling this badly creates problems in every ward he touches.\n\n{REASON}`,
     severity: 'medium',
     category: 'political',
     isRecurring: true,
@@ -513,7 +515,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-oba-endorsement-offer',
     title: '{NPC}: Offer of Traditional Endorsement',
-    body: `{NPC} offers to convene a public endorsement from the Lagos Traditional Council ahead of the LGA elections. The last time this happened, it swung three LGA results. The ask: a seat on the State Development Advisory Board and consultation rights on land-use decisions.`,
+    body: `{NPC} offers to convene a public endorsement from the Lagos Traditional Council ahead of the LGA elections. The last time this happened, it swung three LGA results. The ask: a seat on the State Development Advisory Board and consultation rights on land-use decisions.\n\n{REASON}`,
     severity: 'medium',
     category: 'political',
     isRecurring: false,
@@ -544,7 +546,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-mogul-capital-flight-warning',
     title: '{NPC}: Capital Flight Warning',
-    body: `{NPC} sends a private letter: he is relocating his headquarters to Abuja and moving ₦30bn in deposits to a federal bank. Two other major employers are said to be watching his next move. The issue: port tax policy and land acquisition compensation delays.`,
+    body: `{NPC} sends a private letter: he is relocating his headquarters to Abuja and moving ₦30bn in deposits to a federal bank. Two other major employers are said to be watching his next move. The issue: port tax policy and land acquisition compensation delays.\n\n{REASON}`,
     severity: 'high',
     category: 'political',
     isRecurring: true,
@@ -587,7 +589,7 @@ export const NPC_DECK_EVENTS: EventCard[] = [
   {
     id: 'npc-mogul-partnership-offer',
     title: '{NPC}: PPP Proposal',
-    body: `{NPC} offers a public-private partnership to co-fund the Apapa port access road and a logistics hub in Ikorodu — total investment ₦40bn of which he covers ₦22bn. The ask: a 15-year land lease at sub-market rates and priority on all port-adjacent government contracts.`,
+    body: `{NPC} offers a public-private partnership to co-fund the Apapa port access road and a logistics hub in Ikorodu — total investment ₦40bn of which he covers ₦22bn. The ask: a 15-year land lease at sub-market rates and priority on all port-adjacent government contracts.\n\n{REASON}`,
     severity: 'medium',
     category: 'political',
     isRecurring: false,
@@ -619,6 +621,143 @@ export const NPC_DECK_EVENTS: EventCard[] = [
         immediate: {},
         factionImpact: {},
         actorImpact: [{ actor: 'business-mogul', reason: 'turned-down-their-offer', value: -5 }],
+      },
+    ],
+  },
+
+  // ── FEDERAL LIAISON ─────────────────────────────────────────────────────────
+  {
+    id: 'npc-federal-allocation-delay',
+    title: '{NPC}: Allocation "Under Review"',
+    body: `This month's FAAC transfer has not arrived. The Accountant-General's office says the state's figures are "under reconciliation". Nobody in Abuja will put that in writing, but {NPC} has let it be known that the Villa is unhappy with the tone coming out of Alausa. Salaries are due in nine days.\n\n{REASON}`,
+    severity: 'high',
+    category: 'political',
+    isRecurring: true,
+    cooldownWeeks: 16,
+    npcArchetype: 'federal-liaison',
+    npcTier: 'hostile',
+    choices: [
+      {
+        id: 'fly-to-abuja',
+        label: 'Fly to Abuja and Smooth It Over',
+        description:
+          'A long dinner, a softer tone in your next speech. Political Capital -15. The money moves within the week. Civil society calls it kneeling.',
+        immediate: { politicalCapital: -15 },
+        factionImpact: { federalGovt: 8, civilSocietyMedia: -6 },
+        actorImpact: [{ actor: 'federal-liaison', reason: 'lined-up-behind-abuja', value: 14 }],
+      },
+      {
+        id: 'go-public-allocation',
+        label: 'Go Public: "Abuja Is Starving Lagos"',
+        description:
+          'Name the delay on live television. Trust +5. Federal Government -10. The transfer arrives a month late.',
+        immediate: { publicTrust: 5, cashReserve: -4 },
+        factionImpact: { federalGovt: -10, informalEconomy: 4 },
+        actorImpact: [{ actor: 'federal-liaison', reason: 'defied-abuja', value: -16 }],
+        delayed: {
+          weekOffset: 4,
+          delta: { cashReserve: 4 },
+          eventText:
+            'The withheld allocation arrived without comment. The Accountant-General\'s office described the delay as "routine reconciliation".',
+        },
+      },
+      {
+        id: 'bridge-with-overdraft',
+        label: 'Bridge the Gap With a Bank Overdraft',
+        description:
+          'Pay salaries from a short-term facility and say nothing. Cash -1.2 in interest. Abuja learns you can wait them out.',
+        immediate: { cashReserve: -1.2 },
+        factionImpact: { businessCommunity: -3 },
+        actorImpact: [{ actor: 'federal-liaison', reason: 'stonewalled', value: -6 }],
+      },
+    ],
+  },
+
+  {
+    id: 'npc-federal-project-offer',
+    title: '{NPC}: A Federal Flagship, With Conditions',
+    body: `{NPC} brings an offer from the Villa: a federal coastal highway spur through the state, fully funded from the centre. The conditions are not written down. The contractor will be chosen in Abuja, the Presidency will cut the ribbon, and the state's own procurement office will not be involved.\n\n{REASON}`,
+    severity: 'medium',
+    category: 'political',
+    npcArchetype: 'federal-liaison',
+    npcTier: 'neutral',
+    choices: [
+      {
+        id: 'accept-federal-terms',
+        label: 'Accept the Terms',
+        description:
+          'Infrastructure +4 now, +8 on completion. Federal Government +10. Godfathers lose a contract they expected to control.',
+        immediate: { infrastructureScore: 4 },
+        factionImpact: { federalGovt: 10, partyGodfathers: -8 },
+        actorImpact: [{ actor: 'federal-liaison', reason: 'struck-a-deal', value: 18 }],
+        delayed: {
+          weekOffset: 20,
+          delta: { infrastructureScore: 8 },
+          eventText:
+            'The federal spur opened with a Presidential motorcade. Your name was not on the plaque. Traffic on the corridor eased anyway.',
+        },
+      },
+      {
+        id: 'counter-state-procurement',
+        label: 'Counter: State-Run Procurement',
+        description:
+          'Welcome the money, insist your procurement office runs the tender. Civil Society +6. Abuja reads it as distrust.',
+        immediate: { publicTrust: 2 },
+        factionImpact: { civilSocietyMedia: 6, federalGovt: -4 },
+        actorImpact: [{ actor: 'federal-liaison', reason: 'turned-down-their-offer', value: -8 }],
+      },
+      {
+        id: 'decline-federal-project',
+        label: 'Decline Politely',
+        description: 'No strings, no road. Federal Government -6.',
+        immediate: {},
+        factionImpact: { federalGovt: -6 },
+        actorImpact: [{ actor: 'federal-liaison', reason: 'turned-down-their-offer', value: -10 }],
+      },
+    ],
+  },
+
+  {
+    id: 'npc-federal-loyalty-demand',
+    title: '{NPC}: The Centre Wants a Show of Loyalty',
+    body: `With the national campaign warming up, {NPC} delivers a message from the Villa: the President will be in the state next month, and the centre expects a stadium full of supporters, a "voluntary" contribution to the campaign, and your face beside his on every billboard.\n\n{REASON}`,
+    severity: 'high',
+    category: 'political',
+    npcArchetype: 'federal-liaison',
+    npcTier: 'hostile',
+    choices: [
+      {
+        id: 'deliver-the-rally',
+        label: 'Deliver the Rally and the Money',
+        description:
+          'Cash -5. Federal Government +12, Godfathers +6. Civil society notes where the money came from.',
+        immediate: { cashReserve: -5, corruptionPressure: 3 },
+        factionImpact: { federalGovt: 12, partyGodfathers: 6, civilSocietyMedia: -8 },
+        actorImpact: [{ actor: 'federal-liaison', reason: 'lined-up-behind-abuja', value: 18 }],
+      },
+      {
+        id: 'refuse-loyalty-demand',
+        label: 'Refuse: "The State Is Not a Campaign Office"',
+        description:
+          'Trust +6, Civil Society +8. Federal Government -12. Expect allocations to slow.',
+        immediate: { publicTrust: 6 },
+        factionImpact: { civilSocietyMedia: 8, federalGovt: -12 },
+        actorImpact: [{ actor: 'federal-liaison', reason: 'defied-abuja', value: -20 }],
+        delayed: {
+          weekOffset: 3,
+          delta: { cashReserve: -2, federalRelationship: -4 },
+          eventText:
+            'Two federal agencies quietly paused joint projects in the state. Nobody linked it to the rally. Everybody understood.',
+        },
+      },
+      {
+        id: 'show-up-no-money',
+        label: 'Show Up, but Keep the Treasury Out of It',
+        description:
+          'Stand on the stage, decline the contribution. Political Capital -10. Nobody is fully satisfied.',
+        immediate: { politicalCapital: -10 },
+        factionImpact: { federalGovt: 3, partyGodfathers: -3 },
+        actorImpact: [{ actor: 'federal-liaison', reason: 'met-them-halfway', value: 4 }],
       },
     ],
   },

@@ -3,7 +3,7 @@ import { NPC_ARCHETYPES } from '../data/npcs'
 import { REASONS, type ReasonDefinition, renderReasonLine } from '../data/reasons'
 import { type OpinionTier, TIER_LABEL, tierOf, topReasons } from '../engine/opinionEngine'
 import { useGameStore } from '../state/gameStore'
-import type { NPCKey, OpinionEntry } from '../state/types'
+import type { ActorMoveRecord, NPCKey, OpinionEntry } from '../state/types'
 import { useShowNumbers } from './settings/showNumbers'
 
 /**
@@ -199,6 +199,42 @@ function NarrativeSummary({
   )
 }
 
+function joinFactors(because: string[]): string {
+  if (because.length <= 1) return because[0] ?? ''
+  return `${because.slice(0, -1).join(', ')} and ${because[because.length - 1]}`
+}
+
+/** "Why now?" — the last move and the situation that triggered it. */
+function LastMove({
+  move,
+  week,
+  showNumbers,
+}: {
+  move: ActorMoveRecord
+  week: number
+  showNumbers: boolean
+}) {
+  const when = weeksAgo(move.week, week)
+  if (showNumbers)
+    return (
+      <p className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
+        Last move <span style={{ color: 'var(--text)' }}>{move.title}</span> · wk {move.week} ·
+        score <span className="tabular-nums">{move.score.toFixed(2)}</span> vs bar{' '}
+        <span className="tabular-nums">{move.threshold.toFixed(2)}</span>
+        {move.because.length > 0 && <> · {move.because.join(' · ')}</>}
+      </p>
+    )
+  return (
+    <p className="text-[11px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
+      {when[0].toUpperCase() + when.slice(1)}:{' '}
+      <span style={{ color: 'var(--text)' }}>{move.title}</span>
+      {move.because.length > 0
+        ? ` — they chose the moment because ${joinFactors(move.because)}.`
+        : ' — pressure had been building.'}
+    </p>
+  )
+}
+
 type ActorCardProps = {
   name: string
   roleLabel: string
@@ -208,6 +244,7 @@ type ActorCardProps = {
   relationshipRange: [number, number]
   pressure?: number
   ledger: OpinionEntry[]
+  lastMove?: ActorMoveRecord
   week: number
   showNumbers: boolean
 }
@@ -221,6 +258,7 @@ function ActorCard({
   relationshipRange,
   pressure,
   ledger,
+  lastMove,
   week,
   showNumbers,
 }: ActorCardProps) {
@@ -287,6 +325,8 @@ function ActorCard({
               strongest={open ? undefined : strongest[0]}
             />
           )}
+
+          {lastMove && <LastMove move={lastMove} week={week} showNumbers={showNumbers} />}
 
           <button
             type="button"
@@ -361,6 +401,7 @@ export function NPCPanel() {
               relationshipRange={[-100, 100]}
               pressure={npc.pressure}
               ledger={npc.ledger}
+              lastMove={npc.lastMove}
               week={week}
               showNumbers={showNumbers}
             />

@@ -1,5 +1,5 @@
 import { primaryContestLossEvent, removalResolutionEvent } from '../data/events/characters'
-import { NPC_DECK_BY_ARCHETYPE } from '../data/events/npcDecks'
+import { NPC_DECK_EVENTS } from '../data/events/npcDecks'
 import { getGoal, getGoalIsMet, getGoalProgress } from '../data/goals'
 import { ALL_HINTS } from '../data/hints'
 import { NPC_ARCHETYPES } from '../data/npcs'
@@ -15,6 +15,7 @@ import type {
   TimelineEntry,
 } from '../state/types'
 import { isDettyDecember, isEyoFestival, isHarmattan, isSallahPeriod } from '../utils/calendar'
+import { actorIntroMessage, runActorMoves } from './actorEngine'
 import { selectChannelMeta } from './channelEngine'
 import { emergencyBridgeLoan } from './debtEngine'
 import { calculateHiddenDrag } from './dragEngine'
@@ -22,7 +23,6 @@ import { calculateVoteShare } from './electionEngine'
 import { buildEndingNarrative } from './endingNarrator'
 import { evaluateNews } from './evaluateNews'
 import { ALL_EVENTS, drawNextEvent, firePendingDelayed } from './eventEngine'
-import { decayActorLedgers, deckTierOf, seedActivation } from './opinionEngine'
 import { calculateWeeklyExpenditure } from './expenditureEngine'
 import { applyFactionDeltaState, drift } from './factionEngine'
 import {
@@ -35,11 +35,10 @@ import {
   generateChiefOfStaffBriefing,
   generateDeputyMessage,
   generateGodfatherPhaseMessage,
-  generateNPCActivationMessage,
-  generateNPCEscalationMessage,
   pruneInbox,
 } from './inboxEngine'
 import { detectMoment } from './momentDetector'
+import { decayActorLedgers, seedActivation } from './opinionEngine'
 import { processProjects } from './projectEngine'
 import { tickProjects } from './projectsEngine'
 import { pickFramingVariant, selectPublicationForArticle } from './publicationEngine'
@@ -324,13 +323,13 @@ function tickNPCsAndInitiatives(state: GameState): GameState {
   for (const slot of NPC_SLOTS) {
     const npc = next.activeNPCs[slot]
     if (npc.isActive && npc.activeWeek === next.week) {
-      const msg = generateNPCActivationMessage(next, slot, npc)
-      if (msg) next = { ...next, inbox: [...next.inbox, msg] }
+      next = { ...next, inbox: [...next.inbox, actorIntroMessage(next, npc)] }
     }
   }
   next = tickNPCPressure(next)
   next = applyNPCGoalEffects(next)
-  next = checkNPCEscalation(next)
+  // Actors choose their moment (replaces the old pressure ≥ 40 escalation)
+  next = runActorMoves(next, NPC_DECK_EVENTS)
 
   // Initiative tick
   next = tickInitiative(next)
@@ -424,7 +423,11 @@ function tickDecayAndNews(state: GameState, prevState: GameState): GameState {
   // Youth tension: passive +0.4/week — the city always generates new pressure
   // Political capital: passive +0.8/week — mirrors corruption's automatic growth,
   // ensuring zero is not an absorbing state. A patient player rebuilds.
-  next = applyDelta(next, { infrastructureScore: -infraDecay, youthTension: 0.4, politicalCapital: 0.8 })
+  next = applyDelta(next, {
+    infrastructureScore: -infraDecay,
+    youthTension: 0.4,
+    politicalCapital: 0.8,
+  })
 
   // OTA-32: food+flood decay re-enabled now that accessible counterplay ships alongside it
   // (agricultureEvents food counter-tools, infrastructure flood counter-tools, + climate/agri
@@ -595,59 +598,6 @@ function applyNPCGoalEffects(state: GameState): GameState {
       next = applyDelta(next, delta)
     }
   }
-  return next
-}
-
-function checkNPCEscalation(state: GameState): GameState {
-  let next = state
-
-  for (const slot of NPC_SLOTS) {
-    const npc = next.activeNPCs[slot]
-    if (!npc.isActive || npc.pressure < 40) continue
-
-    const deckEvents = NPC_DECK_BY_ARCHETYPE[npc.archetypeKey] ?? []
-    const available = deckEvents.filter(
-      (e) =>
-        !next.resolvedEvents.includes(e.id) &&
-        !(e.id in next.eventCooldowns && next.week < next.eventCooldowns[e.id]) &&
-        !next.eventQueue.some((q) => q.id === e.id),
-    )
-    if (available.length === 0) continue
-
-    // Prefer tier-matched events; fall back to any available
-    const tier = deckTierOf(npc.relationship)
-    const tiered = available.filter((e) => e.npcTier === tier)
-    const baseEvent = tiered.length > 0 ? tiered[0] : available[0]
-
-    // Substitute {NPC} placeholder with actual NPC name
-    const event = {
-      ...baseEvent,
-      title: baseEvent.title.replace(/\{NPC\}/g, npc.name),
-      body: baseEvent.body.replace(/\{NPC\}/g, npc.name),
-      choices: baseEvent.choices.map((c) => ({
-        ...c,
-        label: c.label.replace(/\{NPC\}/g, npc.name),
-        description: c.description.replace(/\{NPC\}/g, npc.name),
-        delayed: c.delayed
-          ? { ...c.delayed, eventText: c.delayed.eventText.replace(/\{NPC\}/g, npc.name) }
-          : undefined,
-      })),
-    }
-
-    next = {
-      ...next,
-      eventQueue: [...next.eventQueue, event],
-      activeNPCs: {
-        ...next.activeNPCs,
-        [slot]: { ...next.activeNPCs[slot], pressure: 0 },
-      },
-    }
-
-    // Push an inbox notification so the player sees the escalation
-    const msg = generateNPCEscalationMessage(next, slot, npc, event.id)
-    if (msg) next = { ...next, inbox: [...next.inbox, msg] }
-  }
-
   return next
 }
 

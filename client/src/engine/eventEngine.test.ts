@@ -305,7 +305,7 @@ describe('resolveEvent', () => {
     expect(result.resolvedEvents).toContain('test-event-9')
   })
 
-  it('sets cooldown for recurring events instead of resolving', () => {
+  it('records recurring events and sets their cooldown', () => {
     const event: EventCard = {
       id: 'recurring-test',
       title: 'Recurring',
@@ -319,8 +319,26 @@ describe('resolveEvent', () => {
       ],
     }
     const result = resolveEvent(state, event, 'c1')
-    expect(result.resolvedEvents).not.toContain('recurring-test')
+    expect(result.resolvedEvents).toContain('recurring-test')
     expect(result.eventCooldowns['recurring-test']).toBe(27) // week 1 + 26
+  })
+
+  it('maxTotalFirings caps recurring events (previously never counted)', () => {
+    const event: EventCard = {
+      id: 'capped-recurring',
+      title: 'Capped',
+      body: 'Test',
+      severity: 'low',
+      category: 'crisis',
+      isRecurring: true,
+      cooldownWeeks: 1,
+      maxTotalFirings: 2,
+      triggerCondition: () => true,
+      choices: [{ id: 'c1', label: 'A', description: 'D', immediate: {}, factionImpact: {} }],
+    }
+    let s = resolveEvent(state, event, 'c1')
+    s = resolveEvent({ ...s, week: s.week + 5 }, event, 'c1')
+    expect(s.resolvedEvents.filter((id) => id === 'capped-recurring')).toHaveLength(2)
   })
 
   it('adds timeline entry on resolution', () => {

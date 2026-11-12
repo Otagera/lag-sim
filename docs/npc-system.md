@@ -29,41 +29,11 @@ Each NPC archetype has an `activationCondition` in `src/data/npcs.ts`. Examples:
 | oba-liaison | publicTrust -0.2/wk | publicTrust +0.2/wk |
 | business-mogul | igr -0.1/wk | igr +0.1/wk |
 
-## Escalation (Pressure ≥ 40)
+## Moves (replaces "Escalation at pressure ≥ 40")
 
-Each archetype has a deck of 2 events (hostile escalation + neutral opportunity):
+Since Political Actors phase 2, actors **choose** when to act (`engine/actorEngine.ts`, data in `data/actors.ts`). Each week every active actor scores its in-character moves — deck cards and inbox letters — from: the move's base appeal, situational factors that hold right now ("your public trust is low", "the election is approaching"…), pressure, grudge, risk vs boldness, and how often it has used the move before. It acts only if the best move clears a bar set by its patience (letters have a lower bar). One actor card reaches the player per week. The deck cards below are still the card moves; their bodies end with a `{REASON}` slot filled with the actor's strongest relevant reason. `lastMove` records why the moment was chosen and is shown in the Political Actors panel.
 
-### Journalist
-- **Hostile**: Procurement exposé article published (choices: full disclosure / spin the story / challenge reporting)
-- **Neutral**: Back-channel truce offer (establish monitoring board or decline)
-
-### Youth Organiser
-- **Hostile**: Mass rally at Ojota (send liaison / ignore / heavy police)
-- **Hostile (critical)**: Real electoral threat, youth voter registrations tripled (launch fund / adopt demands / dismiss)
-
-### Insider
-- **Hostile**: Project stall via missing approvals (investigate / absorb quietly)
-- **Hostile (critical)**: Primary challenge declared (mobilise grassroots / negotiate cabinet / call federal allies)
-
-### Union Leader
-- **Hostile**: 72-hour strike ultimatum (pay arrears / negotiate phased / call bluff)
-- **Neutral**: Offer of cooperation — no strike for 26 weeks in exchange for wage uplift (accept / decline)
-
-### Opposition Senator
-- **Hostile**: Senate hearing on Lagos fiscal transparency (cooperate / obstruct / call ally)
-- **Hostile (critical)**: Opposition bloc forms, FAAC suspension threat (engage bloc / presidential intervention / let proceed)
-
-### Diaspora Activist
-- **Hostile**: International human rights report (dialogue / dispute)
-- **Neutral**: Diaspora investment consortium offer, ₦15bn (accept with monitoring / decline)
-
-### Oba Liaison
-- **Hostile**: Traditional land rights dispute (halt project / compensate / proceed anyway)
-- **Neutral**: Traditional council endorsement for LGA elections (accept board seat / decline)
-
-### Business Mogul
-- **Hostile**: Capital flight warning (settle compensation / port tax relief / call bluff)
-- **Neutral**: PPP proposal for Apapa port road + logistics hub (accept / counter open tender / decline)
+Archetypes: journalist, youth-organiser, insider, union-leader, opposition-senator, diaspora-activist, oba-liaison, business-mogul, **federal-liaison** (Presidency liaison: allocation delays, federal flagship offers, campaign loyalty demands).
 
 ## Tick Processing (gameLoop.ts)
 

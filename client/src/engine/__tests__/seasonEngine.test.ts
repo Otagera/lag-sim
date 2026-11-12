@@ -158,6 +158,8 @@ describe('season effects — flood event weight bias', () => {
         activeEvent: null,
         eventsResolvedThisWeek: 0,
         resolvedEvents: [...idsExceptFlood],
+        // Recurring cards are gated by cooldown, not by having been resolved
+        eventCooldowns: Object.fromEntries(idsExceptFlood.map((id) => [id, 9999])),
       })
       const drawn = drawNextEvent(state)
       if (drawn?.id === 'lekki-flooding-developer') floodCount++

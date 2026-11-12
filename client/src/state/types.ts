@@ -150,6 +150,7 @@ export type NPCArchetypeKey =
   | 'diaspora-activist'
   | 'oba-liaison'
   | 'business-mogul'
+  | 'federal-liaison'
 
 export type Choice = {
   id: string
@@ -284,6 +285,21 @@ export type NPCState = {
   name: string
   hasBeenInvited?: boolean
   activeWeek?: number
+  /** Most recent move this actor made, with the reasons it chose that moment */
+  lastMove?: ActorMoveRecord
+  /** moveId → first week the move may be used again */
+  moveCooldowns?: Record<string, number>
+  /** moveId → times used; repeated tactics lose appeal */
+  moveUses?: Record<string, number>
+}
+
+export type ActorMoveRecord = {
+  moveId: string
+  title: string
+  week: number
+  because: string[] // labelled situational factors that pushed the move over the line
+  score: number
+  threshold: number
 }
 
 export type CommissionerRole = 'works' | 'finance' | 'environment' | 'transport' | 'information'

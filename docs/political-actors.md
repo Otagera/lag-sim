@@ -1,6 +1,8 @@
 # Political Actors — Design
 
-> Status: **approved direction, decisions recorded in §11** (Nov 2026). Replaces the NPC "pressure ≥ 40 → draw a card" loop with actors that have goals, memory and timing. Inspired by what makes Civilization's leaders feel real — not their intelligence, but their **motives, memory and visible reasons**.
+> Status: **phases 1–2 implemented** (Nov 2026); phase 3 pending. Decisions in §11.
+>
+> **As built (phase 2):** `data/actors.ts` (personalities, situational factors, move library, intros) and `engine/actorEngine.ts` (`scoreMoves`, `runActorMoves`). Utility = base + 0.22 × active factors + 0.5 × pressure/100 + grudge (hostile: 0.2 × pride; wary: −0.1) − risk × (1 − boldness) − 0.15 × prior uses (×0.3 for letters) ± 0.05 seeded noise. Cards clear 0.55 + 0.35 × patience; letters clear 0.2 less. One actor card per week; 3-week minimum between an actor's moves. Each move records `lastMove.because` (the factors that held) for the "why now" line. Fashemu's asks still run on the godfather script (port planned with promises in phase 3). Replaces the NPC "pressure ≥ 40 → draw a card" loop with actors that have goals, memory and timing. Inspired by what makes Civilization's leaders feel real — not their intelligence, but their **motives, memory and visible reasons**.
 
 ---
 

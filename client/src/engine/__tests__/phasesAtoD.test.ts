@@ -13,10 +13,10 @@ import {
   generateChiefOfStaffBriefing,
   generateGodfatherPhaseMessage,
   generateGodfatherAskMessage,
-  generateNPCActivationMessage,
   generateDeputyMessage,
   generateCommissionerMessage,
 } from '../../engine/inboxEngine'
+import { actorIntroMessage } from '../../engine/actorEngine'
 import { STARTING_STATE } from '../../data/startingState'
 import type { Choice, GameState, NPCState } from '../../state/types'
 
@@ -395,35 +395,28 @@ describe('Phase D — inboxEngine', () => {
     })
   })
 
-  describe('generateNPCActivationMessage', () => {
-    it('returns null when NPC is not active', () => {
-      const state = makeState({ week: 5 })
-      const npc: NPCState = { isActive: false, relationship: 50, ledger: [], pressure: 0, archetypeKey: 'journalist', name: 'NEO' }
-      const msg = generateNPCActivationMessage(state, 'npc1', npc)
-      expect(msg).toBeNull()
-    })
-
-    it('returns a message when NPC is active', () => {
+  describe('actorIntroMessage', () => {
+    it('journalist introduces themselves in their own voice', () => {
       const state = makeState({ week: 10 })
       const npc: NPCState = { isActive: true, relationship: 50, ledger: [], pressure: 0, archetypeKey: 'journalist', name: 'NEO' }
-      const msg = generateNPCActivationMessage(state, 'npc1', npc)
-      expect(msg).not.toBeNull()
-      expect(msg!.from).toBe('neo')
-      expect(msg!.read).toBe(false)
+      const msg = actorIntroMessage(state, npc)
+      expect(msg.from).toBe('neo')
+      expect(msg.fromLabel).toBe('NEO')
+      expect(msg.read).toBe(false)
     })
 
-    it('uses correct character id for youth-organiser', () => {
+    it('uses correct character id for youth-organiser and insider', () => {
       const state = makeState({ week: 15 })
-      const npc: NPCState = { isActive: true, relationship: 40, ledger: [], pressure: 0, archetypeKey: 'youth-organiser', name: 'Comrade Dayo Afolabi' }
-      const msg = generateNPCActivationMessage(state, 'npc2', npc)
-      expect(msg!.from).toBe('dayo')
+      const youth: NPCState = { isActive: true, relationship: 40, ledger: [], pressure: 0, archetypeKey: 'youth-organiser', name: 'Comrade Dayo Afolabi' }
+      const insider: NPCState = { isActive: true, relationship: 60, ledger: [], pressure: 0, archetypeKey: 'insider', name: 'Hon. Seun Majekodunmi' }
+      expect(actorIntroMessage(state, youth).from).toBe('dayo')
+      expect(actorIntroMessage(state, insider).from).toBe('smj')
     })
 
-    it('uses correct character id for insider', () => {
+    it('a union leader no longer writes in the journalist’s voice', () => {
       const state = makeState({ week: 15 })
-      const npc: NPCState = { isActive: true, relationship: 60, ledger: [], pressure: 0, archetypeKey: 'insider', name: 'Hon. Seun Majekodunmi' }
-      const msg = generateNPCActivationMessage(state, 'npc3', npc)
-      expect(msg!.from).toBe('smj')
+      const union: NPCState = { isActive: true, relationship: 0, ledger: [], pressure: 0, archetypeKey: 'union-leader', name: 'Comrade Bisi' }
+      expect(actorIntroMessage(state, union).body).not.toContain('covering your administration')
     })
   })
 

@@ -32,10 +32,10 @@ import { narrateConsequence } from './consequenceNarrator'
 import { applyConstituencyImpact } from './constituencyEngine'
 import { applyFactionDelta } from './factionEngine'
 import { applyEscalation as applyGodfatherEscalation } from './godfatherEngine'
+import { addFashemuOpinion, applyActorImpact } from './opinionEngine'
 import { createProject } from './projectEngine'
 import { getSeasonModifier } from './seasonEngine'
 import { getSecondaryFactionImpact } from './secondaryFactionHooks'
-import { addFashemuOpinion, applyActorImpact } from './opinionEngine'
 import { applyDelta } from './statEngine'
 
 export const ALL_EVENTS: EventCard[] = [
@@ -74,6 +74,7 @@ function isEventAvailable(state: GameState, event: EventCard): boolean {
     if (count >= event.maxTotalFirings) return false
     return true
   }
+  if (event.isRecurring && event.cooldownWeeks) return true
   if (state.resolvedEvents.includes(event.id)) return false
   return true
 }
@@ -295,12 +296,12 @@ function updateEventQueue(next: GameState, event: EventCard, choice: EventChoice
 }
 
 function updateResolvedEventBookkeeping(state: GameState, next: GameState, event: EventCard) {
-  let resolvedEvents = [...next.resolvedEvents]
+  // Every resolution is recorded (maxTotalFirings and decision counts rely on it);
+  // recurring cards are gated by their cooldown instead of by having been seen.
+  const resolvedEvents = [...next.resolvedEvents, event.id]
   const eventCooldowns = { ...next.eventCooldowns }
   if (event.isRecurring && event.cooldownWeeks) {
     eventCooldowns[event.id] = state.week + event.cooldownWeeks
-  } else {
-    resolvedEvents = [...resolvedEvents, event.id]
   }
   return { resolvedEvents, eventCooldowns }
 }

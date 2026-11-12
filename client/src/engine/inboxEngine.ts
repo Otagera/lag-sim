@@ -1,13 +1,10 @@
 import type {
-  CharacterId,
   CommissionerRole,
   CommissionerState,
   DeputyKey,
   FashemuPhase,
   GameState,
   InboxMessage,
-  NPCKey,
-  NPCState,
 } from '../state/types'
 
 // ── Helpers ──────────────────────────────────────────────
@@ -16,19 +13,6 @@ let _msgCounter = 0
 function nextId(): string {
   _msgCounter++
   return `inbox-${Date.now()}-${_msgCounter}`
-}
-
-function npcCharacterId(npc: NPCState): CharacterId {
-  if (npc.archetypeKey === 'youth-organiser') return 'dayo'
-  if (npc.archetypeKey === 'insider') return 'smj'
-  return 'neo'
-}
-
-function npcLabel(npc: NPCState): string {
-  if (npc.name) return npc.name
-  if (npc.archetypeKey === 'youth-organiser') return 'Comrade Dayo Afolabi'
-  if (npc.archetypeKey === 'insider') return 'Hon. Seun Majekodunmi'
-  return 'NEO'
 }
 
 function commissionerLabel(role: CommissionerRole, commissioner: CommissionerState): string {
@@ -118,90 +102,6 @@ export function generateGodfatherAskMessage(
     read: false,
     isGodfatherAsk: true,
     godfatherAskDescription: askDescription,
-  }
-}
-
-/** NPC activation message (first contact) */
-export function generateNPCActivationMessage(
-  state: GameState,
-  _slot: NPCKey,
-  npc: NPCState,
-): InboxMessage | null {
-  if (!npc.isActive) return null
-  const charId = npcCharacterId(npc)
-  const label = npcLabel(npc)
-  /* DRAFT — VOICE PASS NEEDED */
-  const bodies: Record<string, string[]> = {
-    neo: [
-      'Governor. I will be covering your administration. My readers expect the truth — I trust you do too.',
-    ],
-    dayo: [
-      'Governor, Comrade Dayo Afolabi. Young Lagos worked for your victory. We expect you to work for us.',
-    ],
-    smj: [
-      'Congratulations on the win, Governor. I was in the room when the party chose you. Let us keep it that way.',
-    ],
-  }
-  const variants = bodies[charId] ?? ['Welcome to office, Governor.']
-  const idx = state.week % variants.length
-
-  return {
-    id: nextId(),
-    from: charId,
-    fromLabel: label,
-    week: state.week,
-    subject:
-      charId === 'neo'
-        ? 'Watching'
-        : charId === 'dayo'
-          ? 'The youth expect better'
-          : 'A word from the party',
-    body: variants[idx],
-    tone: charId === 'neo' ? 'neutral' : charId === 'dayo' ? 'warm' : 'neutral',
-    read: false,
-  }
-}
-
-/** NPC escalation message — when pressure reaches threshold */
-export function generateNPCEscalationMessage(
-  state: GameState,
-  _slot: NPCKey,
-  npc: NPCState,
-  linkedEventId?: string,
-): InboxMessage | null {
-  if (!npc.isActive) return null
-  const charId = npcCharacterId(npc)
-  const label = npcLabel(npc)
-  /* DRAFT — VOICE PASS NEEDED */
-  const bodies: Record<string, string[]> = {
-    neo: [
-      'I am picking up something concerning. My sources say your administration is not as clean as it claims. I will be watching closely.',
-    ],
-    dayo: [
-      'The streets are talking, Governor. Young people are losing patience. When the budget fails the poor, they do not forget at the ballot box.',
-    ],
-    smj: [
-      'A friendly word from someone who wants you to succeed. Certain people are getting nervous. You might want to reach out before they act.',
-    ],
-  }
-  const variants = bodies[charId] ?? ['I need to speak with you, Governor.']
-  const idx = state.week % variants.length
-
-  return {
-    id: nextId(),
-    from: charId,
-    fromLabel: label,
-    week: state.week,
-    subject:
-      charId === 'neo'
-        ? 'I have questions'
-        : charId === 'dayo'
-          ? 'Unrest brewing'
-          : 'A quiet warning',
-    body: variants[idx],
-    tone: charId === 'neo' ? 'urgent' : 'urgent',
-    read: false,
-    linkedEventId,
   }
 }
 

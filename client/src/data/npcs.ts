@@ -223,6 +223,32 @@ export const NPC_ARCHETYPES: Record<NPCArchetypeKey, NPCArchetypeDefinition> = {
       'Dr. Preye Effiong',
     ],
   },
+  'federal-liaison': {
+    key: 'federal-liaison',
+    role: 'Presidency Liaison',
+    shortRole: 'Abuja',
+    description:
+      'The Presidency’s quiet hand in the state. Decides how fast allocations move, which federal agencies cooperate, and what the centre expects from the state in an election year.',
+    goal: 'Bring the State into Line',
+    activationCondition: (s) =>
+      s.week > 16 && (s.factions.federalGovt < 45 || s.stats.federalRelationship < 0),
+    baseWeeklyPressure: (r) => (r < HOSTILE_BELOW ? 4 : r < ALLIED_FROM ? 2 : 0),
+    passiveEffect: (npc) => {
+      if (npc.relationship < HOSTILE_BELOW) return { federalRelationship: -0.4, cashReserve: -0.1 }
+      if (npc.relationship >= ALLIED_FROM) return { federalRelationship: 0.4 }
+      return {}
+    },
+    namePools: [
+      'Amb. Haruna Bello-Kazaure',
+      'Dr. Funmilayo Adesina-Okon',
+      'Alhaji Sani Mohammed',
+      'Barr. Chidi Okafor',
+      'Mrs. Ronke Adebisi-Tukur',
+      'Prof. Emeka Nwachukwu',
+      'Engr. Terhemba Iorliam',
+      'Dr. Aisha Bala-Usman',
+    ],
+  },
 }
 
 export const NPC_ARCHETYPE_KEYS: NPCArchetypeKey[] = [
@@ -234,6 +260,7 @@ export const NPC_ARCHETYPE_KEYS: NPCArchetypeKey[] = [
   'diaspora-activist',
   'oba-liaison',
   'business-mogul',
+  'federal-liaison',
 ]
 
 export function generateNPCName(key: NPCArchetypeKey): string {
