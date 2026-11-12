@@ -1,6 +1,6 @@
 import { STARTING_STATE } from '../data/startingState'
 import { ALL_EVENTS } from '../engine/eventEngine'
-import { SAVE_VERSION } from '../version'
+import { MIN_LOADABLE_SAVE_VERSION, SAVE_VERSION } from '../version'
 import type { EventCard, GameState } from './types'
 
 const SAVE_KEY = 'lagos-governor-sim-save'
@@ -43,64 +43,37 @@ export function fromSerializable(data: SerializableState): GameState {
   return { ...STARTING_STATE, ...rest, activeEvent, eventQueue }
 }
 
-// ── Migration chain ───────────────────────────────────────────────────────────
+// ── Version gate ──────────────────────────────────────────────────────────────
 
-function migrateV1toV2(raw: RawSaveData): RawSaveData {
-  // v1 had no `version` field. All new phase-2 fields (deputy, commissioners,
-  // activeNPCs, inCampaignMode, etc.) are handled by the STARTING_STATE merge
-  // in fromSerializable — no structural renames needed, purely additive.
-  return { ...raw, version: 2 }
+let discardedOldSave = false
+
+/** True once if the last load threw away a save from an older, incompatible version. */
+export function consumeDiscardedSaveNotice(): boolean {
+  const was = discardedOldSave
+  discardedOldSave = false
+  return was
 }
 
-function migrateV2toV3(raw: RawSaveData): RawSaveData {
-  // v3 adds choiceUseCounts for diminishing returns tracking; default to empty object
-  return { ...raw, choiceUseCounts: {}, version: 3 }
-}
-
-function migrateV3toV4(raw: RawSaveData): RawSaveData {
-  // v4 adds currentTerm for second-term re-election play; all existing saves are term 1
-  return { ...raw, currentTerm: 1, version: 4 }
-}
-
-function migrateV4toV5(raw: RawSaveData): RawSaveData {
-  // v5 adds goal tracking; existing saves have no goal selected
-  return { ...raw, selectedGoalId: null, version: 5 }
-}
-
-function migrateV5toV6(raw: RawSaveData): RawSaveData {
-  // v6 adds projectStatuses + commissionedProjects for the Projects system
-  return { ...raw, projectStatuses: {}, commissionedProjects: [], version: 6 }
-}
-
-function migrateV6toV7(raw: RawSaveData): RawSaveData {
-  // v7 is the 0.7 beta batch. No GameState shape change; stamp saves forward.
-  return { ...raw, version: 7 }
+/** Whether a raw save (local or cloud) can be loaded by this version. */
+export function isLoadableSave(raw: RawSaveData): boolean {
+  const version = typeof raw.version === 'number' ? raw.version : 1
+  return version >= MIN_LOADABLE_SAVE_VERSION
 }
 
 /**
- * Applies any needed migrations to bring a raw save up to SAVE_VERSION.
- * Exported so persistence tests can verify migration logic in isolation.
+ * Validates a raw save against the current version. Saves older than
+ * MIN_LOADABLE_SAVE_VERSION are not migrated (breaking change in v8) — returns null.
  */
-export function migrate(raw: RawSaveData): SerializableState {
+export function migrate(raw: RawSaveData): SerializableState | null {
   const version = typeof raw.version === 'number' ? raw.version : 1
-
+  if (version < MIN_LOADABLE_SAVE_VERSION) return null
   if (version > SAVE_VERSION) {
     console.warn(
       `[persistence] Save version ${version} is newer than game version ${SAVE_VERSION}. ` +
         `Loading anyway — some features may not work correctly.`,
     )
-    return raw as SerializableState
   }
-
-  let data: RawSaveData = raw
-  if (version < 2) data = migrateV1toV2(data)
-  if (version < 3) data = migrateV2toV3(data)
-  if (version < 4) data = migrateV3toV4(data)
-  if (version < 5) data = migrateV4toV5(data)
-  if (version < 6) data = migrateV5toV6(data)
-  if (version < 7) data = migrateV6toV7(data)
-
-  return data as SerializableState
+  return raw as SerializableState
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
@@ -121,6 +94,11 @@ export function loadGame(): GameState | null {
     const parsed = JSON.parse(raw) as RawSaveData
     if (!parsed || typeof parsed.week !== 'number') return null
     const migrated = migrate(parsed)
+    if (!migrated) {
+      localStorage.removeItem(SAVE_KEY)
+      discardedOldSave = true
+      return null
+    }
     return fromSerializable(migrated)
   } catch (e) {
     console.warn('Failed to load saved game:', e)
@@ -129,7 +107,19 @@ export function loadGame(): GameState | null {
 }
 
 export function hasSavedGame(): boolean {
-  return localStorage.getItem(SAVE_KEY) !== null
+  const raw = localStorage.getItem(SAVE_KEY)
+  if (raw === null) return false
+  try {
+    const parsed = JSON.parse(raw) as RawSaveData
+    if (!isLoadableSave(parsed)) {
+      localStorage.removeItem(SAVE_KEY)
+      discardedOldSave = true
+      return false
+    }
+  } catch {
+    return false
+  }
+  return true
 }
 
 export function clearSave(): void {

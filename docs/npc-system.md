@@ -4,6 +4,8 @@
 
 Three NPC slots (npc1/npc2/npc3). Each activates when its `activationCondition` is met. Passive effects apply every tick based on relationship tier. When pressure ≥ 40, escalation events fire from the NPC's archetype deck.
 
+> **Opinion ledger (v8, Political Actors phase 1).** `relationship` is no longer set directly: it is derived from `ledger: OpinionEntry[]` — a list of remembered reasons that decay (fast / slow / permanent). Tiers: hostile < −30 ≤ wary < 10 ≤ cordial < 40 ≤ allied. On activation each NPC is seeded with the reason they turned up (`ACTIVATION_REASON`, data/reasons.ts). See `docs/political-actors.md` and `engine/opinionEngine.ts`.
+
 Source: `src/data/npcs.ts` (definitions), `src/data/events/npcDecks.ts` (escalation events), `src/engine/gameLoop.ts` (tick processing)
 
 ## Activation
@@ -16,7 +18,7 @@ Each NPC archetype has an `activationCondition` in `src/data/npcs.ts`. Examples:
 
 ## Passive Effects (Applied Every Tick)
 
-| Archetype | Hostile (rel < 30) | Ally (rel ≥ 65) |
+| Archetype | Hostile (rel < −30) | Allied (rel ≥ 40) |
 |---|---|---|
 | journalist | corruptionPressure +0.5/wk | corruptionPressure -0.3/wk |
 | youth-organiser | youthTension +1.5/wk | youthTension -0.5, publicTrust +0.2/wk |
@@ -86,10 +88,10 @@ type NPCState = {
 
 ## NPC Impact from Event Choices
 
-Event choices can affect NPC relationships via `choice.npcImpact`:
+Event choices change NPC opinion through `choice.actorImpact`, each entry carrying a reason from `data/reasons.ts`:
 
 ```typescript
-npcImpact: { 'journalist': 18 }  // +18 relationship with journalist archetype NPC
+actorImpact: [{ actor: 'journalist', reason: 'cooperated-openly', value: 18 }]
 ```
 
-The key matches the `NPCArchetypeKey`, not the slot name (npc1/npc2/npc3). The engine finds the matching slot automatically.
+`actor` matches the `NPCArchetypeKey`, not the slot name. The engine appends an `OpinionEntry` (with the card title as `source`) to the matching slot's ledger and re-derives `relationship`. Every reason has a numbers `label` and a narrative `line`; the content-audit test fails on unknown reasons.

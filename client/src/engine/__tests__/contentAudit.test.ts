@@ -5,10 +5,37 @@
  */
 import { describe, expect, it } from 'vitest'
 import type { Choice, EventCard } from '../../state/types'
+import { NPC_ARCHETYPES } from '../../data/npcs'
+import { ACTIVATION_REASON, REASONS } from '../../data/reasons'
 import { ALL_EVENTS } from '../eventEngine'
 
 const isQueueOnly = (e: EventCard) =>
   !!e.triggerCondition && e.triggerCondition.toString().replace(/\s/g, '') === '()=>false'
+
+describe('content audit — actor reasons', () => {
+  const reasons = REASONS as Record<string, { label: string; line: string; decay: string }>
+
+  it('every reason has a numbers label and a narrative line with {name}', () => {
+    const bad = Object.entries(reasons)
+      .filter(([, r]) => !r.label || !r.line || !r.line.includes('{name}'))
+      .map(([k]) => k)
+    expect(bad).toEqual([])
+  })
+
+  it('every actorImpact on a card uses a defined reason', () => {
+    const bad: string[] = []
+    for (const e of ALL_EVENTS)
+      for (const c of e.choices)
+        for (const impact of c.actorImpact ?? [])
+          if (!reasons[impact.reason]) bad.push(`${e.id}/${c.id}: ${impact.reason}`)
+    expect(bad).toEqual([])
+  })
+
+  it('every archetype has an activation reason', () => {
+    for (const key of Object.keys(NPC_ARCHETYPES))
+      expect(reasons[ACTIVATION_REASON[key as keyof typeof ACTIVATION_REASON]?.reason]).toBeDefined()
+  })
+})
 
 describe('content audit — integrity', () => {
   it('event ids are unique', () => {
@@ -160,7 +187,7 @@ const hasSideEffects = (c: Choice) =>
   !!(
     c.setFlags ||
     c.followUpEventId ||
-    c.npcImpact ||
+    c.actorImpact ||
     c.constituencyImpact ||
     c.launchInitiative ||
     c.launchProject ||

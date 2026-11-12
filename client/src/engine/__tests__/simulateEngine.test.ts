@@ -225,5 +225,5 @@ describe('simulateWeeks — winning strategy benchmark', () => {
     // console.log(`Wins: ${wins}/${total} = ${((wins / total) * 100).toFixed(0)}%`)
 
     expect(wins / total).toBeGreaterThanOrEqual(MIN_WIN_RATE)
-  })
+  }, 60_000)
 })

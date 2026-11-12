@@ -112,7 +112,7 @@ Every engine function is `(state: GameState, ...) => GameState`. No mutation. Al
 
 ## Key Types — docs/architecture.md
 
-**Choice:** `{ id, label, description, immediate: StatDelta, factionImpact?, delayed?, followUpEventId?, politicalCapitalCost?, corruptionTrigger?, setFlags?, launchInitiative?, launchProject?, resentmentDelta?, npcImpact?, setSuspensionWeeks?, setLitigationTimer?, diminishingReturns? }`
+**Choice:** `{ id, label, description, immediate: StatDelta, factionImpact?, delayed?, followUpEventId?, politicalCapitalCost?, corruptionTrigger?, setFlags?, launchInitiative?, launchProject?, resentmentDelta?, actorImpact?, setSuspensionWeeks?, setLitigationTimer?, diminishingReturns? }`
 
 **DelayedConsequence:** `{ weekOffset, delta: StatDelta, factionImpact?, eventText, followUpEventId?, constituencyImpact? }`
 

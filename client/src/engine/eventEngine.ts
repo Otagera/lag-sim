@@ -35,6 +35,7 @@ import { applyEscalation as applyGodfatherEscalation } from './godfatherEngine'
 import { createProject } from './projectEngine'
 import { getSeasonModifier } from './seasonEngine'
 import { getSecondaryFactionImpact } from './secondaryFactionHooks'
+import { addFashemuOpinion, applyActorImpact } from './opinionEngine'
 import { applyDelta } from './statEngine'
 
 export const ALL_EVENTS: EventCard[] = [
@@ -204,27 +205,11 @@ function applySecondaryFactionImpact(
   return { ...state, secondaryFactions: updated }
 }
 
-function applyNpcImpact(state: GameState, choice: EventChoice): GameState {
-  if (!choice.npcImpact) return state
-
-  const npcs = { ...state.activeNPCs }
-  for (const [archetypeKey, delta] of Object.entries(choice.npcImpact)) {
-    for (const slot of ['npc1', 'npc2', 'npc3'] as const) {
-      if (npcs[slot].archetypeKey === archetypeKey) {
-        npcs[slot] = {
-          ...npcs[slot],
-          relationship: Math.max(-100, Math.min(100, npcs[slot].relationship + delta)),
-        }
-      }
-    }
-  }
-  return { ...state, activeNPCs: npcs }
-}
-
 function applyChoiceStateChanges(
   state: GameState,
   choice: EventChoice,
   effectiveImmediate: StatDelta,
+  source?: string,
 ): GameState {
   let next = applyDelta(state, effectiveImmediate)
 
@@ -253,7 +238,7 @@ function applyChoiceStateChanges(
   if (choice.setDeputy)
     next = { ...next, deputy: { key: choice.setDeputy, resentment: 0, revealed: false } }
   if (choice.launchInitiative) next = { ...next, activeInitiative: choice.launchInitiative }
-  return applyNpcImpact(applyProjectAndLegalChanges(next, choice), choice)
+  return applyActorImpact(applyProjectAndLegalChanges(next, choice), choice.actorImpact, source)
 }
 
 function applyProjectAndLegalChanges(state: GameState, choice: EventChoice): GameState {
@@ -346,7 +331,7 @@ function applyGodfatherBookkeeping(next: GameState, event: EventCard, choiceId: 
 
   const accepted = choiceId.endsWith(':accept')
   const isFashemuAsk = fashemuAsks.some((a) => a.id === event.id)
-  let updated = { ...next, activeGodfatherMessage: null }
+  let updated: GameState = { ...next, activeGodfatherMessage: null }
 
   if (accepted) {
     updated = { ...updated, godfatherComplianceCount: updated.godfatherComplianceCount + 1 }
@@ -354,8 +339,8 @@ function applyGodfatherBookkeeping(next: GameState, event: EventCard, choiceId: 
       updated = {
         ...updated,
         fashemuAskIndex: updated.fashemuAskIndex + 1,
-        fashemuRelationship: Math.min(100, updated.fashemuRelationship + 15),
       }
+      updated = addFashemuOpinion(updated, 'did-what-he-asked', 15, event.title)
     }
     return updated
   }
@@ -365,8 +350,8 @@ function applyGodfatherBookkeeping(next: GameState, event: EventCard, choiceId: 
     updated = {
       ...updated,
       fashemuAskIndex: updated.fashemuAskIndex + 1,
-      fashemuRelationship: Math.max(0, updated.fashemuRelationship - 20),
     }
+    updated = addFashemuOpinion(updated, 'refused-him', -20, event.title)
   }
   return applyGodfatherEscalation(updated, updated.godfatherRefusalCount)
 }
@@ -376,7 +361,7 @@ export function resolveEvent(state: GameState, event: EventCard, choiceId: strin
   if (!choice) return state
 
   const { immediate, drKey, drUses } = getEffectiveImmediate(state, event, choice)
-  let next = applyChoiceStateChanges(state, choice, immediate)
+  let next = applyChoiceStateChanges(state, choice, immediate, event.title)
   next = applySecondaryFactionImpact(next, choice.secondaryFactionImpact)
   next = applySecondaryFactionImpact(next, getSecondaryFactionImpact(event.id))
 

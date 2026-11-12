@@ -398,14 +398,14 @@ describe('Phase D — inboxEngine', () => {
   describe('generateNPCActivationMessage', () => {
     it('returns null when NPC is not active', () => {
       const state = makeState({ week: 5 })
-      const npc: NPCState = { isActive: false, relationship: 50, pressure: 0, archetypeKey: 'journalist', name: 'NEO' }
+      const npc: NPCState = { isActive: false, relationship: 50, ledger: [], pressure: 0, archetypeKey: 'journalist', name: 'NEO' }
       const msg = generateNPCActivationMessage(state, 'npc1', npc)
       expect(msg).toBeNull()
     })
 
     it('returns a message when NPC is active', () => {
       const state = makeState({ week: 10 })
-      const npc: NPCState = { isActive: true, relationship: 50, pressure: 0, archetypeKey: 'journalist', name: 'NEO' }
+      const npc: NPCState = { isActive: true, relationship: 50, ledger: [], pressure: 0, archetypeKey: 'journalist', name: 'NEO' }
       const msg = generateNPCActivationMessage(state, 'npc1', npc)
       expect(msg).not.toBeNull()
       expect(msg!.from).toBe('neo')
@@ -414,14 +414,14 @@ describe('Phase D — inboxEngine', () => {
 
     it('uses correct character id for youth-organiser', () => {
       const state = makeState({ week: 15 })
-      const npc: NPCState = { isActive: true, relationship: 40, pressure: 0, archetypeKey: 'youth-organiser', name: 'Comrade Dayo Afolabi' }
+      const npc: NPCState = { isActive: true, relationship: 40, ledger: [], pressure: 0, archetypeKey: 'youth-organiser', name: 'Comrade Dayo Afolabi' }
       const msg = generateNPCActivationMessage(state, 'npc2', npc)
       expect(msg!.from).toBe('dayo')
     })
 
     it('uses correct character id for insider', () => {
       const state = makeState({ week: 15 })
-      const npc: NPCState = { isActive: true, relationship: 60, pressure: 0, archetypeKey: 'insider', name: 'Hon. Seun Majekodunmi' }
+      const npc: NPCState = { isActive: true, relationship: 60, ledger: [], pressure: 0, archetypeKey: 'insider', name: 'Hon. Seun Majekodunmi' }
       const msg = generateNPCActivationMessage(state, 'npc3', npc)
       expect(msg!.from).toBe('smj')
     })

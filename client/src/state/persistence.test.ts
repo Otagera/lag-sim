@@ -1,6 +1,14 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { STARTING_STATE } from '../data/startingState'
-import { saveGame, loadGame, hasSavedGame, clearSave, migrate } from './persistence'
+import {
+  clearSave,
+  consumeDiscardedSaveNotice,
+  hasSavedGame,
+  isLoadableSave,
+  loadGame,
+  migrate,
+  saveGame,
+} from './persistence'
 import type { GameState } from './types'
 import { ALL_EVENTS } from '../engine/eventEngine'
 import { SAVE_VERSION } from '../version'
@@ -66,6 +74,7 @@ describe('saveGame / loadGame', () => {
   it('activeEvent is null when saved id does not match any event', () => {
     const raw = JSON.stringify({
       ...STARTING_STATE,
+      version: SAVE_VERSION,
       activeEventId: 'nonexistent-event-id',
       eventQueueIds: [],
     })
@@ -104,125 +113,67 @@ describe('saveGame / loadGame', () => {
   })
 })
 
-// ── migrate() unit tests ──────────────────────────────────────────────────────
+// ── Version gate (v8 breaking change: no migrations) ─────────────────────────
 
-describe('migrate: version detection and chain', () => {
+describe('migrate: version gate', () => {
   afterEach(() => vi.restoreAllMocks())
 
-  it('v1 save (no version field) gets stamped with current version', () => {
-    const v1Raw = { week: 5, activeEventId: null, eventQueueIds: [] }
-    const result = migrate(v1Raw as Record<string, unknown>)
-    expect(result.version).toBe(SAVE_VERSION)
+  it('rejects saves without a version field (v1)', () => {
+    expect(migrate({ week: 5, activeEventId: null, eventQueueIds: [] })).toBeNull()
   })
 
-  it('v1 save with explicit version: 1 gets migrated to current', () => {
-    const v1Raw = { version: 1, week: 10, activeEventId: null, eventQueueIds: [] }
-    const result = migrate(v1Raw)
-    expect(result.version).toBe(SAVE_VERSION)
+  it('rejects saves older than MIN_LOADABLE_SAVE_VERSION', () => {
+    expect(migrate({ version: 7, week: 10, activeEventId: null, eventQueueIds: [] })).toBeNull()
   })
 
-  it('current-version save is returned unchanged (no extra mutations)', () => {
+  it('accepts current-version saves unchanged', () => {
     const current = { version: SAVE_VERSION, week: 20, activeEventId: null, eventQueueIds: [] }
     const result = migrate(current)
-    expect(result.version).toBe(SAVE_VERSION)
-    expect(result.week).toBe(20)
+    expect(result?.version).toBe(SAVE_VERSION)
+    expect(result?.week).toBe(20)
   })
 
-  it('v6 beta-batch saves are stamped forward to current version', () => {
-    const v6Raw = {
-      version: 6,
-      week: 27,
-      activeEventId: null,
-      eventQueueIds: [],
-      projectStatuses: {},
-      commissionedProjects: [],
-    }
-    const result = migrate(v6Raw)
-    expect(result.version).toBe(SAVE_VERSION)
-    expect(result.week).toBe(27)
-  })
-
-  it('future-version save (version > SAVE_VERSION) logs a warning and still returns data', () => {
+  it('future-version save logs a warning and still returns data', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const futureRaw = { version: SAVE_VERSION + 5, week: 99, activeEventId: null, eventQueueIds: [] }
-    const result = migrate(futureRaw)
+    const result = migrate({ version: SAVE_VERSION + 5, week: 99, activeEventId: null, eventQueueIds: [] })
     expect(warnSpy).toHaveBeenCalledOnce()
-    expect(warnSpy.mock.calls[0][0]).toContain('newer than game version')
-    // Still returns the data — don't lose a future save
-    expect(result.week).toBe(99)
-  })
-
-  it('migration preserves all existing fields', () => {
-    const v1Raw = {
-      week: 42,
-      activeEventId: null,
-      eventQueueIds: [],
-      stats: { cashReserve: 99 },
-      factions: { partyGodfathers: 30 },
-    }
-    const result = migrate(v1Raw as Record<string, unknown>)
-    expect((result as Record<string, unknown>).stats).toEqual({ cashReserve: 99 })
-    expect((result as Record<string, unknown>).factions).toEqual({ partyGodfathers: 30 })
+    expect(result?.week).toBe(99)
   })
 })
 
-// ── loadGame: migration integration ──────────────────────────────────────────
-
-describe('loadGame: loads and migrates old saves', () => {
-  afterEach(() => vi.restoreAllMocks())
-
-  it('loads a v1 save (no version field) and fills missing fields from STARTING_STATE', () => {
-    // Simulate what a v1 save looked like: only the original fields, no phase-2 state
-    const v1Save = {
-      week: 15,
-      activeEventId: null,
-      eventQueueIds: [],
-      stats: { ...STARTING_STATE.stats },
-      factions: { ...STARTING_STATE.factions },
-      constituencyApproval: { ...STARTING_STATE.constituencyApproval },
-      resolvedEvents: ['some-event'],
-      // Deliberately missing: deputy, commissioners, activeNPCs, inCampaignMode, etc.
-    }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(v1Save))
-    const loaded = loadGame()
-    expect(loaded).not.toBeNull()
-    expect(loaded!.week).toBe(15)
-    // STARTING_STATE defaults fill in missing phase-2 fields
-    expect(loaded!.deputy).toBeNull()
-    expect(loaded!.commissioners).toEqual({})
-    expect(loaded!.inCampaignMode).toBe(false)
-    expect(loaded!.resolvedEvents).toContain('some-event')
+describe('loadGame / hasSavedGame: old saves are discarded', () => {
+  it('loadGame returns null for a v7 save, removes it, and raises the notice once', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 7, week: 15, activeEventId: null, eventQueueIds: [] }))
+    expect(loadGame()).toBeNull()
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+    expect(consumeDiscardedSaveNotice()).toBe(true)
+    expect(consumeDiscardedSaveNotice()).toBe(false)
   })
 
-  it('loaded v1 save has STARTING_STATE defaults for all missing phase-2 NPC fields', () => {
-    const v1Save = {
-      week: 8,
-      activeEventId: null,
-      eventQueueIds: [],
-      stats: { ...STARTING_STATE.stats },
-      factions: { ...STARTING_STATE.factions },
-      constituencyApproval: { ...STARTING_STATE.constituencyApproval },
-      resolvedEvents: [],
-    }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(v1Save))
-    const loaded = loadGame()
-    expect(loaded).not.toBeNull()
-    expect(loaded!.activeNPCs.npc1.isActive).toBe(false)
-    expect(loaded!.activeNPCs.npc2.isActive).toBe(false)
-    expect(loaded!.activeNPCs.npc3.isActive).toBe(false)
+  it('hasSavedGame is false for an incompatible save and discards it', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 6, week: 30 }))
+    expect(hasSavedGame()).toBe(false)
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+    expect(consumeDiscardedSaveNotice()).toBe(true)
   })
 
-  it('round-trip: save v2 game and reload produces identical state', () => {
+  it('isLoadableSave mirrors the gate', () => {
+    expect(isLoadableSave({ version: SAVE_VERSION })).toBe(true)
+    expect(isLoadableSave({ version: 7 })).toBe(false)
+    expect(isLoadableSave({})).toBe(false)
+  })
+
+  it('round-trip: save and reload produces identical state, including ledgers', () => {
     const state = clone(STARTING_STATE)
     state.week = 30
     state.stats.cashReserve = 77
-    state.factions.partyGodfathers = 42
+    state.fashemuLedger = [{ reason: 'refused-him', value: -20, week: 12, decay: 'slow' }]
     saveGame(state)
     const loaded = loadGame()
     expect(loaded).not.toBeNull()
     expect(loaded!.week).toBe(30)
     expect(loaded!.stats.cashReserve).toBe(77)
-    expect(loaded!.factions.partyGodfathers).toBe(42)
+    expect(loaded!.fashemuLedger).toEqual(state.fashemuLedger)
   })
 
   it('saved game embeds current SAVE_VERSION', () => {

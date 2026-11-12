@@ -32,16 +32,16 @@ describe('NPC archetype definitions: goal and passiveEffect', () => {
 
 describe('NPC passive effect: journalist', () => {
   const def = NPC_ARCHETYPES['journalist']
-  const baseNPC = { isActive: true, relationship: 10, pressure: 0, archetypeKey: 'journalist' as const, name: 'Test' }
+  const baseNPC = { isActive: true, relationship: 10, ledger: [], pressure: 0, archetypeKey: 'journalist' as const, name: 'Test' }
   const baseState = clone(STARTING_STATE)
 
   it('hostile journalist increases corruptionPressure by 0.5', () => {
-    const delta = def.passiveEffect({ ...baseNPC, relationship: 10 }, baseState)
+    const delta = def.passiveEffect({ ...baseNPC, relationship: -40 }, baseState)
     expect(delta.corruptionPressure).toBe(0.5)
   })
 
   it('neutral journalist has no passive effect', () => {
-    const delta = def.passiveEffect({ ...baseNPC, relationship: 50 }, baseState)
+    const delta = def.passiveEffect({ ...baseNPC, relationship: 0 }, baseState)
     expect(Object.keys(delta)).toHaveLength(0)
   })
 
@@ -55,11 +55,11 @@ describe('NPC passive effect: journalist', () => {
 
 describe('NPC passive effect: youth-organiser', () => {
   const def = NPC_ARCHETYPES['youth-organiser']
-  const baseNPC = { isActive: true, relationship: 10, pressure: 0, archetypeKey: 'youth-organiser' as const, name: 'Test' }
+  const baseNPC = { isActive: true, relationship: 10, ledger: [], pressure: 0, archetypeKey: 'youth-organiser' as const, name: 'Test' }
   const baseState = clone(STARTING_STATE)
 
   it('hostile youth-organiser increases youthTension by 1.5', () => {
-    const delta = def.passiveEffect({ ...baseNPC, relationship: 15 }, baseState)
+    const delta = def.passiveEffect({ ...baseNPC, relationship: -40 }, baseState)
     expect(delta.youthTension).toBe(1.5)
   })
 
@@ -74,11 +74,11 @@ describe('NPC passive effect: youth-organiser', () => {
 
 describe('NPC passive effect: insider', () => {
   const def = NPC_ARCHETYPES['insider']
-  const baseNPC = { isActive: true, relationship: 10, pressure: 0, archetypeKey: 'insider' as const, name: 'Test' }
+  const baseNPC = { isActive: true, relationship: 10, ledger: [], pressure: 0, archetypeKey: 'insider' as const, name: 'Test' }
   const baseState = clone(STARTING_STATE)
 
   it('hostile insider drains politicalCapital by 1/wk', () => {
-    const delta = def.passiveEffect({ ...baseNPC, relationship: 20 }, baseState)
+    const delta = def.passiveEffect({ ...baseNPC, relationship: -40 }, baseState)
     expect(delta.politicalCapital).toBe(-1)
   })
 
@@ -105,7 +105,7 @@ describe('NPC goal effects: applied during tick', () => {
       ...clone(STARTING_STATE),
       activeNPCs: {
         ...STARTING_STATE.activeNPCs,
-        npc1: { isActive: true, relationship: 10, pressure: 0, archetypeKey: 'journalist', name: 'Test' },
+        npc1: { isActive: true, relationship: -40, ledger: [], pressure: 0, archetypeKey: 'journalist', name: 'Test' },
       },
     }
     const result = tick(withJournalist)
@@ -125,7 +125,7 @@ describe('NPC goal effects: applied during tick', () => {
       ...clone(STARTING_STATE),
       activeNPCs: {
         ...STARTING_STATE.activeNPCs,
-        npc2: { isActive: true, relationship: 5, pressure: 0, archetypeKey: 'youth-organiser', name: 'Test' },
+        npc2: { isActive: true, relationship: -40, ledger: [], pressure: 0, archetypeKey: 'youth-organiser', name: 'Test' },
       },
     }
     const result = tick(withOrganiser)
@@ -146,7 +146,7 @@ describe('NPC goal effects: applied during tick', () => {
       ...base,
       activeNPCs: {
         ...base.activeNPCs,
-        npc3: { isActive: true, relationship: 15, pressure: 0, archetypeKey: 'insider', name: 'Test' },
+        npc3: { isActive: true, relationship: -40, ledger: [], pressure: 0, archetypeKey: 'insider', name: 'Test' },
       },
     }
     const result = tick(withInsider)

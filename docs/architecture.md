@@ -68,7 +68,7 @@ type Choice = {
   launchInitiative?: InitiativeState
   launchProject?: { name, location, totalCost, weeklyDraw, weeksRemaining, contractorId }
   resentmentDelta?: number        // applied to deputy.resentment
-  npcImpact?: Record<string, number>
+  actorImpact?: { actor: NPCArchetypeKey, reason: ReasonKey, value: number }[]  // opinion ledger entries (data/reasons.ts)
   setSuspensionWeeks?: number     // sets emergencySuspensionWeeks; > 0 starts, = 0 clears
   setLitigationTimer?: number     // sets litigationTimer; also sets litigationActive: timer > 0
   diminishingReturns?: boolean    // yield scales down on repeat selection; corruption spikes after 2nd use

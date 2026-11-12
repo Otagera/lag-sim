@@ -35,9 +35,11 @@ type Props = {
   onNewGame: () => void
   onContinue: () => void
   canContinue: boolean
+  /** Shown once when an incompatible save from an older version was discarded */
+  notice?: string
 }
 
-export function WelcomeScreen({ onNewGame, onContinue, canContinue }: Props) {
+export function WelcomeScreen({ onNewGame, onContinue, canContinue, notice }: Props) {
   return (
     <div
       className="h-screen flex flex-col"
@@ -78,6 +80,11 @@ export function WelcomeScreen({ onNewGame, onContinue, canContinue }: Props) {
             <Button variant="ghost" fullWidth onClick={onContinue} disabled={!canContinue}>
               Continue Saved Game
             </Button>
+            {notice && (
+              <p role="status" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                {notice}
+              </p>
+            )}
           </div>
 
           <div className="mt-10">

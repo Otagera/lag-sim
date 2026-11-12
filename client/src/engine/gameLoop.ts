@@ -22,6 +22,7 @@ import { calculateVoteShare } from './electionEngine'
 import { buildEndingNarrative } from './endingNarrator'
 import { evaluateNews } from './evaluateNews'
 import { ALL_EVENTS, drawNextEvent, firePendingDelayed } from './eventEngine'
+import { decayActorLedgers, deckTierOf, seedActivation } from './opinionEngine'
 import { calculateWeeklyExpenditure } from './expenditureEngine'
 import { applyFactionDeltaState, drift } from './factionEngine'
 import {
@@ -316,7 +317,8 @@ function tickFactionsAndTrust(state: GameState): GameState {
 function tickNPCsAndInitiatives(state: GameState): GameState {
   let next = state
 
-  // Activate NPCs based on conditions, tick pressure, apply goal effects, and check escalation
+  // Opinion ledgers fade, then activate NPCs, tick pressure, apply goal effects, check escalation
+  next = decayActorLedgers(next)
   next = activateNPCs(next)
   // Generate inbox messages for newly activated NPCs
   for (const slot of NPC_SLOTS) {
@@ -547,7 +549,7 @@ function activateNPCs(state: GameState): GameState {
         ...next,
         activeNPCs: {
           ...next.activeNPCs,
-          [slot]: { ...npc, isActive: true, activeWeek: next.week },
+          [slot]: seedActivation({ ...npc, isActive: true, activeWeek: next.week }, next.week),
         },
       }
       changed = true
@@ -613,7 +615,7 @@ function checkNPCEscalation(state: GameState): GameState {
     if (available.length === 0) continue
 
     // Prefer tier-matched events; fall back to any available
-    const tier = npc.relationship < 30 ? 'hostile' : npc.relationship < 65 ? 'neutral' : 'ally'
+    const tier = deckTierOf(npc.relationship)
     const tiered = available.filter((e) => e.npcTier === tier)
     const baseEvent = tiered.length > 0 ? tiered[0] : available[0]
 

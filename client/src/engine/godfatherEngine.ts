@@ -7,6 +7,7 @@ import type {
   StatDelta,
 } from '../state/types'
 import { applyFactionDelta } from './factionEngine'
+import { addFashemuOpinion } from './opinionEngine'
 import { applyDelta } from './statEngine'
 
 const FASHEMU_WEEK_GATES = [8, 26, 52, 85] as const
@@ -156,9 +157,9 @@ export function resolveGodfather(
       newState = {
         ...newState,
         fashemuAskIndex: newState.fashemuAskIndex + 1,
-        fashemuRelationship: Math.min(100, newState.fashemuRelationship + 15),
         fashemuPhase: 'active',
       }
+      newState = addFashemuOpinion(newState, 'did-what-he-asked', 15, message.ask.description)
     }
   } else {
     newState = {
@@ -169,8 +170,8 @@ export function resolveGodfather(
       newState = {
         ...newState,
         fashemuAskIndex: newState.fashemuAskIndex + 1,
-        fashemuRelationship: Math.max(0, newState.fashemuRelationship - 20),
       }
+      newState = addFashemuOpinion(newState, 'refused-him', -20, message.ask.description)
     }
     newState = applyEscalation(newState, newState.godfatherRefusalCount)
   }

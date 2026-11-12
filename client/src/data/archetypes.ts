@@ -99,6 +99,7 @@ export function getArchetypeState(key: ArchetypeKey): GameState {
     npc1: {
       isActive: false,
       relationship: 0,
+      ledger: [],
       pressure: 0,
       archetypeKey: a1,
       name: generateNPCName(a1),
@@ -106,6 +107,7 @@ export function getArchetypeState(key: ArchetypeKey): GameState {
     npc2: {
       isActive: false,
       relationship: 0,
+      ledger: [],
       pressure: 0,
       archetypeKey: a2,
       name: generateNPCName(a2),
@@ -113,6 +115,7 @@ export function getArchetypeState(key: ArchetypeKey): GameState {
     npc3: {
       isActive: false,
       relationship: 0,
+      ledger: [],
       pressure: 0,
       archetypeKey: a3,
       name: generateNPCName(a3),

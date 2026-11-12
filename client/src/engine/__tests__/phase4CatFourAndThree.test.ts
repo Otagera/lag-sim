@@ -297,7 +297,7 @@ describe('assembly-quorum-maneuver: trigger conditions', () => {
         ...STARTING_STATE.activeNPCs,
         npc1: {
           isActive: true,
-          relationship: 20,
+          relationship: 20, ledger: [],
           pressure: 0,
           archetypeKey: 'insider',
           name: 'Emeka',

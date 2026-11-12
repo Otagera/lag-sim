@@ -386,7 +386,7 @@ describe('export versioning', () => {
     vi.unstubAllGlobals()
   })
 
-  it('loadGame still works on saves without version field (backwards compat)', () => {
+  it('loadGame discards saves without a version field (v8 breaking change)', () => {
     const stored: Record<string, string> = {}
     const mockStorage = {
       getItem: (k: string) => stored[k] ?? null,
@@ -402,8 +402,8 @@ describe('export versioning', () => {
     stored['lagos-governor-sim-save'] = JSON.stringify(bare)
 
     const loaded = loadGame()
-    expect(loaded).not.toBeNull()
-    expect(loaded!.week).toBe(STARTING_STATE.week)
+    expect(loaded).toBeNull()
+    expect(stored['lagos-governor-sim-save']).toBeUndefined()
 
     vi.unstubAllGlobals()
   })

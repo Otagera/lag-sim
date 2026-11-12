@@ -1,3 +1,4 @@
+import { tierOf } from '../../engine/opinionEngine'
 import { calculateVoteShare } from '../../engine/electionEngine'
 import type { GameState } from '../../state/types'
 import type { DockBadge, DockTab } from './dockTypes'
@@ -91,7 +92,7 @@ export function getTreasuryBadge(
 export function getPowerBadge(state: GameState): DockBadge | null {
   const angryFactions = Object.values(state.factions).filter((value) => value <= 25).length
   const hostileNPCs = Object.values(state.activeNPCs).filter(
-    (npc) => npc.isActive && (npc.pressure >= 70 || npc.relationship < 30),
+    (npc) => npc.isActive && (npc.pressure >= 70 || tierOf(npc.relationship) === 'hostile'),
   ).length
   const deputyRisk = state.deputy && !state.deputy.revealed && state.deputy.resentment >= 40 ? 1 : 0
   const vacancies = Math.max(0, TOTAL_COMMISSIONER_ROLES - Object.keys(state.commissioners).length)

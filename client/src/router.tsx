@@ -9,7 +9,7 @@ import { lazy, useEffect, useState } from 'react'
 import GameApp from './App'
 import { STARTING_STATE } from './data/startingState'
 import { useGameStore } from './state/gameStore'
-import { clearSave, hasSavedGame, loadGame } from './state/persistence'
+import { clearSave, consumeDiscardedSaveNotice, hasSavedGame, loadGame } from './state/persistence'
 import { DevPanel } from './ui/DevPanel'
 import { ThemeProvider } from './ui/design/ThemeProvider'
 import { GameErrorBoundary } from './ui/ErrorBoundary'
@@ -17,7 +17,9 @@ import { NewGameFlow } from './ui/onboarding/NewGameFlow'
 import { WelcomeScreen } from './ui/WelcomeScreen'
 
 const LazyStyleLab = lazy(() => import('./ui/StyleLab').then((m) => ({ default: m.StyleLab })))
-const LazyAdminDashboard = lazy(() => import('./ui/admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard })))
+const LazyAdminDashboard = lazy(() =>
+  import('./ui/admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard })),
+)
 
 // ─── Root layout ─────────────────────────────────────────────────────────────
 const rootRoute = createRootRoute({
@@ -35,6 +37,9 @@ const indexRoute = createRoute({
   path: '/',
   component: function WelcomeRoute() {
     const navigate = useNavigate()
+    // Checking for a save may discard one from an incompatible older version
+    const [canContinue] = useState(() => hasSavedGame())
+    const [discarded] = useState(() => consumeDiscardedSaveNotice())
 
     function handleNewGame() {
       clearSave()
@@ -53,7 +58,12 @@ const indexRoute = createRoute({
       <WelcomeScreen
         onNewGame={handleNewGame}
         onContinue={handleContinue}
-        canContinue={hasSavedGame()}
+        canContinue={canContinue}
+        notice={
+          discarded
+            ? 'Your saved game was from an older version of Excellency and could not be loaded. Start a new term.'
+            : undefined
+        }
       />
     )
   },
@@ -133,7 +143,13 @@ const devRoute = createRoute({
 })
 
 // ─── Router ──────────────────────────────────────────────────────────────────
-const routeTree = rootRoute.addChildren([indexRoute, newGameRoute, gameRoute, styleLabRoute, devRoute])
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  newGameRoute,
+  gameRoute,
+  styleLabRoute,
+  devRoute,
+])
 
 export const router = createRouter({ routeTree })
 

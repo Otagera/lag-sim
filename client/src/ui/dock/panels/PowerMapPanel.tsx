@@ -1,3 +1,4 @@
+import { tierOf } from '../../../engine/opinionEngine'
 import { useGameStore } from '../../../state/gameStore'
 import { CabinetPanel } from '../../CabinetPanel'
 import { DeputyPanel } from '../../DeputyPanel'
@@ -47,7 +48,7 @@ export function PowerMapPanel() {
 
   const angryFactions = Object.values(factions).filter((value) => value <= 25).length
   const hostileActors = Object.values(activeNPCs).filter(
-    (npc) => npc.isActive && (npc.pressure >= 70 || npc.relationship < 30),
+    (npc) => npc.isActive && (npc.pressure >= 70 || tierOf(npc.relationship) === 'hostile'),
   ).length
   const vacancies = Math.max(0, TOTAL_COMMISSIONER_ROLES - Object.keys(commissioners).length)
 

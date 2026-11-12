@@ -18,7 +18,7 @@ import { commissionNode } from '../engine/researchEngine'
 import { calculateWeeklyRevenue } from '../engine/revenueEngine'
 import { type SimulateOptions, type SimulateResult, simulateWeeks } from '../engine/simulateEngine'
 import { applyDelta } from '../engine/statEngine'
-import { fromSerializable, loadSeenHints, saveGame, saveSeenHints, toSerializable, type SerializableState } from './persistence'
+import { fromSerializable, isLoadableSave, loadSeenHints, saveGame, saveSeenHints, toSerializable, type SerializableState } from './persistence'
 import type {
   CommissionerRole,
   CommissionerState,
@@ -426,7 +426,7 @@ useGameStore.subscribe(() => {
   const cloudEntry = await fetchCloudSave(deviceId)
   if (!cloudEntry) return
   const cloudData = cloudEntry.save_data as Record<string, unknown>
-  if (typeof cloudData.week === 'number' && cloudData.week > 1) {
+  if (typeof cloudData.week === 'number' && cloudData.week > 1 && isLoadableSave(cloudData)) {
     const restored = fromSerializable(cloudData as unknown as SerializableState)
     useGameStore.setState({ ...restored })
   }

@@ -163,7 +163,8 @@ export type Choice = {
   politicalCapitalCost?: number
   corruptionTrigger?: boolean
   setFlags?: Record<string, boolean>
-  npcImpact?: Partial<Record<NPCArchetypeKey, number>>
+  /** Opinion changes for political actors, each with a reason (data/reasons.ts) */
+  actorImpact?: ActorImpact[]
   secondaryFactionImpact?: Partial<SecondaryFactionState>
   resentmentDelta?: number
   clearDeputy?: boolean // sets state.deputy = null (resignation/removal)
@@ -256,9 +257,28 @@ export type DeputyState = {
 
 export type NPCKey = 'npc1' | 'npc2' | 'npc3'
 
+export type OpinionDecay = 'fast' | 'slow' | 'permanent'
+
+/** One remembered reason behind an actor's opinion of the governor. */
+export type OpinionEntry = {
+  reason: string // key into REASONS (data/reasons.ts)
+  value: number // signed; decays toward 0 unless permanent
+  week: number
+  decay: OpinionDecay
+  source?: string // card title where it was earned
+}
+
+export type ActorImpact = {
+  actor: NPCArchetypeKey
+  reason: string // key into REASONS
+  value: number
+}
+
 export type NPCState = {
   isActive: boolean
+  /** Derived: sum of ledger values, clamped −100..100. Never set directly. */
   relationship: number
+  ledger: OpinionEntry[]
   pressure: number
   archetypeKey: NPCArchetypeKey
   name: string
@@ -574,7 +594,9 @@ export type GameState = {
   mode: 'simple' | 'detailed'
   // Phase 2
   deputy: DeputyState | null
+  /** Derived: 50 + sum of fashemuLedger, clamped 0..100. Never set directly. */
   fashemuRelationship: number
+  fashemuLedger: OpinionEntry[]
   fashemuPhase: FashemuPhase
   fashemuAskIndex: number
   fashemuEndingPath: FashemuEndingPath | null
